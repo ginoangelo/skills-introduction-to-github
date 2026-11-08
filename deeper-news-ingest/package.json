@@ -1,0 +1,14 @@
+{
+  "name": "deeper-news-ingest",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Finds story candidates near a location, in its country and around the world, using GDELT.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test",
+    "ingest": "node src/cli.mjs"
+  }
+}
