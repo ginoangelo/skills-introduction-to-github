@@ -1,0 +1,316 @@
+<title>Deeper News</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a "depth chart" — layers of a story stacked top (surface) to bottom (roots/ripples), time left to right; a video stage beside it. */
+:root {
+  --bg: #eef2f3;
+  --surface: #ffffff;
+  --ink: #10222b;
+  --muted: #5b6f78;
+  --line: #cfd9dd;
+  --accent: #0b8f86;      /* sonar: selection, links */
+  --warm: #b8661c;        /* roots: the past */
+  --stage: #0f1f27;
+  --stage-ink: #dfeaec;
+  --layer-0: #f7fafa; --layer-1: #e9f0f2; --layer-2: #dde7ea; --layer-3: #d0dde1; --layer-4: #c4d3d8;
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b171d; --surface: #12232b; --ink: #e2ecee; --muted: #8fa5ad; --line: #24404b;
+  --accent: #4fd1c5; --warm: #e2a15c; --stage: #050d11; --stage-ink: #dfeaec;
+  --layer-0: #12232b; --layer-1: #0f1f26; --layer-2: #0c1a21; --layer-3: #09151b; --layer-4: #061015;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0b171d; --surface: #12232b; --ink: #e2ecee; --muted: #8fa5ad; --line: #24404b;
+  --accent: #4fd1c5; --warm: #e2a15c; --stage: #050d11; --stage-ink: #dfeaec;
+  --layer-0: #12232b; --layer-1: #0f1f26; --layer-2: #0c1a21; --layer-3: #09151b; --layer-4: #061015;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 20px; }
+
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; }
+.brand span { color: var(--accent); }
+.sample { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--warm); border: 1px solid currentColor; border-radius: 3px; padding: 2px 8px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.6rem, 3.4vw, 2.6rem); line-height: 1.08;
+  letter-spacing: -0.02em; margin: 0; text-wrap: balance; max-width: 30ch; }
+.lede { color: var(--muted); margin: 6px 0 0; max-width: 68ch; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+/* Depth chart */
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.chart-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.chart-head h2 { font-family: var(--font-display); font-size: 1rem; margin: 0; font-weight: 500; }
+.hint { font-size: 0.8rem; color: var(--muted); }
+.scroll { overflow-x: auto; }
+svg.map { display: block; width: 100%; min-width: 680px; height: auto; font-family: var(--font-body); }
+.band-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; fill: var(--muted); }
+.band-depth { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); opacity: 0.7; }
+.tick { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted); }
+.edge { stroke: var(--line); stroke-width: 1.5; fill: none; transition: stroke 0.2s, opacity 0.2s; }
+.edge.on { stroke: var(--accent); stroke-width: 2; }
+.node { cursor: pointer; }
+.node circle { fill: var(--surface); stroke: var(--muted); stroke-width: 2; transition: r 0.2s, fill 0.2s, stroke 0.2s; }
+.node.root circle { stroke: var(--warm); }
+.node text { font-size: 11.5px; fill: var(--ink); pointer-events: none; }
+.node:hover circle, .node:focus-visible circle { stroke: var(--accent); }
+.node.linked circle { stroke: var(--accent); fill: var(--surface); }
+.node.on circle { fill: var(--accent); stroke: var(--accent); }
+.node:focus { outline: none; }
+.node:focus-visible circle { stroke-width: 3.5; }
+.dim { opacity: 0.35; }
+
+/* Stage */
+.panel { display: grid; gap: 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+@media (max-width: 900px) { .panel { position: static; } }
+.stage { position: relative; aspect-ratio: 16 / 9; max-width: 100%; background: var(--stage); border-radius: 6px; overflow: hidden; color: var(--stage-ink); }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.stage .ov { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 14px; }
+.ov-top { display: flex; justify-content: space-between; gap: 8px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.ov-top .slot { opacity: 0.75; }
+.ov-bottom { display: grid; gap: 8px; }
+.play { justify-self: start; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); color: var(--stage-ink);
+  border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 6px 14px; font: 500 0.85rem var(--font-body); cursor: pointer; }
+.play:hover { background: rgba(255,255,255,0.2); }
+.play:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bar { height: 4px; background: rgba(255,255,255,0.18); border-radius: 2px; position: relative; }
+.bar i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--accent); border-radius: 2px; }
+.bar b { position: absolute; top: -3px; width: 2px; height: 10px; background: var(--warm); }
+.tc { font-family: var(--font-mono); font-size: 0.75rem; font-variant-numeric: tabular-nums; display: flex; justify-content: space-between; }
+
+.info { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: grid; gap: 12px; }
+.layer-tag { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.layer-tag.root { color: var(--warm); }
+.info h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; line-height: 1.15; margin: 2px 0 0; text-wrap: balance; }
+.meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 0.85rem; margin: 0; }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; min-width: 0; }
+.why { border-left: 2px solid var(--accent); padding-left: 12px; }
+.why h4, .next h4 { font-size: 0.72rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 4px; font-weight: 500; }
+.why p { margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 0.82rem var(--font-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; cursor: pointer; text-align: left; }
+.chip:hover { border-color: var(--accent); }
+.chip:focus-visible, .dive:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chip small { display: block; color: var(--muted); font-size: 0.7rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; }
+.dive { justify-self: start; font: 600 0.9rem var(--font-body); background: var(--accent); color: var(--surface); border: 0; border-radius: 4px; padding: 9px 16px; cursor: pointer; }
+.dive[disabled] { opacity: 0.4; cursor: default; }
+
+footer { font-size: 0.8rem; color: var(--muted); max-width: 80ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">Deeper<span>.</span>News</div>
+    <div class="sample">Sample story · fictional town and events</div>
+  </header>
+
+  <section>
+    <h1>The Marlow Creek levee gave way at dawn</h1>
+    <p class="lede">You start with the headline, then go down a layer at a time: the raw footage, the people who were there, the decisions that led to it, and what it set off. Click any point on the map, or press <strong>Go deeper</strong>.</p>
+  </section>
+
+  <div class="main">
+    <div class="chart">
+      <div class="chart-head">
+        <h2>Story map</h2>
+        <span class="hint">Rows go deeper · time runs left to right, not to scale</span>
+      </div>
+      <div class="scroll"><svg class="map" id="map" viewBox="0 0 1000 520" role="group" aria-label="Story map"></svg></div>
+    </div>
+
+    <aside class="panel" aria-live="polite">
+      <div class="stage">
+        <canvas id="cv"></canvas>
+        <div class="ov">
+          <div class="ov-top"><span id="src">—</span><span class="slot">Video slot · placeholder</span></div>
+          <div class="ov-bottom">
+            <button class="play" id="play" type="button">▶ Play</button>
+            <div class="bar"><i id="prog"></i><b id="mark"></b></div>
+            <div class="tc"><span id="t-now">0:00</span><span id="t-key"></span><span id="t-len">0:00</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info">
+        <div>
+          <div class="layer-tag" id="layer">—</div>
+          <h3 id="title">—</h3>
+        </div>
+        <dl class="meta">
+          <dt>When</dt><dd id="when"></dd>
+          <dt>Source</dt><dd id="source"></dd>
+          <dt>Rights</dt><dd id="rights"></dd>
+        </dl>
+        <div class="why"><h4>Why it's here</h4><p id="why"></p></div>
+        <div class="next"><h4>Connected</h4><div class="chips" id="chips"></div></div>
+        <button class="dive" id="dive" type="button">Go deeper ↓</button>
+      </div>
+    </aside>
+  </div>
+
+  <footer>Prototype with made-up content. Video slots are placeholders; the real app would pull licensed broadcast clips, public-record footage, and consented uploads, and link them by transcript, people and places, and editor review.</footer>
+</div>
+
+<script>
+const LAYERS = [
+  { id: "surface",  name: "Surface",  depth: "the headline" },
+  { id: "footage",  name: "Footage",  depth: "what happened" },
+  { id: "voices",   name: "Voices",   depth: "who was there" },
+  { id: "roots",    name: "Roots",    depth: "why it happened" },
+  { id: "ripples",  name: "Ripples",  depth: "what followed" },
+];
+// x is a position on a compressed time axis (0..1)
+const NODES = [
+  { id:"s1", layer:0, x:0.62, label:"Evening bulletin", title:"Evening bulletin: Marlow Creek levee gives way", when:"Day 0, 6:00 p.m.", source:"Local station (partner feed)", rights:"Licensed clip", len:130, key:22,
+    why:"This is the story most people saw first. Everything below it is what the bulletin had no time to show.", links:["f1","f2","v1"] },
+  { id:"f1", layer:1, x:0.555, label:"Porch camera, 6:42 a.m.", title:"A resident's porch camera catches the first water", when:"Day 0, 6:42 a.m.", source:"Resident upload", rights:"Uploader consent on file", len:48, key:31,
+    why:"The earliest known footage. Its timestamp places the breach 40 minutes before the first emergency call.", links:["s1","f2","r3"] },
+  { id:"f2", layer:1, x:0.62, label:"Drone over Front St.", title:"County drone pass over Front Street", when:"Day 0, 11:15 a.m.", source:"County emergency office", rights:"Public record", len:185, key:74,
+    why:"Shows how far the water reached. The hardware store from the interview is visible at 1:14.", links:["f1","v1","v2"] },
+  { id:"f3", layer:1, x:0.70, label:"Emergency session", title:"Council emergency session, full livestream", when:"Day 1, 7:00 p.m.", source:"Town meeting archive", rights:"Public meeting record", len:2460, key:1520,
+    why:"At 25:20 a council member refers to the 2019 vote. That mention is what links this to Roots.", links:["r1","p1"] },
+  { id:"v1", layer:2, x:0.60, label:"Hardware store owner", title:"The hardware store owner on Front Street", when:"Day 0, 2:30 p.m.", source:"Partner interview", rights:"Licensed clip", len:252, key:96,
+    why:"Same street as the drone footage. She describes sandbagging the night before.", links:["f2","p2"] },
+  { id:"v2", layer:2, x:0.645, label:"Boat crew helmet cam", title:"Volunteer boat crew, helmet camera", when:"Day 0, 9:05 a.m.", source:"Volunteer upload", rights:"Uploader consent on file", len:390, key:140,
+    why:"First-person view of the rescues on Front Street, shot two hours before the drone flew.", links:["f2"] },
+  { id:"r2", layer:3, x:0.06, label:"1998 flood newsreel", title:"Archive newsreel: the 1998 flood", when:"1998", source:"Regional broadcast archive", rights:"Archive license", len:165, key:40,
+    why:"The last time the creek topped its banks. The levee was built the year after.", links:["r1"] },
+  { id:"r1", layer:3, x:0.27, label:"2019 vote to defer repairs", title:"Council votes to defer levee repairs", when:"2019", source:"Town meeting archive", rights:"Public meeting record", len:740, key:410,
+    why:"A 4–3 vote pushed repairs back five years. It came up again in the emergency session.", links:["r2","r3","f3"] },
+  { id:"r3", layer:3, x:0.40, label:"2022 inspection briefing", title:"Engineer's inspection briefing to the council", when:"2022", source:"Town meeting archive", rights:"Public meeting record", len:480, key:205,
+    why:"The engineer flags seepage at the north section, close to where the porch camera saw the first water.", links:["r1","f1"] },
+  { id:"p1", layer:4, x:0.80, label:"State funding hearing", title:"State hearing on emergency flood funds", when:"Day 9", source:"State legislature feed", rights:"Public record", len:3720, key:900,
+    why:"The town's request cites the emergency session and the drone survey.", links:["f3","e1"] },
+  { id:"p2", layer:4, x:0.88, label:"Insurers redraw zones", title:"Insurers review flood zones across the county", when:"Day 21", source:"Partner report", rights:"Licensed clip", len:220, key:60,
+    why:"The hardware store owner appears again here, now in a story about her premiums.", links:["v1"] },
+  { id:"e1", layer:4, x:0.95, label:"Ostend Mills raises its levee", title:"Downriver, Ostend Mills raises its own levee", when:"Day 40", source:"Local station (partner feed)", rights:"Licensed clip", len:315, key:120,
+    why:"Related news elsewhere: the next town down the creek acts on the same funding.", links:["p1"] },
+];
+const TICKS = [[0.06,"1998"],[0.27,"2019"],[0.40,"2022"],[0.555,"Day 0"],[0.70,"Day 1"],[0.80,"Day 9"],[0.93,"Day 21+"]];
+const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+
+const W = 1000, LEFT = 150, RIGHT = 30, TOP = 10, BAND = 96;
+const px = x => LEFT + x * (W - LEFT - RIGHT);
+const py = l => TOP + l * BAND + BAND / 2;
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; };
+
+const svg = document.getElementById("map");
+LAYERS.forEach((L, i) => {
+  el("rect", { x:0, y:TOP + i*BAND, width:W, height:BAND, fill:`var(--layer-${i})` }, svg);
+  const t = el("text", { x:16, y:TOP + i*BAND + 42, class:"band-label" }, svg); t.textContent = L.name;
+  const d = el("text", { x:16, y:TOP + i*BAND + 58, class:"band-depth" }, svg); d.textContent = L.depth;
+});
+const axisY = TOP + LAYERS.length * BAND + 20;
+TICKS.forEach(([x, label]) => {
+  el("line", { x1:px(x), x2:px(x), y1:TOP, y2:axisY - 12, stroke:"var(--line)", "stroke-dasharray":"2 4" }, svg);
+  const t = el("text", { x:px(x), y:axisY, class:"tick", "text-anchor":"middle" }, svg); t.textContent = label;
+});
+
+const edges = [];
+const seen = new Set();
+const edgeG = el("g", {}, svg);
+NODES.forEach(n => n.links.forEach(m => {
+  const key = [n.id, m].sort().join("-"); if (seen.has(key)) return; seen.add(key);
+  const a = n, b = byId[m];
+  const x1 = px(a.x), y1 = py(a.layer), x2 = px(b.x), y2 = py(b.layer), my = (y1 + y2) / 2;
+  const p = el("path", { d:`M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`, class:"edge" }, edgeG);
+  edges.push({ a:a.id, b:b.id, p });
+}));
+
+const nodeEls = {};
+NODES.forEach(n => {
+  const g = el("g", { class:"node" + (n.layer === 3 ? " root" : ""), tabindex:0, role:"button", "aria-label":n.title }, svg);
+  el("circle", { cx:px(n.x), cy:py(n.layer), r:8 }, g);
+  const above = NODES.some(o => o !== n && o.layer === n.layer && Math.abs(o.x - n.x) < 0.07 && o.x < n.x);
+  const t = el("text", { x:px(n.x), y:py(n.layer) + (above ? -16 : 25), "text-anchor":"middle" }, g);
+  t.textContent = n.label;
+  g.addEventListener("click", () => select(n.id));
+  g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(n.id); } });
+  nodeEls[n.id] = g;
+});
+
+const $ = id => document.getElementById(id);
+const fmt = s => { s = Math.round(s); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = String(s%60).padStart(2,"0"); return h ? `${h}:${String(m).padStart(2,"0")}:${x}` : `${m}:${x}`; };
+let current = null, t = 0, playing = false;
+
+function select(id) {
+  const n = byId[id]; current = n; t = 0; setPlaying(false);
+  NODES.forEach(o => {
+    const g = nodeEls[o.id];
+    g.classList.toggle("on", o.id === id);
+    g.classList.toggle("linked", n.links.includes(o.id));
+    g.classList.toggle("dim", o.id !== id && !n.links.includes(o.id));
+  });
+  edges.forEach(e => { const on = e.a === id || e.b === id; e.p.classList.toggle("on", on); e.p.classList.toggle("dim", !on); });
+  const L = LAYERS[n.layer];
+  $("layer").textContent = `${L.name} · ${L.depth}`;
+  $("layer").classList.toggle("root", n.layer === 3);
+  $("title").textContent = n.title;
+  $("when").textContent = n.when;
+  $("source").textContent = n.source;
+  $("rights").textContent = n.rights;
+  $("why").textContent = n.why;
+  $("src").textContent = n.source;
+  $("t-len").textContent = fmt(n.len);
+  $("t-key").textContent = `key moment ${fmt(n.key)}`;
+  $("mark").style.left = (n.key / n.len * 100) + "%";
+  const chips = $("chips"); chips.textContent = "";
+  n.links.map(l => byId[l]).sort((a,b) => a.layer - b.layer).forEach(o => {
+    const b = document.createElement("button"); b.className = "chip"; b.type = "button";
+    const s = document.createElement("small"); s.textContent = LAYERS[o.layer].name;
+    b.append(s, o.label); b.addEventListener("click", () => select(o.id)); chips.appendChild(b);
+  });
+  const deeper = n.links.map(l => byId[l]).filter(o => o.layer > n.layer).sort((a,b) => a.layer - b.layer)[0];
+  const dive = $("dive"); dive.disabled = !deeper;
+  dive.textContent = deeper ? `Go deeper ↓ ${LAYERS[deeper.layer].name}` : "Deepest point on this thread";
+  dive.onclick = deeper ? () => select(deeper.id) : null;
+  draw();
+}
+
+function setPlaying(p) { playing = p; $("play").textContent = p ? "❚❚ Pause" : "▶ Play"; }
+$("play").addEventListener("click", () => setPlaying(!playing));
+
+// Placeholder "footage": slow-moving water-like bands; tint depends on layer
+const cv = $("cv"), ctx = cv.getContext("2d");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function resize() { const r = cv.getBoundingClientRect(); cv.width = Math.max(1, r.width * devicePixelRatio); cv.height = Math.max(1, r.height * devicePixelRatio); draw(); }
+let phase = 0;
+function draw() {
+  if (!current) return;
+  const w = cv.width, h = cv.height, hue = current.layer === 3 ? 32 : 186 - current.layer * 6;
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, `hsl(${hue} 30% ${16 - current.layer}%)`); g.addColorStop(1, `hsl(${hue} 40% ${6}%)`);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  for (let i = 0; i < 7; i++) {
+    ctx.beginPath();
+    const base = h * (0.35 + i * 0.09);
+    for (let x = 0; x <= w; x += 8) ctx.lineTo(x, base + Math.sin(x / (60 + i * 14) + phase * (0.6 + i * 0.1) + i) * h * 0.03);
+    ctx.strokeStyle = `hsla(${hue} 60% 70% / ${0.05 + i * 0.015})`; ctx.lineWidth = 2 * devicePixelRatio; ctx.stroke();
+  }
+  $("prog").style.width = (t / current.len * 100) + "%";
+  $("t-now").textContent = fmt(t);
+}
+let last = performance.now();
+function loop(now) {
+  const dt = (now - last) / 1000; last = now;
+  if (!reduce) phase += dt * 0.6;
+  if (playing && current) { t = Math.min(current.len, t + dt * Math.max(1, current.len / 40)); if (t >= current.len) setPlaying(false); }
+  draw(); requestAnimationFrame(loop);
+}
+new ResizeObserver(resize).observe(cv);
+select("s1"); resize(); requestAnimationFrame(loop);
+</script>
