@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { PanResponder, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ClipPlayer } from '@/components/clip-player';
@@ -194,8 +194,8 @@ function Player({ story }: { story: Story }) {
               <Text numberOfLines={1} style={styles.headTitle}>
                 {story.title}
               </Text>
-              <Text style={styles.headSub}>
-                {story.topic}
+              <Text numberOfLines={1} style={styles.headSub}>
+                {story.topic} · {story.place.name}, {story.place.country}
                 {chain.length > 1 ? ` · story ${chain.length} in your chain` : ''}
               </Text>
             </View>
@@ -238,7 +238,9 @@ function Player({ story }: { story: Story }) {
         </View>
 
         {ending && (
-          <View style={[StyleSheet.absoluteFill, styles.handoff, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
+          <ScrollView
+            style={[StyleSheet.absoluteFill, styles.handoffScroll]}
+            contentContainerStyle={[styles.handoff, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
             <Text style={styles.eyebrow}>
               {chain.length > 1 ? `Story ${chain.length} in your chain` : 'End of story'} · up next
             </Text>
@@ -270,7 +272,7 @@ function Player({ story }: { story: Story }) {
                 <Text style={styles.btnText}>Back to Today</Text>
               </Pressable>
             </View>
-          </View>
+          </ScrollView>
         )}
 
         {!wide && mapOpen && (
@@ -318,7 +320,8 @@ const styles = StyleSheet.create({
   btnPrimary: { backgroundColor: video.ink, borderColor: video.ink },
   btnText: { color: video.ink, fontSize: 14, fontWeight: '600' },
   hint: { color: video.muted, fontSize: 12 },
-  handoff: { backgroundColor: video.scrim, paddingHorizontal: 20, justifyContent: 'center', gap: 16 },
+  handoffScroll: { backgroundColor: video.scrim },
+  handoff: { flexGrow: 1, paddingHorizontal: 20, justifyContent: 'center', gap: 16 },
   eyebrow: { color: video.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
   question: { color: video.ink, fontSize: 30, lineHeight: 33, fontWeight: '800', letterSpacing: -0.6 },
   path: { flexDirection: 'row', gap: 12, alignItems: 'center', borderWidth: 1, borderColor: video.line, backgroundColor: video.glass, borderRadius: 12, padding: 10, overflow: 'hidden' },

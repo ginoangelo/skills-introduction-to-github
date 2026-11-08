@@ -4,7 +4,9 @@ One codebase for the iPhone app, the Android app and the website, built with Exp
 
 Every story plays as five full-screen clips, from the headline down to its roots. When a story ends, it asks a question and offers up to three paths (follow the money, the people or the place) into the next connected story.
 
-> All stories in `src/data/stories.ts` are **fictional samples**. Clips show a placeholder until you add a YouTube video.
+People choose their city, and the home screen puts stories **near them** first, then **elsewhere in their country**, then **around the world**. Hand-offs can cross borders, for example from a flooded school in the US to a village in Bangladesh that runs school on boats.
+
+> All stories in `src/data/stories.ts` are **fictional samples**, including the towns set in real countries. Clips show a placeholder until you add a YouTube video.
 
 ## Run it on your computer
 
@@ -48,7 +50,9 @@ Only use videos that the outlet, agency or council published publicly on YouTube
 |---|---|
 | `src/app/index.tsx` | Home: story circles, Today list, threads |
 | `src/app/story/[id].tsx` | The full-screen story player and the hand-off |
-| `src/data/stories.ts` | Stories, clips, hand-off questions and threads |
+| `src/app/location.tsx` | The "Where are you?" picker. The choice is saved on the device |
+| `src/data/stories.ts` | Stories, clips, places, hand-off questions and threads |
+| `src/data/places.ts` | Cities to pick from, distances, and the near / country / world split |
 | `src/components/clip-player*.tsx` | YouTube player for phones (`.tsx`) and the web (`.web.tsx`) |
 | `src/theme/tokens.ts` | Colors for light and dark mode |
 

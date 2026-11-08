@@ -1,10 +1,20 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+
+import { LOCATION_OPTIONS, type UserLocation } from '@/data/places';
+
+const LOCATION_KEY = 'deeper-news:location';
 
 /**
- * In-memory app state for the prototype. Phase 2 moves "seen" and "followed"
- * into the Amplify backend so they survive restarts and sync across devices.
+ * App state for the prototype. The chosen location is saved on the device;
+ * "seen" and "followed" move into the Amplify backend in Phase 2.
  */
 type AppState = {
+  /** null until the person picks where they are. */
+  location: UserLocation | null;
+  /** False until the saved location has been read from the device. */
+  locationReady: boolean;
+  setLocation: (loc: UserLocation) => void;
   seen: ReadonlySet<string>;
   followed: ReadonlySet<string>;
   /** Stories watched in the current chain, oldest first. */
@@ -23,6 +33,29 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [seen, setSeen] = useState<ReadonlySet<string>>(new Set());
   const [followed, setFollowed] = useState<ReadonlySet<string>>(new Set(['harlan-river']));
   const [chain, setChain] = useState<readonly string[]>([]);
+  const [location, setLocationState] = useState<UserLocation | null>(null);
+  const [locationReady, setLocationReady] = useState(false);
+
+  // Read the saved location once. Storage can fail (private browsing), so fall back to none.
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(LOCATION_KEY)
+      .then((id) => {
+        if (!cancelled && id) setLocationState(LOCATION_OPTIONS.find((o) => o.id === id) ?? null);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLocationReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const setLocation = useCallback((loc: UserLocation) => {
+    setLocationState(loc);
+    AsyncStorage.setItem(LOCATION_KEY, loc.id).catch(() => {});
+  }, []);
 
   const markSeen = useCallback((id: string) => {
     setSeen((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
@@ -47,8 +80,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [chain]);
 
   const value = useMemo(
-    () => ({ seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain }),
-    [seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain],
+    () => ({ location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain }),
+    [location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

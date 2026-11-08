@@ -1,5 +1,6 @@
 /**
- * SAMPLE CONTENT. Every story, town and person here is fictional.
+ * SAMPLE CONTENT. Every story, town and person here is fictional, including the
+ * towns placed in real countries.
  *
  * To add a real clip, set `youtubeId` (the part after `watch?v=` in a YouTube link)
  * and `startSeconds` on a clip. Only use videos published publicly on YouTube by
@@ -10,6 +11,7 @@ import type { Story, Thread } from './types';
 export const STORIES: Story[] = [
   {
     id: 'marlow',
+    place: { name: 'Marlow Creek', region: 'Harlan River valley', country: 'United States', countryCode: 'US', lat: 38.35, lng: -85.6 },
     short: 'Marlow Creek',
     title: 'The Marlow Creek levee gave way at dawn',
     topic: 'Climate & infrastructure',
@@ -33,6 +35,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'ostend',
+    place: { name: 'Ostend Mills', region: 'Harlan River valley', country: 'United States', countryCode: 'US', lat: 37.95, lng: -86.0 },
     short: 'Ostend Mills',
     title: 'Ostend Mills votes to raise its own levee',
     topic: 'Climate & infrastructure',
@@ -50,11 +53,13 @@ export const STORIES: Story[] = [
       paths: [
         { kind: 'money', storyId: 'funding', reason: 'The bill that was supposed to pay for it' },
         { kind: 'place', storyId: 'marlow', reason: 'Upriver, where this started' },
+        { kind: 'people', storyId: 'room-river', reason: 'A Dutch town that moved its dikes back instead' },
       ],
     },
   },
   {
     id: 'funding',
+    place: { name: 'State capitol', region: 'Harlan River valley', country: 'United States', countryCode: 'US', lat: 38.2, lng: -84.9 },
     short: 'Flood budget',
     title: 'The state flood-fund bill stalls in committee',
     topic: 'Politics',
@@ -78,6 +83,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'insurers',
+    place: { name: 'River towns', region: 'Harlan River valley', country: 'United States', countryCode: 'US', lat: 38.25, lng: -85.75 },
     short: 'Insurance',
     title: 'Two insurers stop writing policies in river towns',
     topic: 'Economy',
@@ -100,6 +106,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'grain',
+    place: { name: 'Lock 7', region: 'Harlan River valley', country: 'United States', countryCode: 'US', lat: 38.0, lng: -86.3 },
     short: 'River freight',
     title: 'Grain barges back up while the river stays closed',
     topic: 'Economy',
@@ -122,6 +129,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'port',
+    place: { name: 'Halvard Port', region: 'Gulf Coast', country: 'United States', countryCode: 'US', lat: 29.95, lng: -90.07 },
     short: 'Halvard Port',
     title: 'Halvard dockworkers strike over automated cranes',
     topic: 'Labor',
@@ -136,11 +144,15 @@ export const STORIES: Story[] = [
     ],
     handoff: {
       question: 'What happens to the grain stuck upriver?',
-      paths: [{ kind: 'place', storyId: 'grain', reason: 'The barges waiting above Lock 7' }],
+      paths: [
+        { kind: 'place', storyId: 'grain', reason: 'The barges waiting above Lock 7' },
+        { kind: 'people', storyId: 'bayport', reason: 'Workers on another continent training for the same cranes' },
+      ],
     },
   },
   {
     id: 'schools',
+    place: { name: 'Harlan County', region: 'Harlan River valley', country: 'United States', countryCode: 'US', lat: 38.4, lng: -85.4 },
     short: 'Harlan schools',
     title: 'Harlan County schools reopen in borrowed buildings',
     topic: 'Community',
@@ -157,8 +169,75 @@ export const STORIES: Story[] = [
       question: 'When will the schools get money for repairs?',
       paths: [
         { kind: 'money', storyId: 'funding', reason: 'The bill the repairs are waiting on' },
+        { kind: 'people', storyId: 'floating-schools', reason: 'Halfway around the world, a village keeps school open on boats' },
         { kind: 'place', storyId: 'marlow', reason: 'The flood that closed the school' },
       ],
+    },
+  },
+  {
+    id: 'floating-schools',
+    place: { name: 'Char Kalia', region: 'Sundarbans delta', country: 'Bangladesh', countryCode: 'BD', lat: 22.3, lng: 89.6 },
+    short: 'Boat schools',
+    title: 'In a delta village, school moves onto boats for flood season',
+    topic: 'Community',
+    hue: 165,
+    minutes: 3,
+    clips: [
+      { title: 'The first boat school pulls up to the landing', when: 'Week 1', source: 'Regional broadcaster', rights: 'Licensed', why: 'The headline.', seconds: 20 },
+      { title: 'A morning lesson while the boat moves between villages', when: 'Week 1', source: 'Teacher upload', rights: 'Consent on file', why: 'Shows how a class works when the classroom floats.', seconds: 20 },
+      { title: 'A student who hasn’t missed a day this monsoon', when: 'Week 2', source: 'Partner interview', rights: 'Licensed', why: 'In past years she lost months of school to flooding.', seconds: 20 },
+      { title: 'Archive: the year the old school washed away', when: '2007', source: 'Regional archive', rights: 'Archive license', why: 'Why the village stopped building schools on land.', seconds: 20 },
+      { title: 'Two more districts order boats', when: 'Week 6', source: 'Regional broadcaster', rights: 'Licensed', why: 'The idea starts to spread.', seconds: 20 },
+    ],
+    handoff: {
+      question: 'Could American river towns do something like this?',
+      paths: [
+        { kind: 'people', storyId: 'schools', reason: 'Teachers in Harlan County working out of borrowed rooms' },
+        { kind: 'place', storyId: 'room-river', reason: 'Another country that has learned to live with rising water' },
+      ],
+    },
+  },
+  {
+    id: 'room-river',
+    place: { name: 'Veldmaas', region: 'Meuse valley', country: 'Netherlands', countryCode: 'NL', lat: 51.4, lng: 5.9 },
+    short: 'Veldmaas',
+    title: 'A Dutch river town moves its dikes back and lets the river in',
+    topic: 'Climate & infrastructure',
+    hue: 210,
+    minutes: 4,
+    clips: [
+      { title: 'The new floodplain opens', when: 'Day 0', source: 'Regional broadcaster', rights: 'Licensed', why: 'The headline.', seconds: 20 },
+      { title: 'Drone footage: the old dike line and the new one', when: 'Day 0', source: 'Water board', rights: 'Public record', why: 'Shows how much land was handed back to the river.', seconds: 20 },
+      { title: 'A farmer who sold his fields to the project', when: 'Day 2', source: 'Partner interview', rights: 'Licensed', why: 'Not everyone wanted to move.', seconds: 20 },
+      { title: 'Archive: the near-flood that started the plan', when: '1995', source: 'National archive', rights: 'Archive license', why: 'Why the country changed its approach.', seconds: 20 },
+      { title: 'The first high water since the dikes moved', when: 'Month 4', source: 'Resident upload', rights: 'Consent on file', why: 'The test the plan was built for.', seconds: 20 },
+    ],
+    handoff: {
+      question: 'Is a higher wall or more room for the river the better bet?',
+      paths: [
+        { kind: 'place', storyId: 'ostend', reason: 'An American town choosing the opposite: a higher levee' },
+        { kind: 'people', storyId: 'floating-schools', reason: 'A village that adapted instead of building walls' },
+      ],
+    },
+  },
+  {
+    id: 'bayport',
+    place: { name: 'Bayport', region: 'Lagos coast', country: 'Nigeria', countryCode: 'NG', lat: 6.45, lng: 3.4 },
+    short: 'Bayport',
+    title: 'Dockworkers in a West African port train for automated cranes',
+    topic: 'Labor',
+    hue: 20,
+    minutes: 3,
+    clips: [
+      { title: 'The first automated crane arrives by ship', when: 'Day 0', source: 'Regional broadcaster', rights: 'Licensed', why: 'The headline.', seconds: 20 },
+      { title: 'Inside the training simulator', when: 'Day 3', source: 'Port authority', rights: 'Public record', why: 'Workers learn to run the cranes from a control room.', seconds: 20 },
+      { title: 'A crane operator choosing to retrain', when: 'Day 3', source: 'Partner interview', rights: 'Licensed', why: 'He sees it differently from the Halvard strikers.', seconds: 20 },
+      { title: 'The union deal that made training part of the plan', when: '2024', source: 'Union recording', rights: 'Publisher permission', why: 'Why there was no strike here.', seconds: 20 },
+      { title: 'Ships start choosing this port over others', when: 'Month 3', source: 'Regional broadcaster', rights: 'Licensed', why: 'What faster loading means for trade.', seconds: 20 },
+    ],
+    handoff: {
+      question: 'Why did one port strike while this one retrained?',
+      paths: [{ kind: 'people', storyId: 'port', reason: 'Halvard dockworkers striking over the same cranes' }],
     },
   },
 ];
@@ -169,6 +248,8 @@ export const THREADS: Thread[] = [
   { id: 'insurance', name: 'Insurance in river towns', kind: 'Issue', storyIds: ['insurers', 'marlow', 'grain'] },
   { id: 'store-owner', name: 'The Front Street store owner', kind: 'Person', storyIds: ['marlow', 'insurers'] },
   { id: 'river-freight', name: 'River freight', kind: 'Issue', storyIds: ['grain', 'port'] },
+  { id: 'rising-water', name: 'Living with rising water', kind: 'Issue', storyIds: ['marlow', 'ostend', 'room-river', 'floating-schools'] },
+  { id: 'cranes-and-jobs', name: 'Cranes and jobs', kind: 'Issue', storyIds: ['port', 'bayport'] },
 ];
 
 const byId = new Map(STORIES.map((s) => [s.id, s]));

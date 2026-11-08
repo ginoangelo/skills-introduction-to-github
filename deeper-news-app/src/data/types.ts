@@ -42,8 +42,20 @@ export type HandoffPath = {
   reason: string;
 };
 
+/** Where a story happened. */
+export type Place = {
+  name: string;
+  region?: string;
+  country: string;
+  /** ISO 3166-1 alpha-2, e.g. "US", "NG". */
+  countryCode: string;
+  lat: number;
+  lng: number;
+};
+
 export type Story = {
   id: string;
+  place: Place;
   /** Short name for story circles. */
   short: string;
   title: string;

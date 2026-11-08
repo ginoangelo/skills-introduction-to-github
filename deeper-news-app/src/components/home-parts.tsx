@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { placeLabel } from '@/data/places';
 import { getStory } from '@/data/stories';
 import { LAYERS, type Story, type Thread } from '@/data/types';
 import { storyColor, video, type Tokens } from '@/theme/tokens';
@@ -17,7 +18,20 @@ export function StoryRing({ story, seen, t, onPress }: { story: Story; seen: boo
   );
 }
 
-export function StoryCard({ story, seen, t, onPress }: { story: Story; seen: boolean; t: Tokens; onPress: () => void }) {
+export function StoryCard({
+  story,
+  seen,
+  t,
+  onPress,
+  km,
+}: {
+  story: Story;
+  seen: boolean;
+  t: Tokens;
+  onPress: () => void;
+  /** Distance from the viewer, when they've chosen a location. */
+  km?: number;
+}) {
   return (
     <Pressable
       onPress={onPress}
@@ -34,6 +48,10 @@ export function StoryCard({ story, seen, t, onPress }: { story: Story; seen: boo
       <View style={styles.cardBody}>
         <Text style={[styles.eyebrow, { color: t.muted }]}>{story.topic}</Text>
         <Text style={[styles.cardTitle, { color: seen ? t.muted : t.ink }]}>{story.title}</Text>
+        <Text style={[styles.place, { color: t.muted }]}>
+          {placeLabel(story.place)}
+          {km !== undefined ? ` · ${formatKm(km)}` : ''}
+        </Text>
         <View style={styles.chips}>
           {LAYERS.map((l) => (
             <Text key={l.name} style={[styles.chip, { color: t.muted, borderColor: t.line }]}>
@@ -96,7 +114,13 @@ export function ThreadCard({
   );
 }
 
+function formatKm(km: number): string {
+  if (km < 10) return 'nearby';
+  return `${Math.round(km).toLocaleString('en-US')} km away`;
+}
+
 const styles = StyleSheet.create({
+  place: { fontSize: 13 },
   ring: { width: 78, alignItems: 'center', gap: 6 },
   ringOuter: { width: 70, height: 70, borderRadius: 35, borderWidth: 3, padding: 2 },
   ringInner: { flex: 1, borderRadius: 999, borderWidth: 2 },
