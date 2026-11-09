@@ -54,6 +54,12 @@ export default function HomeScreen() {
           </Text>
           <View style={styles.topRight}>
             <Text style={[styles.sample, { color: t.warm, borderColor: t.warm }]}>Sample stories · fictional</Text>
+            <Pressable
+              onPress={() => router.push('/explore')}
+              accessibilityRole="button"
+              style={[styles.locBtn, { borderColor: t.accent, backgroundColor: t.accent }]}>
+              <Text style={{ color: t.accentInk, fontSize: 13, fontWeight: '700' }}>Explore the map</Text>
+            </Pressable>
             <LocationButton t={t} location={location} onPress={pickLocation} />
           </View>
         </View>
