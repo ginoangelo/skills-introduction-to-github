@@ -3,552 +3,509 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: home = story rings + a finite "Today" list that ends; player = full-screen tap-through clips per story (one per depth layer), then hand-off to the next connected story. Phone: player fills the screen. Web: player is a 9:16 column with the story map beside it. */
+/* Layout: home = location + story circles + Near you / Your country / World lists that end; player = full-screen photo-backed clips per story (one per layer), ending on a question with up to three paths into the next connected story. Phone: player fills the screen. Web: 9:16 player with the story map beside it. */
 :root {
-  --bg: #eef3f4;
-  --surface: #ffffff;
-  --ink: #0f2129;
-  --muted: #587079;
-  --line: #d3dee2;
-  --accent: #0a8a81;         /* sonar teal: unseen rings, active, primary action */
-  --accent-ink: #ffffff;
-  --warm: #b4621a;           /* roots: the past */
-  --scrim: rgba(6, 16, 20, 0.92);
-  /* video surfaces are always dark, in both themes */
-  --v-bg: #061015;
-  --v-ink: #eef5f6;
-  --v-muted: rgba(238, 245, 246, 0.72);
-  --v-glass: rgba(255, 255, 255, 0.14);
-  --v-line: rgba(255, 255, 255, 0.28);
-  --v-accent: #4fd1c5;
-  --v-warm: #e7a560;
+  --bg: #eef3f4; --surface: #ffffff; --ink: #0f2129; --muted: #587079; --line: #d3dee2;
+  --accent: #0a8a81; --accent-ink: #ffffff; --warm: #b4621a; --scrim: rgba(6, 16, 20, 0.92);
+  --v-bg: #061015; --v-ink: #eef5f6; --v-muted: rgba(238, 245, 246, 0.74); --v-glass: rgba(255, 255, 255, 0.14);
+  --v-line: rgba(255, 255, 255, 0.28); --v-accent: #4fd1c5; --v-warm: #e7a560; --v-solid: #040c0f; --v-card: #17252b;
   --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
   --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0a161c; --surface: #11222a; --ink: #e3edef; --muted: #8ea4ac; --line: #223d48;
-  --accent: #4fd1c5; --accent-ink: #062024; --warm: #e7a560; --scrim: rgba(2, 8, 10, 0.94);
-  color-scheme: dark; } }
+  --accent: #4fd1c5; --accent-ink: #062024; --warm: #e7a560; --scrim: rgba(2, 8, 10, 0.94); color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #0a161c; --surface: #11222a; --ink: #e3edef; --muted: #8ea4ac; --line: #223d48;
-  --accent: #4fd1c5; --accent-ink: #062024; --warm: #e7a560; --scrim: rgba(2, 8, 10, 0.94);
-  color-scheme: dark; }
+  --accent: #4fd1c5; --accent-ink: #062024; --warm: #e7a560; --scrim: rgba(2, 8, 10, 0.94); color-scheme: dark; }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
-button { font: inherit; color: inherit; }
+button, input { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.art { background-color: var(--line); background-size: cover; background-position: center; }
 
 /* ---------- Home ---------- */
 .home { max-width: 1120px; margin: 0 auto; padding-block: 16px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: 22px; }
-.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.brand { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -0.02em; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; }
 .brand span { color: var(--accent); }
-.sample { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--warm);
-  border: 1px solid currentColor; border-radius: 3px; padding: 2px 8px; }
+.top-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sample { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--warm); border: 1px solid currentColor; border-radius: 3px; padding: 2px 8px; }
+.loc-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; cursor: pointer; font-size: 0.82rem; font-weight: 600; }
+.loc-btn i { width: 10px; height: 10px; border-radius: 50%; border: 3px solid var(--accent); }
+.loc-btn em { font-style: normal; color: var(--accent); font-weight: 500; }
+
+.prompt { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; border: 1px solid var(--accent); background: var(--surface); border-radius: 12px; padding: 16px; }
+.prompt div { flex: 1; min-width: 220px; }
+.prompt strong { display: block; font-family: var(--font-display); font-size: 1.1rem; }
+.prompt p { margin: 2px 0 0; color: var(--muted); }
+.primary { border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 700; padding: 10px 18px; cursor: pointer; }
 
 .tray { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: none; }
 .tray::-webkit-scrollbar { display: none; }
-.ring { flex: 0 0 auto; width: 76px; display: grid; justify-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; }
+.ring { flex: 0 0 auto; width: 78px; display: grid; justify-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; }
 .ring .disc { width: 70px; height: 70px; border-radius: 50%; padding: 3px; background: var(--accent); }
 .ring.seen .disc { background: var(--line); }
 .ring .disc i { display: block; width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--bg); }
-.ring span { font-size: 0.75rem; font-weight: 500; text-align: center; line-height: 1.2; max-width: 76px; }
+.ring span { font-size: 0.75rem; font-weight: 500; text-align: center; line-height: 1.2; }
 
 .cols { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start; }
 @media (max-width: 900px) { .cols { grid-template-columns: minmax(0, 1fr); } }
-
-.section-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
-.section-h h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; margin: 0; }
-.section-h small { color: var(--muted); font-family: var(--font-mono); font-size: 0.75rem; }
-
-.list { display: grid; gap: 14px; }
-.card { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 14px; background: var(--surface); border: 1px solid var(--line);
-  border-radius: 10px; padding: 12px; text-align: left; cursor: pointer; width: 100%; }
+.main { display: grid; gap: 14px; min-width: 0; }
+.watched { justify-self: end; color: var(--muted); font-size: 0.75rem; font-family: var(--font-mono); }
+.section { display: grid; gap: 14px; }
+.section h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.02em; margin: 6px 0 0; text-wrap: balance; }
+.empty { color: var(--muted); margin: 0; }
+.card { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-align: left; cursor: pointer; width: 100%; }
 .card:hover { border-color: var(--accent); }
-.thumb { aspect-ratio: 9 / 13; max-width: 100%; border-radius: 7px; position: relative; overflow: hidden; color: var(--v-ink); }
-.thumb .len { position: absolute; left: 6px; bottom: 6px; font-family: var(--font-mono); font-size: 0.68rem; background: rgba(0,0,0,0.45); padding: 1px 6px; border-radius: 3px; }
+.thumb { aspect-ratio: 9 / 13; max-width: 100%; border-radius: 8px; position: relative; overflow: hidden; color: var(--v-ink); }
+.thumb .len { position: absolute; left: 6px; bottom: 6px; font-family: var(--font-mono); font-size: 0.68rem; background: rgba(0,0,0,0.5); padding: 1px 6px; border-radius: 3px; }
 .thumb .bars { position: absolute; left: 6px; right: 6px; top: 6px; display: flex; gap: 3px; }
-.thumb .bars b { flex: 1; height: 3px; border-radius: 2px; background: var(--v-line); }
-.card-body { min-width: 0; display: grid; gap: 6px; align-content: start; }
-.topic { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
-.depth { display: flex; gap: 4px; flex-wrap: wrap; }
-.depth span { font-size: 0.7rem; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 6px; }
-.links { font-size: 0.82rem; color: var(--muted); }
-.links b { color: var(--ink); font-weight: 500; }
+.thumb .bars b { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.6); }
+.card-body { min-width: 0; display: grid; gap: 5px; align-content: start; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.card h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
 .card.seen h3 { color: var(--muted); }
-
-.done { margin-top: 18px; border: 1px dashed var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 4px; justify-items: start; }
+.place { color: var(--muted); font-size: 0.82rem; }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.chips span { font-size: 0.68rem; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 6px; }
+.links { font-size: 0.82rem; color: var(--muted); }
+.links b { color: var(--ink); font-weight: 600; }
+.done { margin-top: 6px; border: 1px dashed var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 4px; }
 .done strong { font-family: var(--font-display); font-size: 1.2rem; }
 .done p { margin: 0; color: var(--muted); }
 
-.side h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; margin: 0 0 4px; }
+.side h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; margin: 0 0 4px; }
 .side > p { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; }
 .threads { display: grid; gap: 10px; }
-.thread { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; }
+.thread { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
 .thread-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.thread-h strong { font-size: 0.95rem; }
-.follow { border: 1px solid var(--accent); color: var(--accent); background: none; border-radius: 999px; padding: 2px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+.thread-h strong { display: block; font-size: 0.95rem; }
+.follow { border: 1px solid var(--accent); color: var(--accent); background: none; border-radius: 999px; padding: 3px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
 .follow[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
-.thread-stories { display: flex; gap: 6px; flex-wrap: wrap; }
 .mini { border: 0; background: var(--bg); border-radius: 4px; padding: 3px 8px; font-size: 0.78rem; cursor: pointer; }
 .mini:hover { color: var(--accent); }
+
+/* ---------- Location picker ---------- */
+.picker { position: fixed; inset: 0; z-index: 60; background: var(--bg); overflow-y: auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) max(16px, env(safe-area-inset-left, 0px)); }
+.picker-inner { max-width: 640px; margin: 0 auto; display: grid; gap: 14px; }
+.picker-head { display: flex; gap: 12px; align-items: flex-start; }
+.picker-head div { flex: 1; }
+.picker h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.8rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+.picker p { margin: 0; color: var(--muted); }
+.x { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); cursor: pointer; flex: 0 0 auto; }
+#loc-search { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px 14px; font-size: 1rem; width: 100%; }
+.loc-row { display: flex; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 14px 0; cursor: pointer; }
+.loc-row div { flex: 1; }
+.loc-row strong { display: block; font-size: 1rem; }
+.loc-row span { color: var(--muted); font-size: 0.85rem; }
+.loc-row em { font-style: normal; color: var(--accent); font-weight: 700; }
 
 /* ---------- Player ---------- */
 .player { position: fixed; inset: 0; z-index: 50; background: var(--scrim); display: flex; justify-content: center; align-items: center; gap: 20px; }
 .screen { position: relative; width: 100%; height: 100%; background: var(--v-bg); color: var(--v-ink); overflow: hidden; touch-action: pan-y; user-select: none; }
+.photo { position: absolute; inset: 0; background-size: cover; background-position: center; transition: opacity 0.3s; }
+.photo::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+.photo.roots { filter: sepia(0.55) saturate(0.8); }
 .screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.shade { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent 26%, transparent 48%, rgba(0,0,0,0.78)); pointer-events: none; }
-.tap { position: absolute; inset: 0; display: grid; grid-template-columns: 32% 68%; }
-.tap button { background: none; border: 0; cursor: pointer; }
-.tap button:focus-visible { outline: none; }
-
-.p-top { position: absolute; left: 0; right: 0; top: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px;
+.shade { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 22%, transparent 50%, rgba(0,0,0,0.82)); pointer-events: none; }
+.slot { position: absolute; left: 0; right: 0; top: 42%; text-align: center; pointer-events: none; }
+.slot b { display: block; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.slot span { font-size: 0.78rem; color: var(--v-muted); }
+.credit { position: absolute; right: 12px; top: 92px; max-width: 70%; font-size: 0.66rem; color: var(--v-muted); text-align: right; pointer-events: none; }
+.tap { position: absolute; top: 110px; bottom: 300px; width: 24%; background: none; border: 0; cursor: pointer; }
+.tap.prev { left: 0; } .tap.next { right: 0; }
+.tap:focus-visible { outline: none; }
+.p-top { position: absolute; left: 0; right: 0; top: 0; display: grid; gap: 10px;
   padding: calc(env(safe-area-inset-top, 0px) + 12px) max(14px, env(safe-area-inset-right, 0px)) 0 max(14px, env(safe-area-inset-left, 0px)); }
 .segs { display: flex; gap: 4px; }
 .segs div { flex: 1; height: 3px; border-radius: 2px; background: var(--v-line); overflow: hidden; }
 .segs i { display: block; height: 100%; width: 0; background: var(--v-ink); }
-.p-head { display: flex; align-items: center; gap: 10px; }
+.p-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .p-avatar { width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto; border: 2px solid var(--v-accent); }
 .p-title { min-width: 0; flex: 1; }
-.p-title strong { display: block; font-size: 0.9rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-title strong, .p-title span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-title strong { font-size: 0.9rem; line-height: 1.25; }
 .p-title span { font-size: 0.75rem; color: var(--v-muted); }
-.icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--v-glass); color: var(--v-ink); cursor: pointer; font-size: 1rem; display: grid; place-items: center; flex: 0 0 auto; }
-.icon-btn:focus-visible, .v-btn:focus-visible, .chip:focus-visible { outline: 2px solid var(--v-accent); outline-offset: 2px; }
-.slot { justify-self: start; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--v-muted); }
-
+.icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--v-glass); color: var(--v-ink); cursor: pointer; display: grid; place-items: center; flex: 0 0 auto; }
+.icon-btn:focus-visible, .v-btn:focus-visible, .path:focus-visible { outline: 2px solid var(--v-accent); outline-offset: 2px; }
 .p-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 10px; pointer-events: none;
   padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px)); }
 .p-bottom > * { pointer-events: auto; }
-.layer-chip { justify-self: start; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
-  background: var(--v-accent); color: var(--v-bg); padding: 3px 9px; border-radius: 3px; font-weight: 500; }
+.layer-chip { justify-self: start; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--v-accent); color: var(--v-bg); padding: 3px 9px; border-radius: 3px; font-weight: 500; }
 .layer-chip.root { background: var(--v-warm); }
 .clip-title { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.45rem, 6.5vw, 1.9rem); line-height: 1.05; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
 .clip-meta { font-size: 0.8rem; color: var(--v-muted); }
-.clip-why { font-size: 0.9rem; margin: 0; max-width: 40ch; }
+.clip-why { font-size: 0.92rem; margin: 0; max-width: 42ch; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .v-btn { border: 1px solid var(--v-line); background: var(--v-glass); color: var(--v-ink); border-radius: 999px; padding: 7px 14px; font-size: 0.85rem; font-weight: 500; cursor: pointer; }
-.v-btn.primary { background: var(--v-ink); color: var(--v-bg); border-color: var(--v-ink); font-weight: 600; }
+.v-btn.primary-v { background: var(--v-ink); color: var(--v-bg); border-color: var(--v-ink); font-weight: 600; }
 .hint { font-size: 0.72rem; color: var(--v-muted); }
 
-/* end-of-story hand-off */
-.next { position: absolute; inset: 0; background: rgba(4, 12, 15, 0.9); display: grid; align-content: center; gap: 14px;
-  padding: 24px max(20px, env(safe-area-inset-right, 0px)) 24px max(20px, env(safe-area-inset-left, 0px)); }
-.next .eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--v-accent); }
-.next-card { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; align-items: center; text-align: left; background: var(--v-glass);
-  border: 1px solid var(--v-line); border-radius: 12px; padding: 12px; cursor: pointer; color: var(--v-ink); position: relative; overflow: hidden; }
-.next-card .thumb { aspect-ratio: 9 / 13; }
-.next-card strong { font-family: var(--font-display); font-size: 1.2rem; line-height: 1.1; display: block; }
-.next-card .reason { font-size: 0.85rem; color: var(--v-muted); margin-top: 4px; }
+.handoff { position: absolute; inset: 0; background: var(--v-solid); overflow-y: auto; display: grid; align-content: center; gap: 14px;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) max(20px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) max(20px, env(safe-area-inset-left, 0px)); }
+.handoff .eyebrow { color: var(--v-accent); }
+.question { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 7vw, 2rem); line-height: 1.08; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.paths { display: grid; gap: 10px; }
+.path { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: center; text-align: left; background: var(--v-card); border: 1px solid var(--v-line); border-radius: 12px; padding: 10px; cursor: pointer; color: var(--v-ink); position: relative; overflow: hidden; }
+.path .pthumb { width: 56px; height: 76px; border-radius: 6px; }
+.path small { display: block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--v-accent); }
+.path strong { display: block; font-size: 1rem; line-height: 1.25; }
+.path span { display: block; font-size: 0.82rem; color: var(--v-muted); }
 .countdown { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--v-accent); width: 0; }
-.others { display: grid; gap: 8px; }
-.chip { text-align: left; border: 1px solid var(--v-line); background: none; color: var(--v-ink); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
-.chip small { display: block; color: var(--v-muted); font-size: 0.78rem; }
 
-/* story map: side panel on web, bottom sheet on phone */
-.map { background: var(--surface); color: var(--ink); display: grid; gap: 14px; align-content: start; overflow-y: auto; }
+.map { background: var(--surface); color: var(--ink); display: grid; gap: 14px; align-content: start; overflow-y: auto; padding: 20px; }
 .map h3 { font-family: var(--font-display); font-size: 1.05rem; margin: 0; }
-.map-close { justify-self: end; }
-.layers { display: grid; gap: 0; position: relative; }
+.layers { display: grid; position: relative; }
+.layers::before { content: ""; position: absolute; left: 5px; top: 18px; bottom: 18px; width: 2px; background: var(--line); }
 .layer-row { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 12px; text-align: left; background: none; border: 0; padding: 8px 0; cursor: pointer; color: var(--ink); }
 .layer-row .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); background: var(--surface); margin-top: 4px; position: relative; z-index: 1; }
 .layer-row.root .dot { border-color: var(--warm); }
 .layer-row.done .dot { background: var(--muted); }
 .layer-row.on .dot { background: var(--accent); border-color: var(--accent); }
-.layer-row small { display: block; font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.layer-row small, .map-link small { display: block; font-family: var(--font-mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.map-link small { color: var(--accent); }
 .layer-row span { font-size: 0.9rem; font-weight: 500; line-height: 1.3; }
 .layer-row.on span { color: var(--accent); }
-.layers::before { content: ""; position: absolute; left: 5px; top: 18px; bottom: 18px; width: 2px; background: var(--line); }
-.map-links { display: grid; gap: 8px; }
-.map-link { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 12px; cursor: pointer; color: var(--ink); }
+.map-link { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; cursor: pointer; color: var(--ink); display: grid; gap: 2px; }
 .map-link:hover { border-color: var(--accent); }
-.map-link small { display: block; color: var(--muted); font-size: 0.78rem; }
+.map-link span { color: var(--muted); font-size: 0.8rem; }
+.map-close { justify-self: end; background: var(--bg); color: var(--ink); }
 
 @media (max-width: 899px) {
-  .map { position: absolute; left: 0; right: 0; bottom: 0; max-height: 78%; border-radius: 16px 16px 0 0; z-index: 5;
+  #map-sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 78%; border-radius: 16px 16px 0 0; z-index: 5;
     padding: 18px max(18px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 18px) max(18px, env(safe-area-inset-left, 0px)); }
-  .map:not(.open) { display: none; }
+  #map-sheet:not(.open) { display: none; }
+  #map-side { display: none; }
 }
 @media (min-width: 900px) {
   .player { padding: 24px; }
   .screen { width: auto; height: min(860px, 100%); aspect-ratio: 9 / 16; border-radius: 16px; }
   .p-top { padding: 14px 14px 0; }
   .p-bottom { padding: 0 18px 18px; }
-  .map { width: 340px; height: min(860px, 100%); border-radius: 16px; padding: 20px; border: 1px solid var(--line); }
-  #map-sheet, .map-btn { display: none; }
-  .hint.touch { display: none; }
+  #map-side { width: 340px; height: min(860px, 100%); border-radius: 16px; border: 1px solid var(--line); }
+  #map-sheet, .map-btn, .hint.touch { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
 <div class="home" id="home">
   <div class="topbar">
     <div class="brand">Deeper<span>.</span>News</div>
-    <div class="sample">Sample day · fictional stories</div>
+    <div class="top-right">
+      <span class="sample">Sample stories · fictional</span>
+      <button class="loc-btn" type="button" id="loc-btn"></button>
+    </div>
   </div>
-
+  <div class="prompt" id="prompt" hidden>
+    <div><strong>See what’s happening near you</strong><p>Pick your city and we’ll put local stories first, then your country, then the world.</p></div>
+    <button class="primary" type="button" id="prompt-btn">Choose your location</button>
+  </div>
   <div class="tray" id="tray" aria-label="Stories"></div>
-
   <div class="cols">
-    <main>
-      <div class="section-h"><h2>Today</h2><small id="count"></small></div>
-      <div class="list" id="list"></div>
-      <div class="done">
-        <strong>You're caught up.</strong>
-        <p>That's every story today. New developments on stories you follow will show up here.</p>
-      </div>
+    <main class="main">
+      <span class="watched" id="watched"></span>
+      <div id="sections"></div>
+      <div class="done"><strong>You’re caught up.</strong><p>That’s every story today. New chapters on threads you follow will show up here.</p></div>
     </main>
     <aside class="side">
       <h2>Threads</h2>
-      <p>A thread is a place, a person, or a decision that runs through several stories. Follow one to see each new story it touches.</p>
+      <p>A place, a person or a decision that runs through several stories. Follow one to hear about each new chapter.</p>
       <div class="threads" id="threads"></div>
     </aside>
+  </div>
+</div>
+
+<div class="picker" id="picker" hidden>
+  <div class="picker-inner">
+    <div class="picker-head">
+      <div><h1>Where are you?</h1><p>We use this to show stories near you first. It stays in this browser, and you can change it any time.</p></div>
+      <button class="x" type="button" id="picker-close" aria-label="Close">✕</button>
+    </div>
+    <input id="loc-search" type="search" placeholder="Search for a city or country" autocomplete="off">
+    <div id="loc-list"></div>
   </div>
 </div>
 
 <div class="player" id="player" hidden>
   <div class="screen" id="screen">
     <canvas id="cv"></canvas>
+    <div class="photo" id="photo"></div>
     <div class="shade"></div>
-    <div class="tap"><button type="button" id="tap-prev" aria-label="Previous clip"></button><button type="button" id="tap-next" aria-label="Next clip"></button></div>
-
+    <div class="slot" id="slot"><b>Video slot</b><span id="slot-sub"></span></div>
+    <div class="credit" id="credit"></div>
+    <button class="tap prev" type="button" id="tap-prev" aria-label="Previous clip"></button>
+    <button class="tap next" type="button" id="tap-next" aria-label="Next clip"></button>
     <div class="p-top">
       <div class="segs" id="segs"></div>
       <div class="p-head">
-        <i class="p-avatar" id="p-avatar"></i>
-        <div class="p-title"><strong id="p-story"></strong><span id="p-topic"></span></div>
+        <i class="p-avatar art" id="p-avatar"></i>
+        <div class="p-title"><strong id="p-story"></strong><span id="p-sub"></span></div>
         <button class="icon-btn" type="button" id="pause" aria-label="Pause">❚❚</button>
         <button class="icon-btn" type="button" id="close" aria-label="Close story">✕</button>
       </div>
-      <span class="slot">Video placeholder</span>
     </div>
-
     <div class="p-bottom">
       <span class="layer-chip" id="chip"></span>
       <h2 class="clip-title" id="clip-title"></h2>
       <div class="clip-meta" id="clip-meta"></div>
       <p class="clip-why" id="clip-why"></p>
       <div class="actions">
-        <button class="v-btn primary" type="button" id="deeper">Go deeper ↓</button>
+        <button class="v-btn primary-v" type="button" id="deeper"></button>
         <button class="v-btn map-btn" type="button" id="map-btn">Story map</button>
-        <button class="v-btn" type="button" id="skip">Next story →</button>
+        <button class="v-btn" type="button" id="leads">Where it leads →</button>
       </div>
-      <div class="hint touch">Tap left or right to move between clips · swipe left for the next connected story</div>
+      <div class="hint touch">Tap the edges to move between clips · swipe left for the next story</div>
     </div>
-
-    <div class="next" id="next" hidden>
-      <span class="eyebrow">Up next · connected story</span>
-      <button class="next-card" type="button" id="next-main"></button>
-      <div class="others" id="next-others"></div>
+    <div class="handoff" id="handoff" hidden>
+      <span class="eyebrow" id="h-eyebrow"></span>
+      <h2 class="question" id="h-question"></h2>
+      <div class="paths" id="h-paths"></div>
+      <span class="hint" id="h-hint"></span>
       <div class="actions">
         <button class="v-btn" type="button" id="replay">Watch again</button>
         <button class="v-btn" type="button" id="to-today">Back to Today</button>
       </div>
     </div>
-
-    <div class="map" id="map-sheet">
-      <button class="icon-btn map-close" type="button" id="map-close" aria-label="Close story map" style="background: var(--bg); color: var(--ink)">✕</button>
-      <div><h3>In this story</h3></div>
-      <div class="layers" id="layers"></div>
-      <div><h3>Connected stories</h3></div>
-      <div class="map-links" id="map-links"></div>
-    </div>
+    <div class="map" id="map-sheet"></div>
   </div>
   <div class="map" id="map-side"></div>
 </div>
 
 <script>
+const DATA = {"STORIES":[{"id":"marlow","place":{"name":"Marlow Creek","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.35,"lng":-85.6},"short":"Marlow Creek","title":"The Marlow Creek levee gave way at dawn","topic":"Climate & infrastructure","hue":192,"minutes":4,"clips":[{"title":"Evening bulletin: the levee gives way","when":"Day 0, 6:00 p.m.","source":"Local station","rights":"Licensed","why":"The version most people saw first. The clips after it show what the bulletin left out.","seconds":20},{"title":"A porch camera catches the first water","when":"Day 0, 6:42 a.m.","source":"Resident upload","rights":"Consent on file","why":"The earliest footage. It puts the breach 40 minutes before the first emergency call.","seconds":20},{"title":"Volunteer boat crew, helmet camera","when":"Day 0, 9:05 a.m.","source":"Volunteer upload","rights":"Consent on file","why":"A first-person view of the rescues on Front Street.","seconds":20},{"title":"2019: the council puts off levee repairs","when":"2019","source":"Town meeting archive","rights":"Public record","why":"A 4–3 vote pushed the repairs back five years.","seconds":20},{"title":"State hearing on emergency flood funds","when":"Day 9","source":"State legislature feed","rights":"Public record","why":"The town's request cites the county's drone survey.","seconds":20}],"handoff":{"question":"So why didn't the state send the money?","paths":[{"kind":"money","storyId":"funding","reason":"The bill that was supposed to send it, stuck on a tie vote"},{"kind":"people","storyId":"insurers","reason":"The Front Street store owner's insurer pulls out"},{"kind":"place","storyId":"ostend","reason":"Downriver, the next town decides not to wait"}]}},{"id":"ostend","place":{"name":"Ostend Mills","region":"Harlan River valley","country":"United States","countryCode":"US","lat":37.95,"lng":-86},"short":"Ostend Mills","title":"Ostend Mills votes to raise its own levee","topic":"Climate & infrastructure","hue":204,"minutes":3,"clips":[{"title":"Council recap: a 6–1 vote","when":"Day 40","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"The town engineer walks the low section","when":"Day 38","source":"Town channel","rights":"Public record","why":"Shows exactly which stretch the vote covers.","seconds":20},{"title":"Residents at the microphone","when":"Day 40","source":"Town meeting archive","rights":"Public record","why":"Two speakers say they watched the Marlow Creek footage.","seconds":20},{"title":"Archive: the 1998 flood reaches Ostend Mills","when":"1998","source":"Regional archive","rights":"Archive license","why":"The same flood that hit Marlow Creek.","seconds":20},{"title":"Contractors tour the levee site","when":"Day 60","source":"Local station","rights":"Licensed","why":"The first work under the new plan.","seconds":20}],"handoff":{"question":"Will the state ever pay for levees like this?","paths":[{"kind":"money","storyId":"funding","reason":"The bill that was supposed to pay for it"},{"kind":"place","storyId":"marlow","reason":"Upriver, where this started"},{"kind":"people","storyId":"room-river","reason":"A Dutch town that moved its dikes back instead"}]}},{"id":"funding","place":{"name":"State capitol","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.2,"lng":-84.9},"short":"Flood budget","title":"The state flood-fund bill stalls in committee","topic":"Politics","hue":252,"minutes":4,"clips":[{"title":"The finance committee stalls the bill","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"The headline.","seconds":20},{"title":"The 5–5 vote, full recording","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"The tie happens at 23:20 in the recording.","seconds":20},{"title":"Marlow Creek's mayor after the vote","when":"Day 30","source":"Partner interview","rights":"Licensed","why":"Her town asked for the largest share.","seconds":20},{"title":"2021: the flood reserve is cut by a third","when":"2021","source":"State legislature feed","rights":"Public record","why":"Why the fund was short to begin with.","seconds":20},{"title":"Ostend Mills decides to pay for its own levee","when":"Day 40","source":"Local station","rights":"Licensed","why":"One town stops waiting for the state.","seconds":20}],"handoff":{"question":"Who pays when the state doesn't?","paths":[{"kind":"money","storyId":"insurers","reason":"Insurers start pulling out of river towns"},{"kind":"place","storyId":"ostend","reason":"The town that paid for its own levee"},{"kind":"people","storyId":"schools","reason":"Teachers working out of borrowed buildings"}]}},{"id":"insurers","place":{"name":"River towns","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.25,"lng":-85.75},"short":"Insurance","title":"Two insurers stop writing policies in river towns","topic":"Economy","hue":28,"minutes":3,"clips":[{"title":"Two insurers pull back","when":"Day 21","source":"Partner report","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Industry briefing on the new flood maps","when":"Day 18","source":"Webinar recording","rights":"Publisher permission","why":"The slide at 12:40 lists the affected zip codes.","seconds":20},{"title":"The Front Street store owner reads her renewal letter","when":"Day 21","source":"Partner interview","rights":"Licensed","why":"You may have met her in the Marlow Creek story.","seconds":20},{"title":"The county flood map, last revised in 2009","when":"2009","source":"County records","rights":"Public record","why":"The maps insurers had been using until now.","seconds":20},{"title":"A grain elevator loses its coverage","when":"Day 25","source":"Partner report","rights":"Licensed","why":"This leads into the river freight story.","seconds":20}],"handoff":{"question":"What happens to a business that can't get insured?","paths":[{"kind":"money","storyId":"grain","reason":"A grain elevator stuck with nowhere to ship"},{"kind":"people","storyId":"marlow","reason":"Where the store owner's story began"}]}},{"id":"grain","place":{"name":"Lock 7","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38,"lng":-86.3},"short":"River freight","title":"Grain barges back up while the river stays closed","topic":"Economy","hue":46,"minutes":3,"clips":[{"title":"Barges stack up above Lock 7","when":"Day 12","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Idle barges, filmed from the bank","when":"Day 10","source":"Resident upload","rights":"Consent on file","why":"The lock below Marlow Creek is still shut for debris.","seconds":20},{"title":"An elevator operator on the wait","when":"Day 12","source":"Partner interview","rights":"Licensed","why":"He's paying to store grain he can't ship.","seconds":20},{"title":"2020 report on the lock repair backlog","when":"2020","source":"Federal agency briefing","rights":"Public record","why":"Lock 7 was already on the repair list.","seconds":20},{"title":"Halvard Port backs up too","when":"Day 15","source":"Local station","rights":"Licensed","why":"The same cargo was due at the port.","seconds":20}],"handoff":{"question":"Where was all that grain supposed to go?","paths":[{"kind":"place","storyId":"port","reason":"A port already shut down by a strike"},{"kind":"money","storyId":"insurers","reason":"Why the elevator lost its insurance"}]}},{"id":"port","place":{"name":"Halvard Port","region":"Gulf Coast","country":"United States","countryCode":"US","lat":29.95,"lng":-90.07},"short":"Halvard Port","title":"Halvard dockworkers strike over automated cranes","topic":"Labor","hue":346,"minutes":3,"clips":[{"title":"Dockworkers walk out","when":"Day 14","source":"Partner feed","rights":"Licensed","why":"The headline.","seconds":20},{"title":"The picket line at Gate 3","when":"Day 14","source":"Worker upload","rights":"Consent on file","why":"Filmed by a picketer at the shift change.","seconds":20},{"title":"A crane operator of 22 years","when":"Day 14","source":"Partner interview","rights":"Licensed","why":"He explains what the new cranes would replace.","seconds":20},{"title":"2023: the automation clause is tabled","when":"2023","source":"Union livestream","rights":"Publisher permission","why":"The dispute was postponed, not settled.","seconds":20},{"title":"Grain shippers caught in both","when":"Day 15","source":"Local station","rights":"Licensed","why":"The river closure and the strike hit the same cargo.","seconds":20}],"handoff":{"question":"What happens to the grain stuck upriver?","paths":[{"kind":"place","storyId":"grain","reason":"The barges waiting above Lock 7"},{"kind":"people","storyId":"bayport","reason":"Workers on another continent training for the same cranes"}]}},{"id":"schools","place":{"name":"Harlan County","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.4,"lng":-85.4},"short":"Harlan schools","title":"Harlan County schools reopen in borrowed buildings","topic":"Community","hue":150,"minutes":3,"clips":[{"title":"Schools reopen a week after the flood","when":"Day 7","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"First morning at the church hall","when":"Day 7","source":"Parent upload","rights":"Consent on file","why":"Thirty desks in a room built for dinners.","seconds":20},{"title":"A teacher whose classroom was on Front Street","when":"Day 7","source":"Partner interview","rights":"Licensed","why":"Her school is two doors from the hardware store.","seconds":20},{"title":"The 1998 flood closed the same school","when":"1998","source":"Regional archive","rights":"Archive license","why":"It reopened four months later.","seconds":20},{"title":"Repair money depends on the stalled bill","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"This leads into the flood budget story.","seconds":20}],"handoff":{"question":"When will the schools get money for repairs?","paths":[{"kind":"money","storyId":"funding","reason":"The bill the repairs are waiting on"},{"kind":"people","storyId":"floating-schools","reason":"Halfway around the world, a village keeps school open on boats"},{"kind":"place","storyId":"marlow","reason":"The flood that closed the school"}]}},{"id":"floating-schools","place":{"name":"Char Kalia","region":"Sundarbans delta","country":"Bangladesh","countryCode":"BD","lat":22.3,"lng":89.6},"short":"Boat schools","title":"In a delta village, school moves onto boats for flood season","topic":"Community","hue":165,"minutes":3,"clips":[{"title":"The first boat school pulls up to the landing","when":"Week 1","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"A morning lesson while the boat moves between villages","when":"Week 1","source":"Teacher upload","rights":"Consent on file","why":"Shows how a class works when the classroom floats.","seconds":20},{"title":"A student who hasn’t missed a day this monsoon","when":"Week 2","source":"Partner interview","rights":"Licensed","why":"In past years she lost months of school to flooding.","seconds":20},{"title":"Archive: the year the old school washed away","when":"2007","source":"Regional archive","rights":"Archive license","why":"Why the village stopped building schools on land.","seconds":20},{"title":"Two more districts order boats","when":"Week 6","source":"Regional broadcaster","rights":"Licensed","why":"The idea starts to spread.","seconds":20}],"handoff":{"question":"Could American river towns do something like this?","paths":[{"kind":"people","storyId":"schools","reason":"Teachers in Harlan County working out of borrowed rooms"},{"kind":"place","storyId":"room-river","reason":"Another country that has learned to live with rising water"}]}},{"id":"room-river","place":{"name":"Veldmaas","region":"Meuse valley","country":"Netherlands","countryCode":"NL","lat":51.4,"lng":5.9},"short":"Veldmaas","title":"A Dutch river town moves its dikes back and lets the river in","topic":"Climate & infrastructure","hue":210,"minutes":4,"clips":[{"title":"The new floodplain opens","when":"Day 0","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Drone footage: the old dike line and the new one","when":"Day 0","source":"Water board","rights":"Public record","why":"Shows how much land was handed back to the river.","seconds":20},{"title":"A farmer who sold his fields to the project","when":"Day 2","source":"Partner interview","rights":"Licensed","why":"Not everyone wanted to move.","seconds":20},{"title":"Archive: the near-flood that started the plan","when":"1995","source":"National archive","rights":"Archive license","why":"Why the country changed its approach.","seconds":20},{"title":"The first high water since the dikes moved","when":"Month 4","source":"Resident upload","rights":"Consent on file","why":"The test the plan was built for.","seconds":20}],"handoff":{"question":"Is a higher wall or more room for the river the better bet?","paths":[{"kind":"place","storyId":"ostend","reason":"An American town choosing the opposite: a higher levee"},{"kind":"people","storyId":"floating-schools","reason":"A village that adapted instead of building walls"}]}},{"id":"bayport","place":{"name":"Bayport","region":"Lagos coast","country":"Nigeria","countryCode":"NG","lat":6.45,"lng":3.4},"short":"Bayport","title":"Dockworkers in a West African port train for automated cranes","topic":"Labor","hue":20,"minutes":3,"clips":[{"title":"The first automated crane arrives by ship","when":"Day 0","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Inside the training simulator","when":"Day 3","source":"Port authority","rights":"Public record","why":"Workers learn to run the cranes from a control room.","seconds":20},{"title":"A crane operator choosing to retrain","when":"Day 3","source":"Partner interview","rights":"Licensed","why":"He sees it differently from the Halvard strikers.","seconds":20},{"title":"The union deal that made training part of the plan","when":"2024","source":"Union recording","rights":"Publisher permission","why":"Why there was no strike here.","seconds":20},{"title":"Ships start choosing this port over others","when":"Month 3","source":"Regional broadcaster","rights":"Licensed","why":"What faster loading means for trade.","seconds":20}],"handoff":{"question":"Why did one port strike while this one retrained?","paths":[{"kind":"people","storyId":"port","reason":"Halvard dockworkers striking over the same cranes"}]}}],"THREADS":[{"id":"harlan-river","name":"Harlan River flooding","kind":"Place","storyIds":["marlow","ostend","grain","schools"]},{"id":"flood-budget","name":"State flood budget","kind":"Decision","storyIds":["funding","marlow","ostend","schools"]},{"id":"insurance","name":"Insurance in river towns","kind":"Issue","storyIds":["insurers","marlow","grain"]},{"id":"store-owner","name":"The Front Street store owner","kind":"Person","storyIds":["marlow","insurers"]},{"id":"river-freight","name":"River freight","kind":"Issue","storyIds":["grain","port"]},{"id":"rising-water","name":"Living with rising water","kind":"Issue","storyIds":["marlow","ostend","room-river","floating-schools"]},{"id":"cranes-and-jobs","name":"Cranes and jobs","kind":"Issue","storyIds":["port","bayport"]}],"LOCATIONS":[{"id":"louisville","name":"Louisville","region":"Kentucky","country":"United States","countryCode":"US","lat":38.25,"lng":-85.76},{"id":"chicago","name":"Chicago","region":"Illinois","country":"United States","countryCode":"US","lat":41.88,"lng":-87.63},{"id":"new-york","name":"New York","region":"New York","country":"United States","countryCode":"US","lat":40.71,"lng":-74.01},{"id":"new-orleans","name":"New Orleans","region":"Louisiana","country":"United States","countryCode":"US","lat":29.95,"lng":-90.07},{"id":"los-angeles","name":"Los Angeles","region":"California","country":"United States","countryCode":"US","lat":34.05,"lng":-118.24},{"id":"toronto","name":"Toronto","region":"Ontario","country":"Canada","countryCode":"CA","lat":43.65,"lng":-79.38},{"id":"mexico-city","name":"Mexico City","country":"Mexico","countryCode":"MX","lat":19.43,"lng":-99.13},{"id":"sao-paulo","name":"São Paulo","country":"Brazil","countryCode":"BR","lat":-23.55,"lng":-46.63},{"id":"london","name":"London","region":"England","country":"United Kingdom","countryCode":"GB","lat":51.51,"lng":-0.13},{"id":"amsterdam","name":"Amsterdam","country":"Netherlands","countryCode":"NL","lat":52.37,"lng":4.9},{"id":"lagos","name":"Lagos","country":"Nigeria","countryCode":"NG","lat":6.52,"lng":3.38},{"id":"nairobi","name":"Nairobi","country":"Kenya","countryCode":"KE","lat":-1.29,"lng":36.82},{"id":"dhaka","name":"Dhaka","country":"Bangladesh","countryCode":"BD","lat":23.81,"lng":90.41},{"id":"mumbai","name":"Mumbai","country":"India","countryCode":"IN","lat":19.08,"lng":72.88},{"id":"tokyo","name":"Tokyo","country":"Japan","countryCode":"JP","lat":35.68,"lng":139.69},{"id":"sydney","name":"Sydney","region":"New South Wales","country":"Australia","countryCode":"AU","lat":-33.87,"lng":151.21}],"NEAR_KM":400,"IMAGES":{"marlow":{"src":"img/marlow.jpg","alt":"Floodwater pouring through a breach in a river levee","credit":"U.S. Army Corps of Engineers, Kansas City District · Public domain · Wikimedia Commons"},"ostend":{"src":"img/ostend.jpg","alt":"A rebuilt levee armored with rock beside a river","credit":"U.S. Army Corps of Engineers, Sacramento District · Public domain · Wikimedia Commons"},"funding":{"src":"img/funding.jpg","alt":"The dome of a state capitol building against a blue sky","credit":"Radomianin · Public domain · Wikimedia Commons"},"insurers":{"src":"img/insurers.jpg","alt":"A house damaged by flooding, with debris piled in front","credit":"Photographer not credited · Public domain · Wikimedia Commons"},"grain":{"src":"img/grain.jpg","alt":"Boats at a river lock and dam, in an early 1900s photograph","credit":"U.S. Army Corps of Engineers · Public domain · Wikimedia Commons"},"port":{"src":"img/port.jpg","alt":"Rows of shipping containers at a large port","credit":"Charles Csavossy · Public domain · Wikimedia Commons"},"schools":{"src":"img/schools.jpg","alt":"An old schoolroom with wooden desks and a chalkboard","credit":"National Park Service · Public domain · Wikimedia Commons"},"room-river":{"src":"img/room-river.jpg","alt":"Horses grazing on a green river floodplain under a cloudy sky","credit":"Industrees · CC0 · Wikimedia Commons"},"bayport":{"src":"img/bayport.jpg","alt":"Container cranes lit up along a harbor at night","credit":"Syced · CC0 · Wikimedia Commons"}}};
 const LAYERS = [
-  { name: "Surface", depth: "the headline" },
-  { name: "Footage", depth: "what happened" },
-  { name: "Voices",  depth: "who was there" },
-  { name: "Roots",   depth: "why it happened" },
-  { name: "Ripples", depth: "what followed" },
+  { name: "Surface", depth: "the headline" }, { name: "Footage", depth: "what happened" },
+  { name: "Voices", depth: "who was there" }, { name: "Roots", depth: "why it happened" }, { name: "Ripples", depth: "what followed" },
 ];
-const S = (title, when, source, rights, why) => ({ title, when, source, rights, why });
-const STORIES = [
-  { id: "marlow", short: "Marlow Creek", topic: "Climate & infrastructure", hue: 192, mins: 4,
-    title: "The Marlow Creek levee gave way at dawn",
-    segs: [
-      S("Evening bulletin: the levee gives way", "Day 0, 6:00 p.m.", "Local station", "Licensed", "The version most people saw first. The clips after it show what the bulletin left out."),
-      S("A porch camera catches the first water", "Day 0, 6:42 a.m.", "Resident upload", "Consent on file", "The earliest footage. It puts the breach 40 minutes before the first emergency call."),
-      S("Volunteer boat crew, helmet camera", "Day 0, 9:05 a.m.", "Volunteer upload", "Consent on file", "A first-person view of the rescues on Front Street."),
-      S("2019: the council puts off levee repairs", "2019", "Town meeting archive", "Public record", "A 4–3 vote pushed the repairs back five years."),
-      S("State hearing on emergency flood funds", "Day 9", "State legislature feed", "Public record", "The town's request cites the county's drone survey."),
-    ],
-    next: [["ostend", "Same river. The next town downstream decides not to wait."], ["funding", "The state money Marlow Creek asked for"], ["schools", "The Front Street school is still closed"]] },
-  { id: "ostend", short: "Ostend Mills", topic: "Climate & infrastructure", hue: 204, mins: 3,
-    title: "Ostend Mills votes to raise its own levee",
-    segs: [
-      S("Council recap: a 6–1 vote", "Day 40", "Local station", "Licensed", "The headline."),
-      S("The town engineer walks the low section", "Day 38", "Town channel", "Public record", "Shows exactly which stretch the vote covers."),
-      S("Residents at the microphone", "Day 40", "Town meeting archive", "Public record", "Two speakers say they watched the Marlow Creek footage."),
-      S("Archive: the 1998 flood reaches Ostend Mills", "1998", "Regional archive", "Archive license", "The same flood that hit Marlow Creek."),
-      S("Contractors tour the levee site", "Day 60", "Local station", "Licensed", "The first work under the new plan."),
-    ],
-    next: [["funding", "Why the state money never came"], ["marlow", "Where this started, upriver"]] },
-  { id: "funding", short: "Flood budget", topic: "Politics", hue: 252, mins: 4,
-    title: "The state flood-fund bill stalls in committee",
-    segs: [
-      S("The finance committee stalls the bill", "Day 30", "State legislature feed", "Public record", "The headline."),
-      S("The 5–5 vote, full recording", "Day 30", "State legislature feed", "Public record", "The tie happens at 23:20 in the recording."),
-      S("Marlow Creek's mayor after the vote", "Day 30", "Partner interview", "Licensed", "Her town asked for the largest share."),
-      S("2021: the flood reserve is cut by a third", "2021", "State legislature feed", "Public record", "Why the fund was short to begin with."),
-      S("Ostend Mills decides to pay for its own levee", "Day 40", "Local station", "Licensed", "One town stops waiting for the state."),
-    ],
-    next: [["insurers", "What happens to river towns without the money"], ["ostend", "The town that paid for its own levee"], ["schools", "School repairs depend on this bill"]] },
-  { id: "insurers", short: "Insurance", topic: "Economy", hue: 28, mins: 3,
-    title: "Two insurers stop writing policies in river towns",
-    segs: [
-      S("Two insurers pull back", "Day 21", "Partner report", "Licensed", "The headline."),
-      S("Industry briefing on the new flood maps", "Day 18", "Webinar recording", "Publisher permission", "The slide at 12:40 lists the affected zip codes."),
-      S("The Front Street store owner reads her renewal letter", "Day 21", "Partner interview", "Licensed", "You met her in the Marlow Creek story."),
-      S("The county flood map, last revised in 2009", "2009", "County records", "Public record", "The maps insurers had been using until now."),
-      S("A grain elevator loses its coverage", "Day 25", "Partner report", "Licensed", "This leads into the river freight story."),
-    ],
-    next: [["grain", "The grain elevator's side of it"], ["marlow", "Where the store owner's story began"]] },
-  { id: "grain", short: "River freight", topic: "Economy", hue: 46, mins: 3,
-    title: "Grain barges back up while the river stays closed",
-    segs: [
-      S("Barges stack up above Lock 7", "Day 12", "Local station", "Licensed", "The headline."),
-      S("Idle barges, filmed from the bank", "Day 10", "Resident upload", "Consent on file", "The lock below Marlow Creek is still shut for debris."),
-      S("An elevator operator on the wait", "Day 12", "Partner interview", "Licensed", "He's paying to store grain he can't ship."),
-      S("2020 report on the lock repair backlog", "2020", "Federal agency briefing", "Public record", "Lock 7 was already on the repair list."),
-      S("Halvard Port backs up too", "Day 15", "Local station", "Licensed", "The same cargo was due at the port."),
-    ],
-    next: [["port", "Where the grain was headed"], ["insurers", "Why the elevator lost its insurance"]] },
-  { id: "port", short: "Halvard Port", topic: "Labor", hue: 346, mins: 3,
-    title: "Halvard dockworkers strike over automated cranes",
-    segs: [
-      S("Dockworkers walk out", "Day 14", "Partner feed", "Licensed", "The headline."),
-      S("The picket line at Gate 3", "Day 14", "Worker upload", "Consent on file", "Filmed by a picketer at the shift change."),
-      S("A crane operator of 22 years", "Day 14", "Partner interview", "Licensed", "He explains what the new cranes would replace."),
-      S("2023: the automation clause is tabled", "2023", "Union livestream", "Publisher permission", "The dispute was postponed, not settled."),
-      S("Grain shippers caught in both", "Day 15", "Local station", "Licensed", "The river closure and the strike hit the same cargo."),
-    ],
-    next: [["grain", "The cargo stuck upriver"]] },
-  { id: "schools", short: "Harlan schools", topic: "Community", hue: 150, mins: 3,
-    title: "Harlan County schools reopen in borrowed buildings",
-    segs: [
-      S("Schools reopen a week after the flood", "Day 7", "Local station", "Licensed", "The headline."),
-      S("First morning at the church hall", "Day 7", "Parent upload", "Consent on file", "Thirty desks in a room built for dinners."),
-      S("A teacher whose classroom was on Front Street", "Day 7", "Partner interview", "Licensed", "Her school is two doors from the hardware store."),
-      S("The 1998 flood closed the same school", "1998", "Regional archive", "Archive license", "It reopened four months later."),
-      S("Repair money depends on the stalled bill", "Day 30", "State legislature feed", "Public record", "This leads into the flood budget story."),
-    ],
-    next: [["funding", "The bill the repairs are waiting on"], ["marlow", "The flood that closed the school"]] },
-];
-const THREADS = [
-  { name: "Harlan River flooding", kind: "Place", stories: ["marlow", "ostend", "grain", "schools"] },
-  { name: "State flood budget", kind: "Decision", stories: ["funding", "marlow", "ostend", "schools"] },
-  { name: "Insurance in river towns", kind: "Issue", stories: ["insurers", "marlow", "grain"] },
-  { name: "The Front Street store owner", kind: "Person", stories: ["marlow", "insurers"] },
-  { name: "River freight", kind: "Issue", stories: ["grain", "port"] },
-];
+const ROOTS = 3, SEG_SECONDS = 7, HANDOFF_SECONDS = 6;
+const PATH_LABELS = { money: "Follow the money", people: "Follow the people", place: "Follow the place" };
+const { STORIES, THREADS, LOCATIONS, NEAR_KM, IMAGES } = DATA;
 const byId = Object.fromEntries(STORIES.map(s => [s.id, s]));
-const SEG_SECONDS = 7, HANDOFF_SECONDS = 6;
-const art = (hue) => `radial-gradient(120% 70% at 30% 20%, hsl(${hue} 55% 38%), transparent 60%), linear-gradient(170deg, hsl(${hue} 45% 22%), hsl(${hue} 50% 7%))`;
-
-const seen = new Set();
-const followed = new Set(["Harlan River flooding"]);
 const $ = id => document.getElementById(id);
 const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const fallbackArt = h => `radial-gradient(120% 70% at 30% 20%, hsl(${h} 55% 38%), transparent 60%), linear-gradient(170deg, hsl(${h} 45% 22%), hsl(${h} 50% 7%))`;
+function paint(el, s) {
+  el.classList.add("art");
+  const img = IMAGES[s.id];
+  el.style.backgroundImage = img ? `url("${img.src}")` : fallbackArt(s.hue);
+  if (img) { el.setAttribute("role", "img"); el.setAttribute("aria-label", img.alt); }
+  return el;
+}
 
-/* ---------- Home ---------- */
-function thumb(s, withBars) {
-  const t = make("div", "thumb"); t.style.background = art(s.hue);
-  if (withBars) { const b = make("div", "bars"); s.segs.forEach(() => b.appendChild(make("b"))); t.appendChild(b); }
-  t.appendChild(make("span", "len", `${s.mins} min`));
-  return t;
+/* ---------- state ---------- */
+const seen = new Set(), followed = new Set(["harlan-river"]);
+let location_ = null, chain = [];
+try { const id = localStorage.getItem("deeper-news:location"); location_ = LOCATIONS.find(l => l.id === id) || null; } catch (e) {}
+const rad = d => d * Math.PI / 180;
+function km(a, b) { const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng); const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2; return 2 * 6371 * Math.asin(Math.sqrt(h)); }
+const placeLabel = p => [p.name, p.region, p.country].filter(Boolean).join(", ");
+const countryName = l => l.countryCode === "US" ? "the US" : l.countryCode === "GB" ? "the UK" : l.country;
+function buckets(where) {
+  const out = { near: [], country: [], world: [] };
+  [...STORIES].sort((a, b) => km(where, a.place) - km(where, b.place)).forEach(s => {
+    if (km(where, s.place) <= NEAR_KM) out.near.push(s); else if (s.place.countryCode === where.countryCode) out.country.push(s); else out.world.push(s);
+  });
+  return out;
+}
+
+/* ---------- home ---------- */
+function card(s) {
+  const c = make("button", "card" + (seen.has(s.id) ? " seen" : "")); c.type = "button";
+  const t = paint(make("div", "thumb"), s);
+  const bars = make("div", "bars"); s.clips.forEach(() => bars.appendChild(make("b"))); t.append(bars, make("span", "len", `${s.minutes} min`));
+  const body = make("div", "card-body");
+  const d = location_ ? km(location_, s.place) : null;
+  body.append(make("span", "eyebrow", s.topic), make("h3", null, s.title),
+    make("span", "place", placeLabel(s.place) + (d == null ? "" : d < 10 ? " · nearby" : ` · ${Math.round(d).toLocaleString("en-US")} km away`)));
+  const chips = make("div", "chips"); LAYERS.forEach(L => chips.appendChild(make("span", null, L.name))); body.appendChild(chips);
+  const links = make("div", "links"); links.append("Connects to ");
+  s.handoff.paths.forEach((p, i) => { if (i) links.append(", "); links.appendChild(make("b", null, byId[p.storyId].short)); });
+  body.appendChild(links);
+  c.append(t, body); c.onclick = () => openStory(s.id); return c;
+}
+function section(title, list, empty) {
+  const sec = make("section", "section"); sec.appendChild(make("h2", null, title));
+  if (!list.length) sec.appendChild(make("p", "empty", empty)); else list.forEach(s => sec.appendChild(card(s)));
+  return sec;
 }
 function renderHome() {
+  const lb = $("loc-btn"); lb.textContent = ""; lb.append(make("i"), location_ ? location_.name : "Set location");
+  if (location_) lb.appendChild(make("em", null, "Change"));
+  $("prompt").hidden = !!location_;
+  const b = location_ ? buckets(location_) : null;
+  const order = b ? [...b.near, ...b.country, ...b.world] : STORIES;
   const tray = $("tray"); tray.textContent = "";
-  STORIES.forEach(s => {
-    const b = make("button", "ring" + (seen.has(s.id) ? " seen" : "")); b.type = "button";
-    const d = make("div", "disc"); const i = make("i"); i.style.background = art(s.hue); d.appendChild(i);
-    b.append(d, make("span", null, s.short)); b.onclick = () => openStory(s.id); tray.appendChild(b);
+  order.forEach(s => {
+    const r = make("button", "ring" + (seen.has(s.id) ? " seen" : "")); r.type = "button"; r.setAttribute("aria-label", "Watch " + s.title);
+    const d = make("div", "disc"); d.appendChild(paint(make("i"), s)); r.append(d, make("span", null, s.short)); r.onclick = () => openStory(s.id); tray.appendChild(r);
   });
-  const list = $("list"); list.textContent = "";
-  STORIES.forEach(s => {
-    const c = make("button", "card" + (seen.has(s.id) ? " seen" : "")); c.type = "button";
-    const body = make("div", "card-body");
-    body.append(make("span", "topic", s.topic), make("h3", null, s.title));
-    const depth = make("div", "depth"); LAYERS.forEach(L => depth.appendChild(make("span", null, L.name))); body.appendChild(depth);
-    const links = make("div", "links"); links.append("Connects to ");
-    s.next.forEach(([id], i) => { if (i) links.append(", "); links.appendChild(make("b", null, byId[id].short)); });
-    body.appendChild(links);
-    c.append(thumb(s, true), body); c.onclick = () => openStory(s.id); list.appendChild(c);
-  });
-  $("count").textContent = `${seen.size} of ${STORIES.length} watched`;
+  $("watched").textContent = `${seen.size} of ${STORIES.length} watched`;
+  const sec = $("sections"); sec.textContent = "";
+  if (b) {
+    sec.append(section(`Near ${location_.name}`, b.near, `No stories near ${location_.name} today. Local stories will show up here as they come in.`),
+      section(`Elsewhere in ${countryName(location_)}`, b.country, `Nothing else from ${countryName(location_)} today.`),
+      section("Around the world", b.world, "Nothing from other countries today."));
+  } else sec.appendChild(section("Today", STORIES, ""));
   const th = $("threads"); th.textContent = "";
   THREADS.forEach(t => {
-    const box = make("div", "thread"); const h = make("div", "thread-h");
-    const lbl = make("div"); lbl.append(make("span", "topic", t.kind)); lbl.append(make("strong", null, " " + t.name));
-    const f = make("button", "follow", followed.has(t.name) ? "Following" : "Follow"); f.type = "button";
-    f.setAttribute("aria-pressed", followed.has(t.name));
-    f.onclick = () => { followed.has(t.name) ? followed.delete(t.name) : followed.add(t.name); renderHome(); };
+    const box = make("div", "thread"), h = make("div", "thread-h"), lbl = make("div");
+    lbl.append(make("span", "eyebrow", t.kind), make("strong", null, t.name));
+    const f = make("button", "follow", followed.has(t.id) ? "Following" : "Follow"); f.type = "button"; f.setAttribute("aria-pressed", followed.has(t.id));
+    f.onclick = () => { followed.has(t.id) ? followed.delete(t.id) : followed.add(t.id); renderHome(); };
     h.append(lbl, f);
-    const row = make("div", "thread-stories");
-    t.stories.forEach(id => { const m = make("button", "mini", byId[id].short); m.type = "button"; m.onclick = () => openStory(id); row.appendChild(m); });
+    const row = make("div", "chips"); t.storyIds.forEach(id => { const m = make("button", "mini", byId[id].short); m.type = "button"; m.onclick = () => openStory(id); row.appendChild(m); });
     box.append(h, row); th.appendChild(box);
   });
 }
 
-/* ---------- Player ---------- */
-let story = null, seg = 0, t = 0, paused = false, ending = false, handoff = 0, trail = [];
+/* ---------- location picker ---------- */
+function openPicker() { $("picker").hidden = false; $("picker-close").hidden = !location_; $("loc-search").value = ""; renderPicker(); setTimeout(() => $("loc-search").focus(), 50); }
+function renderPicker() {
+  const q = $("loc-search").value.trim().toLowerCase(), list = $("loc-list"); list.textContent = "";
+  const opts = LOCATIONS.filter(l => !q || placeLabel(l).toLowerCase().includes(q));
+  if (!opts.length) list.appendChild(make("p", null, `No match yet. This early list has ${LOCATIONS.length} cities; a full place search is coming.`));
+  opts.forEach(l => {
+    const r = make("button", "loc-row"); r.type = "button"; const d = make("div");
+    d.append(make("strong", null, l.name), make("span", null, [l.region, l.country].filter(Boolean).join(", ")));
+    r.appendChild(d); if (location_ && location_.id === l.id) r.appendChild(make("em", null, "Selected"));
+    r.onclick = () => { location_ = l; try { localStorage.setItem("deeper-news:location", l.id); } catch (e) {} $("picker").hidden = true; renderHome(); };
+    list.appendChild(r);
+  });
+}
+$("loc-btn").onclick = openPicker; $("prompt-btn").onclick = openPicker;
+$("picker-close").onclick = () => { $("picker").hidden = true; };
+$("loc-search").addEventListener("input", renderPicker);
 
-function openStory(id, fromStory) {
-  if (fromStory) trail.push(fromStory); else if (!story) trail = [];
-  story = byId[id]; seg = 0; t = 0; paused = false; ending = false;
-  seen.add(id);
-  $("player").hidden = false; $("home").setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "hidden";
+/* ---------- player ---------- */
+let story = null, seg = 0, t = 0, paused = false, ending = false, handoff = 0;
+function openStory(id, push) {
+  if (push && story) chain.push(id); else if (!push) chain = [id];
+  story = byId[id]; seg = 0; t = 0; paused = false; ending = false; seen.add(id);
+  $("player").hidden = false; $("home").setAttribute("aria-hidden", "true"); document.body.style.overflow = "hidden";
   if (location.hash !== "#story-" + id) history.replaceState(null, "", "#story-" + id);
-  $("p-avatar").style.background = art(story.hue);
+  paint($("p-avatar"), story);
   $("p-story").textContent = story.title;
-  $("p-topic").textContent = story.topic;
-  const segs = $("segs"); segs.textContent = "";
-  story.segs.forEach(() => { const d = make("div"); d.appendChild(make("i")); segs.appendChild(d); });
-  renderMap(); showSeg(); resize();
+  const segs = $("segs"); segs.textContent = ""; story.clips.forEach(() => { const d = make("div"); d.appendChild(make("i")); segs.appendChild(d); });
+  const img = IMAGES[story.id];
+  $("photo").style.backgroundImage = img ? `url("${img.src}")` : "none";
+  $("photo").hidden = !img; $("cv").hidden = !!img;
+  $("credit").textContent = img ? "Photo: " + img.credit : "";
+  $("slot-sub").textContent = img ? "Illustrative photo until a clip is added" : "A real clip will play here";
+  showSeg(); resize();
 }
 function closeStory() {
-  story = null; trail = [];
-  $("player").hidden = true; $("home").removeAttribute("aria-hidden"); document.body.style.overflow = "";
-  history.replaceState(null, "", "#today");
-  renderHome();
+  story = null; chain = []; $("player").hidden = true; $("home").removeAttribute("aria-hidden"); document.body.style.overflow = "";
+  history.replaceState(null, "", "#today"); renderHome();
 }
 function showSeg() {
-  ending = false; $("next").hidden = true;
-  const s = story.segs[seg], L = LAYERS[seg];
-  $("chip").textContent = `${L.name} · ${L.depth}`;
-  $("chip").classList.toggle("root", seg === 3);
-  $("clip-title").textContent = s.title;
-  $("clip-meta").textContent = `${s.when} · ${s.source} · ${s.rights}`;
-  $("clip-why").textContent = s.why;
-  $("deeper").textContent = seg < 4 ? `Go deeper ↓ ${LAYERS[seg + 1].name}` : "See what's connected";
-  setPaused(paused);
-  renderMap(); paintSegs();
+  ending = false; $("handoff").hidden = true;
+  const c = story.clips[seg], L = LAYERS[seg];
+  $("chip").textContent = `${L.name} · ${L.depth}`; $("chip").classList.toggle("root", seg === ROOTS);
+  $("photo").classList.toggle("roots", seg === ROOTS);
+  $("clip-title").textContent = c.title;
+  $("clip-meta").textContent = `${c.when} · ${c.source} · ${c.rights}`;
+  $("clip-why").textContent = c.why;
+  $("deeper").textContent = seg < 4 ? `Go deeper ↓ ${LAYERS[seg + 1].name}` : "Where it leads →";
+  $("leads").hidden = seg >= 4;
+  $("p-sub").textContent = `${story.topic} · ${story.place.name}, ${story.place.country}` + (chain.length > 1 ? ` · story ${chain.length} in your chain` : "");
+  setPaused(paused); renderMap(); paintSegs();
 }
-function paintSegs() {
-  [...$("segs").children].forEach((d, i) => { d.firstChild.style.width = (i < seg ? 100 : i === seg ? t * 100 : 0) + "%"; });
-}
-function nextSeg() { if (ending) return; if (seg < story.segs.length - 1) { seg++; t = 0; showSeg(); } else showEnd(); }
-function prevSeg() {
-  if (ending) { ending = false; $("next").hidden = true; t = 0; return; }
-  if (t > 0.25 || seg === 0) t = 0; else { seg--; t = 0; } showSeg();
-}
+function paintSegs() { [...$("segs").children].forEach((d, i) => { d.firstChild.style.width = (i < seg || ending ? 100 : i === seg ? t * 100 : 0) + "%"; }); }
+function nextSeg() { if (ending) return; if (seg < 4) { seg++; t = 0; showSeg(); } else showEnd(); }
+function prevSeg() { if (ending) { ending = false; $("handoff").hidden = true; t = 0; return; } if (t > 0.25 || seg === 0) t = 0; else { seg--; t = 0; } showSeg(); }
 function showEnd() {
   ending = true; handoff = 0; t = 1; paintSegs();
-  const [nid, reason] = story.next[0], n = byId[nid];
-  const main = $("next-main"); main.textContent = "";
-  const txt = make("div"); txt.append(make("span", "topic", n.topic)); txt.appendChild(make("strong", null, n.title)); txt.appendChild(make("div", "reason", reason));
-  const cd = make("i", "countdown"); cd.id = "countdown";
-  main.append(thumb(n, false), txt, cd); main.onclick = () => openStory(nid, story.id);
-  const others = $("next-others"); others.textContent = "";
-  story.next.slice(1).forEach(([oid, r]) => {
-    const b = make("button", "chip"); b.type = "button"; b.append(byId[oid].title); b.appendChild(make("small", null, r));
-    b.onclick = () => openStory(oid, story.id); others.appendChild(b);
+  $("h-eyebrow").textContent = (chain.length > 1 ? `Story ${chain.length} in your chain` : "End of story") + " · up next";
+  $("h-question").textContent = story.handoff.question;
+  const paths = $("h-paths"); paths.textContent = "";
+  story.handoff.paths.forEach((p, i) => {
+    const n = byId[p.storyId], b = make("button", "path"); b.type = "button";
+    const txt = make("div"); txt.append(make("small", null, PATH_LABELS[p.kind]), make("strong", null, n.title), make("span", null, p.reason));
+    b.append(paint(make("i", "pthumb"), n), txt);
+    if (i === 0) { const cd = make("i", "countdown"); cd.id = "countdown"; b.appendChild(cd); }
+    b.onclick = () => openStory(p.storyId, true); paths.appendChild(b);
   });
-  $("next").hidden = false;
-  renderMap();
+  $("handoff").hidden = false; $("handoff").scrollTop = 0; renderMap();
 }
 function renderMap() {
-  const fill = (root) => {
-    root.querySelector(".layers").textContent = "";
-    story.segs.forEach((s, i) => {
-      const r = make("button", "layer-row" + (i === 3 ? " root" : "") + (i < seg || ending ? " done" : "") + (i === seg && !ending ? " on" : "")); r.type = "button";
-      const txt = make("div"); txt.append(make("small", null, `${LAYERS[i].name} · ${s.when}`), make("span", null, s.title));
-      r.append(make("i", "dot"), txt);
-      r.onclick = () => { seg = i; t = 0; $("map-sheet").classList.remove("open"); showSeg(); };
-      root.querySelector(".layers").appendChild(r);
+  for (const root of [$("map-sheet"), $("map-side")]) {
+    root.textContent = "";
+    if (root.id === "map-sheet") { const x = make("button", "icon-btn map-close", "✕"); x.type = "button"; x.setAttribute("aria-label", "Close story map"); x.onclick = () => { root.classList.remove("open"); setPaused(false); }; root.appendChild(x); }
+    root.appendChild(make("h3", null, "In this story"));
+    const layers = make("div", "layers");
+    story.clips.forEach((c, i) => {
+      const r = make("button", "layer-row" + (i === ROOTS ? " root" : "") + (i < seg || ending ? " done" : "") + (i === seg && !ending ? " on" : "")); r.type = "button";
+      const txt = make("div"); txt.append(make("small", null, `${LAYERS[i].name} · ${c.when}`), make("span", null, c.title));
+      r.append(make("i", "dot"), txt); r.onclick = () => { seg = i; t = 0; $("map-sheet").classList.remove("open"); showSeg(); }; layers.appendChild(r);
     });
-    const ml = root.querySelector(".map-links"); ml.textContent = "";
-    story.next.forEach(([id, reason]) => {
-      const b = make("button", "map-link"); b.type = "button"; b.append(byId[id].title); b.appendChild(make("small", null, reason));
-      b.onclick = () => openStory(id, story.id); ml.appendChild(b);
+    root.append(layers, make("h3", null, "Where it leads"));
+    story.handoff.paths.forEach(p => {
+      const b = make("button", "map-link"); b.type = "button";
+      b.append(make("small", null, PATH_LABELS[p.kind]), make("strong", null, byId[p.storyId].title), make("span", null, p.reason));
+      b.onclick = () => openStory(p.storyId, true); root.appendChild(b);
     });
-  };
-  const side = $("map-side");
-  if (!side.firstChild) { side.innerHTML = '<div><h3>In this story</h3></div><div class="layers"></div><div><h3>Connected stories</h3></div><div class="map-links"></div>'; }
-  fill($("map-sheet")); fill(side);
+  }
 }
 function setPaused(p) { paused = p; $("pause").textContent = p ? "▶" : "❚❚"; $("pause").setAttribute("aria-label", p ? "Play" : "Pause"); }
-function nextStory() { openStory(story.next[0][0], story.id); }
-function prevStory() { const back = trail.pop(); if (back) { story = null; openStory(back); } }
+function nextStory() { openStory(story.handoff.paths[0].storyId, true); }
+function prevStory() { if (chain.length > 1) { chain.pop(); const back = chain[chain.length - 1]; const keep = chain; openStory(back, false); chain = keep; showSeg(); } }
 
-$("tap-next").onclick = nextSeg;
-$("tap-prev").onclick = prevSeg;
-$("pause").onclick = () => setPaused(!paused);
-$("close").onclick = closeStory;
-$("deeper").onclick = nextSeg;
-$("skip").onclick = nextStory;
+$("tap-next").onclick = nextSeg; $("tap-prev").onclick = prevSeg; $("deeper").onclick = nextSeg;
+$("leads").onclick = showEnd; $("pause").onclick = () => setPaused(!paused); $("close").onclick = closeStory;
 $("map-btn").onclick = () => { $("map-sheet").classList.add("open"); setPaused(true); };
-$("map-close").onclick = () => { $("map-sheet").classList.remove("open"); setPaused(false); };
-$("replay").onclick = () => { seg = 0; t = 0; showSeg(); };
-$("to-today").onclick = closeStory;
+$("replay").onclick = () => { seg = 0; t = 0; showSeg(); }; $("to-today").onclick = closeStory;
 
-// swipe left = next connected story, swipe right = back along your path, swipe down = close
-let sx = 0, sy = 0, swiping = false;
-const scr = $("screen");
-scr.addEventListener("pointerdown", e => { if (e.target.closest(".map")) return; sx = e.clientX; sy = e.clientY; swiping = true; });
+let sx = 0, sy = 0, swiping = false; const scr = $("screen");
+scr.addEventListener("pointerdown", e => { if (e.target.closest(".map, .handoff")) return; sx = e.clientX; sy = e.clientY; swiping = true; });
 scr.addEventListener("pointerup", e => {
-  if (!swiping) return; swiping = false;
-  const dx = e.clientX - sx, dy = e.clientY - sy;
-  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) { suppressTap(); dx < 0 ? nextStory() : prevStory(); }
-  else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) { suppressTap(); closeStory(); }
+  if (!swiping) return; swiping = false; const dx = e.clientX - sx, dy = e.clientY - sy;
+  const stop = ev => { ev.stopPropagation(); ev.preventDefault(); };
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) { scr.addEventListener("click", stop, { capture: true, once: true }); dx < 0 ? nextStory() : prevStory(); }
+  else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) { scr.addEventListener("click", stop, { capture: true, once: true }); closeStory(); }
 });
-function suppressTap() { const stop = ev => { ev.stopPropagation(); ev.preventDefault(); }; scr.addEventListener("click", stop, { capture: true, once: true }); }
-
 document.addEventListener("keydown", e => {
-  if (!story) return;
-  if (e.key === "ArrowRight") nextSeg();
-  else if (e.key === "ArrowLeft") prevSeg();
-  else if (e.key === "ArrowDown") nextStory();
-  else if (e.key === "ArrowUp") prevStory();
+  if (!story || !$("picker").hidden) return;
+  if (e.key === "ArrowRight") nextSeg(); else if (e.key === "ArrowLeft") prevSeg();
+  else if (e.key === "ArrowDown") nextStory(); else if (e.key === "ArrowUp") prevStory();
   else if (e.key === "Escape") closeStory();
   else if (e.key === " " && !e.target.closest("button")) { e.preventDefault(); setPaused(!paused); }
 });
 
-/* placeholder footage: drifting water lines tinted per story; roots clips turn warm */
-const cv = $("cv"), ctx = cv.getContext("2d");
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-let phase = 0;
+/* fallback footage for stories without a photo */
+const cv = $("cv"), ctx = cv.getContext("2d"); const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches; let phase = 0;
 function resize() { const r = cv.getBoundingClientRect(); cv.width = Math.max(1, r.width * devicePixelRatio); cv.height = Math.max(1, r.height * devicePixelRatio); }
 function draw() {
-  if (!story) return;
-  const w = cv.width, h = cv.height, hue = seg === 3 ? 32 : story.hue, light = 30 - seg * 3;
-  const g = ctx.createLinearGradient(0, 0, w * 0.4, h);
-  g.addColorStop(0, `hsl(${hue} 45% ${light}%)`); g.addColorStop(1, `hsl(${hue} 50% 5%)`);
+  if (!story || !$("cv").offsetParent && $("cv").hidden) return;
+  const w = cv.width, h = cv.height, hue = seg === ROOTS ? 32 : story.hue;
+  const g = ctx.createLinearGradient(0, 0, w * 0.4, h); g.addColorStop(0, `hsl(${hue} 45% ${30 - seg * 3}%)`); g.addColorStop(1, `hsl(${hue} 50% 5%)`);
   ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-  for (let i = 0; i < 9; i++) {
-    ctx.beginPath(); const base = h * (0.22 + i * 0.075);
+  for (let i = 0; i < 9; i++) { ctx.beginPath(); const base = h * (0.22 + i * 0.075);
     for (let x = 0; x <= w; x += 10) ctx.lineTo(x, base + Math.sin(x / (70 + i * 16) + phase * (0.5 + i * 0.08) + i * 1.7) * h * 0.025);
-    ctx.strokeStyle = `hsla(${hue} 60% 75% / ${0.04 + i * 0.012})`; ctx.lineWidth = 2 * devicePixelRatio; ctx.stroke();
-  }
+    ctx.strokeStyle = `hsla(${hue} 60% 75% / ${0.04 + i * 0.012})`; ctx.lineWidth = 2 * devicePixelRatio; ctx.stroke(); }
 }
 let last = performance.now();
 function loop(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
-  if (story) {
+  const mapOpen = $("map-sheet").classList.contains("open") && innerWidth < 900;
+  if (story && !paused && !mapOpen) {
     if (!reduce) phase += dt * 0.6;
-    if (!paused && !ending) { t += dt / SEG_SECONDS; if (t >= 1) nextSeg(); else paintSegs(); }
-    if (ending && !paused) { handoff += dt / HANDOFF_SECONDS; const cd = $("countdown"); if (cd) cd.style.width = Math.min(100, handoff * 100) + "%"; if (handoff >= 1) nextStory(); }
-    draw();
-  }
+    if (!ending) { t += dt / SEG_SECONDS; if (t >= 1) nextSeg(); else paintSegs(); }
+    else { handoff += dt / HANDOFF_SECONDS; const cd = $("countdown"); if (cd) cd.style.width = Math.min(100, handoff * 100) + "%";
+      $("h-hint").textContent = `${PATH_LABELS[story.handoff.paths[0].kind]} starts in ${Math.max(0, Math.ceil(HANDOFF_SECONDS * (1 - handoff)))} s`;
+      if (handoff >= 1) nextStory(); }
+  } else if (story && ending) $("h-hint").textContent = "Paused";
+  if (story && $("photo").hidden) draw();
   requestAnimationFrame(loop);
 }
 new ResizeObserver(resize).observe(cv);
-
-function route() {
-  const m = location.hash.match(/^#story-([a-z]+)$/);
-  if (m && byId[m[1]]) { if (!story || story.id !== m[1]) openStory(m[1]); }
-  else if (story) closeStory();
-}
+function route() { const m = location.hash.match(/^#story-([a-z-]+)$/); if (m && byId[m[1]]) { if (!story || story.id !== m[1]) openStory(m[1]); } else if (story) closeStory(); }
 window.addEventListener("hashchange", route);
 renderHome(); route(); requestAnimationFrame(loop);
 </script>
