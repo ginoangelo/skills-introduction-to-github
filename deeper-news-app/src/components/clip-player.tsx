@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import type { Clip } from '@/data/types';
+import type { Clip, Story } from '@/data/types';
 import { VideoPlaceholder } from './video-placeholder';
 import { youtubeEmbedUrl } from './youtube';
 
@@ -10,8 +10,8 @@ import { youtubeEmbedUrl } from './youtube';
  * The iframe sits inside a small HTML page with a base URL, because YouTube
  * refuses embeds that arrive without a referring site.
  */
-export function ClipPlayer({ clip, hue, layer }: { clip: Clip; hue: number; layer: number }) {
-  if (!clip.youtubeId) return <VideoPlaceholder hue={hue} layer={layer} />;
+export function ClipPlayer({ clip, story, layer }: { clip: Clip; story: Story; layer: number }) {
+  if (!clip.youtubeId) return <VideoPlaceholder story={story} layer={layer} />;
   const src = youtubeEmbedUrl(clip.youtubeId, clip.startSeconds, clip.seconds);
   const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>html,body{margin:0;height:100%;background:#000}iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}</style>

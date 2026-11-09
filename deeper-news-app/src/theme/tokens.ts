@@ -34,6 +34,9 @@ export const video = {
   accent: '#4FD1C5',
   warm: '#E7A560',
   scrim: 'rgba(4, 12, 15, 0.92)',
+  /** Behind the hand-off: nearly solid so the clip underneath doesn't compete with the question. */
+  handoff: '#040C0F',
+  card: '#17252B',
 };
 
 export function useTokens(): Tokens {

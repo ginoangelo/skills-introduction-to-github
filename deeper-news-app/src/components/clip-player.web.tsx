@@ -1,12 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 
-import type { Clip } from '@/data/types';
+import type { Clip, Story } from '@/data/types';
 import { VideoPlaceholder } from './video-placeholder';
 import { youtubeEmbedUrl } from './youtube';
 
 /** Website version: a plain YouTube iframe. */
-export function ClipPlayer({ clip, hue, layer }: { clip: Clip; hue: number; layer: number }) {
-  if (!clip.youtubeId) return <VideoPlaceholder hue={hue} layer={layer} />;
+export function ClipPlayer({ clip, story, layer }: { clip: Clip; story: Story; layer: number }) {
+  if (!clip.youtubeId) return <VideoPlaceholder story={story} layer={layer} />;
   const src = youtubeEmbedUrl(clip.youtubeId, clip.startSeconds, clip.seconds);
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }]}>

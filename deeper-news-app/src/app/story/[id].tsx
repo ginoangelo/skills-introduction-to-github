@@ -5,11 +5,12 @@ import { PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, useWin
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ClipPlayer } from '@/components/clip-player';
+import { StoryArt } from '@/components/story-art';
 import { StoryMap } from '@/components/story-map';
 import { getStory } from '@/data/stories';
 import { LAYERS, PATH_LABELS, ROOTS_LAYER, type Story } from '@/data/types';
 import { useAppState } from '@/state/app-state';
-import { storyColor, useTokens, video, WIDE_BREAKPOINT } from '@/theme/tokens';
+import { useTokens, video, WIDE_BREAKPOINT } from '@/theme/tokens';
 
 /** Clips without a YouTube id play as placeholders for this long. */
 const PLACEHOLDER_SECONDS = 7;
@@ -169,7 +170,7 @@ function Player({ story }: { story: Story }) {
       <View
         {...pan.panHandlers}
         style={[styles.screen, wide ? { height: screenHeight, width: (screenHeight * 9) / 16, borderRadius: 16 } : styles.fill]}>
-        <ClipPlayer clip={clip} hue={story.hue} layer={clipIndex} />
+        <ClipPlayer clip={clip} story={story} layer={clipIndex} />
 
         {/* Tap zones sit at the edges so YouTube's own controls stay usable in the middle. */}
         <Pressable accessibilityLabel="Previous clip" onPress={prev} style={[styles.tapZone, { left: 0 }]} />
@@ -189,7 +190,7 @@ function Player({ story }: { story: Story }) {
             ))}
           </View>
           <View style={styles.head}>
-            <View style={[styles.avatar, { backgroundColor: storyColor(story.hue) }]} />
+            <StoryArt story={story} style={styles.avatar} />
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text numberOfLines={1} style={styles.headTitle}>
                 {story.title}
@@ -250,7 +251,7 @@ function Player({ story }: { story: Story }) {
                 const target = getStory(p.storyId);
                 return (
                   <Pressable key={p.storyId} onPress={() => goToStory(p.storyId)} style={styles.path} accessibilityRole="button">
-                    <View style={[styles.pathThumb, { backgroundColor: storyColor(target?.hue ?? 190) }]} />
+                    {target && <StoryArt story={target} style={styles.pathThumb} />}
                     <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                       <Text style={styles.pathKind}>{PATH_LABELS[p.kind]}</Text>
                       <Text style={styles.pathTitle}>{target?.title}</Text>
@@ -320,11 +321,11 @@ const styles = StyleSheet.create({
   btnPrimary: { backgroundColor: video.ink, borderColor: video.ink },
   btnText: { color: video.ink, fontSize: 14, fontWeight: '600' },
   hint: { color: video.muted, fontSize: 12 },
-  handoffScroll: { backgroundColor: video.scrim },
+  handoffScroll: { backgroundColor: video.handoff },
   handoff: { flexGrow: 1, paddingHorizontal: 20, justifyContent: 'center', gap: 16 },
   eyebrow: { color: video.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
   question: { color: video.ink, fontSize: 30, lineHeight: 33, fontWeight: '800', letterSpacing: -0.6 },
-  path: { flexDirection: 'row', gap: 12, alignItems: 'center', borderWidth: 1, borderColor: video.line, backgroundColor: video.glass, borderRadius: 12, padding: 10, overflow: 'hidden' },
+  path: { flexDirection: 'row', gap: 12, alignItems: 'center', borderWidth: 1, borderColor: video.line, backgroundColor: video.card, borderRadius: 12, padding: 10, overflow: 'hidden' },
   pathThumb: { width: 52, height: 72, borderRadius: 6 },
   pathKind: { color: video.accent, fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   pathTitle: { color: video.ink, fontSize: 16, fontWeight: '700', lineHeight: 20 },

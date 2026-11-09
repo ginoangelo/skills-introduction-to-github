@@ -3,13 +3,15 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { placeLabel } from '@/data/places';
 import { getStory } from '@/data/stories';
 import { LAYERS, type Story, type Thread } from '@/data/types';
-import { storyColor, video, type Tokens } from '@/theme/tokens';
+import { video, type Tokens } from '@/theme/tokens';
+
+import { StoryArt } from './story-art';
 
 export function StoryRing({ story, seen, t, onPress }: { story: Story; seen: boolean; t: Tokens; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Watch ${story.title}`} style={styles.ring}>
       <View style={[styles.ringOuter, { borderColor: seen ? t.line : t.accent }]}>
-        <View style={[styles.ringInner, { backgroundColor: storyColor(story.hue), borderColor: t.bg }]} />
+        <StoryArt story={story} style={[styles.ringInner, { borderColor: t.bg }]} />
       </View>
       <Text numberOfLines={2} style={[styles.ringLabel, { color: t.ink }]}>
         {story.short}
@@ -37,14 +39,14 @@ export function StoryCard({
       onPress={onPress}
       accessibilityRole="button"
       style={({ pressed }) => [styles.card, { backgroundColor: t.surface, borderColor: pressed ? t.accent : t.line }]}>
-      <View style={[styles.thumb, { backgroundColor: storyColor(story.hue) }]}>
+      <StoryArt story={story} dim={0.12} style={styles.thumb}>
         <View style={styles.thumbBars}>
           {story.clips.map((_, i) => (
             <View key={i} style={styles.thumbBar} />
           ))}
         </View>
         <Text style={styles.thumbLen}>{story.minutes} min</Text>
-      </View>
+      </StoryArt>
       <View style={styles.cardBody}>
         <Text style={[styles.eyebrow, { color: t.muted }]}>{story.topic}</Text>
         <Text style={[styles.cardTitle, { color: seen ? t.muted : t.ink }]}>{story.title}</Text>
