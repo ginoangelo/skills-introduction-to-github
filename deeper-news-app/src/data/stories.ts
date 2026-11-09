@@ -24,6 +24,7 @@ export const STORIES: Story[] = [
       { title: '2019: the council puts off levee repairs', when: '2019', source: 'Town meeting archive', rights: 'Public record', why: 'A 4–3 vote pushed the repairs back five years.', seconds: 20 },
       { title: 'State hearing on emergency flood funds', when: 'Day 9', source: 'State legislature feed', rights: 'Public record', why: "The town's request cites the county's drone survey.", seconds: 20 },
     ],
+    predict: { decoys: ['The town votes to abandon its riverfront', 'A federal team takes over the levee repairs'] },
     handoff: {
       question: "So why didn't the state send the money?",
       paths: [
@@ -48,6 +49,7 @@ export const STORIES: Story[] = [
       { title: 'Archive: the 1998 flood reaches Ostend Mills', when: '1998', source: 'Regional archive', rights: 'Archive license', why: 'The same flood that hit Marlow Creek.', seconds: 20 },
       { title: 'Contractors tour the levee site', when: 'Day 60', source: 'Local station', rights: 'Licensed', why: 'The first work under the new plan.', seconds: 20 },
     ],
+    predict: { decoys: ['Residents sue to stop the new levee', 'The state pays for the levee after all'] },
     handoff: {
       question: 'Will the state ever pay for levees like this?',
       paths: [
@@ -72,6 +74,7 @@ export const STORIES: Story[] = [
       { title: '2021: the flood reserve is cut by a third', when: '2021', source: 'State legislature feed', rights: 'Public record', why: 'Why the fund was short to begin with.', seconds: 20 },
       { title: 'Ostend Mills decides to pay for its own levee', when: 'Day 40', source: 'Local station', rights: 'Licensed', why: 'One town stops waiting for the state.', seconds: 20 },
     ],
+    predict: { decoys: ['The governor finds the money elsewhere', 'The committee votes again and passes the bill'] },
     handoff: {
       question: "Who pays when the state doesn't?",
       paths: [
@@ -96,6 +99,7 @@ export const STORIES: Story[] = [
       { title: 'The county flood map, last revised in 2009', when: '2009', source: 'County records', rights: 'Public record', why: 'The maps insurers had been using until now.', seconds: 20 },
       { title: 'A grain elevator loses its coverage', when: 'Day 25', source: 'Partner report', rights: 'Licensed', why: 'This leads into the river freight story.', seconds: 20 },
     ],
+    predict: { decoys: ['The state orders the insurers to come back', 'Premiums fall once the new flood maps are out'] },
     handoff: {
       question: "What happens to a business that can't get insured?",
       paths: [
@@ -119,6 +123,7 @@ export const STORIES: Story[] = [
       { title: '2020 report on the lock repair backlog', when: '2020', source: 'Federal agency briefing', rights: 'Public record', why: 'Lock 7 was already on the repair list.', seconds: 20 },
       { title: 'Halvard Port backs up too', when: 'Day 15', source: 'Local station', rights: 'Licensed', why: 'The same cargo was due at the port.', seconds: 20 },
     ],
+    predict: { decoys: ['The grain moves by rail within a day', 'Grain prices drop across the country'] },
     handoff: {
       question: 'Where was all that grain supposed to go?',
       paths: [
@@ -142,6 +147,7 @@ export const STORIES: Story[] = [
       { title: '2023: the automation clause is tabled', when: '2023', source: 'Union livestream', rights: 'Publisher permission', why: 'The dispute was postponed, not settled.', seconds: 20 },
       { title: 'Grain shippers caught in both', when: 'Day 15', source: 'Local station', rights: 'Licensed', why: 'The river closure and the strike hit the same cargo.', seconds: 20 },
     ],
+    predict: { decoys: ['The strike ends the next morning', 'The port cancels the automated cranes'] },
     handoff: {
       question: 'What happens to the grain stuck upriver?',
       paths: [
@@ -165,6 +171,7 @@ export const STORIES: Story[] = [
       { title: 'The 1998 flood closed the same school', when: '1998', source: 'Regional archive', rights: 'Archive license', why: 'It reopened four months later.', seconds: 20 },
       { title: 'Repair money depends on the stalled bill', when: 'Day 30', source: 'State legislature feed', rights: 'Public record', why: 'This leads into the flood budget story.', seconds: 20 },
     ],
+    predict: { decoys: ['The schools move online for the year', 'A donor pays for every repair'] },
     handoff: {
       question: 'When will the schools get money for repairs?',
       paths: [
@@ -189,6 +196,7 @@ export const STORIES: Story[] = [
       { title: 'Archive: the year the old school washed away', when: '2007', source: 'Regional archive', rights: 'Archive license', why: 'Why the village stopped building schools on land.', seconds: 20 },
       { title: 'Two more districts order boats', when: 'Week 6', source: 'Regional broadcaster', rights: 'Licensed', why: 'The idea starts to spread.', seconds: 20 },
     ],
+    predict: { decoys: ['Regulators ban the boats as unsafe', 'The program ends after one season'] },
     handoff: {
       question: 'Could American river towns do something like this?',
       paths: [
@@ -212,6 +220,7 @@ export const STORIES: Story[] = [
       { title: 'Archive: the near-flood that started the plan', when: '1995', source: 'National archive', rights: 'Archive license', why: 'Why the country changed its approach.', seconds: 20 },
       { title: 'The first high water since the dikes moved', when: 'Month 4', source: 'Resident upload', rights: 'Consent on file', why: 'The test the plan was built for.', seconds: 20 },
     ],
+    predict: { decoys: ['The town rebuilds the old dikes', 'Farmers win a court case to reverse the plan'] },
     handoff: {
       question: 'Is a higher wall or more room for the river the better bet?',
       paths: [
@@ -235,6 +244,7 @@ export const STORIES: Story[] = [
       { title: 'The union deal that made training part of the plan', when: '2024', source: 'Union recording', rights: 'Publisher permission', why: 'Why there was no strike here.', seconds: 20 },
       { title: 'Ships start choosing this port over others', when: 'Month 3', source: 'Regional broadcaster', rights: 'Licensed', why: 'What faster loading means for trade.', seconds: 20 },
     ],
+    predict: { decoys: ['Workers strike, just like in Halvard', 'The cranes are shipped back'] },
     handoff: {
       question: 'Why did one port strike while this one retrained?',
       paths: [{ kind: 'people', storyId: 'port', reason: 'Halvard dockworkers striking over the same cranes' }],

@@ -14,7 +14,8 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const wide = width >= WIDE_BREAKPOINT;
-  const { seen, followed, toggleFollow, startChain, location, locationReady } = useAppState();
+  const { seen, followed, toggleFollow, startChain, location, locationReady, guesses } = useAppState();
+  const rightGuesses = [...guesses.values()].filter(Boolean).length;
 
   const open = (id: string) => {
     startChain(id);
@@ -86,6 +87,7 @@ export default function HomeScreen() {
           <View style={styles.main}>
             <Text style={{ color: t.muted, fontSize: 12, alignSelf: 'flex-end' }}>
               {seen.size} of {STORIES.length} watched
+              {guesses.size > 0 ? ` · you called ${rightGuesses} of ${guesses.size}` : ''}
             </Text>
             {buckets && location ? (
               <>

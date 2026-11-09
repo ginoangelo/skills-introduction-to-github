@@ -25,6 +25,9 @@ type AppState = {
   pushChain: (storyId: string) => void;
   /** Removes the current story and returns the previous one, if any. */
   popChain: () => string | undefined;
+  /** "What happens next?" answers: story id -> whether the guess was right. */
+  guesses: ReadonlyMap<string, boolean>;
+  recordGuess: (storyId: string, correct: boolean) => void;
 };
 
 const Ctx = createContext<AppState | null>(null);
@@ -35,6 +38,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [chain, setChain] = useState<readonly string[]>([]);
   const [location, setLocationState] = useState<UserLocation | null>(null);
   const [locationReady, setLocationReady] = useState(false);
+  const [guesses, setGuesses] = useState<ReadonlyMap<string, boolean>>(new Map());
+
+  const recordGuess = useCallback((id: string, correct: boolean) => {
+    setGuesses((prev) => (prev.has(id) ? prev : new Map(prev).set(id, correct)));
+  }, []);
 
   // Read the saved location once. Storage can fail (private browsing), so fall back to none.
   useEffect(() => {
@@ -80,8 +88,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [chain]);
 
   const value = useMemo(
-    () => ({ location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain }),
-    [location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain],
+    () => ({ location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain, guesses, recordGuess }),
+    [location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain, guesses, recordGuess],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

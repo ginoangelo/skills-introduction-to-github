@@ -18,39 +18,55 @@ const PLACEHOLDER_SECONDS = 7;
 const HANDOFF_SECONDS = 6;
 const TICK = 0.1;
 
-type Playback = { clipIndex: number; elapsed: number; ending: boolean; handoff: number };
+type Playback = { clipIndex: number; elapsed: number; ending: boolean; handoff: number; predicting: boolean };
+/** `predictAt`: the clip to pause before for "What happens next?", or null when there's nothing to guess. */
 type PlaybackAction =
-  | { type: 'tick'; durations: number[] }
-  | { type: 'next'; last: number }
+  | { type: 'tick'; durations: number[]; predictAt: number | null }
+  | { type: 'next'; last: number; predictAt: number | null }
   | { type: 'prev' }
   | { type: 'pick'; index: number }
-  | { type: 'end' };
+  | { type: 'end' }
+  | { type: 'guessed' };
 
-const INITIAL: Playback = { clipIndex: 0, elapsed: 0, ending: false, handoff: 0 };
+const INITIAL: Playback = { clipIndex: 0, elapsed: 0, ending: false, handoff: 0, predicting: false };
 
-function advance(s: Playback, last: number): Playback {
+function advance(s: Playback, last: number, predictAt: number | null): Playback {
+  if (predictAt !== null && s.clipIndex + 1 === predictAt) return { ...s, predicting: true };
   return s.clipIndex < last ? { ...s, clipIndex: s.clipIndex + 1, elapsed: 0 } : { ...s, ending: true, handoff: 0 };
 }
 
-/** Clip progress and the hand-off countdown, moved forward one tick at a time. */
+/** Clip progress, the guessing pause and the hand-off countdown, moved forward one tick at a time. */
 function playback(s: Playback, a: PlaybackAction): Playback {
   switch (a.type) {
     case 'tick': {
+      if (s.predicting) return s;
       if (s.ending) return { ...s, handoff: s.handoff + TICK };
       const elapsed = s.elapsed + TICK;
-      return elapsed < a.durations[s.clipIndex] ? { ...s, elapsed } : advance(s, a.durations.length - 1);
+      return elapsed < a.durations[s.clipIndex] ? { ...s, elapsed } : advance(s, a.durations.length - 1, a.predictAt);
     }
     case 'next':
-      return s.ending ? s : advance(s, a.last);
+      return s.ending || s.predicting ? s : advance(s, a.last, a.predictAt);
     case 'prev':
+      if (s.predicting) return { ...s, predicting: false, elapsed: 0 };
       if (s.ending) return { ...s, ending: false, elapsed: 0 };
       if (s.elapsed > 1.5 || s.clipIndex === 0) return { ...s, elapsed: 0 };
       return { ...s, clipIndex: s.clipIndex - 1, elapsed: 0 };
     case 'pick':
-      return { clipIndex: a.index, elapsed: 0, ending: false, handoff: 0 };
+      return { clipIndex: a.index, elapsed: 0, ending: false, handoff: 0, predicting: false };
     case 'end':
-      return { ...s, ending: true, handoff: 0 };
+      return { ...s, ending: true, handoff: 0, predicting: false };
+    case 'guessed':
+      return { ...s, predicting: false, clipIndex: s.clipIndex + 1, elapsed: 0 };
   }
+}
+
+/** The real outcome plus two decoys, in an order that's fixed per story but not always first. */
+function predictionOptions(story: Story): { text: string; correct: boolean }[] {
+  if (!story.predict) return [];
+  const real = story.clips[story.clips.length - 1].title;
+  const all = [{ text: real, correct: true }, ...story.predict.decoys.map((text) => ({ text, correct: false }))];
+  const shift = [...story.id].reduce((n, ch) => n + ch.charCodeAt(0), 0) % all.length;
+  return [...all.slice(shift), ...all.slice(0, shift)];
 }
 
 export default function StoryScreen() {
@@ -74,9 +90,9 @@ function Player({ story }: { story: Story }) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const wide = width >= WIDE_BREAKPOINT;
-  const { chain, markSeen, startChain, pushChain, popChain } = useAppState();
+  const { chain, markSeen, startChain, pushChain, popChain, guesses, recordGuess } = useAppState();
 
-  const [{ clipIndex, elapsed, ending, handoff }, dispatch] = useReducer(playback, INITIAL);
+  const [{ clipIndex, elapsed, ending, handoff, predicting }, dispatch] = useReducer(playback, INITIAL);
   const [paused, setPaused] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
 
@@ -84,6 +100,8 @@ function Player({ story }: { story: Story }) {
   const clip = story.clips[clipIndex];
   const duration = durations[clipIndex];
   const lastClip = story.clips.length - 1;
+  // Ask "What happens next?" before the last clip, once per story.
+  const predictAt = story.predict && !guesses.has(story.id) ? lastClip : null;
   const running = !paused && !(mapOpen && !wide);
 
   // Someone landing here from a shared link has no chain yet, so start one.
@@ -94,9 +112,9 @@ function Player({ story }: { story: Story }) {
 
   useEffect(() => {
     if (!running) return;
-    const timer = setInterval(() => dispatch({ type: 'tick', durations }), TICK * 1000);
+    const timer = setInterval(() => dispatch({ type: 'tick', durations, predictAt }), TICK * 1000);
     return () => clearInterval(timer);
-  }, [running, durations]);
+  }, [running, durations, predictAt]);
 
   const goToStory = useCallback(
     (nextId: string) => {
@@ -116,7 +134,7 @@ function Player({ story }: { story: Story }) {
     else router.replace('/');
   }, []);
 
-  const next = useCallback(() => dispatch({ type: 'next', last: lastClip }), [lastClip]);
+  const next = useCallback(() => dispatch({ type: 'next', last: lastClip, predictAt }), [lastClip, predictAt]);
   const prev = useCallback(() => dispatch({ type: 'prev' }), []);
   const pickClip = (index: number) => {
     dispatch({ type: 'pick', index });
@@ -238,6 +256,16 @@ function Player({ story }: { story: Story }) {
           {!wide && <Text style={styles.hint}>Tap the edges to move between clips · swipe left for the next story</Text>}
         </View>
 
+        {predicting && (
+          <PredictOverlay
+            story={story}
+            topInset={wide ? 0 : insets.top}
+            bottomInset={wide ? 0 : insets.bottom}
+            onGuess={(correct) => recordGuess(story.id, correct)}
+            onContinue={() => dispatch({ type: 'guessed' })}
+          />
+        )}
+
         {ending && (
           <ScrollView
             style={[StyleSheet.absoluteFill, styles.handoffScroll]}
@@ -295,8 +323,85 @@ function Player({ story }: { story: Story }) {
   );
 }
 
+function PredictOverlay({
+  story,
+  topInset,
+  bottomInset,
+  onGuess,
+  onContinue,
+}: {
+  story: Story;
+  topInset: number;
+  bottomInset: number;
+  onGuess: (correct: boolean) => void;
+  onContinue: () => void;
+}) {
+  const options = useMemo(() => predictionOptions(story), [story]);
+  const [chosen, setChosen] = useState<number | null>(null);
+  const answered = chosen !== null;
+  const right = answered && options[chosen].correct;
+
+  const choose = (i: number) => {
+    if (answered) return;
+    setChosen(i);
+    onGuess(options[i].correct);
+  };
+
+  return (
+    <ScrollView
+      style={[StyleSheet.absoluteFill, styles.handoffScroll]}
+      contentContainerStyle={[styles.handoff, { paddingTop: topInset + 24, paddingBottom: bottomInset + 24 }]}>
+      <Text style={styles.eyebrow}>Before you see what followed</Text>
+      <Text style={styles.question}>What do you think happened next?</Text>
+      <View style={{ gap: 10 }}>
+        {options.map((o, i) => {
+          const isChosen = chosen === i;
+          const showRight = answered && o.correct;
+          const showWrong = isChosen && !o.correct;
+          return (
+            <Pressable
+              key={o.text}
+              onPress={() => choose(i)}
+              disabled={answered}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isChosen, disabled: answered }}
+              style={[
+                styles.guess,
+                showRight && { borderColor: video.accent, backgroundColor: 'rgba(79, 209, 197, 0.16)' },
+                showWrong && { borderColor: video.warm },
+                answered && !showRight && !showWrong && { opacity: 0.45 },
+              ]}>
+              <Text style={styles.guessText}>{o.text}</Text>
+              {showRight && <Text style={[styles.guessTag, { color: video.accent }]}>{isChosen ? 'Your guess · what happened' : 'What happened'}</Text>}
+              {showWrong && <Text style={[styles.guessTag, { color: video.warm }]}>Your guess</Text>}
+            </Pressable>
+          );
+        })}
+      </View>
+      {answered ? (
+        <>
+          <Text style={[styles.verdict, { color: right ? video.accent : video.warm }]}>
+            {right ? 'You called it.' : 'Not quite. Here’s what really happened.'}
+          </Text>
+          <View style={styles.actions}>
+            <Pressable onPress={onContinue} style={[styles.btn, styles.btnPrimary]} accessibilityRole="button">
+              <Text style={[styles.btnText, { color: video.bg }]}>See what happened →</Text>
+            </Pressable>
+          </View>
+        </>
+      ) : (
+        <Text style={styles.hint}>Pick one. Then watch the real outcome.</Text>
+      )}
+    </ScrollView>
+  );
+}
+
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  guess: { borderWidth: 1, borderColor: video.line, backgroundColor: video.card, borderRadius: 12, padding: 14, gap: 4 },
+  guessText: { color: video.ink, fontSize: 16, fontWeight: '600', lineHeight: 21 },
+  guessTag: { fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
+  verdict: { fontSize: 20, fontWeight: '800' },
   center: { alignItems: 'center', justifyContent: 'center' },
   root: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20 },
   screen: { overflow: 'hidden', backgroundColor: video.bg, alignSelf: 'stretch' },

@@ -65,6 +65,11 @@ export type Story = {
   minutes: number;
   /** One clip per layer, in layer order. */
   clips: Clip[];
+  /**
+   * "What happens next?": two believable outcomes that did NOT happen. The real
+   * one is the Ripples clip's title. Shown before the Ripples clip plays.
+   */
+  predict?: { decoys: [string, string] };
   handoff: {
     /** The question the end of this story asks. The next story answers it. */
     question: string;
