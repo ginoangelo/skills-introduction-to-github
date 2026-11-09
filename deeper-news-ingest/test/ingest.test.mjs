@@ -61,4 +61,17 @@ test('ingest sorts results into near, country and world', async () => {
   assert.equal(queries[1], 'sourcecountry:unitedstates');
   assert.equal(queries.length, 4);
   assert.deepEqual(result.counts, { near: 1, country: 1, world: 2 });
+  assert.deepEqual(result.errors, []);
+});
+
+test('a failed query is recorded and the rest still come back', async () => {
+  let n = 0;
+  const fetcher = async (q) => {
+    if (q === 'sourcecountry:unitedstates') throw new Error('timed out');
+    return [article(++n)];
+  };
+  const result = await ingestForLocation({ name: 'Louisville', country: 'United States' }, { fetcher, worldCountries: 2 });
+  assert.deepEqual(result.counts, { near: 1, country: 0, world: 2 });
+  assert.equal(result.errors.length, 1);
+  assert.equal(result.errors[0].bucket, 'country');
 });

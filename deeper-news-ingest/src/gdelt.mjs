@@ -73,8 +73,14 @@ export async function fetchArticles(query, { timespan = '1d', max = 25, retries 
     if (wait > 0) await sleep(wait);
     lastRequestAt = Date.now();
 
-    const res = await fetch(url, { headers: { 'user-agent': 'deeper-news-ingest/0.1' } });
-    const text = await res.text();
+    let res, text;
+    try {
+      res = await fetch(url, { headers: { 'user-agent': 'deeper-news-ingest/0.1' }, signal: AbortSignal.timeout(30_000) });
+      text = await res.text();
+    } catch {
+      // Network hiccup or timeout: wait and try again.
+      continue;
+    }
     if (text.startsWith(RATE_LIMIT_TEXT)) continue;
     if (!res.ok) throw new Error(`GDELT returned ${res.status} for ${query}`);
     if (!text.trim()) return [];
@@ -84,5 +90,5 @@ export async function fetchArticles(query, { timespan = '1d', max = 25, retries 
       throw new Error(`GDELT sent something that isn't JSON for ${query}: ${text.slice(0, 120)}`);
     }
   }
-  throw new Error(`GDELT kept asking us to slow down for ${query}. Try again in a few minutes.`);
+  throw new Error(`GDELT didn't answer after ${retries + 1} tries for ${query}. Try again in a few minutes.`);
 }

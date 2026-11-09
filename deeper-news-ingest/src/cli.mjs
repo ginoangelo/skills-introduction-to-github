@@ -13,6 +13,7 @@ if (!name || !country) {
 
 const result = await ingestForLocation({ name, region: region || undefined, country });
 console.log(`Near ${name}: ${result.counts.near} · ${country}: ${result.counts.country} · World: ${result.counts.world}`);
+for (const e of result.errors) console.warn(`Skipped ${e.bucket} (${e.query}): ${e.message}`);
 for (const c of result.candidates.slice(0, 12)) {
   console.log(`[${c.bucket}] ${c.title} (${c.source}, ${c.sourceCountry})`);
 }

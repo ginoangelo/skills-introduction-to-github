@@ -21,22 +21,34 @@ export function pickWorldCountries(home, count, day = new Date()) {
  * @param {{ perBucket?: number, worldCountries?: number, fetcher?: typeof fetchArticles }} [options]
  */
 export async function ingestForLocation(location, { perBucket = 10, worldCountries = 2, fetcher = fetchArticles } = {}) {
-  const near = await fetcher(buildQuery({ keyword: location.name, country: location.country }), { max: perBucket });
-  const country = await fetcher(buildQuery({ country: location.country }), { max: perBucket });
-  const world = [];
-  for (const c of pickWorldCountries(location.country, worldCountries)) {
-    world.push(...(await fetcher(buildQuery({ country: c }), { max: Math.ceil(perBucket / worldCountries) })));
+  const jobs = [
+    { bucket: 'near', query: buildQuery({ keyword: location.name, country: location.country }), max: perBucket },
+    { bucket: 'country', query: buildQuery({ country: location.country }), max: perBucket },
+    ...pickWorldCountries(location.country, worldCountries).map((c) => ({
+      bucket: 'world',
+      query: buildQuery({ country: c }),
+      max: Math.ceil(perBucket / worldCountries),
+    })),
+  ];
+
+  // One failed query shouldn't throw away the others: record it and keep going.
+  const found = [];
+  const errors = [];
+  for (const job of jobs) {
+    try {
+      const articles = await fetcher(job.query, { max: job.max });
+      found.push(...articles.map((a) => toCandidate(a, job.bucket)));
+    } catch (err) {
+      errors.push({ bucket: job.bucket, query: job.query, message: err instanceof Error ? err.message : String(err) });
+    }
   }
 
-  const all = dedupe([
-    ...near.map((a) => toCandidate(a, 'near')),
-    ...country.map((a) => toCandidate(a, 'country')),
-    ...world.map((a) => toCandidate(a, 'world')),
-  ]);
+  const all = dedupe(found);
   return {
     location,
     fetchedAt: new Date().toISOString(),
     counts: Object.fromEntries(['near', 'country', 'world'].map((b) => [b, all.filter((c) => c.bucket === b).length])),
+    errors,
     candidates: all,
   };
 }
