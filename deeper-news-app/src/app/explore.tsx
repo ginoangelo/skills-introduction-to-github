@@ -47,7 +47,7 @@ export default function ExploreScreen() {
 
   const ringLabel: Record<RingId, string> = {
     near: location ? `Near ${location.name}` : 'Near you',
-    country: 'Your country',
+    country: location ? `Elsewhere in ${location.countryCode === 'US' ? 'the US' : location.countryCode === 'GB' ? 'the UK' : location.country}` : 'Your country',
     world: 'Around the world',
     all: 'Today',
   };
@@ -71,7 +71,7 @@ export default function ExploreScreen() {
           {seen.size} of {STORIES.length} watched
         </Text>
       </View>
-      {layout.rings.length > 1 && (
+      {layout.rings.length > 1 && layout.bands.length === 0 && (
         <Text style={[styles.key, { color: t.muted }]}>
           {layout.rings.map((r, i) => `${['Inner', 'Middle', 'Outer'][i]} ring: ${ringLabel[r.id]}`).join('   ·   ')}
         </Text>
@@ -80,8 +80,13 @@ export default function ExploreScreen() {
       <View style={[styles.fill, wide && styles.row]}>
         <View style={styles.fill} onLayout={onLayout}>
           {area.w > 0 && (
-            <>
-              <Svg width={area.w} height={area.h} style={StyleSheet.absoluteFill}>
+            <ScrollView contentContainerStyle={{ height: layout.height }} showsVerticalScrollIndicator={false}>
+              {layout.bands.map((b) => (
+                <View key={`band-${b.id}`} pointerEvents="none" style={[styles.band, { top: b.y }]}>
+                  <Text style={[styles.bandText, { color: t.muted, backgroundColor: t.bg }]}>{ringLabel[b.id]}</Text>
+                </View>
+              ))}
+              <Svg width={area.w} height={layout.height} style={{ position: 'absolute', left: 0, top: 0 }}>
                 {layout.rings.map((r) =>
                   r.rx > 0 ? (
                     <Ellipse key={r.id} cx={cx} cy={cy} rx={r.rx} ry={r.ry} stroke={t.line} strokeWidth={1.5} strokeDasharray="4 6" fill="none" />
@@ -141,7 +146,7 @@ export default function ExploreScreen() {
                   </Pressable>
                 );
               })}
-            </>
+            </ScrollView>
           )}
         </View>
 
@@ -250,6 +255,8 @@ const styles = StyleSheet.create({
   h1: { fontSize: 24, fontWeight: '800', letterSpacing: -0.5 },
   count: { fontSize: 12 },
   key: { paddingHorizontal: 16, fontSize: 12, fontWeight: '600' },
+  band: { position: 'absolute', left: 0, right: 0, alignItems: 'center', zIndex: 1 },
+  bandText: { fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', paddingHorizontal: 10 },
   node: { position: 'absolute', alignItems: 'center', gap: 4 },
   ring: { overflow: 'hidden' },
   nodeLabel: { fontSize: 11, textAlign: 'center' },

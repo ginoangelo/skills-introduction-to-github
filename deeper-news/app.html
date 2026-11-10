@@ -192,6 +192,55 @@ button, input { font: inherit; color: inherit; }
   #map-side { width: 340px; height: min(860px, 100%); border-radius: 16px; border: 1px solid var(--line); }
   #map-sheet, .map-btn, .hint.touch { display: none; }
 }
+/* ---------- Guess ---------- */
+.guess { text-align: left; background: var(--v-card); border: 1px solid var(--v-line); border-radius: 12px; padding: 14px; cursor: pointer; color: var(--v-ink); display: grid; gap: 4px; font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.guess small { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.guess.right { border-color: var(--v-accent); background: rgba(79, 209, 197, 0.16); }
+.guess.right small { color: var(--v-accent); }
+.guess.wrong { border-color: var(--v-warm); }
+.guess.wrong small { color: var(--v-warm); }
+.guess.faded { opacity: 0.45; }
+.guess:disabled { cursor: default; }
+.verdict { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; margin: 0; }
+.verdict.right { color: var(--v-accent); } .verdict.wrong { color: var(--v-warm); }
+
+/* ---------- Explore ---------- */
+.explore-btn { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+.explore { position: fixed; inset: 0; z-index: 55; background: var(--bg); display: flex; flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px)); }
+.ex-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.ex-head h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; margin: 0; letter-spacing: -0.02em; }
+.ex-head p { margin: 0; color: var(--muted); font-size: 0.85rem; flex: 1 1 240px; }
+.pill-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; cursor: pointer; }
+.ex-key { color: var(--muted); font-size: 0.75rem; font-weight: 600; margin: 6px 0 0; }
+.ex-body { flex: 1; display: flex; gap: 16px; min-height: 0; padding-bottom: 16px; }
+.ex-canvas { flex: 1; position: relative; min-width: 0; overflow-y: auto; }
+.ex-band { position: absolute; left: 50%; transform: translateX(-50%); z-index: 1; background: var(--bg); padding: 0 10px; white-space: nowrap; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.ex-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ex-edge { fill: none; stroke: var(--muted); stroke-opacity: 0.35; stroke-width: 1.5; transition: stroke-opacity 0.2s; }
+.ex-edge.on { stroke: var(--accent); stroke-opacity: 1; stroke-width: 3; }
+.ex-edge.dim { stroke-opacity: 0.12; }
+.ex-ring { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 4 6; }
+.ex-node { position: absolute; display: grid; justify-items: center; gap: 4px; background: none; border: 0; padding: 0; cursor: pointer; transition: opacity 0.2s; }
+.ex-node i { display: block; border-radius: 50%; border: 3px solid var(--surface); box-sizing: border-box; }
+.ex-node.seen i { border-color: var(--warm); box-shadow: 0 0 12px var(--warm); }
+.ex-node.on i { border-color: var(--accent); border-width: 4px; }
+.ex-node span { font-size: 0.7rem; font-weight: 600; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ex-node.on span { font-weight: 800; }
+.ex-node.dim { opacity: 0.35; }
+.ex-panel { width: 340px; flex: 0 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; overflow-y: auto; display: grid; gap: 10px; align-content: start; }
+.ex-panel h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; margin: 0; line-height: 1.2; text-wrap: balance; }
+.ex-panel p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.ex-banner { height: 150px; border-radius: 12px; }
+.ex-watch { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 11px; font-weight: 700; cursor: pointer; }
+.ex-x { justify-self: end; }
+.legend { display: grid; gap: 6px; font-size: 0.82rem; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 3px solid; vertical-align: -2px; margin-right: 6px; }
+@media (max-width: 899px) {
+  .ex-panel { position: fixed; left: 0; right: 0; bottom: 0; width: auto; max-height: 58%; border-radius: 16px 16px 0 0; z-index: 2;
+    padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px)); }
+  .ex-panel.empty { display: none; }
+}
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -200,6 +249,7 @@ button, input { font: inherit; color: inherit; }
     <div class="brand">Deeper<span>.</span>News</div>
     <div class="top-right">
       <span class="sample">Sample stories · fictional</span>
+      <button class="explore-btn" type="button" id="explore-btn">Explore the map</button>
       <button class="loc-btn" type="button" id="loc-btn"></button>
     </div>
   </div>
@@ -230,6 +280,20 @@ button, input { font: inherit; color: inherit; }
     </div>
     <input id="loc-search" type="search" placeholder="Search for a city or country" autocomplete="off">
     <div id="loc-list"></div>
+  </div>
+</div>
+
+<div class="explore" id="explore" hidden>
+  <div class="ex-head">
+    <button class="pill-btn" type="button" id="ex-back">← Today</button>
+    <h1>Explore</h1>
+    <p id="ex-sub"></p>
+    <span class="watched" id="ex-watched"></span>
+  </div>
+  <p class="ex-key" id="ex-key"></p>
+  <div class="ex-body">
+    <div class="ex-canvas" id="ex-canvas"></div>
+    <aside class="ex-panel" id="ex-panel"></aside>
   </div>
 </div>
 
@@ -273,13 +337,21 @@ button, input { font: inherit; color: inherit; }
         <button class="v-btn" type="button" id="to-today">Back to Today</button>
       </div>
     </div>
+    <div class="handoff" id="predict" hidden>
+      <span class="eyebrow">Before you see what followed</span>
+      <h2 class="question">What do you think happened next?</h2>
+      <div class="paths" id="p-options"></div>
+      <p class="verdict" id="p-verdict" hidden></p>
+      <span class="hint" id="p-hint">Pick one. Then watch the real outcome.</span>
+      <div class="actions"><button class="v-btn primary-v" type="button" id="p-continue" hidden>See what happened →</button></div>
+    </div>
     <div class="map" id="map-sheet"></div>
   </div>
   <div class="map" id="map-side"></div>
 </div>
 
 <script>
-const DATA = {"STORIES":[{"id":"marlow","place":{"name":"Marlow Creek","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.35,"lng":-85.6},"short":"Marlow Creek","title":"The Marlow Creek levee gave way at dawn","topic":"Climate & infrastructure","hue":192,"minutes":4,"clips":[{"title":"Evening bulletin: the levee gives way","when":"Day 0, 6:00 p.m.","source":"Local station","rights":"Licensed","why":"The version most people saw first. The clips after it show what the bulletin left out.","seconds":20},{"title":"A porch camera catches the first water","when":"Day 0, 6:42 a.m.","source":"Resident upload","rights":"Consent on file","why":"The earliest footage. It puts the breach 40 minutes before the first emergency call.","seconds":20},{"title":"Volunteer boat crew, helmet camera","when":"Day 0, 9:05 a.m.","source":"Volunteer upload","rights":"Consent on file","why":"A first-person view of the rescues on Front Street.","seconds":20},{"title":"2019: the council puts off levee repairs","when":"2019","source":"Town meeting archive","rights":"Public record","why":"A 4–3 vote pushed the repairs back five years.","seconds":20},{"title":"State hearing on emergency flood funds","when":"Day 9","source":"State legislature feed","rights":"Public record","why":"The town's request cites the county's drone survey.","seconds":20}],"handoff":{"question":"So why didn't the state send the money?","paths":[{"kind":"money","storyId":"funding","reason":"The bill that was supposed to send it, stuck on a tie vote"},{"kind":"people","storyId":"insurers","reason":"The Front Street store owner's insurer pulls out"},{"kind":"place","storyId":"ostend","reason":"Downriver, the next town decides not to wait"}]}},{"id":"ostend","place":{"name":"Ostend Mills","region":"Harlan River valley","country":"United States","countryCode":"US","lat":37.95,"lng":-86},"short":"Ostend Mills","title":"Ostend Mills votes to raise its own levee","topic":"Climate & infrastructure","hue":204,"minutes":3,"clips":[{"title":"Council recap: a 6–1 vote","when":"Day 40","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"The town engineer walks the low section","when":"Day 38","source":"Town channel","rights":"Public record","why":"Shows exactly which stretch the vote covers.","seconds":20},{"title":"Residents at the microphone","when":"Day 40","source":"Town meeting archive","rights":"Public record","why":"Two speakers say they watched the Marlow Creek footage.","seconds":20},{"title":"Archive: the 1998 flood reaches Ostend Mills","when":"1998","source":"Regional archive","rights":"Archive license","why":"The same flood that hit Marlow Creek.","seconds":20},{"title":"Contractors tour the levee site","when":"Day 60","source":"Local station","rights":"Licensed","why":"The first work under the new plan.","seconds":20}],"handoff":{"question":"Will the state ever pay for levees like this?","paths":[{"kind":"money","storyId":"funding","reason":"The bill that was supposed to pay for it"},{"kind":"place","storyId":"marlow","reason":"Upriver, where this started"},{"kind":"people","storyId":"room-river","reason":"A Dutch town that moved its dikes back instead"}]}},{"id":"funding","place":{"name":"State capitol","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.2,"lng":-84.9},"short":"Flood budget","title":"The state flood-fund bill stalls in committee","topic":"Politics","hue":252,"minutes":4,"clips":[{"title":"The finance committee stalls the bill","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"The headline.","seconds":20},{"title":"The 5–5 vote, full recording","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"The tie happens at 23:20 in the recording.","seconds":20},{"title":"Marlow Creek's mayor after the vote","when":"Day 30","source":"Partner interview","rights":"Licensed","why":"Her town asked for the largest share.","seconds":20},{"title":"2021: the flood reserve is cut by a third","when":"2021","source":"State legislature feed","rights":"Public record","why":"Why the fund was short to begin with.","seconds":20},{"title":"Ostend Mills decides to pay for its own levee","when":"Day 40","source":"Local station","rights":"Licensed","why":"One town stops waiting for the state.","seconds":20}],"handoff":{"question":"Who pays when the state doesn't?","paths":[{"kind":"money","storyId":"insurers","reason":"Insurers start pulling out of river towns"},{"kind":"place","storyId":"ostend","reason":"The town that paid for its own levee"},{"kind":"people","storyId":"schools","reason":"Teachers working out of borrowed buildings"}]}},{"id":"insurers","place":{"name":"River towns","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.25,"lng":-85.75},"short":"Insurance","title":"Two insurers stop writing policies in river towns","topic":"Economy","hue":28,"minutes":3,"clips":[{"title":"Two insurers pull back","when":"Day 21","source":"Partner report","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Industry briefing on the new flood maps","when":"Day 18","source":"Webinar recording","rights":"Publisher permission","why":"The slide at 12:40 lists the affected zip codes.","seconds":20},{"title":"The Front Street store owner reads her renewal letter","when":"Day 21","source":"Partner interview","rights":"Licensed","why":"You may have met her in the Marlow Creek story.","seconds":20},{"title":"The county flood map, last revised in 2009","when":"2009","source":"County records","rights":"Public record","why":"The maps insurers had been using until now.","seconds":20},{"title":"A grain elevator loses its coverage","when":"Day 25","source":"Partner report","rights":"Licensed","why":"This leads into the river freight story.","seconds":20}],"handoff":{"question":"What happens to a business that can't get insured?","paths":[{"kind":"money","storyId":"grain","reason":"A grain elevator stuck with nowhere to ship"},{"kind":"people","storyId":"marlow","reason":"Where the store owner's story began"}]}},{"id":"grain","place":{"name":"Lock 7","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38,"lng":-86.3},"short":"River freight","title":"Grain barges back up while the river stays closed","topic":"Economy","hue":46,"minutes":3,"clips":[{"title":"Barges stack up above Lock 7","when":"Day 12","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Idle barges, filmed from the bank","when":"Day 10","source":"Resident upload","rights":"Consent on file","why":"The lock below Marlow Creek is still shut for debris.","seconds":20},{"title":"An elevator operator on the wait","when":"Day 12","source":"Partner interview","rights":"Licensed","why":"He's paying to store grain he can't ship.","seconds":20},{"title":"2020 report on the lock repair backlog","when":"2020","source":"Federal agency briefing","rights":"Public record","why":"Lock 7 was already on the repair list.","seconds":20},{"title":"Halvard Port backs up too","when":"Day 15","source":"Local station","rights":"Licensed","why":"The same cargo was due at the port.","seconds":20}],"handoff":{"question":"Where was all that grain supposed to go?","paths":[{"kind":"place","storyId":"port","reason":"A port already shut down by a strike"},{"kind":"money","storyId":"insurers","reason":"Why the elevator lost its insurance"}]}},{"id":"port","place":{"name":"Halvard Port","region":"Gulf Coast","country":"United States","countryCode":"US","lat":29.95,"lng":-90.07},"short":"Halvard Port","title":"Halvard dockworkers strike over automated cranes","topic":"Labor","hue":346,"minutes":3,"clips":[{"title":"Dockworkers walk out","when":"Day 14","source":"Partner feed","rights":"Licensed","why":"The headline.","seconds":20},{"title":"The picket line at Gate 3","when":"Day 14","source":"Worker upload","rights":"Consent on file","why":"Filmed by a picketer at the shift change.","seconds":20},{"title":"A crane operator of 22 years","when":"Day 14","source":"Partner interview","rights":"Licensed","why":"He explains what the new cranes would replace.","seconds":20},{"title":"2023: the automation clause is tabled","when":"2023","source":"Union livestream","rights":"Publisher permission","why":"The dispute was postponed, not settled.","seconds":20},{"title":"Grain shippers caught in both","when":"Day 15","source":"Local station","rights":"Licensed","why":"The river closure and the strike hit the same cargo.","seconds":20}],"handoff":{"question":"What happens to the grain stuck upriver?","paths":[{"kind":"place","storyId":"grain","reason":"The barges waiting above Lock 7"},{"kind":"people","storyId":"bayport","reason":"Workers on another continent training for the same cranes"}]}},{"id":"schools","place":{"name":"Harlan County","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.4,"lng":-85.4},"short":"Harlan schools","title":"Harlan County schools reopen in borrowed buildings","topic":"Community","hue":150,"minutes":3,"clips":[{"title":"Schools reopen a week after the flood","when":"Day 7","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"First morning at the church hall","when":"Day 7","source":"Parent upload","rights":"Consent on file","why":"Thirty desks in a room built for dinners.","seconds":20},{"title":"A teacher whose classroom was on Front Street","when":"Day 7","source":"Partner interview","rights":"Licensed","why":"Her school is two doors from the hardware store.","seconds":20},{"title":"The 1998 flood closed the same school","when":"1998","source":"Regional archive","rights":"Archive license","why":"It reopened four months later.","seconds":20},{"title":"Repair money depends on the stalled bill","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"This leads into the flood budget story.","seconds":20}],"handoff":{"question":"When will the schools get money for repairs?","paths":[{"kind":"money","storyId":"funding","reason":"The bill the repairs are waiting on"},{"kind":"people","storyId":"floating-schools","reason":"Halfway around the world, a village keeps school open on boats"},{"kind":"place","storyId":"marlow","reason":"The flood that closed the school"}]}},{"id":"floating-schools","place":{"name":"Char Kalia","region":"Sundarbans delta","country":"Bangladesh","countryCode":"BD","lat":22.3,"lng":89.6},"short":"Boat schools","title":"In a delta village, school moves onto boats for flood season","topic":"Community","hue":165,"minutes":3,"clips":[{"title":"The first boat school pulls up to the landing","when":"Week 1","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"A morning lesson while the boat moves between villages","when":"Week 1","source":"Teacher upload","rights":"Consent on file","why":"Shows how a class works when the classroom floats.","seconds":20},{"title":"A student who hasn’t missed a day this monsoon","when":"Week 2","source":"Partner interview","rights":"Licensed","why":"In past years she lost months of school to flooding.","seconds":20},{"title":"Archive: the year the old school washed away","when":"2007","source":"Regional archive","rights":"Archive license","why":"Why the village stopped building schools on land.","seconds":20},{"title":"Two more districts order boats","when":"Week 6","source":"Regional broadcaster","rights":"Licensed","why":"The idea starts to spread.","seconds":20}],"handoff":{"question":"Could American river towns do something like this?","paths":[{"kind":"people","storyId":"schools","reason":"Teachers in Harlan County working out of borrowed rooms"},{"kind":"place","storyId":"room-river","reason":"Another country that has learned to live with rising water"}]}},{"id":"room-river","place":{"name":"Veldmaas","region":"Meuse valley","country":"Netherlands","countryCode":"NL","lat":51.4,"lng":5.9},"short":"Veldmaas","title":"A Dutch river town moves its dikes back and lets the river in","topic":"Climate & infrastructure","hue":210,"minutes":4,"clips":[{"title":"The new floodplain opens","when":"Day 0","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Drone footage: the old dike line and the new one","when":"Day 0","source":"Water board","rights":"Public record","why":"Shows how much land was handed back to the river.","seconds":20},{"title":"A farmer who sold his fields to the project","when":"Day 2","source":"Partner interview","rights":"Licensed","why":"Not everyone wanted to move.","seconds":20},{"title":"Archive: the near-flood that started the plan","when":"1995","source":"National archive","rights":"Archive license","why":"Why the country changed its approach.","seconds":20},{"title":"The first high water since the dikes moved","when":"Month 4","source":"Resident upload","rights":"Consent on file","why":"The test the plan was built for.","seconds":20}],"handoff":{"question":"Is a higher wall or more room for the river the better bet?","paths":[{"kind":"place","storyId":"ostend","reason":"An American town choosing the opposite: a higher levee"},{"kind":"people","storyId":"floating-schools","reason":"A village that adapted instead of building walls"}]}},{"id":"bayport","place":{"name":"Bayport","region":"Lagos coast","country":"Nigeria","countryCode":"NG","lat":6.45,"lng":3.4},"short":"Bayport","title":"Dockworkers in a West African port train for automated cranes","topic":"Labor","hue":20,"minutes":3,"clips":[{"title":"The first automated crane arrives by ship","when":"Day 0","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Inside the training simulator","when":"Day 3","source":"Port authority","rights":"Public record","why":"Workers learn to run the cranes from a control room.","seconds":20},{"title":"A crane operator choosing to retrain","when":"Day 3","source":"Partner interview","rights":"Licensed","why":"He sees it differently from the Halvard strikers.","seconds":20},{"title":"The union deal that made training part of the plan","when":"2024","source":"Union recording","rights":"Publisher permission","why":"Why there was no strike here.","seconds":20},{"title":"Ships start choosing this port over others","when":"Month 3","source":"Regional broadcaster","rights":"Licensed","why":"What faster loading means for trade.","seconds":20}],"handoff":{"question":"Why did one port strike while this one retrained?","paths":[{"kind":"people","storyId":"port","reason":"Halvard dockworkers striking over the same cranes"}]}}],"THREADS":[{"id":"harlan-river","name":"Harlan River flooding","kind":"Place","storyIds":["marlow","ostend","grain","schools"]},{"id":"flood-budget","name":"State flood budget","kind":"Decision","storyIds":["funding","marlow","ostend","schools"]},{"id":"insurance","name":"Insurance in river towns","kind":"Issue","storyIds":["insurers","marlow","grain"]},{"id":"store-owner","name":"The Front Street store owner","kind":"Person","storyIds":["marlow","insurers"]},{"id":"river-freight","name":"River freight","kind":"Issue","storyIds":["grain","port"]},{"id":"rising-water","name":"Living with rising water","kind":"Issue","storyIds":["marlow","ostend","room-river","floating-schools"]},{"id":"cranes-and-jobs","name":"Cranes and jobs","kind":"Issue","storyIds":["port","bayport"]}],"LOCATIONS":[{"id":"louisville","name":"Louisville","region":"Kentucky","country":"United States","countryCode":"US","lat":38.25,"lng":-85.76},{"id":"chicago","name":"Chicago","region":"Illinois","country":"United States","countryCode":"US","lat":41.88,"lng":-87.63},{"id":"new-york","name":"New York","region":"New York","country":"United States","countryCode":"US","lat":40.71,"lng":-74.01},{"id":"new-orleans","name":"New Orleans","region":"Louisiana","country":"United States","countryCode":"US","lat":29.95,"lng":-90.07},{"id":"los-angeles","name":"Los Angeles","region":"California","country":"United States","countryCode":"US","lat":34.05,"lng":-118.24},{"id":"toronto","name":"Toronto","region":"Ontario","country":"Canada","countryCode":"CA","lat":43.65,"lng":-79.38},{"id":"mexico-city","name":"Mexico City","country":"Mexico","countryCode":"MX","lat":19.43,"lng":-99.13},{"id":"sao-paulo","name":"São Paulo","country":"Brazil","countryCode":"BR","lat":-23.55,"lng":-46.63},{"id":"london","name":"London","region":"England","country":"United Kingdom","countryCode":"GB","lat":51.51,"lng":-0.13},{"id":"amsterdam","name":"Amsterdam","country":"Netherlands","countryCode":"NL","lat":52.37,"lng":4.9},{"id":"lagos","name":"Lagos","country":"Nigeria","countryCode":"NG","lat":6.52,"lng":3.38},{"id":"nairobi","name":"Nairobi","country":"Kenya","countryCode":"KE","lat":-1.29,"lng":36.82},{"id":"dhaka","name":"Dhaka","country":"Bangladesh","countryCode":"BD","lat":23.81,"lng":90.41},{"id":"mumbai","name":"Mumbai","country":"India","countryCode":"IN","lat":19.08,"lng":72.88},{"id":"tokyo","name":"Tokyo","country":"Japan","countryCode":"JP","lat":35.68,"lng":139.69},{"id":"sydney","name":"Sydney","region":"New South Wales","country":"Australia","countryCode":"AU","lat":-33.87,"lng":151.21}],"NEAR_KM":400,"IMAGES":{"marlow":{"src":"img/marlow.jpg","alt":"Floodwater pouring through a breach in a river levee","credit":"U.S. Army Corps of Engineers, Kansas City District · Public domain · Wikimedia Commons"},"ostend":{"src":"img/ostend.jpg","alt":"A rebuilt levee armored with rock beside a river","credit":"U.S. Army Corps of Engineers, Sacramento District · Public domain · Wikimedia Commons"},"funding":{"src":"img/funding.jpg","alt":"The dome of a state capitol building against a blue sky","credit":"Radomianin · Public domain · Wikimedia Commons"},"insurers":{"src":"img/insurers.jpg","alt":"A house damaged by flooding, with debris piled in front","credit":"Photographer not credited · Public domain · Wikimedia Commons"},"grain":{"src":"img/grain.jpg","alt":"Boats at a river lock and dam, in an early 1900s photograph","credit":"U.S. Army Corps of Engineers · Public domain · Wikimedia Commons"},"port":{"src":"img/port.jpg","alt":"Rows of shipping containers at a large port","credit":"Charles Csavossy · Public domain · Wikimedia Commons"},"schools":{"src":"img/schools.jpg","alt":"An old schoolroom with wooden desks and a chalkboard","credit":"National Park Service · Public domain · Wikimedia Commons"},"room-river":{"src":"img/room-river.jpg","alt":"Horses grazing on a green river floodplain under a cloudy sky","credit":"Industrees · CC0 · Wikimedia Commons"},"bayport":{"src":"img/bayport.jpg","alt":"Container cranes lit up along a harbor at night","credit":"Syced · CC0 · Wikimedia Commons"}}};
+const DATA = {"STORIES":[{"id":"marlow","place":{"name":"Marlow Creek","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.35,"lng":-85.6},"short":"Marlow Creek","title":"The Marlow Creek levee gave way at dawn","topic":"Climate & infrastructure","hue":192,"minutes":4,"clips":[{"title":"Evening bulletin: the levee gives way","when":"Day 0, 6:00 p.m.","source":"Local station","rights":"Licensed","why":"The version most people saw first. The clips after it show what the bulletin left out.","seconds":20},{"title":"A porch camera catches the first water","when":"Day 0, 6:42 a.m.","source":"Resident upload","rights":"Consent on file","why":"The earliest footage. It puts the breach 40 minutes before the first emergency call.","seconds":20},{"title":"Volunteer boat crew, helmet camera","when":"Day 0, 9:05 a.m.","source":"Volunteer upload","rights":"Consent on file","why":"A first-person view of the rescues on Front Street.","seconds":20},{"title":"2019: the council puts off levee repairs","when":"2019","source":"Town meeting archive","rights":"Public record","why":"A 4–3 vote pushed the repairs back five years.","seconds":20},{"title":"State hearing on emergency flood funds","when":"Day 9","source":"State legislature feed","rights":"Public record","why":"The town's request cites the county's drone survey.","seconds":20}],"predict":{"decoys":["The town votes to abandon its riverfront","A federal team takes over the levee repairs"]},"handoff":{"question":"So why didn't the state send the money?","paths":[{"kind":"money","storyId":"funding","reason":"The bill that was supposed to send it, stuck on a tie vote"},{"kind":"people","storyId":"insurers","reason":"The Front Street store owner's insurer pulls out"},{"kind":"place","storyId":"ostend","reason":"Downriver, the next town decides not to wait"}]}},{"id":"ostend","place":{"name":"Ostend Mills","region":"Harlan River valley","country":"United States","countryCode":"US","lat":37.95,"lng":-86},"short":"Ostend Mills","title":"Ostend Mills votes to raise its own levee","topic":"Climate & infrastructure","hue":204,"minutes":3,"clips":[{"title":"Council recap: a 6–1 vote","when":"Day 40","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"The town engineer walks the low section","when":"Day 38","source":"Town channel","rights":"Public record","why":"Shows exactly which stretch the vote covers.","seconds":20},{"title":"Residents at the microphone","when":"Day 40","source":"Town meeting archive","rights":"Public record","why":"Two speakers say they watched the Marlow Creek footage.","seconds":20},{"title":"Archive: the 1998 flood reaches Ostend Mills","when":"1998","source":"Regional archive","rights":"Archive license","why":"The same flood that hit Marlow Creek.","seconds":20},{"title":"Contractors tour the levee site","when":"Day 60","source":"Local station","rights":"Licensed","why":"The first work under the new plan.","seconds":20}],"predict":{"decoys":["Residents sue to stop the new levee","The state pays for the levee after all"]},"handoff":{"question":"Will the state ever pay for levees like this?","paths":[{"kind":"money","storyId":"funding","reason":"The bill that was supposed to pay for it"},{"kind":"place","storyId":"marlow","reason":"Upriver, where this started"},{"kind":"people","storyId":"room-river","reason":"A Dutch town that moved its dikes back instead"}]}},{"id":"funding","place":{"name":"State capitol","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.2,"lng":-84.9},"short":"Flood budget","title":"The state flood-fund bill stalls in committee","topic":"Politics","hue":252,"minutes":4,"clips":[{"title":"The finance committee stalls the bill","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"The headline.","seconds":20},{"title":"The 5–5 vote, full recording","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"The tie happens at 23:20 in the recording.","seconds":20},{"title":"Marlow Creek's mayor after the vote","when":"Day 30","source":"Partner interview","rights":"Licensed","why":"Her town asked for the largest share.","seconds":20},{"title":"2021: the flood reserve is cut by a third","when":"2021","source":"State legislature feed","rights":"Public record","why":"Why the fund was short to begin with.","seconds":20},{"title":"Ostend Mills decides to pay for its own levee","when":"Day 40","source":"Local station","rights":"Licensed","why":"One town stops waiting for the state.","seconds":20}],"predict":{"decoys":["The governor finds the money elsewhere","The committee votes again and passes the bill"]},"handoff":{"question":"Who pays when the state doesn't?","paths":[{"kind":"money","storyId":"insurers","reason":"Insurers start pulling out of river towns"},{"kind":"place","storyId":"ostend","reason":"The town that paid for its own levee"},{"kind":"people","storyId":"schools","reason":"Teachers working out of borrowed buildings"}]}},{"id":"insurers","place":{"name":"River towns","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.25,"lng":-85.75},"short":"Insurance","title":"Two insurers stop writing policies in river towns","topic":"Economy","hue":28,"minutes":3,"clips":[{"title":"Two insurers pull back","when":"Day 21","source":"Partner report","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Industry briefing on the new flood maps","when":"Day 18","source":"Webinar recording","rights":"Publisher permission","why":"The slide at 12:40 lists the affected zip codes.","seconds":20},{"title":"The Front Street store owner reads her renewal letter","when":"Day 21","source":"Partner interview","rights":"Licensed","why":"You may have met her in the Marlow Creek story.","seconds":20},{"title":"The county flood map, last revised in 2009","when":"2009","source":"County records","rights":"Public record","why":"The maps insurers had been using until now.","seconds":20},{"title":"A grain elevator loses its coverage","when":"Day 25","source":"Partner report","rights":"Licensed","why":"This leads into the river freight story.","seconds":20}],"predict":{"decoys":["The state orders the insurers to come back","Premiums fall once the new flood maps are out"]},"handoff":{"question":"What happens to a business that can't get insured?","paths":[{"kind":"money","storyId":"grain","reason":"A grain elevator stuck with nowhere to ship"},{"kind":"people","storyId":"marlow","reason":"Where the store owner's story began"}]}},{"id":"grain","place":{"name":"Lock 7","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38,"lng":-86.3},"short":"River freight","title":"Grain barges back up while the river stays closed","topic":"Economy","hue":46,"minutes":3,"clips":[{"title":"Barges stack up above Lock 7","when":"Day 12","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Idle barges, filmed from the bank","when":"Day 10","source":"Resident upload","rights":"Consent on file","why":"The lock below Marlow Creek is still shut for debris.","seconds":20},{"title":"An elevator operator on the wait","when":"Day 12","source":"Partner interview","rights":"Licensed","why":"He's paying to store grain he can't ship.","seconds":20},{"title":"2020 report on the lock repair backlog","when":"2020","source":"Federal agency briefing","rights":"Public record","why":"Lock 7 was already on the repair list.","seconds":20},{"title":"Halvard Port backs up too","when":"Day 15","source":"Local station","rights":"Licensed","why":"The same cargo was due at the port.","seconds":20}],"predict":{"decoys":["The grain moves by rail within a day","Grain prices drop across the country"]},"handoff":{"question":"Where was all that grain supposed to go?","paths":[{"kind":"place","storyId":"port","reason":"A port already shut down by a strike"},{"kind":"money","storyId":"insurers","reason":"Why the elevator lost its insurance"}]}},{"id":"port","place":{"name":"Halvard Port","region":"Gulf Coast","country":"United States","countryCode":"US","lat":29.95,"lng":-90.07},"short":"Halvard Port","title":"Halvard dockworkers strike over automated cranes","topic":"Labor","hue":346,"minutes":3,"clips":[{"title":"Dockworkers walk out","when":"Day 14","source":"Partner feed","rights":"Licensed","why":"The headline.","seconds":20},{"title":"The picket line at Gate 3","when":"Day 14","source":"Worker upload","rights":"Consent on file","why":"Filmed by a picketer at the shift change.","seconds":20},{"title":"A crane operator of 22 years","when":"Day 14","source":"Partner interview","rights":"Licensed","why":"He explains what the new cranes would replace.","seconds":20},{"title":"2023: the automation clause is tabled","when":"2023","source":"Union livestream","rights":"Publisher permission","why":"The dispute was postponed, not settled.","seconds":20},{"title":"Grain shippers caught in both","when":"Day 15","source":"Local station","rights":"Licensed","why":"The river closure and the strike hit the same cargo.","seconds":20}],"predict":{"decoys":["The strike ends the next morning","The port cancels the automated cranes"]},"handoff":{"question":"What happens to the grain stuck upriver?","paths":[{"kind":"place","storyId":"grain","reason":"The barges waiting above Lock 7"},{"kind":"people","storyId":"bayport","reason":"Workers on another continent training for the same cranes"}]}},{"id":"schools","place":{"name":"Harlan County","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.4,"lng":-85.4},"short":"Harlan schools","title":"Harlan County schools reopen in borrowed buildings","topic":"Community","hue":150,"minutes":3,"clips":[{"title":"Schools reopen a week after the flood","when":"Day 7","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"First morning at the church hall","when":"Day 7","source":"Parent upload","rights":"Consent on file","why":"Thirty desks in a room built for dinners.","seconds":20},{"title":"A teacher whose classroom was on Front Street","when":"Day 7","source":"Partner interview","rights":"Licensed","why":"Her school is two doors from the hardware store.","seconds":20},{"title":"The 1998 flood closed the same school","when":"1998","source":"Regional archive","rights":"Archive license","why":"It reopened four months later.","seconds":20},{"title":"Repair money depends on the stalled bill","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"This leads into the flood budget story.","seconds":20}],"predict":{"decoys":["The schools move online for the year","A donor pays for every repair"]},"handoff":{"question":"When will the schools get money for repairs?","paths":[{"kind":"money","storyId":"funding","reason":"The bill the repairs are waiting on"},{"kind":"people","storyId":"floating-schools","reason":"Halfway around the world, a village keeps school open on boats"},{"kind":"place","storyId":"marlow","reason":"The flood that closed the school"}]}},{"id":"floating-schools","place":{"name":"Char Kalia","region":"Sundarbans delta","country":"Bangladesh","countryCode":"BD","lat":22.3,"lng":89.6},"short":"Boat schools","title":"In a delta village, school moves onto boats for flood season","topic":"Community","hue":165,"minutes":3,"clips":[{"title":"The first boat school pulls up to the landing","when":"Week 1","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"A morning lesson while the boat moves between villages","when":"Week 1","source":"Teacher upload","rights":"Consent on file","why":"Shows how a class works when the classroom floats.","seconds":20},{"title":"A student who hasn’t missed a day this monsoon","when":"Week 2","source":"Partner interview","rights":"Licensed","why":"In past years she lost months of school to flooding.","seconds":20},{"title":"Archive: the year the old school washed away","when":"2007","source":"Regional archive","rights":"Archive license","why":"Why the village stopped building schools on land.","seconds":20},{"title":"Two more districts order boats","when":"Week 6","source":"Regional broadcaster","rights":"Licensed","why":"The idea starts to spread.","seconds":20}],"predict":{"decoys":["Regulators ban the boats as unsafe","The program ends after one season"]},"handoff":{"question":"Could American river towns do something like this?","paths":[{"kind":"people","storyId":"schools","reason":"Teachers in Harlan County working out of borrowed rooms"},{"kind":"place","storyId":"room-river","reason":"Another country that has learned to live with rising water"}]}},{"id":"room-river","place":{"name":"Veldmaas","region":"Meuse valley","country":"Netherlands","countryCode":"NL","lat":51.4,"lng":5.9},"short":"Veldmaas","title":"A Dutch river town moves its dikes back and lets the river in","topic":"Climate & infrastructure","hue":210,"minutes":4,"clips":[{"title":"The new floodplain opens","when":"Day 0","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Drone footage: the old dike line and the new one","when":"Day 0","source":"Water board","rights":"Public record","why":"Shows how much land was handed back to the river.","seconds":20},{"title":"A farmer who sold his fields to the project","when":"Day 2","source":"Partner interview","rights":"Licensed","why":"Not everyone wanted to move.","seconds":20},{"title":"Archive: the near-flood that started the plan","when":"1995","source":"National archive","rights":"Archive license","why":"Why the country changed its approach.","seconds":20},{"title":"The first high water since the dikes moved","when":"Month 4","source":"Resident upload","rights":"Consent on file","why":"The test the plan was built for.","seconds":20}],"predict":{"decoys":["The town rebuilds the old dikes","Farmers win a court case to reverse the plan"]},"handoff":{"question":"Is a higher wall or more room for the river the better bet?","paths":[{"kind":"place","storyId":"ostend","reason":"An American town choosing the opposite: a higher levee"},{"kind":"people","storyId":"floating-schools","reason":"A village that adapted instead of building walls"}]}},{"id":"bayport","place":{"name":"Bayport","region":"Lagos coast","country":"Nigeria","countryCode":"NG","lat":6.45,"lng":3.4},"short":"Bayport","title":"Dockworkers in a West African port train for automated cranes","topic":"Labor","hue":20,"minutes":3,"clips":[{"title":"The first automated crane arrives by ship","when":"Day 0","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Inside the training simulator","when":"Day 3","source":"Port authority","rights":"Public record","why":"Workers learn to run the cranes from a control room.","seconds":20},{"title":"A crane operator choosing to retrain","when":"Day 3","source":"Partner interview","rights":"Licensed","why":"He sees it differently from the Halvard strikers.","seconds":20},{"title":"The union deal that made training part of the plan","when":"2024","source":"Union recording","rights":"Publisher permission","why":"Why there was no strike here.","seconds":20},{"title":"Ships start choosing this port over others","when":"Month 3","source":"Regional broadcaster","rights":"Licensed","why":"What faster loading means for trade.","seconds":20}],"predict":{"decoys":["Workers strike, just like in Halvard","The cranes are shipped back"]},"handoff":{"question":"Why did one port strike while this one retrained?","paths":[{"kind":"people","storyId":"port","reason":"Halvard dockworkers striking over the same cranes"}]}}],"THREADS":[{"id":"harlan-river","name":"Harlan River flooding","kind":"Place","storyIds":["marlow","ostend","grain","schools"]},{"id":"flood-budget","name":"State flood budget","kind":"Decision","storyIds":["funding","marlow","ostend","schools"]},{"id":"insurance","name":"Insurance in river towns","kind":"Issue","storyIds":["insurers","marlow","grain"]},{"id":"store-owner","name":"The Front Street store owner","kind":"Person","storyIds":["marlow","insurers"]},{"id":"river-freight","name":"River freight","kind":"Issue","storyIds":["grain","port"]},{"id":"rising-water","name":"Living with rising water","kind":"Issue","storyIds":["marlow","ostend","room-river","floating-schools"]},{"id":"cranes-and-jobs","name":"Cranes and jobs","kind":"Issue","storyIds":["port","bayport"]}],"LOCATIONS":[{"id":"louisville","name":"Louisville","region":"Kentucky","country":"United States","countryCode":"US","lat":38.25,"lng":-85.76},{"id":"chicago","name":"Chicago","region":"Illinois","country":"United States","countryCode":"US","lat":41.88,"lng":-87.63},{"id":"new-york","name":"New York","region":"New York","country":"United States","countryCode":"US","lat":40.71,"lng":-74.01},{"id":"new-orleans","name":"New Orleans","region":"Louisiana","country":"United States","countryCode":"US","lat":29.95,"lng":-90.07},{"id":"los-angeles","name":"Los Angeles","region":"California","country":"United States","countryCode":"US","lat":34.05,"lng":-118.24},{"id":"toronto","name":"Toronto","region":"Ontario","country":"Canada","countryCode":"CA","lat":43.65,"lng":-79.38},{"id":"mexico-city","name":"Mexico City","country":"Mexico","countryCode":"MX","lat":19.43,"lng":-99.13},{"id":"sao-paulo","name":"São Paulo","country":"Brazil","countryCode":"BR","lat":-23.55,"lng":-46.63},{"id":"london","name":"London","region":"England","country":"United Kingdom","countryCode":"GB","lat":51.51,"lng":-0.13},{"id":"amsterdam","name":"Amsterdam","country":"Netherlands","countryCode":"NL","lat":52.37,"lng":4.9},{"id":"lagos","name":"Lagos","country":"Nigeria","countryCode":"NG","lat":6.52,"lng":3.38},{"id":"nairobi","name":"Nairobi","country":"Kenya","countryCode":"KE","lat":-1.29,"lng":36.82},{"id":"dhaka","name":"Dhaka","country":"Bangladesh","countryCode":"BD","lat":23.81,"lng":90.41},{"id":"mumbai","name":"Mumbai","country":"India","countryCode":"IN","lat":19.08,"lng":72.88},{"id":"tokyo","name":"Tokyo","country":"Japan","countryCode":"JP","lat":35.68,"lng":139.69},{"id":"sydney","name":"Sydney","region":"New South Wales","country":"Australia","countryCode":"AU","lat":-33.87,"lng":151.21}],"NEAR_KM":400,"IMAGES":{"marlow":{"src":"img/marlow.jpg","alt":"Floodwater pouring through a breach in a river levee","credit":"U.S. Army Corps of Engineers, Kansas City District · Public domain · Wikimedia Commons"},"ostend":{"src":"img/ostend.jpg","alt":"A rebuilt levee armored with rock beside a river","credit":"U.S. Army Corps of Engineers, Sacramento District · Public domain · Wikimedia Commons"},"funding":{"src":"img/funding.jpg","alt":"The dome of a state capitol building against a blue sky","credit":"Radomianin · Public domain · Wikimedia Commons"},"insurers":{"src":"img/insurers.jpg","alt":"A house damaged by flooding, with debris piled in front","credit":"Photographer not credited · Public domain · Wikimedia Commons"},"grain":{"src":"img/grain.jpg","alt":"Boats at a river lock and dam, in an early 1900s photograph","credit":"U.S. Army Corps of Engineers · Public domain · Wikimedia Commons"},"port":{"src":"img/port.jpg","alt":"Rows of shipping containers at a large port","credit":"Charles Csavossy · Public domain · Wikimedia Commons"},"schools":{"src":"img/schools.jpg","alt":"An old schoolroom with wooden desks and a chalkboard","credit":"National Park Service · Public domain · Wikimedia Commons"},"room-river":{"src":"img/room-river.jpg","alt":"Horses grazing on a green river floodplain under a cloudy sky","credit":"Industrees · CC0 · Wikimedia Commons"},"bayport":{"src":"img/bayport.jpg","alt":"Container cranes lit up along a harbor at night","credit":"Syced · CC0 · Wikimedia Commons"}}};
 const LAYERS = [
   { name: "Surface", depth: "the headline" }, { name: "Footage", depth: "what happened" },
   { name: "Voices", depth: "who was there" }, { name: "Roots", depth: "why it happened" }, { name: "Ripples", depth: "what followed" },
@@ -300,9 +372,18 @@ function paint(el, s) {
 }
 
 /* ---------- state ---------- */
-const seen = new Set(), followed = new Set(["harlan-river"]);
+const seen = new Set(), followed = new Set(["harlan-river"]), guesses = new Map();
 let location_ = null, chain = [];
 try { const id = localStorage.getItem("deeper-news:location"); location_ = LOCATIONS.find(l => l.id === id) || null; } catch (e) {}
+try {
+  const p = JSON.parse(localStorage.getItem("deeper-news:progress") || "{}");
+  (p.seen || []).forEach(x => seen.add(x));
+  if (p.followed) { followed.clear(); p.followed.forEach(x => followed.add(x)); }
+  (p.guesses || []).forEach(([k, v]) => guesses.set(k, v));
+} catch (e) {}
+function saveProgress() {
+  try { localStorage.setItem("deeper-news:progress", JSON.stringify({ seen: [...seen], followed: [...followed], guesses: [...guesses] })); } catch (e) {}
+}
 const rad = d => d * Math.PI / 180;
 function km(a, b) { const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng); const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2; return 2 * 6371 * Math.asin(Math.sqrt(h)); }
 const placeLabel = p => [p.name, p.region, p.country].filter(Boolean).join(", ");
@@ -346,7 +427,8 @@ function renderHome() {
     const r = make("button", "ring" + (seen.has(s.id) ? " seen" : "")); r.type = "button"; r.setAttribute("aria-label", "Watch " + s.title);
     const d = make("div", "disc"); d.appendChild(paint(make("i"), s)); r.append(d, make("span", null, s.short)); r.onclick = () => openStory(s.id); tray.appendChild(r);
   });
-  $("watched").textContent = `${seen.size} of ${STORIES.length} watched`;
+  const right = [...guesses.values()].filter(Boolean).length;
+  $("watched").textContent = `${seen.size} of ${STORIES.length} watched` + (guesses.size ? ` · you called ${right} of ${guesses.size}` : "");
   const sec = $("sections"); sec.textContent = "";
   if (b) {
     sec.append(section(`Near ${location_.name}`, b.near, `No stories near ${location_.name} today. Local stories will show up here as they come in.`),
@@ -358,12 +440,112 @@ function renderHome() {
     const box = make("div", "thread"), h = make("div", "thread-h"), lbl = make("div");
     lbl.append(make("span", "eyebrow", t.kind), make("strong", null, t.name));
     const f = make("button", "follow", followed.has(t.id) ? "Following" : "Follow"); f.type = "button"; f.setAttribute("aria-pressed", followed.has(t.id));
-    f.onclick = () => { followed.has(t.id) ? followed.delete(t.id) : followed.add(t.id); renderHome(); };
+    f.onclick = () => { followed.has(t.id) ? followed.delete(t.id) : followed.add(t.id); saveProgress(); renderHome(); };
     h.append(lbl, f);
     const row = make("div", "chips"); t.storyIds.forEach(id => { const m = make("button", "mini", byId[id].short); m.type = "button"; m.onclick = () => openStory(id); row.appendChild(m); });
     box.append(h, row); th.appendChild(box);
   });
 }
+
+/* ---------- explore ---------- */
+let exSelected = null, exHover = null;
+function layoutExplore(w, h) {
+  const groups = location_ ? (() => { const b = buckets(location_); return [["near", b.near], ["country", b.country], ["world", b.world]].filter(g => g[1].length); })() : [["all", STORIES]];
+  const edges = [], keys = new Set();
+  STORIES.forEach(s => s.handoff.paths.forEach(p => { const k = [s.id, p.storyId].sort().join("|"); if (!keys.has(k)) { keys.add(k); edges.push([s.id, p.storyId]); } }));
+  const names = { near: location_ ? `Near ${location_.name}` : "Near you", country: location_ ? `Elsewhere in ${countryName(location_)}` : "", world: "Around the world", all: "Today" };
+  // Narrow screens: one row of circles per group, top to bottom, so nothing overlaps.
+  if (w < 600) {
+    const size = 52, cellW = size + 40, cols = Math.max(2, Math.floor(w / cellW)), rowH = size + 44;
+    const bandsOut = [], nodes = [];
+    let y = 8;
+    groups.forEach(([ring, list]) => {
+      bandsOut.push({ label: names[ring], y }); y += 26;
+      for (let i = 0; i < list.length; i += cols) {
+        const row = list.slice(i, i + cols), x0 = (w - row.length * cellW) / 2 + cellW / 2;
+        row.forEach((s, j) => nodes.push({ s, ring, x: x0 + j * cellW, y: y + size / 2 }));
+        y += rowH;
+      }
+      y += 14;
+    });
+    const shift = Math.max(0, (h - y) / 2);
+    nodes.forEach(n => { n.y += shift; }); bandsOut.forEach(b => { b.y += shift; });
+    return { nodes, edges, rings: [], bands: bandsOut, size, height: Math.max(h, y) };
+  }
+  const size = 68, label = 26, r = [];
+  groups.forEach(([, list], i) => { const prev = i ? r[i - 1] : 0; const around = (size + 22) * list.length / (2 * Math.PI); r.push(list.length === 1 && i === 0 ? 0 : Math.max(around, prev + size + label + 14)); });
+  const outer = r[r.length - 1] || 1;
+  const fitX = Math.max(0, w / 2 - size / 2 - 24) / outer, fitY = Math.max(0, h / 2 - size / 2 - label) / outer;
+  const sx = Math.min(fitX, fitY), sy = fitY > fitX * 1.15 ? Math.min(fitY, fitX * 1.9) : sx;
+  const nodes = [];
+  groups.forEach(([ring, list], gi) => list.forEach((s, i) => { const a = -Math.PI / 2 + gi * 0.45 + 2 * Math.PI * i / list.length; nodes.push({ s, ring, x: w / 2 + r[gi] * sx * Math.cos(a), y: h / 2 + r[gi] * sy * Math.sin(a) }); }));
+  return { nodes, edges, rings: groups.map(([id], i) => ({ id, rx: r[i] * sx, ry: r[i] * sy })), bands: [], size, height: h };
+}
+function openExplore() { $("explore").hidden = false; document.body.style.overflow = "hidden"; exSelected = null; exHover = null; renderExplore(); }
+function closeExplore() { $("explore").hidden = true; document.body.style.overflow = ""; renderHome(); }
+function renderExplore() {
+  const c = $("ex-canvas"), w = c.clientWidth, h = c.clientHeight; c.textContent = "";
+  const L = layoutExplore(w, h), byPos = Object.fromEntries(L.nodes.map(n => [n.s.id, n]));
+  const names = { near: location_ ? `Near ${location_.name}` : "Near you", country: "Your country", world: "Around the world", all: "Today" };
+  $("ex-sub").textContent = (location_ ? `Stories around ${location_.name}, and how they connect. ` : "Today’s stories and how they connect. ") + (matchMedia("(hover: hover)").matches ? "Hover a story to see its links." : "Tap a story to see its links.");
+  const inner = make("div"); inner.style.cssText = `position:relative;width:100%;height:${L.height}px`; c.appendChild(inner);
+  L.bands.forEach(b => { const l = make("span", "ex-band", b.label); l.style.top = b.y + "px"; inner.appendChild(l); });
+  $("ex-key").textContent = L.rings.length > 1 ? L.rings.map((r, i) => `${["Inner", "Middle", "Outer"][i]} ring: ${names[r.id]}`).join("   ·   ") : "";
+  $("ex-watched").textContent = `${seen.size} of ${STORIES.length} watched`;
+  const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg");
+  L.rings.forEach(r => { if (!r.rx) return; const e = document.createElementNS(NS, "ellipse"); e.setAttribute("cx", w / 2); e.setAttribute("cy", h / 2); e.setAttribute("rx", r.rx); e.setAttribute("ry", r.ry); e.setAttribute("class", "ex-ring"); svg.appendChild(e); });
+  L.edges.forEach(([a, b]) => {
+    const A = byPos[a], B = byPos[b]; if (!A || !B) return;
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, qx = mx + (w / 2 - mx) * 0.35, qy = my + (h / 2 - my) * 0.35;
+    const path = document.createElementNS(NS, "path"); path.setAttribute("d", `M${A.x},${A.y} Q${qx},${qy} ${B.x},${B.y}`);
+    path.setAttribute("class", "ex-edge"); path.dataset.a = a; path.dataset.b = b; svg.appendChild(path);
+  });
+  svg.style.height = L.height + "px"; inner.appendChild(svg);
+  L.nodes.forEach(n => {
+    const b = make("button", "ex-node" + (seen.has(n.s.id) ? " seen" : "")); b.type = "button"; b.dataset.id = n.s.id;
+    b.style.left = (n.x - L.size / 2 - 20) + "px"; b.style.top = (n.y - L.size / 2) + "px"; b.style.width = (L.size + 40) + "px";
+    const i = paint(make("i"), n.s); i.style.width = i.style.height = L.size + "px";
+    b.append(i, make("span", null, n.s.short)); b.setAttribute("aria-label", n.s.title);
+    b.onmouseenter = () => { exHover = n.s.id; focusExplore(); };
+    b.onmouseleave = () => { exHover = null; focusExplore(); };
+    b.onclick = () => { exSelected = exSelected === n.s.id ? null : n.s.id; focusExplore(); renderPanel(); };
+    inner.appendChild(b);
+  });
+  focusExplore(); renderPanel();
+}
+function focusExplore() {
+  const f = exHover || exSelected, linked = new Set();
+  document.querySelectorAll(".ex-edge").forEach(e => {
+    const on = !!f && (e.dataset.a === f || e.dataset.b === f);
+    if (on) { linked.add(e.dataset.a); linked.add(e.dataset.b); }
+    e.classList.toggle("on", on); e.classList.toggle("dim", !!f && !on);
+  });
+  document.querySelectorAll(".ex-node").forEach(n => { n.classList.toggle("on", n.dataset.id === f); n.classList.toggle("dim", !!f && n.dataset.id !== f && !linked.has(n.dataset.id)); });
+}
+function renderPanel() {
+  const p = $("ex-panel"); p.textContent = ""; p.classList.toggle("empty", !exSelected);
+  if (!exSelected) {
+    p.append(make("h2", null, "Pick a story"), make("p", null, "Click any circle to preview it and see where it leads. Stories you’ve watched glow orange, so you can see how much ground you’ve covered."));
+    const lg = make("div", "legend"); const a = make("span"), b = make("span");
+    const ia = make("i"); ia.style.borderColor = "var(--accent)"; a.append(ia, "Selected and its links");
+    const ib = make("i"); ib.style.borderColor = "var(--warm)"; b.append(ib, "Watched");
+    lg.append(a, b); p.appendChild(lg); return;
+  }
+  const s = byId[exSelected], d = location_ ? km(location_, s.place) : null;
+  const x = make("button", "icon-btn ex-x map-close", "✕"); x.type = "button"; x.setAttribute("aria-label", "Close preview"); x.onclick = () => { exSelected = null; focusExplore(); renderPanel(); };
+  if (innerWidth < 900) p.appendChild(x); else p.appendChild(paint(make("div", "ex-banner"), s));
+  p.append(make("span", "eyebrow", s.topic), make("h2", null, s.title),
+    make("p", null, placeLabel(s.place) + (d == null ? "" : d < 10 ? " · nearby" : ` · ${Math.round(d).toLocaleString("en-US")} km away`) + ` · ${s.minutes} min`));
+  const watch = make("button", "ex-watch", "Watch this story"); watch.type = "button"; watch.onclick = () => openStory(s.id); p.appendChild(watch);
+  p.appendChild(make("span", "eyebrow", "Where it leads"));
+  s.handoff.paths.forEach(pt => {
+    const b = make("button", "map-link"); b.type = "button";
+    b.append(make("small", null, PATH_LABELS[pt.kind]), make("strong", null, byId[pt.storyId].title), make("span", null, pt.reason));
+    b.onclick = () => { exSelected = pt.storyId; focusExplore(); renderPanel(); }; p.appendChild(b);
+  });
+}
+$("explore-btn").onclick = openExplore; $("ex-back").onclick = closeExplore;
+addEventListener("resize", () => { if (!$("explore").hidden) renderExplore(); });
 
 /* ---------- location picker ---------- */
 function openPicker() { $("picker").hidden = false; $("picker-close").hidden = !location_; $("loc-search").value = ""; renderPicker(); setTimeout(() => $("loc-search").focus(), 50); }
@@ -384,10 +566,11 @@ $("picker-close").onclick = () => { $("picker").hidden = true; };
 $("loc-search").addEventListener("input", renderPicker);
 
 /* ---------- player ---------- */
-let story = null, seg = 0, t = 0, paused = false, ending = false, handoff = 0;
+let story = null, seg = 0, t = 0, paused = false, ending = false, handoff = 0, predicting = false;
 function openStory(id, push) {
   if (push && story) chain.push(id); else if (!push) chain = [id];
-  story = byId[id]; seg = 0; t = 0; paused = false; ending = false; seen.add(id);
+  story = byId[id]; seg = 0; t = 0; paused = false; ending = false; predicting = false; seen.add(id); saveProgress();
+  $("predict").hidden = true; $("explore").hidden = true;
   $("player").hidden = false; $("home").setAttribute("aria-hidden", "true"); document.body.style.overflow = "hidden";
   if (location.hash !== "#story-" + id) history.replaceState(null, "", "#story-" + id);
   paint($("p-avatar"), story);
@@ -418,8 +601,39 @@ function showSeg() {
   setPaused(paused); renderMap(); paintSegs();
 }
 function paintSegs() { [...$("segs").children].forEach((d, i) => { d.firstChild.style.width = (i < seg || ending ? 100 : i === seg ? t * 100 : 0) + "%"; }); }
-function nextSeg() { if (ending) return; if (seg < 4) { seg++; t = 0; showSeg(); } else showEnd(); }
-function prevSeg() { if (ending) { ending = false; $("handoff").hidden = true; t = 0; return; } if (t > 0.25 || seg === 0) t = 0; else { seg--; t = 0; } showSeg(); }
+function nextSeg() {
+  if (ending || predicting) return;
+  if (seg === 3 && story.predict && !guesses.has(story.id)) { showPredict(); return; }
+  if (seg < 4) { seg++; t = 0; showSeg(); } else showEnd();
+}
+/* "What happens next?": the real outcome (the last clip) plus two decoys, in a fixed per-story order. */
+function showPredict() {
+  predicting = true; t = 1; paintSegs();
+  const real = story.clips[4].title;
+  let opts = [{ text: real, correct: true }, ...story.predict.decoys.map(d => ({ text: d, correct: false }))];
+  const shift = [...story.id].reduce((n, c) => n + c.charCodeAt(0), 0) % 3; opts = [...opts.slice(shift), ...opts.slice(0, shift)];
+  const box = $("p-options"); box.textContent = "";
+  $("p-verdict").hidden = true; $("p-continue").hidden = true; $("p-hint").hidden = false;
+  opts.forEach(o => {
+    const b = make("button", "guess"); b.type = "button"; b.append(o.text);
+    b.onclick = () => {
+      guesses.set(story.id, o.correct); saveProgress();
+      [...box.children].forEach((el, i) => {
+        el.disabled = true; const opt = opts[i];
+        if (opt.correct) { el.classList.add("right"); el.appendChild(make("small", null, el === b ? "Your guess · what happened" : "What happened")); }
+        else if (el === b) { el.classList.add("wrong"); el.appendChild(make("small", null, "Your guess")); }
+        else el.classList.add("faded");
+      });
+      const v = $("p-verdict"); v.hidden = false; v.className = "verdict " + (o.correct ? "right" : "wrong");
+      v.textContent = o.correct ? "You called it." : "Not quite. Here’s what really happened.";
+      $("p-hint").hidden = true; $("p-continue").hidden = false; $("p-continue").focus();
+    };
+    box.appendChild(b);
+  });
+  $("predict").hidden = false; $("predict").scrollTop = 0;
+}
+$("p-continue").onclick = () => { predicting = false; $("predict").hidden = true; seg = 4; t = 0; showSeg(); };
+function prevSeg() { if (predicting) { predicting = false; $("predict").hidden = true; t = 0; showSeg(); return; } if (ending) { ending = false; $("handoff").hidden = true; t = 0; return; } if (t > 0.25 || seg === 0) t = 0; else { seg--; t = 0; } showSeg(); }
 function showEnd() {
   ending = true; handoff = 0; t = 1; paintSegs();
   $("h-eyebrow").textContent = (chain.length > 1 ? `Story ${chain.length} in your chain` : "End of story") + " · up next";
@@ -458,12 +672,12 @@ function nextStory() { openStory(story.handoff.paths[0].storyId, true); }
 function prevStory() { if (chain.length > 1) { chain.pop(); const back = chain[chain.length - 1]; const keep = chain; openStory(back, false); chain = keep; showSeg(); } }
 
 $("tap-next").onclick = nextSeg; $("tap-prev").onclick = prevSeg; $("deeper").onclick = nextSeg;
-$("leads").onclick = showEnd; $("pause").onclick = () => setPaused(!paused); $("close").onclick = closeStory;
+$("leads").onclick = () => { predicting = false; $("predict").hidden = true; showEnd(); }; $("pause").onclick = () => setPaused(!paused); $("close").onclick = closeStory;
 $("map-btn").onclick = () => { $("map-sheet").classList.add("open"); setPaused(true); };
 $("replay").onclick = () => { seg = 0; t = 0; showSeg(); }; $("to-today").onclick = closeStory;
 
 let sx = 0, sy = 0, swiping = false; const scr = $("screen");
-scr.addEventListener("pointerdown", e => { if (e.target.closest(".map, .handoff")) return; sx = e.clientX; sy = e.clientY; swiping = true; });
+scr.addEventListener("pointerdown", e => { if (e.target.closest(".map, .handoff, #predict")) return; sx = e.clientX; sy = e.clientY; swiping = true; });
 scr.addEventListener("pointerup", e => {
   if (!swiping) return; swiping = false; const dx = e.clientX - sx, dy = e.clientY - sy;
   const stop = ev => { ev.stopPropagation(); ev.preventDefault(); };
@@ -496,7 +710,8 @@ function loop(now) {
   const mapOpen = $("map-sheet").classList.contains("open") && innerWidth < 900;
   if (story && !paused && !mapOpen) {
     if (!reduce) phase += dt * 0.6;
-    if (!ending) { t += dt / SEG_SECONDS; if (t >= 1) nextSeg(); else paintSegs(); }
+    if (predicting) { /* wait for a guess */ }
+    else if (!ending) { t += dt / SEG_SECONDS; if (t >= 1) nextSeg(); else paintSegs(); }
     else { handoff += dt / HANDOFF_SECONDS; const cd = $("countdown"); if (cd) cd.style.width = Math.min(100, handoff * 100) + "%";
       $("h-hint").textContent = `${PATH_LABELS[story.handoff.paths[0].kind]} starts in ${Math.max(0, Math.ceil(HANDOFF_SECONDS * (1 - handoff)))} s`;
       if (handoff >= 1) nextStory(); }

@@ -7,7 +7,17 @@ export type ExploreNode = { story: Story; x: number; y: number; ring: RingId };
 /** Rings are ovals on tall, narrow screens: rx across, ry down. */
 export type ExploreRing = { id: RingId; rx: number; ry: number };
 export type ExploreEdge = { from: string; to: string };
-export type ExploreLayout = { nodes: ExploreNode[]; rings: ExploreRing[]; edges: ExploreEdge[]; size: number };
+/** On narrow screens each group is a labelled row instead of a ring. */
+export type ExploreBand = { id: RingId; y: number };
+export type ExploreLayout = {
+  nodes: ExploreNode[];
+  rings: ExploreRing[];
+  bands: ExploreBand[];
+  edges: ExploreEdge[];
+  size: number;
+  /** Total drawing height; taller than the screen when rows need to scroll. */
+  height: number;
+};
 
 /**
  * Places stories on rings around the viewer: near them in the middle, the rest
@@ -26,7 +36,40 @@ export function exploreLayout(stories: Story[], location: UserLocation | null, w
       })()
     : [{ id: 'all', stories }];
 
-  const size = width < 600 ? 52 : 68;
+  const edges = connections(stories, new Set(groups.flatMap((g) => g.stories.map((s) => s.id))));
+
+  // Phones: rings would squeeze the nearby stories together, so stack the groups as rows.
+  if (width < 600) {
+    const size = 52;
+    const cellW = size + 40;
+    const cols = Math.max(2, Math.floor(width / cellW));
+    const rowH = size + 44;
+    const nodes: ExploreNode[] = [];
+    const bands: ExploreBand[] = [];
+    let y = 8;
+    for (const g of groups) {
+      bands.push({ id: g.id, y });
+      y += 26;
+      for (let i = 0; i < g.stories.length; i += cols) {
+        const row = g.stories.slice(i, i + cols);
+        const x0 = (width - row.length * cellW) / 2 + cellW / 2;
+        row.forEach((story, j) => nodes.push({ story, ring: g.id, x: x0 + j * cellW, y: y + size / 2 }));
+        y += rowH;
+      }
+      y += 14;
+    }
+    const shift = Math.max(0, (height - y) / 2);
+    return {
+      nodes: nodes.map((n) => ({ ...n, y: n.y + shift })),
+      bands: bands.map((b) => ({ ...b, y: b.y + shift })),
+      rings: [],
+      edges,
+      size,
+      height: Math.max(height, y),
+    };
+  }
+
+  const size = 68;
   const label = 26; // room for the name under each circle
   // Ring radii in pixels, before fitting them to the screen.
   const r: number[] = [];
@@ -57,7 +100,11 @@ export function exploreLayout(stories: Story[], location: UserLocation | null, w
     });
   });
 
-  const ids = new Set(nodes.map((n) => n.story.id));
+  return { nodes, rings: groups.map((g, i) => ({ id: g.id, rx: r[i] * sx, ry: r[i] * sy })), bands: [], edges, size, height };
+}
+
+/** One line per pair of stories joined by a hand-off path. */
+function connections(stories: Story[], ids: Set<string>): ExploreEdge[] {
   const seen = new Set<string>();
   const edges: ExploreEdge[] = [];
   for (const s of stories) {
@@ -68,6 +115,5 @@ export function exploreLayout(stories: Story[], location: UserLocation | null, w
       edges.push({ from: s.id, to: p.storyId });
     }
   }
-
-  return { nodes, rings: groups.map((g, i) => ({ id: g.id, rx: r[i] * sx, ry: r[i] * sy })), edges, size };
+  return edges;
 }
