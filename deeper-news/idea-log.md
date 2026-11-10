@@ -4,6 +4,11 @@ One line per idea checked with the idea-check skill. Newest first.
 
 | Date | Idea | Verdict | Main reason |
 |---|---|---|---|
+| 2026-11-10 | Listen mode: narrated summaries and hand-offs (Amazon Polly) | Build (after AWS) | Hands-free use fits commuters; free for 12 months, then roughly $10 a month at our scale |
+| 2026-11-10 | Podcast clips as a clip type (play a segment from a show's public feed at a start time) | Build | Same pattern as YouTube clips; free via public feeds and the Podcast Index; 40% of Americans listen to podcasts weekly |
+| 2026-11-10 | Music and culture stories using official players (YouTube music videos, Spotify embeds) | Test first | Works without licensing because the official player plays it; check each platform's embed terms before launch |
+| 2026-11-10 | Background music under clips from free libraries (Jamendo and similar) | Park | Free API access is non-commercial, and licenses vary track by track |
+| 2026-11-10 | Ambient "sound of the place" from Freesound | Park | Freesound's free API is non-commercial only; needs a paid license or our own recordings |
 | 2026-11-10 | Schools and current-events classes as the first paying customer | Test first | Districts already pay for news products (Newsela contracts), and our layers fit lessons; needs teacher interviews and a pilot |
 | 2026-11-10 | Consumer subscription (free daily set, paid extras) | Test first | Ground News shows people pay for news tools; test willingness to pay on a waitlist page before building payments |
 | 2026-11-10 | Ads on video clips | Park | YouTube's developer policies prohibit selling ads on embedded YouTube content, and ad rates need huge scale |
