@@ -53,9 +53,16 @@ export type Place = {
   lng: number;
 };
 
+/** A photo from the web, for stories made in the editor. */
+export type RemoteImage = { uri: string; alt: string; credit: string };
+
 export type Story = {
   id: string;
   place: Place;
+  /** True for stories made in the editor and saved on this device. */
+  draft?: boolean;
+  /** Photo link for editor stories; built-in stories use story-images.ts. */
+  image?: RemoteImage;
   /** Short name for story circles. */
   short: string;
   title: string;

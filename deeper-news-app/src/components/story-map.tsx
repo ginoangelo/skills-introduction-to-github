@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { getStory } from '@/data/stories';
 import { LAYERS, PATH_LABELS, ROOTS_LAYER, type Story } from '@/data/types';
+import { useContent } from '@/state/content';
 import type { Tokens } from '@/theme/tokens';
 
 /** Every layer of the current story plus the stories it connects to. */
@@ -20,6 +20,7 @@ export function StoryMap({
   onPickClip: (i: number) => void;
   onPickStory: (id: string) => void;
 }) {
+  const { getStory } = useContent();
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
       <Text style={[styles.h, { color: t.ink }]}>In this story</Text>

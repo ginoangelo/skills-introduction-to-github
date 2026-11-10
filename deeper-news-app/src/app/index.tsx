@@ -4,9 +4,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StoryCard, StoryRing, ThreadCard } from '@/components/home-parts';
 import { bucketStories, distanceKm, type UserLocation } from '@/data/places';
-import { STORIES, THREADS } from '@/data/stories';
 import type { Story } from '@/data/types';
 import { useAppState } from '@/state/app-state';
+import { useContent } from '@/state/content';
 import { useTokens, WIDE_BREAKPOINT, type Tokens } from '@/theme/tokens';
 
 export default function HomeScreen() {
@@ -15,6 +15,7 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const wide = width >= WIDE_BREAKPOINT;
   const { seen, followed, toggleFollow, startChain, location, locationReady, guesses } = useAppState();
+  const { stories: STORIES, threads: THREADS } = useContent();
   const rightGuesses = [...guesses.values()].filter(Boolean).length;
 
   const open = (id: string) => {
@@ -104,6 +105,9 @@ export default function HomeScreen() {
                 That’s every story today. New chapters on threads you follow will show up here.
               </Text>
             </View>
+            <Pressable onPress={() => router.push('/editor')} accessibilityRole="button" style={{ alignSelf: 'flex-start' }}>
+              <Text style={{ color: t.accent, fontWeight: '700' }}>Open the story editor →</Text>
+            </Pressable>
           </View>
 
           <View style={[styles.side, wide && { width: 320 }]}>

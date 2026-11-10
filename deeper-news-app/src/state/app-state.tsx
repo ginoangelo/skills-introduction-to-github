@@ -4,6 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { LOCATION_OPTIONS, type UserLocation } from '@/data/places';
 
 const LOCATION_KEY = 'deeper-news:location';
+const PROGRESS_KEY = 'deeper-news:progress';
+
+type SavedProgress = { seen?: string[]; followed?: string[]; guesses?: [string, boolean][] };
 
 /**
  * App state for the prototype. The chosen location is saved on the device;
@@ -40,9 +43,38 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [locationReady, setLocationReady] = useState(false);
   const [guesses, setGuesses] = useState<ReadonlyMap<string, boolean>>(new Map());
 
+  const [progressReady, setProgressReady] = useState(false);
+
   const recordGuess = useCallback((id: string, correct: boolean) => {
     setGuesses((prev) => (prev.has(id) ? prev : new Map(prev).set(id, correct)));
   }, []);
+
+  // Watched stories, follows and guesses are saved on the device.
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(PROGRESS_KEY)
+      .then((raw) => {
+        if (cancelled || !raw) return;
+        const p = JSON.parse(raw) as SavedProgress;
+        if (Array.isArray(p.seen)) setSeen(new Set(p.seen));
+        if (Array.isArray(p.followed)) setFollowed(new Set(p.followed));
+        if (Array.isArray(p.guesses)) setGuesses(new Map(p.guesses));
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setProgressReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    // Wait for the saved copy to load, so it isn't overwritten with an empty one.
+    if (!progressReady) return;
+    const p: SavedProgress = { seen: [...seen], followed: [...followed], guesses: [...guesses] };
+    AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(p)).catch(() => {});
+  }, [progressReady, seen, followed, guesses]);
 
   // Read the saved location once. Storage can fail (private browsing), so fall back to none.
   useEffect(() => {

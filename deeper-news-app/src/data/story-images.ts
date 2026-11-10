@@ -1,6 +1,8 @@
+import type { Story } from './types';
+
 export type StoryImage = {
-  /** A bundled image: `require('../../assets/images/stories/<id>.jpg')`. */
-  source: number;
+  /** A bundled image (`require(...)`) or a photo link from the editor. */
+  source: number | { uri: string };
   /** What the photo shows, for screen readers. */
   alt: string;
   /** Who made it and its license, shown on screen. */
@@ -59,3 +61,11 @@ export const STORY_IMAGES: Record<string, StoryImage> = {
     credit: 'Syced · CC0 · Wikimedia Commons',
   },
 };
+
+/** A story's photo: the built-in one, else the editor's photo link, else none. */
+export function storyImage(story: Story): StoryImage | undefined {
+  const built = STORY_IMAGES[story.id];
+  if (built) return built;
+  if (story.image?.uri) return { source: { uri: story.image.uri }, alt: story.image.alt, credit: story.image.credit };
+  return undefined;
+}

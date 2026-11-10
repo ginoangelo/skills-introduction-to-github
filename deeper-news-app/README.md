@@ -21,7 +21,18 @@ npx expo start
 - Press `w` to open the website in your browser.
 - To see it on your phone, install **Expo Go** from the App Store or Google Play, then scan the QR code in the terminal.
 
-## Add real clips
+## Add stories with the editor
+
+Open the app and choose **Open the story editor** at the bottom of Home (or go to `/editor`).
+
+- **New story**, or **Copy and edit** one of the samples.
+- Paste a YouTube link for each clip. Copy the link at the moment the clip should start, and the editor reads the start time from it.
+- Pick where it happened, add a photo link, write the question it ends on, and connect up to three paths to other stories.
+- **Save** shows it in the app straight away. **Save and watch** plays it.
+
+Editor stories are saved on the device you made them on. On the website, **Download my stories (.json)** keeps a copy. Publishing them for everyone comes with the online database (Phase 2).
+
+## Add real clips by hand
 
 Open `src/data/stories.ts`. On any clip, add:
 
@@ -52,6 +63,8 @@ Only use videos that the outlet, agency or council published publicly on YouTube
 | `src/app/story/[id].tsx` | The full-screen story player and the hand-off |
 | `src/app/location.tsx` | The "Where are you?" picker. The choice is saved on the device |
 | `src/data/stories.ts` | Stories, clips, places, hand-off questions and threads |
+| `src/app/editor/` | The story editor: list of your stories, and the form |
+| `src/state/content.tsx` | Where every screen gets its stories (samples plus editor stories) |
 | `src/data/places.ts` | Cities to pick from, distances, and the near / country / world split |
 | `src/components/clip-player*.tsx` | YouTube player for phones (`.tsx`) and the web (`.web.tsx`) |
 | `src/theme/tokens.ts` | Colors for light and dark mode |

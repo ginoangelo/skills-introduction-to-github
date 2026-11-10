@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { STORY_IMAGES } from '@/data/story-images';
+import { storyImage } from '@/data/story-images';
 import type { Story } from '@/data/types';
 import { storyColor } from '@/theme/tokens';
 
@@ -21,7 +21,7 @@ export function StoryArt({
   dim?: number;
   children?: ReactNode;
 }) {
-  const art = STORY_IMAGES[story.id];
+  const art = storyImage(story);
   return (
     <View style={[{ backgroundColor: storyColor(story.hue), overflow: 'hidden' }, style]}>
       {art && (

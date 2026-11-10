@@ -7,9 +7,9 @@ import Svg, { Ellipse, Path } from 'react-native-svg';
 import { StoryArt } from '@/components/story-art';
 import { exploreLayout, type RingId } from '@/data/explore-layout';
 import { distanceKm, placeLabel } from '@/data/places';
-import { getStory, STORIES } from '@/data/stories';
 import { PATH_LABELS, type Story } from '@/data/types';
 import { useAppState } from '@/state/app-state';
+import { useContent } from '@/state/content';
 import { useTokens, WIDE_BREAKPOINT, type Tokens } from '@/theme/tokens';
 
 export default function ExploreScreen() {
@@ -18,6 +18,7 @@ export default function ExploreScreen() {
   const { width } = useWindowDimensions();
   const wide = width >= WIDE_BREAKPOINT;
   const { location, seen, startChain } = useAppState();
+  const { stories: STORIES, getStory } = useContent();
   const [area, setArea] = useState({ w: 0, h: 0 });
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -198,6 +199,7 @@ function Preview({
   onPick: (id: string) => void;
   onClose?: () => void;
 }) {
+  const { getStory } = useContent();
   return (
     <ScrollView contentContainerStyle={{ gap: 10, padding: compact ? 16 : 0 }}>
       {!compact && <StoryArt story={story} style={styles.banner} />}

@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { STORY_IMAGES } from '@/data/story-images';
+import { storyImage } from '@/data/story-images';
 import { ROOTS_LAYER, type Story } from '@/data/types';
 import { storyColor, video } from '@/theme/tokens';
 
@@ -11,7 +11,7 @@ import { StoryArt } from './story-art';
  * darkened, or its color when there's no photo. Roots clips turn warm.
  */
 export function VideoPlaceholder({ story, layer }: { story: Story; layer: number }) {
-  const art = STORY_IMAGES[story.id];
+  const art = storyImage(story);
   if (art) {
     return (
       <StoryArt story={story} dim={0.35} style={StyleSheet.absoluteFill}>

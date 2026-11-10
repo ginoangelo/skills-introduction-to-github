@@ -7,9 +7,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ClipPlayer } from '@/components/clip-player';
 import { StoryArt } from '@/components/story-art';
 import { StoryMap } from '@/components/story-map';
-import { getStory } from '@/data/stories';
 import { LAYERS, PATH_LABELS, ROOTS_LAYER, type Story } from '@/data/types';
 import { useAppState } from '@/state/app-state';
+import { useContent } from '@/state/content';
 import { useTokens, video, WIDE_BREAKPOINT } from '@/theme/tokens';
 
 /** Clips without a YouTube id play as placeholders for this long. */
@@ -71,7 +71,9 @@ function predictionOptions(story: Story): { text: string; correct: boolean }[] {
 
 export default function StoryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { getStory, ready } = useContent();
   const story = getStory(String(id ?? ''));
+  if (!story && !ready) return <View style={[styles.fill, { backgroundColor: video.bg }]} />;
   if (!story) {
     return (
       <View style={[styles.fill, styles.center, { backgroundColor: video.bg }]}>
@@ -91,6 +93,7 @@ function Player({ story }: { story: Story }) {
   const { width, height } = useWindowDimensions();
   const wide = width >= WIDE_BREAKPOINT;
   const { chain, markSeen, startChain, pushChain, popChain, guesses, recordGuess } = useAppState();
+  const { getStory } = useContent();
 
   const [{ clipIndex, elapsed, ending, handoff, predicting }, dispatch] = useReducer(playback, INITIAL);
   const [paused, setPaused] = useState(false);

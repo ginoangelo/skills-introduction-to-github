@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { placeLabel } from '@/data/places';
-import { getStory } from '@/data/stories';
 import { LAYERS, type Story, type Thread } from '@/data/types';
+import { useContent } from '@/state/content';
 import { video, type Tokens } from '@/theme/tokens';
 
 import { StoryArt } from './story-art';
@@ -34,6 +34,7 @@ export function StoryCard({
   /** Distance from the viewer, when they've chosen a location. */
   km?: number;
 }) {
+  const { getStory } = useContent();
   return (
     <Pressable
       onPress={onPress}
@@ -88,6 +89,7 @@ export function ThreadCard({
   onToggle: () => void;
   onOpenStory: (id: string) => void;
 }) {
+  const { getStory } = useContent();
   return (
     <View style={[styles.thread, { backgroundColor: t.surface, borderColor: t.line }]}>
       <View style={styles.threadHead}>
