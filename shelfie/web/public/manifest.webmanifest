@@ -1,0 +1,10 @@
+{
+  "name": "Shelfie",
+  "short_name": "Shelfie",
+  "description": "Snap your fridge. Cook what you have.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF4E4",
+  "theme_color": "#FF4D2E",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
