@@ -4,7 +4,8 @@ One line per idea checked with the idea-check skill. Newest first.
 
 | Date | Idea | Verdict | Main reason |
 |---|---|---|---|
-| 2026-11-10 | Listen mode: narrated summaries and hand-offs (Amazon Polly) | Build (after AWS) | Hands-free use fits commuters; free for 12 months, then roughly $10 a month at our scale |
+| 2026-11-11 | Listen mode with the device's built-in voice | Built | Free with no account; Amazon Polly stays an optional upgrade for more natural voices |
+| 2026-11-10 | Listen mode: narrated summaries and hand-offs (Amazon Polly) | Later upgrade | Hands-free use fits commuters; free for 12 months, then roughly $10 a month at our scale |
 | 2026-11-10 | Podcast clips as a clip type (play a segment from a show's public feed at a start time) | Build | Same pattern as YouTube clips; free via public feeds and the Podcast Index; 40% of Americans listen to podcasts weekly |
 | 2026-11-10 | Music and culture stories using official players (YouTube music videos, Spotify embeds) | Test first | Works without licensing because the official player plays it; check each platform's embed terms before launch |
 | 2026-11-10 | Background music under clips from free libraries (Jamendo and similar) | Park | Free API access is non-commercial, and licenses vary track by track |
