@@ -30,6 +30,8 @@ export type Clip = {
    * audio file itself (the episode's file from the show's public feed).
    */
   audio?: { url: string; startSeconds?: number; show: string };
+  /** A line someone said, shown as a quote card on the Voices layer when there's no video. */
+  quote?: { text: string; who: string };
 };
 
 export type PathKind = 'money' | 'people' | 'place';

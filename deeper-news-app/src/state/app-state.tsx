@@ -6,7 +6,7 @@ import { LOCATION_OPTIONS, type UserLocation } from '@/data/places';
 const LOCATION_KEY = 'deeper-news:location';
 const PROGRESS_KEY = 'deeper-news:progress';
 
-type SavedProgress = { seen?: string[]; followed?: string[]; guesses?: [string, boolean][]; listen?: boolean };
+type SavedProgress = { seen?: string[]; followed?: string[]; guesses?: [string, boolean][]; listen?: boolean; classMode?: boolean };
 
 /**
  * App state for the prototype. The chosen location is saved on the device;
@@ -34,6 +34,12 @@ type AppState = {
   /** Listen mode: a narrator reads each clip and the hand-off aloud. */
   listen: boolean;
   toggleListen: () => void;
+  /**
+   * Class mode, for teachers: no autoplay countdown, the guess on every viewing,
+   * a Discuss card at the end of each story, and the editor hidden.
+   */
+  classMode: boolean;
+  toggleClassMode: () => void;
 };
 
 const Ctx = createContext<AppState | null>(null);
@@ -47,6 +53,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [guesses, setGuesses] = useState<ReadonlyMap<string, boolean>>(new Map());
   const [listen, setListen] = useState(false);
   const toggleListen = useCallback(() => setListen((v) => !v), []);
+  const [classMode, setClassMode] = useState(false);
+  const toggleClassMode = useCallback(() => setClassMode((v) => !v), []);
 
   const [progressReady, setProgressReady] = useState(false);
 
@@ -65,6 +73,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (Array.isArray(p.followed)) setFollowed(new Set(p.followed));
         if (Array.isArray(p.guesses)) setGuesses(new Map(p.guesses));
         if (typeof p.listen === 'boolean') setListen(p.listen);
+        if (typeof p.classMode === 'boolean') setClassMode(p.classMode);
       })
       .catch(() => {})
       .finally(() => {
@@ -78,9 +87,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Wait for the saved copy to load, so it isn't overwritten with an empty one.
     if (!progressReady) return;
-    const p: SavedProgress = { seen: [...seen], followed: [...followed], guesses: [...guesses], listen };
+    const p: SavedProgress = { seen: [...seen], followed: [...followed], guesses: [...guesses], listen, classMode };
     AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(p)).catch(() => {});
-  }, [progressReady, seen, followed, guesses, listen]);
+  }, [progressReady, seen, followed, guesses, listen, classMode]);
 
   // Read the saved location once. Storage can fail (private browsing), so fall back to none.
   useEffect(() => {
@@ -126,8 +135,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [chain]);
 
   const value = useMemo(
-    () => ({ location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain, guesses, recordGuess, listen, toggleListen }),
-    [location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain, guesses, recordGuess, listen, toggleListen],
+    () => ({ location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain, guesses, recordGuess, listen, toggleListen, classMode, toggleClassMode }),
+    [location, locationReady, setLocation, seen, followed, chain, markSeen, toggleFollow, startChain, pushChain, popChain, guesses, recordGuess, listen, toggleListen, classMode, toggleClassMode],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

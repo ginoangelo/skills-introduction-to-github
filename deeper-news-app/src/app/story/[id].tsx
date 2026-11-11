@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { AccessibilityInfo, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -96,7 +97,7 @@ function Player({ story }: { story: Story }) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const wide = width >= WIDE_BREAKPOINT;
-  const { chain, markSeen, startChain, pushChain, popChain, guesses, recordGuess, listen, toggleListen } = useAppState();
+  const { chain, markSeen, startChain, pushChain, popChain, guesses, recordGuess, listen, toggleListen, classMode } = useAppState();
   const { getStory } = useContent();
 
   const [{ clipIndex, elapsed, ending, handoff, predicting }, dispatch] = useReducer(playback, INITIAL);
@@ -112,10 +113,11 @@ function Player({ story }: { story: Story }) {
 
   const durations = useMemo(() => story.clips.map((c) => (c.youtubeId || c.audio?.url ? c.seconds : PLACEHOLDER_SECONDS)), [story]);
   const clip = story.clips[clipIndex];
+  const layer = LAYERS[clipIndex];
   const duration = durations[clipIndex];
   const lastClip = story.clips.length - 1;
-  // Ask "What happens next?" before the last clip, once per story.
-  const predictAt = story.predict && !guesses.has(story.id) ? lastClip : null;
+  // Ask "What happens next?" before the last clip: once per story, or every time in class mode.
+  const predictAt = story.predict && (classMode || !guesses.has(story.id)) ? lastClip : null;
   // Listen mode: each clip, guess and hand-off is read aloud, and the story
   // waits until the narrator finishes that part before moving on.
   const segmentKey = `${story.id}:${clipIndex}:${ending ? 'end' : predicting ? 'guess' : 'clip'}`;
@@ -165,6 +167,18 @@ function Player({ story }: { story: Story }) {
 
   const next = useCallback(() => dispatch({ type: 'next', last: lastClip, predictAt }), [lastClip, predictAt]);
   const prev = useCallback(() => dispatch({ type: 'prev' }), []);
+  const heldPause = useRef(false);
+  const holdStart = () => {
+    if (paused) return;
+    heldPause.current = true;
+    setPaused(true);
+  };
+  const holdEnd = () => {
+    if (!heldPause.current) return;
+    heldPause.current = false;
+    setPaused(false);
+  };
+
   const pickClip = (index: number) => {
     dispatch({ type: 'pick', index });
     setMapOpen(false);
@@ -177,7 +191,7 @@ function Player({ story }: { story: Story }) {
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion).catch(() => {});
   }, []);
-  const autoNext = !stayHere && !reduceMotion;
+  const autoNext = !stayHere && !reduceMotion && !classMode;
 
   // When the countdown runs out, the first path plays.
   useEffect(() => {
@@ -188,15 +202,16 @@ function Player({ story }: { story: Story }) {
   const pan = useMemo(
     () =>
       PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 24 || g.dy > 24,
+        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 24 || Math.abs(g.dy) > 24,
         onPanResponderRelease: (_, g) => {
           if (Math.abs(g.dx) > 60 && Math.abs(g.dx) > Math.abs(g.dy)) {
             if (g.dx < 0) goToStory(story.handoff.paths[0].storyId);
             else goBackInChain();
           } else if (g.dy > 100 && Math.abs(g.dy) > Math.abs(g.dx)) close();
+          else if (g.dy < -70 && Math.abs(g.dy) > Math.abs(g.dx)) next(); // swipe up = go deeper
         },
       }),
-    [goToStory, goBackInChain, close, story],
+    [goToStory, goBackInChain, close, story, next],
   );
 
   // Keyboard on the website.
@@ -218,7 +233,6 @@ function Player({ story }: { story: Story }) {
   }, [next, prev, goToStory, goBackInChain, close, story]);
 
   const screenHeight = Math.min(height - 48, 860);
-  const layer = LAYERS[clipIndex];
 
   return (
     <View style={[styles.fill, styles.root, { backgroundColor: wide ? video.scrim : video.bg }]}>
@@ -229,19 +243,33 @@ function Player({ story }: { story: Story }) {
         <ClipPlayer clip={clip} story={story} layer={clipIndex} playing={running && !ending && !predicting} />
 
         {/* Tap zones sit at the edges so YouTube's own controls stay usable in the middle. */}
-        <Pressable accessibilityLabel="Previous clip" onPress={prev} style={[styles.tapZone, { left: 0 }]} />
-        <Pressable accessibilityLabel="Next clip" onPress={next} style={[styles.tapZone, { right: 0 }]} />
+        <Pressable accessibilityLabel="Previous clip" onPress={prev} onLongPress={holdStart} onPressOut={holdEnd} delayLongPress={250} style={[styles.tapZone, { left: 0 }]} />
+        <Pressable accessibilityLabel="Next clip" onPress={next} onLongPress={holdStart} onPressOut={holdEnd} delayLongPress={250} style={[styles.tapZone, { right: 0 }]} />
+        {!clip.youtubeId && (
+          <Pressable
+            accessibilityLabel="Press and hold to pause"
+            onLongPress={holdStart}
+            onPressOut={holdEnd}
+            delayLongPress={250}
+            style={styles.holdZone}
+          />
+        )}
 
         <View style={[styles.top, { paddingTop: (wide ? 0 : insets.top) + 12 }]}>
-          <View style={styles.segs}>
+          <View style={styles.segs} accessibilityLabel={`Layer ${clipIndex + 1} of ${story.clips.length}: ${layer.name}`}>
             {story.clips.map((_, i) => (
-              <View key={i} style={styles.seg}>
-                <View
-                  style={[
-                    styles.segFill,
-                    { width: `${i < clipIndex || ending ? 100 : i === clipIndex ? Math.min(100, (elapsed / duration) * 100) : 0}%` },
-                  ]}
-                />
+              <View key={i} style={styles.segCol}>
+                <View style={styles.seg}>
+                  <View
+                    style={[
+                      styles.segFill,
+                      { width: `${i < clipIndex || ending ? 100 : i === clipIndex ? Math.min(100, (elapsed / duration) * 100) : 0}%` },
+                    ]}
+                  />
+                </View>
+                <Text style={[styles.segLabel, i === clipIndex && !ending && styles.segLabelOn]} numberOfLines={1}>
+                  {LAYERS[i].name}
+                </Text>
               </View>
             ))}
           </View>
@@ -273,7 +301,11 @@ function Player({ story }: { story: Story }) {
           </View>
         </View>
 
-        <View style={[styles.bottom, { paddingBottom: (wide ? 0 : insets.bottom) + 16 }]} pointerEvents="box-none">
+        <LinearGradient
+          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
+          locations={[0, 0.3, 1]}
+          style={[styles.bottom, { paddingBottom: (wide ? 0 : insets.bottom) + 16 }]}
+          pointerEvents="box-none">
           <Text style={[styles.layerChip, { backgroundColor: clipIndex === ROOTS_LAYER ? video.warm : video.accent }]}>
             {layer.name} · {layer.depth}
           </Text>
@@ -282,30 +314,28 @@ function Player({ story }: { story: Story }) {
             {clip.when} · {clip.source} · {clip.rights}
           </Text>
           <Text style={styles.why}>{clip.why}</Text>
-          <View style={styles.actions}>
-            <Pressable onPress={next} style={[styles.btn, styles.btnPrimary]}>
-              <Text style={[styles.btnText, { color: video.bg }]}>
-                {clipIndex < lastClip ? `Go deeper ↓ ${LAYERS[clipIndex + 1].name}` : 'Where it leads →'}
-              </Text>
-            </Pressable>
+          <View style={styles.secondary}>
             {!wide && (
-              <Pressable onPress={() => setMapOpen(true)} style={styles.btn}>
-                <Text style={styles.btnText}>Story map</Text>
-              </Pressable>
-            )}
-            {clipIndex < lastClip && (
-              <Pressable onPress={() => dispatch({ type: 'end' })} style={styles.btn}>
-                <Text style={styles.btnText}>Where it leads →</Text>
+              <Pressable onPress={() => setMapOpen(true)} style={styles.smallBtn} accessibilityRole="button">
+                <Text style={styles.smallBtnText}>Map</Text>
               </Pressable>
             )}
             {stations.length > 0 && (
-              <Pressable onPress={openRadio} style={styles.btn} accessibilityRole="button" accessibilityLabel={`Hear live radio from ${radioPlace}`}>
-                <Text style={styles.btnText}>Hear it live</Text>
+              <Pressable onPress={openRadio} style={styles.smallBtn} accessibilityRole="button" accessibilityLabel={`Hear live radio from ${radioPlace}`}>
+                <Text style={styles.smallBtnText}>Hear it live</Text>
+              </Pressable>
+            )}
+            {clipIndex < lastClip && (
+              <Pressable onPress={() => dispatch({ type: 'end' })} style={styles.smallBtn} accessibilityRole="button">
+                <Text style={styles.smallBtnText}>Leads to →</Text>
               </Pressable>
             )}
           </View>
-          {!wide && <Text style={styles.hint}>Tap the edges to move between clips · swipe left for the next story</Text>}
-        </View>
+          <Pressable onPress={next} style={styles.deeper} accessibilityRole="button">
+            <Text style={styles.deeperText}>{clipIndex < lastClip ? `Deeper ↓ ${LAYERS[clipIndex + 1].name}` : 'Where it leads →'}</Text>
+          </Pressable>
+          {!wide && <Text style={[styles.hint, { textAlign: 'center' }]}>Swipe up to go deeper · hold to pause · swipe left for the next story</Text>}
+        </LinearGradient>
 
         {predicting && (
           <PredictOverlay
@@ -325,6 +355,14 @@ function Player({ story }: { story: Story }) {
               {chain.length > 1 ? `Story ${chain.length} in your chain` : 'End of story'} · up next
             </Text>
             <Text style={styles.question}>{story.handoff.question}</Text>
+            {classMode && (
+              <View style={styles.discuss}>
+                <Text style={styles.discussTitle}>Discuss</Text>
+                <Text style={styles.discussLine}>1. In your own words: what happened, and why does it matter?</Text>
+                <Text style={styles.discussLine}>2. Which clip gave you the strongest evidence, and why?</Text>
+                <Text style={styles.discussLine}>3. Who is affected by this story, and who gets to decide what happens next?</Text>
+              </View>
+            )}
             <View style={{ gap: 10 }}>
               {story.handoff.paths.map((p, i) => {
                 const target = getStory(p.storyId);
@@ -472,9 +510,21 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
   root: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20 },
   screen: { overflow: 'hidden', backgroundColor: video.bg, alignSelf: 'stretch' },
+  holdZone: { position: 'absolute', top: 110, bottom: 300, left: '24%', right: '24%' },
   tapZone: { position: 'absolute', top: 110, bottom: 280, width: '22%' },
   top: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: 14, gap: 10, backgroundColor: 'rgba(0,0,0,0.28)', paddingBottom: 10 },
   segs: { flexDirection: 'row', gap: 4 },
+  segCol: { flex: 1, gap: 4 },
+  segLabel: { color: video.muted, fontSize: 9, fontWeight: '600', letterSpacing: 0.5, textTransform: 'uppercase', textAlign: 'center' },
+  segLabelOn: { color: video.ink, fontWeight: '800' },
+  secondary: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
+  smallBtn: { borderWidth: 1, borderColor: video.line, backgroundColor: video.glass, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8, minHeight: 36, justifyContent: 'center' },
+  smallBtnText: { color: video.ink, fontSize: 13, fontWeight: '600' },
+  deeper: { alignSelf: 'center', backgroundColor: video.ink, borderRadius: 999, paddingHorizontal: 28, paddingVertical: 14, minWidth: 220, alignItems: 'center' },
+  deeperText: { color: video.bg, fontSize: 17, fontWeight: '800' },
+  discuss: { borderWidth: 1, borderColor: video.accent, borderRadius: 12, padding: 14, gap: 6, backgroundColor: 'rgba(79, 209, 197, 0.08)' },
+  discussTitle: { color: video.accent, fontSize: 12, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase' },
+  discussLine: { color: video.ink, fontSize: 15, lineHeight: 21 },
   seg: { flex: 1, height: 3, borderRadius: 2, backgroundColor: video.line, overflow: 'hidden' },
   segFill: { height: '100%', backgroundColor: video.ink },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -483,7 +533,7 @@ const styles = StyleSheet.create({
   headSub: { color: video.muted, fontSize: 12 },
   iconBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: video.glass, alignItems: 'center', justifyContent: 'center' },
   iconText: { color: video.ink, fontSize: 14 },
-  bottom: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 16, gap: 10, backgroundColor: 'rgba(0,0,0,0.5)' },
+  bottom: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 90, gap: 10 },
   layerChip: { alignSelf: 'flex-start', color: video.bg, fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 3, overflow: 'hidden' },
   clipTitle: { color: video.ink, fontSize: 26, lineHeight: 28, fontWeight: '800', letterSpacing: -0.5 },
   meta: { color: video.muted, fontSize: 13 },
@@ -498,7 +548,7 @@ const styles = StyleSheet.create({
   eyebrow: { color: video.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
   question: { color: video.ink, fontSize: 30, lineHeight: 33, fontWeight: '800', letterSpacing: -0.6 },
   path: { flexDirection: 'row', gap: 12, alignItems: 'center', borderWidth: 1, borderColor: video.line, backgroundColor: video.card, borderRadius: 12, padding: 10, overflow: 'hidden' },
-  pathThumb: { width: 52, height: 72, borderRadius: 6 },
+  pathThumb: { width: 72, height: 100, borderRadius: 8 },
   pathKind: { color: video.accent, fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   pathTitle: { color: video.ink, fontSize: 16, fontWeight: '700', lineHeight: 20 },
   pathReason: { color: video.muted, fontSize: 13 },

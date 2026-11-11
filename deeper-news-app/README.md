@@ -25,6 +25,14 @@ npx expo start
 
 Tap **Listen** at the top of any story. A narrator reads each clip's title and why it matters, the "What happens next?" question, and the question and paths at the end. The story waits while it reads. It uses the voice built into the phone or browser, so it's free and needs no account. The setting is remembered.
 
+## The story player
+
+Each layer has its own look until it has video: the photo for Surface, a slow zoom for Footage, a quote card for Voices (set `quote` on the clip), a sepia archive card with the year for Roots, and a calendar tab for Ripples. Labels under the progress bars show which layer you're on. Swipe up or press **Deeper** to go down a layer, press and hold to pause, swipe left for the next story.
+
+## Class mode
+
+A switch on Home for teachers. It turns off the countdown into the next story, asks "What happens next?" on every viewing, adds a **Discuss** card with three class questions at the end of each story, and hides the editor.
+
 ## Daily Thread
 
 A daily puzzle at the top of Home: connect today's start story to today's target story by following the money, people and place paths, in as few steps as you can. Everyone gets the same pair on the same day. You can undo a step, ask to see the shortest route, and share your result without giving the route away. Progress for the day is saved on the device.

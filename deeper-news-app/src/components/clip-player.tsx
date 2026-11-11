@@ -14,7 +14,7 @@ import { youtubeEmbedUrl } from './youtube';
 export function ClipPlayer({ clip, story, layer, playing }: { clip: Clip; story: Story; layer: number; playing: boolean }) {
   if (!clip.youtubeId) {
     if (clip.audio?.url) return <AudioClip key={`${clip.audio.url}#${clip.audio.startSeconds ?? 0}`} clip={clip} story={story} playing={playing} />;
-    return <VideoPlaceholder story={story} layer={layer} />;
+    return <VideoPlaceholder story={story} clip={clip} layer={layer} />;
   }
   const src = youtubeEmbedUrl(clip.youtubeId, clip.startSeconds, clip.seconds);
   const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
