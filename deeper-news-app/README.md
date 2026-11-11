@@ -21,6 +21,10 @@ npx expo start
 - Press `w` to open the website in your browser.
 - To see it on your phone, install **Expo Go** from the App Store or Google Play, then scan the QR code in the terminal.
 
+## Listen mode
+
+Tap **Listen** at the top of any story. A narrator reads each clip's title and why it matters, the "What happens next?" question, and the question and paths at the end. The story waits while it reads. It uses the voice built into the phone or browser, so it's free and needs no account. The setting is remembered.
+
 ## Add stories with the editor
 
 Open the app and choose **Open the story editor** at the bottom of Home (or go to `/editor`).

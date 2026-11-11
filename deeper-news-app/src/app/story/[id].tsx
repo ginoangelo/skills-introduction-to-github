@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ClipPlayer } from '@/components/clip-player';
 import { StoryArt } from '@/components/story-art';
+import { clipNarration, handoffNarration, narrate, predictNarration } from '@/components/narrator';
 import { StoryMap } from '@/components/story-map';
 import { LAYERS, PATH_LABELS, ROOTS_LAYER, type Story } from '@/data/types';
 import { useAppState } from '@/state/app-state';
@@ -92,7 +93,7 @@ function Player({ story }: { story: Story }) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const wide = width >= WIDE_BREAKPOINT;
-  const { chain, markSeen, startChain, pushChain, popChain, guesses, recordGuess } = useAppState();
+  const { chain, markSeen, startChain, pushChain, popChain, guesses, recordGuess, listen, toggleListen } = useAppState();
   const { getStory } = useContent();
 
   const [{ clipIndex, elapsed, ending, handoff, predicting }, dispatch] = useReducer(playback, INITIAL);
@@ -105,7 +106,22 @@ function Player({ story }: { story: Story }) {
   const lastClip = story.clips.length - 1;
   // Ask "What happens next?" before the last clip, once per story.
   const predictAt = story.predict && !guesses.has(story.id) ? lastClip : null;
-  const running = !paused && !(mapOpen && !wide);
+  // Listen mode: each clip, guess and hand-off is read aloud, and the story
+  // waits until the narrator finishes that part before moving on.
+  const segmentKey = `${story.id}:${clipIndex}:${ending ? 'end' : predicting ? 'guess' : 'clip'}`;
+  const [narratedKey, setNarratedKey] = useState<string | null>(null);
+  const speaking = listen && !paused && narratedKey !== segmentKey;
+  const running = !paused && !(mapOpen && !wide) && !speaking;
+
+  useEffect(() => {
+    if (!listen || paused) return;
+    const text = predicting
+      ? predictNarration(predictionOptions(story).map((o) => o.text))
+      : ending
+        ? handoffNarration(story, (id) => getStory(id)?.title)
+        : clipNarration(story, clipIndex);
+    return narrate(text, () => setNarratedKey(segmentKey));
+  }, [listen, paused, segmentKey, predicting, ending, clipIndex, story, getStory]);
 
   // Someone landing here from a shared link has no chain yet, so start one.
   useEffect(() => {
@@ -223,6 +239,14 @@ function Player({ story }: { story: Story }) {
             </View>
             <Pressable onPress={() => setPaused((p) => !p)} style={styles.iconBtn} accessibilityLabel={paused ? 'Play' : 'Pause'}>
               <Text style={styles.iconText}>{paused ? '▶' : '❚❚'}</Text>
+            </Pressable>
+            <Pressable
+              onPress={toggleListen}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: listen }}
+              accessibilityLabel="Listen mode: read the story aloud"
+              style={[styles.listenBtn, listen && styles.listenOn]}>
+              <Text style={[styles.listenText, listen && { color: video.bg }]}>{speaking ? 'Reading…' : listen ? 'Listening' : 'Listen'}</Text>
             </Pressable>
             <Pressable onPress={close} style={styles.iconBtn} accessibilityLabel="Close story">
               <Text style={styles.iconText}>✕</Text>
@@ -401,6 +425,9 @@ function PredictOverlay({
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  listenBtn: { height: 36, borderRadius: 18, paddingHorizontal: 12, justifyContent: 'center', backgroundColor: video.glass },
+  listenOn: { backgroundColor: video.accent },
+  listenText: { color: video.ink, fontSize: 13, fontWeight: '700' },
   guess: { borderWidth: 1, borderColor: video.line, backgroundColor: video.card, borderRadius: 12, padding: 14, gap: 4 },
   guessText: { color: video.ink, fontSize: 16, fontWeight: '600', lineHeight: 21 },
   guessTag: { fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
