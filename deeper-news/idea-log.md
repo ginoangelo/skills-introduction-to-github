@@ -4,6 +4,9 @@ One line per idea checked with the idea-check skill. Newest first.
 
 | Date | Idea | Verdict | Main reason |
 |---|---|---|---|
+| 2026-11-11 | "Hear it live from there": live news and talk radio from the story's country (Radio Browser directory) | Test first | Free with no key and fits our place-based depth; start with an approved list of news, talk and public stations |
+| 2026-11-11 | Live music radio stations in the app | Park | UK courts found TuneIn needed music licences for stations it played; needs a licensing plan |
+| 2026-11-11 | Independent music player for culture stories (Audius API) | Test first | Free catalog of artist-opted-in tracks; read the Audius API Terms and Open Music License before launch |
 | 2026-11-11 | Listen mode with the device's built-in voice | Built | Free with no account; Amazon Polly stays an optional upgrade for more natural voices |
 | 2026-11-10 | Listen mode: narrated summaries and hand-offs (Amazon Polly) | Later upgrade | Hands-free use fits commuters; free for 12 months, then roughly $10 a month at our scale |
 | 2026-11-10 | Podcast clips as a clip type (play a segment from a show's public feed at a start time) | Build | Same pattern as YouTube clips; free via public feeds and the Podcast Index; 40% of Americans listen to podcasts weekly |
