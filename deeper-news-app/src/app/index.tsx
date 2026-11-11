@@ -3,6 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StoryCard, StoryRing, ThreadCard } from '@/components/home-parts';
+import { StoryArt } from '@/components/story-art';
+import { puzzleFor } from '@/data/daily-thread';
 import { bucketStories, distanceKm, type UserLocation } from '@/data/places';
 import type { Story } from '@/data/types';
 import { useAppState } from '@/state/app-state';
@@ -65,6 +67,8 @@ export default function HomeScreen() {
             <LocationButton t={t} location={location} onPress={pickLocation} />
           </View>
         </View>
+
+        <DailyCard t={t} />
 
         {locationReady && !location && (
           <View style={[styles.prompt, { backgroundColor: t.surface, borderColor: t.accent }]}>
@@ -132,6 +136,35 @@ export default function HomeScreen() {
   );
 }
 
+/** Today's Daily Thread puzzle, as a card at the top of Home. */
+function DailyCard({ t }: { t: Tokens }) {
+  const { stories, getStory } = useContent();
+  const puzzle = puzzleFor(stories.filter((s) => !s.draft), new Date());
+  if (!puzzle) return null;
+  const start = getStory(puzzle.startId);
+  const target = getStory(puzzle.targetId);
+  if (!start || !target) return null;
+  return (
+    <Pressable
+      onPress={() => router.push('/daily')}
+      accessibilityRole="button"
+      accessibilityLabel={`Daily Thread: connect ${start.short} to ${target.short}`}
+      style={[styles.daily, { backgroundColor: t.surface, borderColor: t.line }]}>
+      <StoryArt story={start} style={styles.dailyThumb} />
+      <Text style={{ color: t.accent, fontSize: 20, fontWeight: '800' }}>→</Text>
+      <StoryArt story={target} style={styles.dailyThumb} />
+      <View style={{ flex: 1, minWidth: 160 }}>
+        <Text style={{ color: t.accent, fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' }}>Daily Thread · today’s puzzle</Text>
+        <Text style={{ color: t.ink, fontSize: 16, fontWeight: '800' }}>
+          Connect {start.short} to {target.short}
+        </Text>
+        <Text style={{ color: t.muted, fontSize: 13 }}>Follow the money, people and places. Fewest steps wins.</Text>
+      </View>
+      <Text style={{ color: t.accent, fontWeight: '700' }}>Play →</Text>
+    </Pressable>
+  );
+}
+
 function countryName(loc: UserLocation): string {
   return loc.countryCode === 'US' ? 'the US' : loc.countryCode === 'GB' ? 'the UK' : loc.country;
 }
@@ -158,6 +191,8 @@ const styles = StyleSheet.create({
   sample: { fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', borderWidth: 1, borderRadius: 3, paddingHorizontal: 8, paddingVertical: 2 },
   locBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   pin: { width: 10, height: 10, borderRadius: 5, borderWidth: 3 },
+  daily: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, borderWidth: 1, borderRadius: 12, padding: 12 },
+  dailyThumb: { width: 44, height: 44, borderRadius: 22 },
   prompt: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 14, borderWidth: 1, borderRadius: 12, padding: 16 },
   promptTitle: { fontSize: 17, fontWeight: '800' },
   primaryBtn: { borderRadius: 999, paddingHorizontal: 18, paddingVertical: 10 },

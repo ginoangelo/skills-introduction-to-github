@@ -14,6 +14,7 @@ export default function RootLayout() {
           <Stack.Screen name="index" options={{ title: 'Deeper News' }} />
           <Stack.Screen name="story/[id]" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
           <Stack.Screen name="explore" options={{ title: 'Explore' }} />
+          <Stack.Screen name="daily" options={{ title: 'Daily Thread' }} />
           <Stack.Screen name="editor/index" options={{ title: 'Story editor' }} />
           <Stack.Screen name="editor/[id]" options={{ title: 'Edit story' }} />
           <Stack.Screen name="location" options={{ presentation: 'modal', title: 'Your location' }} />

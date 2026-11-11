@@ -25,6 +25,10 @@ npx expo start
 
 Tap **Listen** at the top of any story. A narrator reads each clip's title and why it matters, the "What happens next?" question, and the question and paths at the end. The story waits while it reads. It uses the voice built into the phone or browser, so it's free and needs no account. The setting is remembered.
 
+## Daily Thread
+
+A daily puzzle at the top of Home: connect today's start story to today's target story by following the money, people and place paths, in as few steps as you can. Everyone gets the same pair on the same day. You can undo a step, ask to see the shortest route, and share your result without giving the route away. Progress for the day is saved on the device.
+
 ## Hear it live from there
 
 Stories with a station nearby show **Hear it live**. It pauses the story and plays a local public, news or talk station from where the story happened, with **Next station** and a link to the station's site. Stations are a short, hand-checked list in `src/data/stations.ts`, picked from the free Radio Browser directory. Music stations are left out on purpose, since playing them can need music licences in some countries. All streams are https.

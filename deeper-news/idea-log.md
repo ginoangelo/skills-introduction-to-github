@@ -4,6 +4,7 @@ One line per idea checked with the idea-check skill. Newest first.
 
 | Date | Idea | Verdict | Main reason |
 |---|---|---|---|
+| 2026-11-11 | Daily Thread puzzle: connect two stories in the fewest steps | Built | Daily-puzzle habit loop (like Wordle) made from our own story connections; free; fits classrooms |
 | 2026-11-11 | "Hear it live from there" with 10 hand-checked public, news and talk stations | Built | Free (Radio Browser, no key); covers every story location; music stations still parked |
 | 2026-11-11 | "Hear it live from there": live news and talk radio from the story's country (Radio Browser directory) | Test first | Free with no key and fits our place-based depth; start with an approved list of news, talk and public stations |
 | 2026-11-11 | Live music radio stations in the app | Park | UK courts found TuneIn needed music licences for stations it played; needs a licensing plan |
