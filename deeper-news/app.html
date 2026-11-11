@@ -133,6 +133,8 @@ button, input { font: inherit; color: inherit; }
 .p-title strong, .p-title span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .p-title strong { font-size: 0.9rem; line-height: 1.25; }
 .p-title span { font-size: 0.75rem; color: var(--v-muted); }
+.listen-btn { height: 36px; border-radius: 18px; padding: 0 12px; border: 0; background: var(--v-glass); color: var(--v-ink); font-weight: 700; font-size: 0.8rem; cursor: pointer; flex: 0 0 auto; }
+.listen-btn[aria-checked="true"] { background: var(--v-accent); color: var(--v-bg); }
 .icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--v-glass); color: var(--v-ink); cursor: pointer; display: grid; place-items: center; flex: 0 0 auto; }
 .icon-btn:focus-visible, .v-btn:focus-visible, .path:focus-visible { outline: 2px solid var(--v-accent); outline-offset: 2px; }
 .p-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 10px; pointer-events: none;
@@ -311,6 +313,7 @@ button, input { font: inherit; color: inherit; }
       <div class="p-head">
         <i class="p-avatar art" id="p-avatar"></i>
         <div class="p-title"><strong id="p-story"></strong><span id="p-sub"></span></div>
+        <button class="listen-btn" type="button" id="listen" role="switch" aria-checked="false" aria-label="Listen mode: read the story aloud">Listen</button>
         <button class="icon-btn" type="button" id="pause" aria-label="Pause">❚❚</button>
         <button class="icon-btn" type="button" id="close" aria-label="Close story">✕</button>
       </div>
@@ -373,6 +376,7 @@ function paint(el, s) {
 
 /* ---------- state ---------- */
 const seen = new Set(), followed = new Set(["harlan-river"]), guesses = new Map();
+let listen = false;
 let location_ = null, chain = [];
 try { const id = localStorage.getItem("deeper-news:location"); location_ = LOCATIONS.find(l => l.id === id) || null; } catch (e) {}
 try {
@@ -380,9 +384,10 @@ try {
   (p.seen || []).forEach(x => seen.add(x));
   if (p.followed) { followed.clear(); p.followed.forEach(x => followed.add(x)); }
   (p.guesses || []).forEach(([k, v]) => guesses.set(k, v));
+  listen = !!p.listen;
 } catch (e) {}
 function saveProgress() {
-  try { localStorage.setItem("deeper-news:progress", JSON.stringify({ seen: [...seen], followed: [...followed], guesses: [...guesses] })); } catch (e) {}
+  try { localStorage.setItem("deeper-news:progress", JSON.stringify({ seen: [...seen], followed: [...followed], guesses: [...guesses], listen })); } catch (e) {}
 }
 const rad = d => d * Math.PI / 180;
 function km(a, b) { const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng); const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2; return 2 * 6371 * Math.asin(Math.sqrt(h)); }
@@ -565,6 +570,33 @@ $("loc-btn").onclick = openPicker; $("prompt-btn").onclick = openPicker;
 $("picker-close").onclick = () => { $("picker").hidden = true; };
 $("loc-search").addEventListener("input", renderPicker);
 
+/* ---------- listen mode: the browser's built-in voice ---------- */
+let speaking = false, cancelSpeech = null;
+function say(text) {
+  stopSay();
+  if (!listen || !("speechSynthesis" in window)) return;
+  let done = false;
+  const finish = () => { if (done) return; done = true; clearTimeout(safety); speaking = false; cancelSpeech = null; updateListen(); };
+  // A device with no voice, or one that never says it finished, must not stall the story.
+  const safety = setTimeout(finish, Math.max(4000, text.split(/\s+/).length * 420 + 2000));
+  const u = new SpeechSynthesisUtterance(text); u.onend = finish; u.onerror = finish;
+  speaking = true; cancelSpeech = () => { done = true; clearTimeout(safety); speaking = false; speechSynthesis.cancel(); };
+  speechSynthesis.speak(u); updateListen();
+}
+function stopSay() { if (cancelSpeech) cancelSpeech(); cancelSpeech = null; speaking = false; updateListen(); }
+function sayCurrent() {
+  if (!story) return;
+  if (predicting) say("Before you see what followed: what do you think happened next? " + [...$("p-options").children].map((b, i) => `${i + 1}. ${b.firstChild.textContent}.`).join(" "));
+  else if (ending) say(story.handoff.question + " " + story.handoff.paths.map(p => `${PATH_LABELS[p.kind]}: ${byId[p.storyId].title}.`).join(" "));
+  else say((seg === 0 ? story.title + ". " : "") + `${LAYERS[seg].name}. ${story.clips[seg].title}. ${story.clips[seg].why}`);
+}
+function updateListen() {
+  const b = $("listen"); b.setAttribute("aria-checked", listen); b.textContent = speaking ? "Reading…" : listen ? "Listening" : "Listen";
+}
+function pauseFor(p) { setPaused(p); if (p) stopSay(); else if (listen) sayCurrent(); }
+$("listen").onclick = () => { listen = !listen; saveProgress(); if (listen) sayCurrent(); else stopSay(); updateListen(); };
+updateListen();
+
 /* ---------- player ---------- */
 let story = null, seg = 0, t = 0, paused = false, ending = false, handoff = 0, predicting = false;
 function openStory(id, push) {
@@ -584,6 +616,7 @@ function openStory(id, push) {
   showSeg(); resize();
 }
 function closeStory() {
+  stopSay();
   story = null; chain = []; $("player").hidden = true; $("home").removeAttribute("aria-hidden"); document.body.style.overflow = "";
   history.replaceState(null, "", "#today"); renderHome();
 }
@@ -599,6 +632,7 @@ function showSeg() {
   $("leads").hidden = seg >= 4;
   $("p-sub").textContent = `${story.topic} · ${story.place.name}, ${story.place.country}` + (chain.length > 1 ? ` · story ${chain.length} in your chain` : "");
   setPaused(paused); renderMap(); paintSegs();
+  if (listen && !paused) sayCurrent();
 }
 function paintSegs() { [...$("segs").children].forEach((d, i) => { d.firstChild.style.width = (i < seg || ending ? 100 : i === seg ? t * 100 : 0) + "%"; }); }
 function nextSeg() {
@@ -631,6 +665,7 @@ function showPredict() {
     box.appendChild(b);
   });
   $("predict").hidden = false; $("predict").scrollTop = 0;
+  if (listen && !paused) sayCurrent();
 }
 $("p-continue").onclick = () => { predicting = false; $("predict").hidden = true; seg = 4; t = 0; showSeg(); };
 function prevSeg() { if (predicting) { predicting = false; $("predict").hidden = true; t = 0; showSeg(); return; } if (ending) { ending = false; $("handoff").hidden = true; t = 0; return; } if (t > 0.25 || seg === 0) t = 0; else { seg--; t = 0; } showSeg(); }
@@ -647,11 +682,12 @@ function showEnd() {
     b.onclick = () => openStory(p.storyId, true); paths.appendChild(b);
   });
   $("handoff").hidden = false; $("handoff").scrollTop = 0; renderMap();
+  if (listen && !paused) sayCurrent();
 }
 function renderMap() {
   for (const root of [$("map-sheet"), $("map-side")]) {
     root.textContent = "";
-    if (root.id === "map-sheet") { const x = make("button", "icon-btn map-close", "✕"); x.type = "button"; x.setAttribute("aria-label", "Close story map"); x.onclick = () => { root.classList.remove("open"); setPaused(false); }; root.appendChild(x); }
+    if (root.id === "map-sheet") { const x = make("button", "icon-btn map-close", "✕"); x.type = "button"; x.setAttribute("aria-label", "Close story map"); x.onclick = () => { root.classList.remove("open"); pauseFor(false); }; root.appendChild(x); }
     root.appendChild(make("h3", null, "In this story"));
     const layers = make("div", "layers");
     story.clips.forEach((c, i) => {
@@ -672,8 +708,8 @@ function nextStory() { openStory(story.handoff.paths[0].storyId, true); }
 function prevStory() { if (chain.length > 1) { chain.pop(); const back = chain[chain.length - 1]; const keep = chain; openStory(back, false); chain = keep; showSeg(); } }
 
 $("tap-next").onclick = nextSeg; $("tap-prev").onclick = prevSeg; $("deeper").onclick = nextSeg;
-$("leads").onclick = () => { predicting = false; $("predict").hidden = true; showEnd(); }; $("pause").onclick = () => setPaused(!paused); $("close").onclick = closeStory;
-$("map-btn").onclick = () => { $("map-sheet").classList.add("open"); setPaused(true); };
+$("leads").onclick = () => { predicting = false; $("predict").hidden = true; showEnd(); }; $("pause").onclick = () => pauseFor(!paused); $("close").onclick = closeStory;
+$("map-btn").onclick = () => { $("map-sheet").classList.add("open"); pauseFor(true); };
 $("replay").onclick = () => { seg = 0; t = 0; showSeg(); }; $("to-today").onclick = closeStory;
 
 let sx = 0, sy = 0, swiping = false; const scr = $("screen");
@@ -689,7 +725,7 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") nextSeg(); else if (e.key === "ArrowLeft") prevSeg();
   else if (e.key === "ArrowDown") nextStory(); else if (e.key === "ArrowUp") prevStory();
   else if (e.key === "Escape") closeStory();
-  else if (e.key === " " && !e.target.closest("button")) { e.preventDefault(); setPaused(!paused); }
+  else if (e.key === " " && !e.target.closest("button")) { e.preventDefault(); pauseFor(!paused); }
 });
 
 /* fallback footage for stories without a photo */
@@ -708,7 +744,7 @@ let last = performance.now();
 function loop(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   const mapOpen = $("map-sheet").classList.contains("open") && innerWidth < 900;
-  if (story && !paused && !mapOpen) {
+  if (story && !paused && !mapOpen && !speaking) {
     if (!reduce) phase += dt * 0.6;
     if (predicting) { /* wait for a guess */ }
     else if (!ending) { t += dt / SEG_SECONDS; if (t >= 1) nextSeg(); else paintSegs(); }
