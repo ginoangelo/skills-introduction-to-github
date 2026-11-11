@@ -7,7 +7,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ClipPlayer } from '@/components/clip-player';
 import { StoryArt } from '@/components/story-art';
 import { clipNarration, handoffNarration, narrate, predictNarration } from '@/components/narrator';
+import { LiveRadio } from '@/components/live-radio';
 import { StoryMap } from '@/components/story-map';
+import { distanceKm } from '@/data/places';
+import { stationsNear } from '@/data/stations';
 import { LAYERS, PATH_LABELS, ROOTS_LAYER, type Story } from '@/data/types';
 import { useAppState } from '@/state/app-state';
 import { useContent } from '@/state/content';
@@ -99,6 +102,13 @@ function Player({ story }: { story: Story }) {
   const [{ clipIndex, elapsed, ending, handoff, predicting }, dispatch] = useReducer(playback, INITIAL);
   const [paused, setPaused] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
+  const [radioOpen, setRadioOpen] = useState(false);
+  const stations = useMemo(() => stationsNear(story.place), [story.place]);
+  const radioPlace = stations[0] && distanceKm(story.place, stations[0]) < 400 ? story.place.name : story.place.country;
+  const openRadio = () => {
+    setPaused(true); // the story waits while you listen
+    setRadioOpen(true);
+  };
 
   const durations = useMemo(() => story.clips.map((c) => (c.youtubeId || c.audio?.url ? c.seconds : PLACEHOLDER_SECONDS)), [story]);
   const clip = story.clips[clipIndex];
@@ -279,6 +289,11 @@ function Player({ story }: { story: Story }) {
                 <Text style={styles.btnText}>Where it leads →</Text>
               </Pressable>
             )}
+            {stations.length > 0 && (
+              <Pressable onPress={openRadio} style={styles.btn} accessibilityRole="button" accessibilityLabel={`Hear live radio from ${radioPlace}`}>
+                <Text style={styles.btnText}>Hear it live</Text>
+              </Pressable>
+            )}
           </View>
           {!wide && <Text style={styles.hint}>Tap the edges to move between clips · swipe left for the next story</Text>}
         </View>
@@ -329,6 +344,10 @@ function Player({ story }: { story: Story }) {
               </Pressable>
             </View>
           </ScrollView>
+        )}
+
+        {radioOpen && (
+          <LiveRadio stations={stations} place={radioPlace} bottomInset={wide ? 0 : insets.bottom} onClose={() => setRadioOpen(false)} />
         )}
 
         {!wide && mapOpen && (
