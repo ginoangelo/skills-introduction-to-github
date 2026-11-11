@@ -1,0 +1,965 @@
+<title>Deeper News App</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: home = location + story circles + Near you / Your country / World lists that end; player = full-screen photo-backed clips per story (one per layer), ending on a question with up to three paths into the next connected story. Phone: player fills the screen. Web: 9:16 player with the story map beside it. */
+:root {
+  --bg: #eef3f4; --surface: #ffffff; --ink: #0f2129; --muted: #587079; --line: #d3dee2;
+  --accent: #0a8a81; --accent-ink: #ffffff; --warm: #b4621a; --scrim: rgba(6, 16, 20, 0.92);
+  --v-bg: #061015; --v-ink: #eef5f6; --v-muted: rgba(238, 245, 246, 0.74); --v-glass: rgba(255, 255, 255, 0.14);
+  --v-line: rgba(255, 255, 255, 0.28); --v-accent: #4fd1c5; --v-warm: #e7a560; --v-solid: #040c0f; --v-card: #17252b;
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0a161c; --surface: #11222a; --ink: #e3edef; --muted: #8ea4ac; --line: #223d48;
+  --accent: #4fd1c5; --accent-ink: #062024; --warm: #e7a560; --scrim: rgba(2, 8, 10, 0.94); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0a161c; --surface: #11222a; --ink: #e3edef; --muted: #8ea4ac; --line: #223d48;
+  --accent: #4fd1c5; --accent-ink: #062024; --warm: #e7a560; --scrim: rgba(2, 8, 10, 0.94); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.art { background-color: var(--line); background-size: cover; background-position: center; }
+
+/* ---------- Home ---------- */
+.home { max-width: 1120px; margin: 0 auto; padding-block: 16px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; }
+.brand span { color: var(--accent); }
+.top-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sample { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--warm); border: 1px solid currentColor; border-radius: 3px; padding: 2px 8px; }
+.loc-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; cursor: pointer; font-size: 0.82rem; font-weight: 600; }
+.loc-btn i { width: 10px; height: 10px; border-radius: 50%; border: 3px solid var(--accent); }
+.loc-btn em { font-style: normal; color: var(--accent); font-weight: 500; }
+
+.prompt { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; border: 1px solid var(--accent); background: var(--surface); border-radius: 12px; padding: 16px; }
+.prompt div { flex: 1; min-width: 220px; }
+.prompt strong { display: block; font-family: var(--font-display); font-size: 1.1rem; }
+.prompt p { margin: 2px 0 0; color: var(--muted); }
+.primary { border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 700; padding: 10px 18px; cursor: pointer; }
+
+.tray { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: none; }
+.tray::-webkit-scrollbar { display: none; }
+.ring { flex: 0 0 auto; width: 78px; display: grid; justify-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; }
+.ring .disc { width: 70px; height: 70px; border-radius: 50%; padding: 3px; background: var(--accent); position: relative; }
+.ring .check { position: absolute; right: -4px; bottom: -4px; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; font-size: 11px; font-weight: 800; color: var(--ink); }
+.class-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.class-row.on { border-color: var(--accent); }
+.class-row div { flex: 1; min-width: 0; }
+.class-row strong { display: block; }
+.class-row p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.switch { appearance: none; -webkit-appearance: none; width: 46px; height: 26px; border-radius: 13px; background: var(--line); position: relative; cursor: pointer; flex: 0 0 auto; margin: 0; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); transition: left 0.15s; }
+.switch:checked { background: var(--accent); }
+.switch:checked::after { left: 23px; }
+.daily-card { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; width: 100%; }
+.daily-card:hover { border-color: var(--accent); }
+.daily-card i { width: 44px; height: 44px; border-radius: 50%; }
+.daily-card .arrow { color: var(--accent); font-weight: 800; font-size: 1.2rem; }
+.daily-card div { flex: 1; min-width: 170px; }
+.daily-card small { display: block; color: var(--accent); font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.daily-card strong { display: block; font-family: var(--font-display); font-size: 1.05rem; }
+.daily-card span { color: var(--muted); font-size: 0.85rem; }
+.daily-card em { font-style: normal; color: var(--accent); font-weight: 700; }
+.daily-page { position: fixed; inset: 0; z-index: 56; background: var(--bg); overflow-y: auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 40px) max(16px, env(safe-area-inset-left, 0px)); }
+.daily-inner { max-width: 720px; margin: 0 auto; display: grid; gap: 14px; }
+.daily-head { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+.daily-head h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.8rem; margin: 0; }
+.daily-head p { margin: 0; color: var(--muted); }
+.goal { display: flex; align-items: flex-start; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+.goal .end { flex: 1; display: grid; justify-items: center; gap: 6px; text-align: center; min-width: 0; }
+.goal .end i { width: 88px; height: 88px; border-radius: 50%; }
+.goal .end strong { font-size: 0.9rem; }
+.goal .arrow { color: var(--accent); font-size: 1.8rem; font-weight: 800; margin-top: 28px; }
+.tiny { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.trail { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; color: var(--muted); }
+.trail span { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+.trail span.goal-hit { border-color: var(--accent); }
+.dcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
+.dcard.win { border: 2px solid var(--accent); }
+.dcard.lose { border: 2px solid var(--warm); }
+.dcard h2 { font-family: var(--font-display); margin: 0; font-size: 1.2rem; }
+.dcard.win h2 { color: var(--accent); } .dcard.lose h2 { color: var(--warm); }
+.here-row { display: flex; gap: 12px; }
+.here-row i { width: 64px; height: 88px; border-radius: 8px; flex: 0 0 auto; }
+.here-row strong { display: block; font-family: var(--font-display); font-size: 1.1rem; }
+.here-row span { color: var(--muted); font-size: 0.85rem; }
+.choice { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 12px; cursor: pointer; display: grid; gap: 2px; }
+.choice:hover { border-color: var(--accent); }
+.choice small, .route-row small { color: var(--accent); font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.choice span, .route-row span { color: var(--muted); font-size: 0.85rem; }
+.route-row { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 8px; text-align: left; background: none; cursor: pointer; color: var(--ink); }
+.route-row i { width: 40px; height: 54px; border-radius: 6px; flex: 0 0 auto; }
+.route-row div { flex: 1; min-width: 0; display: grid; }
+.route-row em { font-style: normal; color: var(--accent); font-weight: 700; }
+.row-btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ring.seen .disc { background: var(--line); }
+.ring .disc i { display: block; width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--bg); }
+.ring span { font-size: 0.75rem; font-weight: 500; text-align: center; line-height: 1.2; }
+
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start; }
+@media (max-width: 900px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.main { display: grid; gap: 14px; min-width: 0; }
+.watched { justify-self: end; color: var(--muted); font-size: 0.75rem; font-family: var(--font-mono); }
+.section { display: grid; gap: 14px; }
+.section h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.02em; margin: 6px 0 0; text-wrap: balance; }
+.empty { color: var(--muted); margin: 0; }
+.card { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-align: left; cursor: pointer; width: 100%; }
+.card:hover { border-color: var(--accent); }
+.thumb { aspect-ratio: 9 / 13; max-width: 100%; border-radius: 8px; position: relative; overflow: hidden; color: var(--v-ink); }
+.thumb .len { position: absolute; left: 6px; bottom: 6px; font-family: var(--font-mono); font-size: 0.68rem; background: rgba(0,0,0,0.5); padding: 1px 6px; border-radius: 3px; }
+.thumb .bars { position: absolute; left: 6px; right: 6px; top: 6px; display: flex; gap: 3px; }
+.thumb .bars b { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.6); }
+.card-body { min-width: 0; display: grid; gap: 5px; align-content: start; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.card h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+.card.seen h3 { color: var(--muted); }
+.place { color: var(--muted); font-size: 0.82rem; }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.chips span { font-size: 0.68rem; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 6px; }
+.links { font-size: 0.82rem; color: var(--muted); }
+.links b { color: var(--ink); font-weight: 600; }
+.done { margin-top: 6px; border: 1px dashed var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 4px; }
+.done strong { font-family: var(--font-display); font-size: 1.2rem; }
+.done p { margin: 0; color: var(--muted); }
+
+.side h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; margin: 0 0 4px; }
+.side > p { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; }
+.threads { display: grid; gap: 10px; }
+.thread { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
+.thread-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.thread-h strong { display: block; font-size: 0.95rem; }
+.follow { border: 1px solid var(--accent); color: var(--accent); background: none; border-radius: 999px; padding: 9px 14px; min-height: 40px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.follow[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.mini { border: 0; background: var(--bg); border-radius: 4px; padding: 3px 8px; font-size: 0.78rem; cursor: pointer; }
+.mini:hover { color: var(--accent); }
+
+/* ---------- Location picker ---------- */
+.picker { position: fixed; inset: 0; z-index: 60; background: var(--bg); overflow-y: auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) max(16px, env(safe-area-inset-left, 0px)); }
+.picker-inner { max-width: 640px; margin: 0 auto; display: grid; gap: 14px; }
+.picker-head { display: flex; gap: 12px; align-items: flex-start; }
+.picker-head div { flex: 1; }
+.picker h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.8rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+.picker p { margin: 0; color: var(--muted); }
+.x { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); cursor: pointer; flex: 0 0 auto; }
+#loc-search { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px 14px; font-size: 1rem; width: 100%; }
+.loc-row { display: flex; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 14px 0; cursor: pointer; }
+.loc-row div { flex: 1; }
+.loc-row strong { display: block; font-size: 1rem; }
+.loc-row span { color: var(--muted); font-size: 0.85rem; }
+.loc-row em { font-style: normal; color: var(--accent); font-weight: 700; }
+
+/* ---------- Player ---------- */
+.player { position: fixed; inset: 0; z-index: 50; background: var(--scrim); display: flex; justify-content: center; align-items: center; gap: 20px; }
+.screen { position: relative; width: 100%; height: 100%; background: var(--v-bg); color: var(--v-ink); overflow: hidden; touch-action: pan-y; user-select: none; }
+.photo { position: absolute; inset: 0; background-size: cover; background-position: center; transition: opacity 0.3s; }
+.photo::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,var(--dim, 0.35)); }
+.photo.zoom { animation: slowzoom 9s ease-out forwards; }
+@keyframes slowzoom { from { transform: scale(1.08); } to { transform: scale(1.22); } }
+.photo.roots { filter: sepia(0.75) saturate(0.85); }
+.screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.shade { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 22%, transparent 50%, rgba(0,0,0,0.82)); pointer-events: none; }
+/* each layer's own look */
+.scene { position: absolute; left: 28px; right: 28px; top: 20%; display: grid; justify-items: center; gap: 10px; text-align: center; pointer-events: none; }
+.scene .qmark { font-family: Georgia, "Times New Roman", serif; font-size: 96px; line-height: 0.8; color: var(--v-accent); }
+.scene .quote { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 1.6rem; line-height: 1.3; color: var(--v-ink); text-wrap: balance; }
+.scene .who { color: var(--v-muted); font-weight: 600; font-size: 0.9rem; }
+.scene .archive { color: var(--v-warm); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.16em; text-transform: uppercase; }
+.scene .year { font-family: Georgia, "Times New Roman", serif; font-weight: 700; font-size: 7.5rem; line-height: 1; color: #F3E2C7; }
+.scene .year.long { font-size: 3.5rem; }
+.scene .cal { background: var(--v-ink); border-radius: 14px; overflow: hidden; min-width: 170px; }
+.scene .cal b { display: block; background: var(--v-accent); color: var(--v-bg); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px; }
+.scene .cal span { display: block; color: var(--v-bg); font-weight: 800; font-size: 2.5rem; padding: 12px 18px; }
+.slot { position: absolute; left: 0; right: 0; top: 42%; text-align: center; pointer-events: none; }
+.slot b { display: block; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.slot span { font-size: 0.78rem; color: var(--v-muted); }
+.credit { position: absolute; right: 12px; top: 92px; max-width: 70%; font-size: 0.66rem; color: var(--v-muted); text-align: right; pointer-events: none; }
+.tap { position: absolute; top: 110px; bottom: 300px; width: 24%; background: none; border: 0; cursor: pointer; }
+.tap.prev { left: 0; } .tap.next { right: 0; }
+.tap:focus-visible { outline: none; }
+.p-top { position: absolute; left: 0; right: 0; top: 0; display: grid; gap: 10px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) max(14px, env(safe-area-inset-right, 0px)) 0 max(14px, env(safe-area-inset-left, 0px)); }
+.segs { display: flex; gap: 4px; }
+.seg-col { flex: 1; display: grid; gap: 4px; min-width: 0; }
+.seg { height: 3px; border-radius: 2px; background: var(--v-line); overflow: hidden; }
+.seg i { display: block; height: 100%; width: 0; background: var(--v-ink); }
+.seg-col span { font-size: 9px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; text-align: center; color: var(--v-muted); white-space: nowrap; overflow: hidden; }
+.seg-col.on span { color: var(--v-ink); font-weight: 800; }
+.p-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.p-avatar { width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto; border: 2px solid var(--v-accent); }
+.p-title { min-width: 0; flex: 1; }
+.p-title strong, .p-title span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-title strong { font-size: 0.9rem; line-height: 1.25; }
+.p-title span { font-size: 0.75rem; color: var(--v-muted); }
+.listen-btn { height: 36px; border-radius: 18px; padding: 0 12px; border: 0; background: var(--v-glass); color: var(--v-ink); font-weight: 700; font-size: 0.8rem; cursor: pointer; flex: 0 0 auto; }
+.listen-btn[aria-checked="true"] { background: var(--v-accent); color: var(--v-bg); }
+.icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--v-glass); color: var(--v-ink); cursor: pointer; display: grid; place-items: center; flex: 0 0 auto; }
+.icon-btn:focus-visible, .v-btn:focus-visible, .path:focus-visible { outline: 2px solid var(--v-accent); outline-offset: 2px; }
+.p-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 10px; pointer-events: none; padding-top: 90px !important; background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.9));
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px)); }
+.p-bottom > * { pointer-events: auto; }
+.layer-chip { justify-self: start; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--v-accent); color: var(--v-bg); padding: 3px 9px; border-radius: 3px; font-weight: 500; }
+.layer-chip.root { background: var(--v-warm); }
+.clip-title { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.45rem, 6.5vw, 1.9rem); line-height: 1.05; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.clip-meta { font-size: 0.8rem; color: var(--v-muted); }
+.clip-why { font-size: 0.92rem; margin: 0; max-width: 42ch; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.secondary { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.deeper-btn { justify-self: center; min-width: 220px; border: 0; border-radius: 999px; background: var(--v-ink); color: var(--v-bg); font-weight: 800; font-size: 1.05rem; padding: 14px 28px; cursor: pointer; }
+.deeper-btn:focus-visible { outline: 2px solid var(--v-accent); outline-offset: 2px; }
+.discuss { border: 1px solid var(--v-accent); background: rgba(79, 209, 197, 0.08); border-radius: 12px; padding: 14px; display: grid; gap: 6px; }
+.discuss b { color: var(--v-accent); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.discuss p { margin: 0; color: var(--v-ink); line-height: 1.4; }
+.guess-head { display: flex; align-items: center; gap: 10px; }
+.guess-head .eyebrow { flex: 1; }
+.v-btn { border: 1px solid var(--v-line); background: var(--v-glass); color: var(--v-ink); border-radius: 999px; padding: 7px 14px; font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.v-btn.primary-v { background: var(--v-ink); color: var(--v-bg); border-color: var(--v-ink); font-weight: 600; }
+.hint { font-size: 0.72rem; color: var(--v-muted); }
+
+.handoff { position: absolute; inset: 0; background: var(--v-solid); overflow-y: auto; display: grid; align-content: center; gap: 14px;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) max(20px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) max(20px, env(safe-area-inset-left, 0px)); }
+.handoff .eyebrow { color: var(--v-accent); }
+.question { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 7vw, 2rem); line-height: 1.08; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.paths { display: grid; gap: 10px; }
+.path { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: center; text-align: left; background: var(--v-card); border: 1px solid var(--v-line); border-radius: 12px; padding: 10px; cursor: pointer; color: var(--v-ink); position: relative; overflow: hidden; }
+.path .pthumb { width: 56px; height: 76px; border-radius: 6px; }
+.path small { display: block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--v-accent); }
+.path strong { display: block; font-size: 1rem; line-height: 1.25; }
+.path span { display: block; font-size: 0.82rem; color: var(--v-muted); }
+.countdown { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--v-accent); width: 0; }
+
+.map { background: var(--surface); color: var(--ink); display: grid; gap: 14px; align-content: start; overflow-y: auto; padding: 20px; }
+.map h3 { font-family: var(--font-display); font-size: 1.05rem; margin: 0; }
+.layers { display: grid; position: relative; }
+.layers::before { content: ""; position: absolute; left: 5px; top: 18px; bottom: 18px; width: 2px; background: var(--line); }
+.layer-row { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 12px; text-align: left; background: none; border: 0; padding: 8px 0; cursor: pointer; color: var(--ink); }
+.layer-row .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); background: var(--surface); margin-top: 4px; position: relative; z-index: 1; }
+.layer-row.root .dot { border-color: var(--warm); }
+.layer-row.done .dot { background: var(--muted); }
+.layer-row.on .dot { background: var(--accent); border-color: var(--accent); }
+.layer-row small, .map-link small { display: block; font-family: var(--font-mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.map-link small { color: var(--accent); }
+.layer-row span { font-size: 0.9rem; font-weight: 500; line-height: 1.3; }
+.layer-row.on span { color: var(--accent); }
+.map-link { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; cursor: pointer; color: var(--ink); display: grid; gap: 2px; }
+.map-link:hover { border-color: var(--accent); }
+.map-link span { color: var(--muted); font-size: 0.8rem; }
+.map-close { justify-self: end; background: var(--bg); color: var(--ink); }
+
+@media (max-width: 899px) {
+  #map-sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 78%; border-radius: 16px 16px 0 0; z-index: 5;
+    padding: 18px max(18px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 18px) max(18px, env(safe-area-inset-left, 0px)); }
+  #map-sheet:not(.open) { display: none; }
+  #map-side { display: none; }
+}
+@media (min-width: 900px) {
+  .player { padding: 24px; }
+  .screen { width: auto; height: min(860px, 100%); aspect-ratio: 9 / 16; border-radius: 16px; }
+  .p-top { padding: 14px 14px 0; }
+  .p-bottom { padding: 0 18px 18px; }
+  #map-side { width: 340px; height: min(860px, 100%); border-radius: 16px; border: 1px solid var(--line); }
+  #map-sheet, .map-btn, .hint.touch { display: none; }
+}
+/* ---------- Guess ---------- */
+.guess { text-align: left; background: var(--v-card); border: 1px solid var(--v-line); border-radius: 12px; padding: 14px; cursor: pointer; color: var(--v-ink); display: grid; gap: 4px; font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.guess small { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.guess.right { border-color: var(--v-accent); background: rgba(79, 209, 197, 0.16); }
+.guess.right small { color: var(--v-accent); }
+.guess.wrong { border-color: var(--v-warm); }
+.guess.wrong small { color: var(--v-warm); }
+.guess.faded { opacity: 0.45; }
+.guess:disabled { cursor: default; }
+.verdict { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; margin: 0; }
+.verdict.right { color: var(--v-accent); } .verdict.wrong { color: var(--v-warm); }
+
+/* ---------- Explore ---------- */
+.explore-btn { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+.explore { position: fixed; inset: 0; z-index: 55; background: var(--bg); display: flex; flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px)); }
+.ex-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.ex-head h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; margin: 0; letter-spacing: -0.02em; }
+.ex-head p { margin: 0; color: var(--muted); font-size: 0.85rem; flex: 1 1 240px; }
+.pill-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; cursor: pointer; }
+.ex-key { color: var(--muted); font-size: 0.75rem; font-weight: 600; margin: 6px 0 0; }
+.ex-body { flex: 1; display: flex; gap: 16px; min-height: 0; padding-bottom: 16px; }
+.ex-canvas { flex: 1; position: relative; min-width: 0; overflow-y: auto; }
+.ex-band { position: absolute; left: 50%; transform: translateX(-50%); z-index: 1; background: var(--bg); padding: 0 10px; white-space: nowrap; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.ex-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ex-edge { fill: none; stroke: var(--muted); stroke-opacity: 0.35; stroke-width: 1.5; transition: stroke-opacity 0.2s; }
+.ex-edge.on { stroke: var(--accent); stroke-opacity: 1; stroke-width: 3; }
+.ex-edge.dim { stroke-opacity: 0.12; }
+.ex-ring { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 4 6; }
+.ex-node { position: absolute; display: grid; justify-items: center; gap: 4px; background: none; border: 0; padding: 0; cursor: pointer; transition: opacity 0.2s; }
+.ex-node i { display: block; border-radius: 50%; border: 3px solid var(--surface); box-sizing: border-box; }
+.ex-node.seen i { border-color: var(--warm); box-shadow: 0 0 12px var(--warm); }
+.ex-node.on i { border-color: var(--accent); border-width: 4px; }
+.ex-node span { font-size: 0.7rem; font-weight: 600; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ex-node.on span { font-weight: 800; }
+.ex-node.dim { opacity: 0.35; }
+.ex-panel { width: 340px; flex: 0 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; overflow-y: auto; display: grid; gap: 10px; align-content: start; }
+.ex-panel h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; margin: 0; line-height: 1.2; text-wrap: balance; }
+.ex-panel p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.ex-banner { height: 150px; border-radius: 12px; }
+.ex-watch { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 11px; font-weight: 700; cursor: pointer; }
+.ex-x { justify-self: end; }
+.legend { display: grid; gap: 6px; font-size: 0.82rem; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 3px solid; vertical-align: -2px; margin-right: 6px; }
+@media (max-width: 899px) {
+  .ex-panel { position: fixed; left: 0; right: 0; bottom: 0; width: auto; max-height: 58%; border-radius: 16px 16px 0 0; z-index: 2;
+    padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px)); }
+  .ex-panel.empty { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="home" id="home">
+  <div class="topbar">
+    <div class="brand">Deeper<span>.</span>News</div>
+    <div class="top-right">
+      <span class="sample">Sample stories · fictional</span>
+      <button class="explore-btn" type="button" id="explore-btn">Explore the map</button>
+      <button class="loc-btn" type="button" id="loc-btn"></button>
+    </div>
+  </div>
+  <label class="class-row" id="class-row">
+    <div><strong>Class mode</strong><p id="class-text"></p></div>
+    <input class="switch" type="checkbox" id="class-mode" role="switch" aria-label="Class mode">
+  </label>
+  <button class="daily-card" type="button" id="daily-card"></button>
+  <div class="prompt" id="prompt" hidden>
+    <div><strong>See what’s happening near you</strong><p>Pick your city and we’ll put local stories first, then your country, then the world.</p></div>
+    <button class="primary" type="button" id="prompt-btn">Choose your location</button>
+  </div>
+  <div class="tray" id="tray" aria-label="Stories"></div>
+  <div class="cols">
+    <main class="main">
+      <span class="watched" id="watched"></span>
+      <div id="sections"></div>
+      <div class="done"><strong>You’re caught up.</strong><p>That’s every story today. New chapters on threads you follow will show up here.</p></div>
+    </main>
+    <aside class="side">
+      <h2>Threads</h2>
+      <p>A place, a person or a decision that runs through several stories. Follow one to hear about each new chapter.</p>
+      <div class="threads" id="threads"></div>
+    </aside>
+  </div>
+</div>
+
+<div class="picker" id="picker" hidden>
+  <div class="picker-inner">
+    <div class="picker-head">
+      <div><h1>Where are you?</h1><p>We use this to show stories near you first. It stays in this browser, and you can change it any time.</p></div>
+      <button class="x" type="button" id="picker-close" aria-label="Close">✕</button>
+    </div>
+    <input id="loc-search" type="search" placeholder="Search for a city or country" autocomplete="off">
+    <div id="loc-list"></div>
+  </div>
+</div>
+
+<div class="explore" id="explore" hidden>
+  <div class="ex-head">
+    <button class="pill-btn" type="button" id="ex-back">← Today</button>
+    <h1>Explore</h1>
+    <p id="ex-sub"></p>
+    <span class="watched" id="ex-watched"></span>
+  </div>
+  <p class="ex-key" id="ex-key"></p>
+  <div class="ex-body">
+    <div class="ex-canvas" id="ex-canvas"></div>
+    <aside class="ex-panel" id="ex-panel"></aside>
+  </div>
+</div>
+
+<div class="daily-page" id="daily" hidden><div class="daily-inner" id="daily-inner"></div></div>
+
+<div class="player" id="player" hidden>
+  <div class="screen" id="screen">
+    <canvas id="cv"></canvas>
+    <div class="photo" id="photo"></div>
+    <div class="shade"></div>
+    <div class="scene" id="scene"></div>
+    <div class="credit" id="credit"></div>
+    <button class="tap prev" type="button" id="tap-prev" aria-label="Previous clip"></button>
+    <button class="tap next" type="button" id="tap-next" aria-label="Next clip"></button>
+    <div class="p-top">
+      <div class="segs" id="segs"></div>
+      <div class="p-head">
+        <i class="p-avatar art" id="p-avatar"></i>
+        <div class="p-title"><strong id="p-story"></strong><span id="p-sub"></span></div>
+        <button class="listen-btn" type="button" id="listen" role="switch" aria-checked="false" aria-label="Listen mode: read the story aloud">Listen</button>
+        <button class="icon-btn" type="button" id="pause" aria-label="Pause">❚❚</button>
+        <button class="icon-btn" type="button" id="close" aria-label="Close story">✕</button>
+      </div>
+    </div>
+    <div class="p-bottom">
+      <span class="layer-chip" id="chip"></span>
+      <h2 class="clip-title" id="clip-title"></h2>
+      <div class="clip-meta" id="clip-meta"></div>
+      <p class="clip-why" id="clip-why"></p>
+      <div class="secondary">
+        <button class="v-btn map-btn" type="button" id="map-btn">Map</button>
+        <button class="v-btn" type="button" id="leads">Skip to the end</button>
+      </div>
+      <button class="deeper-btn" type="button" id="deeper"></button>
+      <div class="hint touch" style="text-align:center">Swipe up to go deeper · hold to pause · swipe left for the next story</div>
+    </div>
+    <div class="handoff" id="handoff" hidden>
+      <span class="eyebrow" id="h-eyebrow"></span>
+      <h2 class="question" id="h-question"></h2>
+      <div class="discuss" id="h-discuss" hidden>
+        <b>Discuss</b>
+        <p id="h-discuss-story"></p>
+        <p>1. In your own words: what happened, and why does it matter?</p>
+        <p>2. Which clip gave you the strongest evidence, and why?</p>
+        <p>3. Who is affected by this story, and who gets to decide what happens next?</p>
+      </div>
+      <div class="paths" id="h-paths"></div>
+      <span class="hint" id="h-hint"></span>
+      <div class="actions">
+        <button class="v-btn primary-v" type="button" id="stay">Stay here</button>
+        <button class="v-btn" type="button" id="replay">Watch again</button>
+        <button class="v-btn" type="button" id="to-today">Back to Today</button>
+      </div>
+    </div>
+    <div class="handoff" id="predict" hidden>
+      <div class="guess-head"><span class="eyebrow">Before you see what followed</span><button class="v-btn" type="button" id="p-skip" aria-label="Skip the guess">Skip</button></div>
+      <h2 class="question">What do you think happened next?</h2>
+      <div class="paths" id="p-options"></div>
+      <p class="verdict" id="p-verdict" hidden></p>
+      <span class="hint" id="p-hint">Pick one. Then watch the real outcome.</span>
+      <div class="actions"><button class="v-btn primary-v" type="button" id="p-continue" hidden>See what happened →</button></div>
+    </div>
+    <div class="map" id="map-sheet"></div>
+  </div>
+  <div class="map" id="map-side"></div>
+</div>
+
+<script>
+const DATA = {"STORIES":[{"id":"marlow","place":{"name":"Marlow Creek","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.35,"lng":-85.6},"short":"Marlow Creek","title":"The Marlow Creek levee gave way at dawn","topic":"Climate & infrastructure","hue":192,"minutes":4,"clips":[{"title":"Evening bulletin: the levee gives way","when":"Day 0, 6:00 p.m.","source":"Local station","rights":"Licensed","why":"The version most people saw first. The clips after it show what the bulletin left out.","seconds":20},{"title":"A porch camera catches the first water","when":"Day 0, 6:42 a.m.","source":"Resident upload","rights":"Consent on file","why":"The earliest footage. It puts the breach 40 minutes before the first emergency call.","seconds":20},{"title":"Volunteer boat crew, helmet camera","when":"Day 0, 9:05 a.m.","source":"Volunteer upload","rights":"Consent on file","why":"A first-person view of the rescues on Front Street.","quote":{"text":"We stacked sandbags until two in the morning. It wasn't enough.","who":"Volunteer boat crew member"},"seconds":20},{"title":"2019: the council puts off levee repairs","when":"2019","source":"Town meeting archive","rights":"Public record","why":"A 4–3 vote pushed the repairs back five years.","seconds":20},{"title":"State hearing on emergency flood funds","when":"Day 9","source":"State legislature feed","rights":"Public record","why":"The town's request cites the county's drone survey.","seconds":20}],"predict":{"decoys":["Town vote to abandon the riverfront","Federal takeover of the levee repairs"]},"discuss":"Should a town be allowed to put off safety repairs to save money? Who should decide?","handoff":{"question":"So why didn't the state send the money?","paths":[{"kind":"money","storyId":"funding","reason":"The bill that was supposed to send it, stuck on a tie vote"},{"kind":"people","storyId":"insurers","reason":"The Front Street store owner's insurer pulls out"},{"kind":"place","storyId":"ostend","reason":"Downriver, the next town decides not to wait"}]}},{"id":"ostend","place":{"name":"Ostend Mills","region":"Harlan River valley","country":"United States","countryCode":"US","lat":37.95,"lng":-86},"short":"Ostend Mills","title":"Ostend Mills votes to raise its own levee","topic":"Climate & infrastructure","hue":204,"minutes":3,"clips":[{"title":"Council recap: a 6–1 vote","when":"Day 40","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"The town engineer walks the low section","when":"Day 38","source":"Town channel","rights":"Public record","why":"Shows exactly which stretch the vote covers.","seconds":20},{"title":"Residents at the microphone","when":"Day 40","source":"Town meeting archive","rights":"Public record","why":"Two speakers say they watched the Marlow Creek footage.","quote":{"text":"I watched the Marlow Creek footage and thought, that's us next spring.","who":"Resident at the council meeting"},"seconds":20},{"title":"Archive: the 1998 flood reaches Ostend Mills","when":"1998","source":"Regional archive","rights":"Archive license","why":"The same flood that hit Marlow Creek.","seconds":20},{"title":"Contractors tour the levee site","when":"Day 60","source":"Local station","rights":"Licensed","why":"The first work under the new plan.","seconds":20}],"predict":{"decoys":["Residents sue to stop the new levee","The state pays for the levee after all"]},"discuss":"Was Ostend Mills right to pay for its own levee instead of waiting for the state?","handoff":{"question":"Will the state ever pay for levees like this?","paths":[{"kind":"money","storyId":"funding","reason":"The bill that was supposed to pay for it"},{"kind":"place","storyId":"marlow","reason":"Upriver, where this started"},{"kind":"people","storyId":"room-river","reason":"A Dutch town that moved its dikes back instead"}]}},{"id":"funding","place":{"name":"State capitol","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.2,"lng":-84.9},"short":"Flood budget","title":"The state flood-fund bill stalls in committee","topic":"Politics","hue":252,"minutes":4,"clips":[{"title":"The finance committee stalls the bill","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"The headline.","seconds":20},{"title":"The 5–5 vote, full recording","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"The tie happens at 23:20 in the recording.","seconds":20},{"title":"Marlow Creek's mayor after the vote","when":"Day 30","source":"Partner interview","rights":"Licensed","why":"Her town asked for the largest share.","quote":{"text":"We asked for the most because we lost the most.","who":"Mayor of Marlow Creek"},"seconds":20},{"title":"2021: the flood reserve is cut by a third","when":"2021","source":"State legislature feed","rights":"Public record","why":"Why the fund was short to begin with.","seconds":20},{"title":"Ostend Mills decides to pay for its own levee","when":"Day 40","source":"Local station","rights":"Licensed","why":"One town stops waiting for the state.","seconds":20}],"predict":{"decoys":["The governor finds the money elsewhere","The committee votes again and passes the bill"]},"discuss":"When a vote ties, who should have the final say on emergency money?","handoff":{"question":"Who pays when the state doesn't?","paths":[{"kind":"money","storyId":"insurers","reason":"Insurers start pulling out of river towns"},{"kind":"place","storyId":"ostend","reason":"The town that paid for its own levee"},{"kind":"people","storyId":"schools","reason":"Teachers working out of borrowed buildings"}]}},{"id":"insurers","place":{"name":"River towns","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.25,"lng":-85.75},"short":"Insurance","title":"Two insurers stop writing policies in river towns","topic":"Economy","hue":28,"minutes":3,"clips":[{"title":"Two insurers pull back","when":"Day 21","source":"Partner report","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Industry briefing on the new flood maps","when":"Day 18","source":"Webinar recording","rights":"Publisher permission","why":"The slide at 12:40 lists the affected zip codes.","seconds":20},{"title":"The Front Street store owner reads her renewal letter","when":"Day 21","source":"Partner interview","rights":"Licensed","why":"You may have met her in the Marlow Creek story.","quote":{"text":"Twenty-two years at this address, and they gave me thirty days.","who":"Front Street store owner"},"seconds":20},{"title":"The county flood map, last revised in 2009","when":"2009","source":"County records","rights":"Public record","why":"The maps insurers had been using until now.","seconds":20},{"title":"A grain elevator loses its coverage","when":"Day 25","source":"Partner report","rights":"Licensed","why":"This leads into the river freight story.","seconds":20}],"predict":{"decoys":["The state orders the insurers to come back","Premiums fall once the new flood maps are out"]},"discuss":"Should insurers have to keep covering homes and shops in flood zones?","handoff":{"question":"What happens to a business that can't get insured?","paths":[{"kind":"money","storyId":"grain","reason":"A grain elevator stuck with nowhere to ship"},{"kind":"people","storyId":"marlow","reason":"Where the store owner's story began"}]}},{"id":"grain","place":{"name":"Lock 7","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38,"lng":-86.3},"short":"River freight","title":"Grain barges back up while the river stays closed","topic":"Economy","hue":46,"minutes":3,"clips":[{"title":"Barges stack up above Lock 7","when":"Day 12","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Idle barges, filmed from the bank","when":"Day 10","source":"Resident upload","rights":"Consent on file","why":"The lock below Marlow Creek is still shut for debris.","seconds":20},{"title":"An elevator operator on the wait","when":"Day 12","source":"Partner interview","rights":"Licensed","why":"He's paying to store grain he can't ship.","quote":{"text":"I'm paying to store grain I can't ship.","who":"Grain elevator operator"},"seconds":20},{"title":"2020 report on the lock repair backlog","when":"2020","source":"Federal agency briefing","rights":"Public record","why":"Lock 7 was already on the repair list.","seconds":20},{"title":"Halvard Port backs up too","when":"Day 15","source":"Local station","rights":"Licensed","why":"The same cargo was due at the port.","seconds":20}],"predict":{"decoys":["The grain moves by rail within a day","Grain prices drop across the country"]},"discuss":"How can one closed river lock affect prices in places far away?","handoff":{"question":"Where was all that grain supposed to go?","paths":[{"kind":"place","storyId":"port","reason":"A port already shut down by a strike"},{"kind":"money","storyId":"insurers","reason":"Why the elevator lost its insurance"}]}},{"id":"port","place":{"name":"Halvard Port","region":"Gulf Coast","country":"United States","countryCode":"US","lat":29.95,"lng":-90.07},"short":"Halvard Port","title":"Halvard dockworkers strike over automated cranes","topic":"Labor","hue":346,"minutes":3,"clips":[{"title":"Dockworkers walk out","when":"Day 14","source":"Partner feed","rights":"Licensed","why":"The headline.","seconds":20},{"title":"The picket line at Gate 3","when":"Day 14","source":"Worker upload","rights":"Consent on file","why":"Filmed by a picketer at the shift change.","seconds":20},{"title":"A crane operator of 22 years","when":"Day 14","source":"Partner interview","rights":"Licensed","why":"He explains what the new cranes would replace.","quote":{"text":"Those cranes would do the work of nine of us.","who":"Crane operator, 22 years on the docks"},"seconds":20},{"title":"2023: the automation clause is tabled","when":"2023","source":"Union livestream","rights":"Publisher permission","why":"The dispute was postponed, not settled.","seconds":20},{"title":"Grain shippers caught in both","when":"Day 15","source":"Local station","rights":"Licensed","why":"The river closure and the strike hit the same cargo.","seconds":20}],"predict":{"decoys":["The strike ends the next morning","The port cancels the automated cranes"]},"discuss":"Should workers have a say when machines are brought in to do their jobs?","handoff":{"question":"What happens to the grain stuck upriver?","paths":[{"kind":"place","storyId":"grain","reason":"The barges waiting above Lock 7"},{"kind":"people","storyId":"bayport","reason":"Workers on another continent training for the same cranes"}]}},{"id":"schools","place":{"name":"Harlan County","region":"Harlan River valley","country":"United States","countryCode":"US","lat":38.4,"lng":-85.4},"short":"Harlan schools","title":"Harlan County schools reopen in borrowed buildings","topic":"Community","hue":150,"minutes":3,"clips":[{"title":"Schools reopen a week after the flood","when":"Day 7","source":"Local station","rights":"Licensed","why":"The headline.","seconds":20},{"title":"First morning at the church hall","when":"Day 7","source":"Parent upload","rights":"Consent on file","why":"Thirty desks in a room built for dinners.","seconds":20},{"title":"A teacher whose classroom was on Front Street","when":"Day 7","source":"Partner interview","rights":"Licensed","why":"Her school is two doors from the hardware store.","quote":{"text":"My classroom is a church hall now. The kids keep asking when we go home.","who":"Teacher, Front Street school"},"seconds":20},{"title":"The 1998 flood closed the same school","when":"1998","source":"Regional archive","rights":"Archive license","why":"It reopened four months later.","seconds":20},{"title":"Repair money depends on the stalled bill","when":"Day 30","source":"State legislature feed","rights":"Public record","why":"This leads into the flood budget story.","seconds":20}],"predict":{"decoys":["The schools move online for the year","A donor pays for every repair"]},"discuss":"After a disaster, what should a town fix first: schools, homes or roads? Why?","handoff":{"question":"When will the schools get money for repairs?","paths":[{"kind":"money","storyId":"funding","reason":"The bill the repairs are waiting on"},{"kind":"people","storyId":"floating-schools","reason":"Halfway around the world, a village keeps school open on boats"},{"kind":"place","storyId":"marlow","reason":"The flood that closed the school"}]}},{"id":"floating-schools","place":{"name":"Char Kalia","region":"Sundarbans delta","country":"Bangladesh","countryCode":"BD","lat":22.3,"lng":89.6},"short":"Boat schools","title":"In a delta village, school moves onto boats for flood season","topic":"Community","hue":165,"minutes":3,"clips":[{"title":"The first boat school pulls up to the landing","when":"Week 1","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"A morning lesson while the boat moves between villages","when":"Week 1","source":"Teacher upload","rights":"Consent on file","why":"Shows how a class works when the classroom floats.","seconds":20},{"title":"A student who hasn’t missed a day this monsoon","when":"Week 2","source":"Partner interview","rights":"Licensed","why":"In past years she lost months of school to flooding.","quote":{"text":"I haven't missed a single day this monsoon.","who":"Student, Char Kalia"},"seconds":20},{"title":"Archive: the year the old school washed away","when":"2007","source":"Regional archive","rights":"Archive license","why":"Why the village stopped building schools on land.","seconds":20},{"title":"Two more districts order boats","when":"Week 6","source":"Regional broadcaster","rights":"Licensed","why":"The idea starts to spread.","seconds":20}],"predict":{"decoys":["Regulators ban the boats as unsafe","The program ends after one season"]},"discuss":"What could American river towns learn from schools that float?","handoff":{"question":"Could American river towns do something like this?","paths":[{"kind":"people","storyId":"schools","reason":"Teachers in Harlan County working out of borrowed rooms"},{"kind":"place","storyId":"room-river","reason":"Another country that has learned to live with rising water"}]}},{"id":"room-river","place":{"name":"Veldmaas","region":"Meuse valley","country":"Netherlands","countryCode":"NL","lat":51.4,"lng":5.9},"short":"Veldmaas","title":"A Dutch river town moves its dikes back and lets the river in","topic":"Climate & infrastructure","hue":210,"minutes":4,"clips":[{"title":"The new floodplain opens","when":"Day 0","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Drone footage: the old dike line and the new one","when":"Day 0","source":"Water board","rights":"Public record","why":"Shows how much land was handed back to the river.","seconds":20},{"title":"A farmer who sold his fields to the project","when":"Day 2","source":"Partner interview","rights":"Licensed","why":"Not everyone wanted to move.","quote":{"text":"My grandfather built this farm. Selling it to the river was the hardest thing I've done.","who":"Farmer who sold his fields"},"seconds":20},{"title":"Archive: the near-flood that started the plan","when":"1995","source":"National archive","rights":"Archive license","why":"Why the country changed its approach.","seconds":20},{"title":"The first high water since the dikes moved","when":"Month 4","source":"Resident upload","rights":"Consent on file","why":"The test the plan was built for.","seconds":20}],"predict":{"decoys":["The town rebuilds the old dikes","Farmers win a court case to reverse the plan"]},"discuss":"Is it better to build higher walls or to give rivers more room?","handoff":{"question":"Is a higher wall or more room for the river the better bet?","paths":[{"kind":"place","storyId":"ostend","reason":"An American town choosing the opposite: a higher levee"},{"kind":"people","storyId":"floating-schools","reason":"A village that adapted instead of building walls"}]}},{"id":"bayport","place":{"name":"Bayport","region":"Lagos coast","country":"Nigeria","countryCode":"NG","lat":6.45,"lng":3.4},"short":"Bayport","title":"Dockworkers in a West African port train for automated cranes","topic":"Labor","hue":20,"minutes":3,"clips":[{"title":"The first automated crane arrives by ship","when":"Day 0","source":"Regional broadcaster","rights":"Licensed","why":"The headline.","seconds":20},{"title":"Inside the training simulator","when":"Day 3","source":"Port authority","rights":"Public record","why":"Workers learn to run the cranes from a control room.","seconds":20},{"title":"A crane operator choosing to retrain","when":"Day 3","source":"Partner interview","rights":"Licensed","why":"He sees it differently from the Halvard strikers.","quote":{"text":"I'd rather learn the machine than lose my job to it.","who":"Crane operator in training"},"seconds":20},{"title":"The union deal that made training part of the plan","when":"2024","source":"Union recording","rights":"Publisher permission","why":"Why there was no strike here.","seconds":20},{"title":"Ships start choosing this port over others","when":"Month 3","source":"Regional broadcaster","rights":"Licensed","why":"What faster loading means for trade.","seconds":20}],"predict":{"decoys":["Workers strike, just like in Halvard","The cranes are shipped back"]},"discuss":"Why did one port strike while this one retrained? What would you have done?","handoff":{"question":"Why did one port strike while this one retrained?","paths":[{"kind":"people","storyId":"port","reason":"Halvard dockworkers striking over the same cranes"}]}}],"THREADS":[{"id":"harlan-river","name":"Harlan River flooding","kind":"Place","storyIds":["marlow","ostend","grain","schools"]},{"id":"flood-budget","name":"State flood budget","kind":"Decision","storyIds":["funding","marlow","ostend","schools"]},{"id":"insurance","name":"Insurance in river towns","kind":"Issue","storyIds":["insurers","marlow","grain"]},{"id":"store-owner","name":"The Front Street store owner","kind":"Person","storyIds":["marlow","insurers"]},{"id":"river-freight","name":"River freight","kind":"Issue","storyIds":["grain","port"]},{"id":"rising-water","name":"Living with rising water","kind":"Issue","storyIds":["marlow","ostend","room-river","floating-schools"]},{"id":"cranes-and-jobs","name":"Cranes and jobs","kind":"Issue","storyIds":["port","bayport"]}],"LOCATIONS":[{"id":"louisville","name":"Louisville","region":"Kentucky","country":"United States","countryCode":"US","lat":38.25,"lng":-85.76},{"id":"chicago","name":"Chicago","region":"Illinois","country":"United States","countryCode":"US","lat":41.88,"lng":-87.63},{"id":"new-york","name":"New York","region":"New York","country":"United States","countryCode":"US","lat":40.71,"lng":-74.01},{"id":"new-orleans","name":"New Orleans","region":"Louisiana","country":"United States","countryCode":"US","lat":29.95,"lng":-90.07},{"id":"los-angeles","name":"Los Angeles","region":"California","country":"United States","countryCode":"US","lat":34.05,"lng":-118.24},{"id":"toronto","name":"Toronto","region":"Ontario","country":"Canada","countryCode":"CA","lat":43.65,"lng":-79.38},{"id":"mexico-city","name":"Mexico City","country":"Mexico","countryCode":"MX","lat":19.43,"lng":-99.13},{"id":"sao-paulo","name":"São Paulo","country":"Brazil","countryCode":"BR","lat":-23.55,"lng":-46.63},{"id":"london","name":"London","region":"England","country":"United Kingdom","countryCode":"GB","lat":51.51,"lng":-0.13},{"id":"amsterdam","name":"Amsterdam","country":"Netherlands","countryCode":"NL","lat":52.37,"lng":4.9},{"id":"lagos","name":"Lagos","country":"Nigeria","countryCode":"NG","lat":6.52,"lng":3.38},{"id":"nairobi","name":"Nairobi","country":"Kenya","countryCode":"KE","lat":-1.29,"lng":36.82},{"id":"dhaka","name":"Dhaka","country":"Bangladesh","countryCode":"BD","lat":23.81,"lng":90.41},{"id":"mumbai","name":"Mumbai","country":"India","countryCode":"IN","lat":19.08,"lng":72.88},{"id":"tokyo","name":"Tokyo","country":"Japan","countryCode":"JP","lat":35.68,"lng":139.69},{"id":"sydney","name":"Sydney","region":"New South Wales","country":"Australia","countryCode":"AU","lat":-33.87,"lng":151.21}],"NEAR_KM":400,"IMAGES":{"marlow":{"src":"img/marlow.jpg","alt":"Floodwater pouring through a breach in a river levee","credit":"U.S. Army Corps of Engineers, Kansas City District · Public domain · Wikimedia Commons"},"ostend":{"src":"img/ostend.jpg","alt":"A rebuilt levee armored with rock beside a river","credit":"U.S. Army Corps of Engineers, Sacramento District · Public domain · Wikimedia Commons"},"funding":{"src":"img/funding.jpg","alt":"The dome of a state capitol building against a blue sky","credit":"Radomianin · Public domain · Wikimedia Commons"},"insurers":{"src":"img/insurers.jpg","alt":"A house damaged by flooding, with debris piled in front","credit":"Photographer not credited · Public domain · Wikimedia Commons"},"grain":{"src":"img/grain.jpg","alt":"Boats at a river lock and dam, in an early 1900s photograph","credit":"U.S. Army Corps of Engineers · Public domain · Wikimedia Commons"},"port":{"src":"img/port.jpg","alt":"Rows of shipping containers at a large port","credit":"Charles Csavossy · Public domain · Wikimedia Commons"},"schools":{"src":"img/schools.jpg","alt":"An old schoolroom with wooden desks and a chalkboard","credit":"National Park Service · Public domain · Wikimedia Commons"},"room-river":{"src":"img/room-river.jpg","alt":"Horses grazing on a green river floodplain under a cloudy sky","credit":"Industrees · CC0 · Wikimedia Commons"},"bayport":{"src":"img/bayport.jpg","alt":"Container cranes lit up along a harbor at night","credit":"Syced · CC0 · Wikimedia Commons"}}};
+const LAYERS = [
+  { name: "Surface", depth: "the headline" }, { name: "Footage", depth: "what happened" },
+  { name: "Voices", depth: "who was there" }, { name: "Roots", depth: "why it happened" }, { name: "Ripples", depth: "what followed" },
+];
+const ROOTS = 3, SEG_SECONDS = 7, HANDOFF_SECONDS = 6;
+const PATH_LABELS = { money: "Follow the money", people: "Follow the people", place: "Follow the place" };
+const { STORIES, THREADS, LOCATIONS, NEAR_KM, IMAGES } = DATA;
+const byId = Object.fromEntries(STORIES.map(s => [s.id, s]));
+const $ = id => document.getElementById(id);
+const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const fallbackArt = h => `radial-gradient(120% 70% at 30% 20%, hsl(${h} 55% 38%), transparent 60%), linear-gradient(170deg, hsl(${h} 45% 22%), hsl(${h} 50% 7%))`;
+function paint(el, s) {
+  el.classList.add("art");
+  const img = IMAGES[s.id];
+  el.style.backgroundImage = img ? `url("${img.src}")` : fallbackArt(s.hue);
+  if (img) { el.setAttribute("role", "img"); el.setAttribute("aria-label", img.alt); }
+  return el;
+}
+
+/* ---------- state ---------- */
+const seen = new Set(), followed = new Set(["harlan-river"]), guesses = new Map();
+let listen = false, classMode = false;
+let location_ = null, chain = [];
+try { const id = localStorage.getItem("deeper-news:location"); location_ = LOCATIONS.find(l => l.id === id) || null; } catch (e) {}
+try {
+  const p = JSON.parse(localStorage.getItem("deeper-news:progress") || "{}");
+  (p.seen || []).forEach(x => seen.add(x));
+  if (p.followed) { followed.clear(); p.followed.forEach(x => followed.add(x)); }
+  (p.guesses || []).forEach(([k, v]) => guesses.set(k, v));
+  listen = !!p.listen; classMode = !!p.classMode;
+} catch (e) {}
+function saveProgress() {
+  try { localStorage.setItem("deeper-news:progress", JSON.stringify({ seen: [...seen], followed: [...followed], guesses: [...guesses], listen, classMode })); } catch (e) {}
+}
+const rad = d => d * Math.PI / 180;
+function km(a, b) { const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng); const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2; return 2 * 6371 * Math.asin(Math.sqrt(h)); }
+const placeLabel = p => [p.name, p.region, p.country].filter(Boolean).join(", ");
+const countryName = l => l.countryCode === "US" ? "the US" : l.countryCode === "GB" ? "the UK" : l.country;
+function buckets(where) {
+  const out = { near: [], country: [], world: [] };
+  [...STORIES].sort((a, b) => km(where, a.place) - km(where, b.place)).forEach(s => {
+    if (km(where, s.place) <= NEAR_KM) out.near.push(s); else if (s.place.countryCode === where.countryCode) out.country.push(s); else out.world.push(s);
+  });
+  return out;
+}
+
+/* ---------- home ---------- */
+function card(s) {
+  const c = make("button", "card" + (seen.has(s.id) ? " seen" : "")); c.type = "button";
+  const t = paint(make("div", "thumb"), s);
+  const bars = make("div", "bars"); s.clips.forEach(() => bars.appendChild(make("b"))); t.append(bars, make("span", "len", `${s.minutes} min`));
+  const body = make("div", "card-body");
+  const d = location_ ? km(location_, s.place) : null;
+  body.append(make("span", "eyebrow", s.topic), make("h3", null, s.title),
+    make("span", "place", placeLabel(s.place) + (d == null ? "" : d < 10 ? " · nearby" : ` · ${Math.round(d).toLocaleString("en-US")} km away`)));
+  const chips = make("div", "chips"); LAYERS.forEach(L => chips.appendChild(make("span", null, L.name))); body.appendChild(chips);
+  const links = make("div", "links"); links.append("Connects to ");
+  s.handoff.paths.forEach((p, i) => { if (i) links.append(", "); links.appendChild(make("b", null, byId[p.storyId].short)); });
+  body.appendChild(links);
+  c.append(t, body); c.onclick = () => openStory(s.id); return c;
+}
+function section(title, list, empty) {
+  const sec = make("section", "section"); sec.appendChild(make("h2", null, title));
+  if (!list.length) sec.appendChild(make("p", "empty", empty)); else list.forEach(s => sec.appendChild(card(s)));
+  return sec;
+}
+function renderHome() {
+  const lb = $("loc-btn"); lb.textContent = ""; lb.append(make("i"), location_ ? location_.name : "Set location");
+  if (location_) lb.appendChild(make("em", null, "Change"));
+  $("prompt").hidden = !!location_;
+  $("class-mode").checked = classMode; $("class-row").classList.toggle("on", classMode);
+  $("class-text").textContent = classMode ? "On: no autoplay, the guess every time, and discussion questions after each story." : "For teachers: no autoplay, the guess every time, and discussion questions after each story.";
+  renderDailyCard();
+  const b = location_ ? buckets(location_) : null;
+  const order = b ? [...b.near, ...b.country, ...b.world] : STORIES;
+  const tray = $("tray"); tray.textContent = "";
+  order.forEach(s => {
+    const r = make("button", "ring" + (seen.has(s.id) ? " seen" : "")); r.type = "button"; r.setAttribute("aria-label", "Watch " + s.title);
+    const d = make("div", "disc"); d.appendChild(paint(make("i"), s));
+    if (seen.has(s.id)) { const c = make("b", "check", "✓"); c.setAttribute("aria-label", "Watched"); d.appendChild(c); }
+    r.append(d, make("span", null, s.short)); r.onclick = () => openStory(s.id); tray.appendChild(r);
+  });
+  const right = [...guesses.values()].filter(Boolean).length;
+  $("watched").textContent = `${seen.size} of ${STORIES.length} watched` + (guesses.size ? ` · you called ${right} of ${guesses.size}` : "");
+  const sec = $("sections"); sec.textContent = "";
+  if (b) {
+    sec.append(section(`Near ${location_.name}`, b.near, `No stories near ${location_.name} today. Local stories will show up here as they come in.`),
+      section(`Elsewhere in ${countryName(location_)}`, b.country, `Nothing else from ${countryName(location_)} today.`),
+      section("Around the world", b.world, "Nothing from other countries today."));
+  } else sec.appendChild(section("Today", STORIES, ""));
+  const th = $("threads"); th.textContent = "";
+  THREADS.forEach(t => {
+    const box = make("div", "thread"), h = make("div", "thread-h"), lbl = make("div");
+    lbl.append(make("span", "eyebrow", t.kind), make("strong", null, t.name));
+    const f = make("button", "follow", followed.has(t.id) ? "Following" : "Follow"); f.type = "button"; f.setAttribute("aria-pressed", followed.has(t.id));
+    f.onclick = () => { followed.has(t.id) ? followed.delete(t.id) : followed.add(t.id); saveProgress(); renderHome(); };
+    h.append(lbl, f);
+    const row = make("div", "chips"); t.storyIds.forEach(id => { const m = make("button", "mini", byId[id].short); m.type = "button"; m.onclick = () => openStory(id); row.appendChild(m); });
+    box.append(h, row); th.appendChild(box);
+  });
+}
+
+/* ---------- explore ---------- */
+let exSelected = null, exHover = null;
+function layoutExplore(w, h) {
+  const groups = location_ ? (() => { const b = buckets(location_); return [["near", b.near], ["country", b.country], ["world", b.world]].filter(g => g[1].length); })() : [["all", STORIES]];
+  const edges = [], keys = new Set();
+  STORIES.forEach(s => s.handoff.paths.forEach(p => { const k = [s.id, p.storyId].sort().join("|"); if (!keys.has(k)) { keys.add(k); edges.push([s.id, p.storyId]); } }));
+  const names = { near: location_ ? `Near ${location_.name}` : "Near you", country: location_ ? `Elsewhere in ${countryName(location_)}` : "", world: "Around the world", all: "Today" };
+  // Narrow screens: one row of circles per group, top to bottom, so nothing overlaps.
+  if (w < 600) {
+    const size = 52, cellW = size + 40, cols = Math.max(2, Math.floor(w / cellW)), rowH = size + 44;
+    const bandsOut = [], nodes = [];
+    let y = 8;
+    groups.forEach(([ring, list]) => {
+      bandsOut.push({ label: names[ring], y }); y += 26;
+      for (let i = 0; i < list.length; i += cols) {
+        const row = list.slice(i, i + cols), x0 = (w - row.length * cellW) / 2 + cellW / 2;
+        row.forEach((s, j) => nodes.push({ s, ring, x: x0 + j * cellW, y: y + size / 2 }));
+        y += rowH;
+      }
+      y += 14;
+    });
+    const shift = Math.max(0, (h - y) / 2);
+    nodes.forEach(n => { n.y += shift; }); bandsOut.forEach(b => { b.y += shift; });
+    return { nodes, edges, rings: [], bands: bandsOut, size, height: Math.max(h, y) };
+  }
+  const size = 68, label = 26, r = [];
+  groups.forEach(([, list], i) => { const prev = i ? r[i - 1] : 0; const around = (size + 22) * list.length / (2 * Math.PI); r.push(list.length === 1 && i === 0 ? 0 : Math.max(around, prev + size + label + 14)); });
+  const outer = r[r.length - 1] || 1;
+  const fitX = Math.max(0, w / 2 - size / 2 - 24) / outer, fitY = Math.max(0, h / 2 - size / 2 - label) / outer;
+  const sx = Math.min(fitX, fitY), sy = fitY > fitX * 1.15 ? Math.min(fitY, fitX * 1.9) : sx;
+  const nodes = [];
+  groups.forEach(([ring, list], gi) => list.forEach((s, i) => { const a = -Math.PI / 2 + gi * 0.45 + 2 * Math.PI * i / list.length; nodes.push({ s, ring, x: w / 2 + r[gi] * sx * Math.cos(a), y: h / 2 + r[gi] * sy * Math.sin(a) }); }));
+  return { nodes, edges, rings: groups.map(([id], i) => ({ id, rx: r[i] * sx, ry: r[i] * sy })), bands: [], size, height: h };
+}
+function openExplore() { $("explore").hidden = false; document.body.style.overflow = "hidden"; exSelected = null; exHover = null; renderExplore(); }
+function closeExplore() { $("explore").hidden = true; document.body.style.overflow = ""; renderHome(); }
+function renderExplore() {
+  const c = $("ex-canvas"), w = c.clientWidth, h = c.clientHeight; c.textContent = "";
+  const L = layoutExplore(w, h), byPos = Object.fromEntries(L.nodes.map(n => [n.s.id, n]));
+  const names = { near: location_ ? `Near ${location_.name}` : "Near you", country: "Your country", world: "Around the world", all: "Today" };
+  $("ex-sub").textContent = (location_ ? `Stories around ${location_.name}, and how they connect. ` : "Today’s stories and how they connect. ") + (matchMedia("(hover: hover)").matches ? "Click or tap a story to see its links." : "Tap a story to see its links.");
+  const inner = make("div"); inner.style.cssText = `position:relative;width:100%;height:${L.height}px`; c.appendChild(inner);
+  L.bands.forEach(b => { const l = make("span", "ex-band", b.label); l.style.top = b.y + "px"; inner.appendChild(l); });
+  $("ex-key").textContent = L.rings.length > 1 ? L.rings.map((r, i) => `${["Inner", "Middle", "Outer"][i]} ring: ${names[r.id]}`).join("   ·   ") : "";
+  $("ex-watched").textContent = `${seen.size} of ${STORIES.length} watched`;
+  const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg");
+  L.rings.forEach(r => { if (!r.rx) return; const e = document.createElementNS(NS, "ellipse"); e.setAttribute("cx", w / 2); e.setAttribute("cy", h / 2); e.setAttribute("rx", r.rx); e.setAttribute("ry", r.ry); e.setAttribute("class", "ex-ring"); svg.appendChild(e); });
+  L.edges.forEach(([a, b]) => {
+    const A = byPos[a], B = byPos[b]; if (!A || !B) return;
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, qx = mx + (w / 2 - mx) * 0.35, qy = my + (h / 2 - my) * 0.35;
+    const path = document.createElementNS(NS, "path"); path.setAttribute("d", `M${A.x},${A.y} Q${qx},${qy} ${B.x},${B.y}`);
+    path.setAttribute("class", "ex-edge"); path.dataset.a = a; path.dataset.b = b; svg.appendChild(path);
+  });
+  svg.style.height = L.height + "px"; inner.appendChild(svg);
+  L.nodes.forEach(n => {
+    const b = make("button", "ex-node" + (seen.has(n.s.id) ? " seen" : "")); b.type = "button"; b.dataset.id = n.s.id;
+    b.style.left = (n.x - L.size / 2 - 20) + "px"; b.style.top = (n.y - L.size / 2) + "px"; b.style.width = (L.size + 40) + "px";
+    const i = paint(make("i"), n.s); i.style.width = i.style.height = L.size + "px";
+    b.append(i, make("span", null, n.s.short)); b.setAttribute("aria-label", n.s.title);
+    b.onmouseenter = () => { exHover = n.s.id; focusExplore(); };
+    b.onmouseleave = () => { exHover = null; focusExplore(); };
+    b.onclick = () => { exSelected = exSelected === n.s.id ? null : n.s.id; focusExplore(); renderPanel(); };
+    inner.appendChild(b);
+  });
+  focusExplore(); renderPanel();
+}
+function focusExplore() {
+  const f = exHover || exSelected, linked = new Set();
+  document.querySelectorAll(".ex-edge").forEach(e => {
+    const on = !!f && (e.dataset.a === f || e.dataset.b === f);
+    if (on) { linked.add(e.dataset.a); linked.add(e.dataset.b); }
+    e.classList.toggle("on", on); e.classList.toggle("dim", !!f && !on);
+  });
+  document.querySelectorAll(".ex-node").forEach(n => { n.classList.toggle("on", n.dataset.id === f); n.classList.toggle("dim", !!f && n.dataset.id !== f && !linked.has(n.dataset.id)); });
+}
+function renderPanel() {
+  const p = $("ex-panel"); p.textContent = ""; p.classList.toggle("empty", !exSelected);
+  if (!exSelected) {
+    p.append(make("h2", null, "Pick a story"), make("p", null, "Click any circle to preview it and see where it leads. Stories you’ve watched glow orange, so you can see how much ground you’ve covered."));
+    const lg = make("div", "legend"); const a = make("span"), b = make("span");
+    const ia = make("i"); ia.style.borderColor = "var(--accent)"; a.append(ia, "Selected and its links");
+    const ib = make("i"); ib.style.borderColor = "var(--warm)"; b.append(ib, "Watched");
+    lg.append(a, b); p.appendChild(lg); return;
+  }
+  const s = byId[exSelected], d = location_ ? km(location_, s.place) : null;
+  const x = make("button", "icon-btn ex-x map-close", "✕"); x.type = "button"; x.setAttribute("aria-label", "Close preview"); x.onclick = () => { exSelected = null; focusExplore(); renderPanel(); };
+  if (innerWidth < 900) p.appendChild(x); else p.appendChild(paint(make("div", "ex-banner"), s));
+  p.append(make("span", "eyebrow", s.topic), make("h2", null, s.title),
+    make("p", null, placeLabel(s.place) + (d == null ? "" : d < 10 ? " · nearby" : ` · ${Math.round(d).toLocaleString("en-US")} km away`) + ` · ${s.minutes} min`));
+  const watch = make("button", "ex-watch", "Watch this story"); watch.type = "button"; watch.onclick = () => openStory(s.id); p.appendChild(watch);
+  p.appendChild(make("span", "eyebrow", "Where it leads"));
+  s.handoff.paths.forEach(pt => {
+    const b = make("button", "map-link"); b.type = "button";
+    b.append(make("small", null, PATH_LABELS[pt.kind]), make("strong", null, byId[pt.storyId].title), make("span", null, pt.reason));
+    b.onclick = () => { exSelected = pt.storyId; focusExplore(); renderPanel(); }; p.appendChild(b);
+  });
+}
+$("explore-btn").onclick = openExplore; $("ex-back").onclick = closeExplore;
+addEventListener("resize", () => { if (!$("explore").hidden) renderExplore(); });
+
+/* ---------- class mode ---------- */
+$("class-mode").addEventListener("change", e => { classMode = e.target.checked; saveProgress(); renderHome(); });
+
+/* ---------- Daily Thread: connect two stories in the fewest steps ---------- */
+function shortestPath(from, to) {
+  const prev = new Map([[from, null]]), queue = [from];
+  while (queue.length) { const id = queue.shift(); if (id === to) break;
+    for (const p of byId[id].handoff.paths) if (!prev.has(p.storyId) && byId[p.storyId]) { prev.set(p.storyId, id); queue.push(p.storyId); } }
+  if (!prev.has(to)) return null;
+  const path = []; for (let at = to; at !== null; at = prev.get(at)) path.unshift(at); return path;
+}
+const dayKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function hashStr(text) { let h = 2166136261; for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619); return h >>> 0; }
+function puzzleFor(date) {
+  const day = dayKey(date), ids = STORIES.map(s => s.id).sort(), pairs = [];
+  for (const a of ids) for (const b of ids) { if (a === b) continue; const best = shortestPath(a, b); if (best) pairs.push({ startId: a, targetId: b, best }); }
+  const steps = p => p.best.length - 1;
+  const pool = pairs.filter(p => steps(p) >= 3 && steps(p) <= 4), choices = pool.length ? pool : pairs.filter(p => steps(p) >= 2);
+  return choices.length ? { day, ...choices[hashStr(day) % choices.length] } : null;
+}
+const PUZZLE = puzzleFor(new Date());
+let daily = { route: PUZZLE ? [PUZZLE.startId] : [], gaveUp: false };
+try { const d = JSON.parse(localStorage.getItem("deeper-news:daily") || "null"); if (d && PUZZLE && d.day === PUZZLE.day && d.route[0] === PUZZLE.startId) daily = d; } catch (e) {}
+function saveDaily() { try { localStorage.setItem("deeper-news:daily", JSON.stringify({ day: PUZZLE.day, ...daily })); } catch (e) {} }
+function renderDailyCard() {
+  const c = $("daily-card"); c.hidden = !PUZZLE; if (!PUZZLE) return; c.textContent = "";
+  const a = byId[PUZZLE.startId], b = byId[PUZZLE.targetId], txt = make("div");
+  txt.append(make("small", null, "Daily Thread · today’s puzzle"), make("strong", null, `Connect ${a.short} to ${b.short}`), make("span", null, "Follow the money, people and places. Fewest steps wins."));
+  c.append(paint(make("i"), a), make("span", "arrow", "→"), paint(make("i"), b), txt, make("em", null, "Play →"));
+}
+$("daily-card").onclick = () => { $("daily").hidden = false; document.body.style.overflow = "hidden"; renderDaily(); };
+function closeDaily() { $("daily").hidden = true; document.body.style.overflow = ""; renderHome(); }
+function renderDaily() {
+  const box = $("daily-inner"); box.textContent = "";
+  const start = byId[PUZZLE.startId], target = byId[PUZZLE.targetId], route = daily.route, here = byId[route[route.length - 1]];
+  const steps = route.length - 1, best = PUZZLE.best.length - 1, solved = here.id === target.id, out = !solved && steps >= 8, over = solved || daily.gaveUp || out;
+  const head = make("div", "daily-head"), back = make("button", "pill-btn", "← Today"); back.type = "button"; back.onclick = closeDaily;
+  const ht = make("div"); ht.append(make("h1", null, "Daily Thread"), make("p", null, "Follow the connections from the first story to the second. Fewer steps is better."));
+  head.append(back, ht); box.appendChild(head);
+  const goal = make("div", "goal");
+  for (const [s, label, i] of [[start, "Start", 0], [target, "Reach", 1]]) {
+    if (i) goal.appendChild(make("span", "arrow", "→"));
+    const e = make("div", "end"); e.append(paint(make("i"), s), make("span", "tiny", label), make("strong", null, s.title)); goal.appendChild(e);
+  }
+  box.append(goal, make("p", "tiny", `Shortest route: ${best} steps · You: ${steps} ${steps === 1 ? "step" : "steps"} so far`));
+  box.lastChild.style.textAlign = "center"; box.lastChild.style.margin = "0";
+  const trail = make("div", "trail");
+  route.forEach((id, i) => { if (i) trail.append("›"); const sp = make("span", id === target.id ? "goal-hit" : "", byId[id].short); trail.appendChild(sp); });
+  box.appendChild(trail);
+  const card = make("div", "dcard" + (over ? (solved ? " win" : " lose") : ""));
+  if (over) {
+    card.appendChild(make("h2", null, solved ? (steps <= best ? `Perfect. You found the shortest route in ${steps} steps.` : `Connected in ${steps} steps. The shortest takes ${best}.`) : daily.gaveUp ? "Here’s the shortest route." : "Out of steps after 8. Here’s the shortest route."));
+    card.appendChild(make("span", "tiny", "Shortest route"));
+    PUZZLE.best.forEach((id, i) => {
+      const s = byId[id], p = i ? byId[PUZZLE.best[i - 1]].handoff.paths.find(x => x.storyId === id) : null;
+      const r = make("button", "route-row"); r.type = "button"; const d = make("div");
+      if (p) d.appendChild(make("small", null, PATH_LABELS[p.kind])); d.appendChild(make("strong", null, s.title)); if (p) d.appendChild(make("span", null, p.reason));
+      r.append(paint(make("i"), s), d, make("em", null, "Watch")); r.onclick = () => { $("daily").hidden = true; openStory(id); }; card.appendChild(r);
+    });
+    const row = make("div", "row-btns"), share = make("button", "primary", "Share my result"); share.type = "button";
+    share.onclick = async () => {
+      const marks = solved ? Array.from({ length: steps }, (_, i) => i < best ? "●" : "○").join("") : "✕";
+      const text = `Deeper News · Daily Thread ${PUZZLE.day}\n${solved ? `Connected in ${steps} ${steps === 1 ? "step" : "steps"} (best ${best})` : "Not connected today"}\n${marks}`;
+      try { await navigator.clipboard.writeText(text); share.textContent = "Copied. Paste it anywhere to share"; } catch (e) { share.textContent = "Couldn’t copy. Try again"; }
+    };
+    row.append(share, make("span", "tiny", "A new thread tomorrow")); card.appendChild(row);
+  } else {
+    card.appendChild(make("span", "tiny", "You’re at"));
+    const hr = make("div", "here-row"), hd = make("div"); hd.append(make("strong", null, here.title), make("span", null, here.handoff.question));
+    hr.append(paint(make("i"), here), hd); card.append(hr, make("span", "tiny", "Where do you go next?"));
+    here.handoff.paths.forEach(p => {
+      const n = byId[p.storyId]; if (!n) return; const visited = route.includes(p.storyId);
+      const b = make("button", "choice"); b.type = "button"; if (visited) b.style.opacity = 0.6;
+      b.append(make("small", null, PATH_LABELS[p.kind] + (visited ? " · already visited" : "")), make("strong", null, n.title), make("span", null, p.reason));
+      b.onclick = () => { daily.route = [...route, p.storyId]; saveDaily(); renderDaily(); }; card.appendChild(b);
+    });
+    const row = make("div", "row-btns");
+    if (route.length > 1) { const u = make("button", "pill-btn", "Undo step"); u.type = "button"; u.onclick = () => { daily.route = route.slice(0, -1); saveDaily(); renderDaily(); }; row.appendChild(u); }
+    const g = make("button", "pill-btn", "Show me the route"); g.type = "button"; g.onclick = () => { daily.gaveUp = true; saveDaily(); renderDaily(); }; row.appendChild(g);
+    card.appendChild(row);
+  }
+  box.appendChild(card);
+}
+
+/* ---------- location picker ---------- */
+function openPicker() { $("picker").hidden = false; $("picker-close").hidden = !location_; $("loc-search").value = ""; renderPicker(); setTimeout(() => $("loc-search").focus(), 50); }
+function renderPicker() {
+  const q = $("loc-search").value.trim().toLowerCase(), list = $("loc-list"); list.textContent = "";
+  const opts = LOCATIONS.filter(l => !q || placeLabel(l).toLowerCase().includes(q));
+  if (!opts.length) list.appendChild(make("p", null, `No match yet. This early list has ${LOCATIONS.length} cities; a full place search is coming.`));
+  opts.forEach(l => {
+    const r = make("button", "loc-row"); r.type = "button"; const d = make("div");
+    d.append(make("strong", null, l.name), make("span", null, [l.region, l.country].filter(Boolean).join(", ")));
+    r.appendChild(d); if (location_ && location_.id === l.id) r.appendChild(make("em", null, "Selected"));
+    r.onclick = () => { location_ = l; try { localStorage.setItem("deeper-news:location", l.id); } catch (e) {} $("picker").hidden = true; renderHome(); };
+    list.appendChild(r);
+  });
+}
+$("loc-btn").onclick = openPicker; $("prompt-btn").onclick = openPicker;
+$("picker-close").onclick = () => { $("picker").hidden = true; };
+$("loc-search").addEventListener("input", renderPicker);
+
+/* ---------- listen mode: the browser's built-in voice ---------- */
+let speaking = false, cancelSpeech = null;
+function say(text) {
+  stopSay();
+  if (!listen || !("speechSynthesis" in window)) return;
+  let done = false;
+  const finish = () => { if (done) return; done = true; clearTimeout(safety); speaking = false; cancelSpeech = null; updateListen(); };
+  // A device with no voice, or one that never says it finished, must not stall the story.
+  const safety = setTimeout(finish, Math.max(4000, text.split(/\s+/).length * 420 + 2000));
+  const u = new SpeechSynthesisUtterance(text); u.onend = finish; u.onerror = finish;
+  speaking = true; cancelSpeech = () => { done = true; clearTimeout(safety); speaking = false; speechSynthesis.cancel(); };
+  speechSynthesis.speak(u); updateListen();
+}
+function stopSay() { if (cancelSpeech) cancelSpeech(); cancelSpeech = null; speaking = false; updateListen(); }
+function sayCurrent() {
+  if (!story) return;
+  if (predicting) say("Before you see what followed: what do you think happened next? " + [...$("p-options").children].map((b, i) => `${i + 1}. ${b.firstChild.textContent}.`).join(" "));
+  else if (ending) say(story.handoff.question + " " + story.handoff.paths.map(p => `${PATH_LABELS[p.kind]}: ${byId[p.storyId].title}.`).join(" "));
+  else say((seg === 0 ? story.title + ". " : "") + `${LAYERS[seg].name}. ${story.clips[seg].title}. ${story.clips[seg].why}`);
+}
+function updateListen() {
+  const b = $("listen"); b.setAttribute("aria-checked", listen); b.textContent = speaking ? "Reading…" : listen ? "Listening" : "Listen";
+}
+function pauseFor(p) { setPaused(p); if (p) stopSay(); else if (listen) sayCurrent(); }
+$("listen").onclick = () => { listen = !listen; saveProgress(); if (listen) sayCurrent(); else stopSay(); updateListen(); };
+updateListen();
+
+/* ---------- player ---------- */
+let story = null, seg = 0, t = 0, paused = false, ending = false, handoff = 0, predicting = false;
+function openStory(id, push) {
+  if (push && story) chain.push(id); else if (!push) chain = [id];
+  story = byId[id]; seg = 0; t = 0; paused = false; ending = false; predicting = false; seen.add(id); saveProgress();
+  $("predict").hidden = true; $("explore").hidden = true;
+  $("player").hidden = false; $("home").setAttribute("aria-hidden", "true"); document.body.style.overflow = "hidden";
+  if (location.hash !== "#story-" + id) history.replaceState(null, "", "#story-" + id);
+  paint($("p-avatar"), story);
+  $("p-story").textContent = story.title;
+  const segs = $("segs"); segs.textContent = "";
+  story.clips.forEach((_, i) => { const col = make("div", "seg-col"), bar = make("div", "seg"); bar.appendChild(make("i")); col.append(bar, make("span", null, LAYERS[i].name)); segs.appendChild(col); });
+  const img = IMAGES[story.id];
+  $("photo").style.backgroundImage = img ? `url("${img.src}")` : "none";
+  $("photo").hidden = !img; $("cv").hidden = !!img;
+  $("credit").textContent = img ? "Photo: " + img.credit : "";
+  showSeg(); resize();
+}
+function closeStory() {
+  stopSay();
+  story = null; chain = []; $("player").hidden = true; $("home").removeAttribute("aria-hidden"); document.body.style.overflow = "";
+  history.replaceState(null, "", "#today"); renderHome();
+}
+function showSeg() {
+  ending = false; $("handoff").hidden = true;
+  const c = story.clips[seg], L = LAYERS[seg];
+  $("chip").textContent = `${L.name} · ${L.depth}`; $("chip").classList.toggle("root", seg === ROOTS);
+  $("photo").classList.toggle("roots", seg === ROOTS);
+  // Each layer's own look until there's video.
+  const ph = $("photo"); ph.classList.remove("zoom"); void ph.offsetWidth; if (seg === 1 && !reduce) ph.classList.add("zoom");
+  ph.style.setProperty("--dim", seg === 0 ? 0.15 : seg === 1 ? 0.1 : 0.6);
+  const sc = $("scene"); sc.textContent = "";
+  if (seg === 2) { const q = c.quote; sc.append(make("div", "qmark", "“"), make("div", "quote", q ? q.text : c.title), make("div", "who", "— " + (q ? q.who : c.source))); }
+  if (seg === ROOTS) { const y = (/\b(1[89]\d\d|20\d\d)\b/.exec(c.when) || [])[1]; sc.append(make("div", "archive", "From the archive"), make("div", "year" + (y ? "" : " long"), y || c.when)); }
+  if (seg === 4) { const cal = make("div", "cal"); cal.append(make("b", null, "What followed"), make("span", null, c.when)); sc.appendChild(cal); }
+  [...$("segs").children].forEach((col, i) => col.classList.toggle("on", i === seg));
+  $("clip-title").textContent = c.title;
+  $("clip-meta").textContent = `${c.when} · ${c.source} · ${c.rights}`;
+  $("clip-why").textContent = c.why;
+  $("deeper").textContent = seg < 4 ? `Deeper ↓ ${LAYERS[seg + 1].name}` : "Where it leads →";
+  $("leads").hidden = seg >= 4 || classMode;
+  $("p-sub").textContent = `${story.topic} · ${story.place.name}, ${story.place.country}` + (chain.length > 1 ? ` · story ${chain.length} in your chain` : "");
+  setPaused(paused); renderMap(); paintSegs();
+  if (listen && !paused) sayCurrent();
+}
+function paintSegs() { [...$("segs").querySelectorAll(".seg i")].forEach((bar, i) => { bar.style.width = (i < seg || ending ? 100 : i === seg ? t * 100 : 0) + "%"; }); }
+function nextSeg() {
+  if (ending || predicting) return;
+  if (seg === 3 && story.predict && (classMode || !guesses.has(story.id))) { showPredict(); return; }
+  if (seg < 4) { seg++; t = 0; showSeg(); } else showEnd();
+}
+/* "What happens next?": the real outcome (the last clip) plus two decoys, in a fixed per-story order. */
+function showPredict() {
+  predicting = true; t = 1; paintSegs();
+  const real = story.clips[4].title;
+  let opts = [{ text: real, correct: true }, ...story.predict.decoys.map(d => ({ text: d, correct: false }))];
+  const shift = [...story.id].reduce((n, c) => n + c.charCodeAt(0), 0) % 3; opts = [...opts.slice(shift), ...opts.slice(0, shift)];
+  const box = $("p-options"); box.textContent = "";
+  $("p-verdict").hidden = true; $("p-continue").hidden = true; $("p-hint").hidden = false; $("p-skip").hidden = false;
+  opts.forEach(o => {
+    const b = make("button", "guess"); b.type = "button"; b.append(o.text);
+    b.onclick = () => {
+      guesses.set(story.id, o.correct); saveProgress();
+      [...box.children].forEach((el, i) => {
+        el.disabled = true; const opt = opts[i];
+        if (opt.correct) { el.classList.add("right"); el.appendChild(make("small", null, el === b ? "Your guess · what happened" : "What happened")); }
+        else if (el === b) { el.classList.add("wrong"); el.appendChild(make("small", null, "Your guess")); }
+        else el.classList.add("faded");
+      });
+      const v = $("p-verdict"); v.hidden = false; v.className = "verdict " + (o.correct ? "right" : "wrong");
+      v.textContent = o.correct ? "You called it." : "Not quite. Here’s what really happened.";
+      $("p-hint").hidden = true; $("p-skip").hidden = true; $("p-continue").hidden = false; $("p-continue").focus();
+    };
+    box.appendChild(b);
+  });
+  $("predict").hidden = false; $("predict").scrollTop = 0; renderMap();
+  if (listen && !paused) sayCurrent();
+}
+$("p-continue").onclick = () => { predicting = false; $("predict").hidden = true; seg = 4; t = 0; showSeg(); };
+$("p-skip").onclick = $("p-continue").onclick;
+function prevSeg() { if (predicting) { predicting = false; $("predict").hidden = true; t = 0; showSeg(); return; } if (ending) { ending = false; $("handoff").hidden = true; t = 0; return; } if (t > 0.25 || seg === 0) t = 0; else { seg--; t = 0; } showSeg(); }
+let stayHere = false;
+const autoNext = () => !stayHere && !classMode && !reduce;
+function showEnd() {
+  ending = true; handoff = 0; t = 1; paintSegs(); stayHere = false;
+  $("h-discuss").hidden = !classMode; $("h-discuss-story").textContent = story.discuss || ""; $("h-discuss-story").hidden = !story.discuss; $("stay").hidden = !autoNext();
+  $("h-eyebrow").textContent = (chain.length > 1 ? `Story ${chain.length} in your chain` : "End of story") + " · up next";
+  $("h-question").textContent = story.handoff.question;
+  const paths = $("h-paths"); paths.textContent = "";
+  story.handoff.paths.forEach((p, i) => {
+    const n = byId[p.storyId], b = make("button", "path"); b.type = "button";
+    const txt = make("div"); txt.append(make("small", null, PATH_LABELS[p.kind]), make("strong", null, n.title), make("span", null, p.reason));
+    b.append(paint(make("i", "pthumb"), n), txt);
+    if (i === 0 && autoNext()) { const cd = make("i", "countdown"); cd.id = "countdown"; b.appendChild(cd); }
+    b.onclick = () => openStory(p.storyId, true); paths.appendChild(b);
+  });
+  $("handoff").hidden = false; $("handoff").scrollTop = 0; renderMap();
+  if (listen && !paused) sayCurrent();
+}
+function renderMap() {
+  for (const root of [$("map-sheet"), $("map-side")]) {
+    root.textContent = "";
+    if (root.id === "map-sheet") { const x = make("button", "icon-btn map-close", "✕"); x.type = "button"; x.setAttribute("aria-label", "Close story map"); x.onclick = () => { root.classList.remove("open"); pauseFor(false); }; root.appendChild(x); }
+    root.appendChild(make("h3", null, "In this story"));
+    const layers = make("div", "layers");
+    story.clips.forEach((c, i) => {
+      const r = make("button", "layer-row" + (i === ROOTS ? " root" : "") + (i < seg || ending ? " done" : "") + (i === seg && !ending ? " on" : "")); r.type = "button";
+      const txt = make("div"); txt.append(make("small", null, `${LAYERS[i].name} · ${c.when}`), make("span", null, predicting && i === 4 ? "Guess first, then watch" : c.title));
+      r.append(make("i", "dot"), txt); r.onclick = () => { seg = i; t = 0; $("map-sheet").classList.remove("open"); showSeg(); }; layers.appendChild(r);
+    });
+    root.append(layers, make("h3", null, "Where it leads"));
+    story.handoff.paths.forEach(p => {
+      const b = make("button", "map-link"); b.type = "button";
+      b.append(make("small", null, PATH_LABELS[p.kind]), make("strong", null, byId[p.storyId].title), make("span", null, p.reason));
+      b.onclick = () => openStory(p.storyId, true); root.appendChild(b);
+    });
+  }
+}
+function setPaused(p) { paused = p; $("pause").textContent = p ? "▶" : "❚❚"; $("pause").setAttribute("aria-label", p ? "Play" : "Pause"); }
+function nextStory() { openStory(story.handoff.paths[0].storyId, true); }
+function prevStory() { if (chain.length > 1) { chain.pop(); const back = chain[chain.length - 1]; const keep = chain; openStory(back, false); chain = keep; showSeg(); } }
+
+$("tap-next").onclick = nextSeg; $("tap-prev").onclick = prevSeg; $("deeper").onclick = nextSeg;
+$("leads").onclick = () => { predicting = false; $("predict").hidden = true; showEnd(); }; $("pause").onclick = () => pauseFor(!paused); $("close").onclick = closeStory;
+$("map-btn").onclick = () => { $("map-sheet").classList.add("open"); pauseFor(true); };
+$("replay").onclick = () => { seg = 0; t = 0; showSeg(); };
+$("stay").onclick = () => { stayHere = true; $("stay").hidden = true; const cd = $("countdown"); if (cd) cd.remove(); $("h-hint").textContent = "Pick a path when you’re ready."; }; $("to-today").onclick = closeStory;
+
+let sx = 0, sy = 0, swiping = false; const scr = $("screen");
+let holdTimer = null, held = false;
+scr.addEventListener("pointerdown", e => {
+  if (e.target.closest(".map, .handoff, #predict, .p-bottom button, .p-head button")) return;
+  sx = e.clientX; sy = e.clientY; swiping = true;
+  holdTimer = setTimeout(() => { if (!paused) { held = true; pauseFor(true); } }, 300);
+});
+scr.addEventListener("pointermove", e => { if (holdTimer && Math.hypot(e.clientX - sx, e.clientY - sy) > 12) { clearTimeout(holdTimer); holdTimer = null; } });
+scr.addEventListener("pointerup", e => {
+  clearTimeout(holdTimer); holdTimer = null;
+  const stop = ev => { ev.stopPropagation(); ev.preventDefault(); };
+  if (held) { held = false; pauseFor(false); scr.addEventListener("click", stop, { capture: true, once: true }); swiping = false; return; }
+  if (!swiping) return; swiping = false; const dx = e.clientX - sx, dy = e.clientY - sy;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) { scr.addEventListener("click", stop, { capture: true, once: true }); dx < 0 ? (classMode ? null : nextStory()) : prevStory(); }
+  else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) { scr.addEventListener("click", stop, { capture: true, once: true }); closeStory(); }
+  else if (dy < -70 && Math.abs(dy) > Math.abs(dx) && !ending && !predicting) { scr.addEventListener("click", stop, { capture: true, once: true }); nextSeg(); }
+});
+document.addEventListener("keydown", e => {
+  if (!story || !$("picker").hidden) return;
+  if (e.key === "ArrowRight") nextSeg(); else if (e.key === "ArrowLeft") prevSeg();
+  else if (e.key === "ArrowDown") nextStory(); else if (e.key === "ArrowUp") prevStory();
+  else if (e.key === "Escape") closeStory();
+  else if (e.key === " " && !e.target.closest("button")) { e.preventDefault(); pauseFor(!paused); }
+});
+
+/* fallback footage for stories without a photo */
+const cv = $("cv"), ctx = cv.getContext("2d"); const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches; let phase = 0;
+function resize() { const r = cv.getBoundingClientRect(); cv.width = Math.max(1, r.width * devicePixelRatio); cv.height = Math.max(1, r.height * devicePixelRatio); }
+function draw() {
+  if (!story || !$("cv").offsetParent && $("cv").hidden) return;
+  const w = cv.width, h = cv.height, hue = seg === ROOTS ? 32 : story.hue;
+  const g = ctx.createLinearGradient(0, 0, w * 0.4, h); g.addColorStop(0, `hsl(${hue} 45% ${30 - seg * 3}%)`); g.addColorStop(1, `hsl(${hue} 50% 5%)`);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  for (let i = 0; i < 9; i++) { ctx.beginPath(); const base = h * (0.22 + i * 0.075);
+    for (let x = 0; x <= w; x += 10) ctx.lineTo(x, base + Math.sin(x / (70 + i * 16) + phase * (0.5 + i * 0.08) + i * 1.7) * h * 0.025);
+    ctx.strokeStyle = `hsla(${hue} 60% 75% / ${0.04 + i * 0.012})`; ctx.lineWidth = 2 * devicePixelRatio; ctx.stroke(); }
+}
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  const mapOpen = $("map-sheet").classList.contains("open") && innerWidth < 900;
+  if (story && !paused && !mapOpen && !speaking) {
+    if (!reduce) phase += dt * 0.6;
+    if (predicting) { /* wait for a guess */ }
+    else if (!ending) { t += dt / SEG_SECONDS; if (t >= 1) nextSeg(); else paintSegs(); }
+    else if (!autoNext()) { $("h-hint").textContent = "Pick a path when you’re ready."; }
+    else { handoff += dt / HANDOFF_SECONDS; const cd = $("countdown"); if (cd) cd.style.width = Math.min(100, handoff * 100) + "%";
+      $("h-hint").textContent = `${PATH_LABELS[story.handoff.paths[0].kind]} starts in ${Math.max(0, Math.ceil(HANDOFF_SECONDS * (1 - handoff)))} s`;
+      if (handoff >= 1) nextStory(); }
+  } else if (story && ending) $("h-hint").textContent = "Paused";
+  if (story && $("photo").hidden) draw();
+  requestAnimationFrame(loop);
+}
+new ResizeObserver(resize).observe(cv);
+function route() { const m = location.hash.match(/^#story-([a-z-]+)$/); if (m && byId[m[1]]) { if (!story || story.id !== m[1]) openStory(m[1]); } else if (story) closeStory(); }
+window.addEventListener("hashchange", route);
+renderHome(); route(); requestAnimationFrame(loop);
+</script>
