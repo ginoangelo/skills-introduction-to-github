@@ -17,6 +17,8 @@ type Store = State & {
   setReport: (report: ScanReport) => void;
   toggleFix: (id: string) => void;
   setMode: (mode: ModeId) => void;
+  /** Merges progress saved on the account into this device (used after sign-in). */
+  mergeProgress: (done: Record<string, boolean>, mode: ModeId) => void;
 };
 
 const KEY = 'veil.state.v1';
@@ -53,6 +55,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setReport: (report) => setState((s) => ({ ...s, report })),
       toggleFix: (id) => setState((s) => ({ ...s, done: { ...s.done, [id]: !s.done[id] } })),
       setMode: (mode) => setState((s) => ({ ...s, mode })),
+      mergeProgress: (done, mode) =>
+        setState((s) => ({
+          ...s,
+          done: { ...done, ...Object.fromEntries(Object.entries(s.done).filter(([, v]) => v)) },
+          mode: s.mode === 'surface' ? mode : s.mode,
+        })),
     };
   }, [state, ready]);
 

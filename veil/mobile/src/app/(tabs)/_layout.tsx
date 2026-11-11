@@ -23,6 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen name="fixes" options={tab('Fixes', 'list')} />
       <Tabs.Screen name="modes" options={tab('Modes', 'waves')} />
       <Tabs.Screen name="exposure" options={tab('Breaches', 'mail')} />
+      <Tabs.Screen name="account" options={tab('Account', 'user')} />
     </Tabs>
   );
 }

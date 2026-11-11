@@ -2,6 +2,7 @@ import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { C } from '@/constants/theme';
+import { AccountProvider } from '@/lib/account';
 import { StoreProvider } from '@/lib/store';
 
 const theme = {
@@ -12,14 +13,16 @@ const theme = {
 export default function RootLayout() {
   return (
     <StoreProvider>
-      <ThemeProvider value={theme}>
-        <StatusBar style="light" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="scan" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-      </ThemeProvider>
+      <AccountProvider>
+        <ThemeProvider value={theme}>
+          <StatusBar style="light" />
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="scan" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </ThemeProvider>
+      </AccountProvider>
     </StoreProvider>
   );
 }

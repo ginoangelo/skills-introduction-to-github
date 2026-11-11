@@ -1,3 +1,4 @@
+import type { ModeId } from './modes';
 import type { ScanReport } from './types';
 
 /**
@@ -32,6 +33,27 @@ export async function runScan(email: string): Promise<ScanReport> {
   }
   return body as ScanReport;
 }
+
+export type RemoteProgress = { done: Record<string, boolean>; mode: ModeId; updatedAt: string | null };
+
+async function authed<T>(method: string, path: string, accessToken: string, body?: unknown): Promise<T> {
+  if (!API_URL) throw new ScanError('Veil isn’t connected to a server yet.');
+  const res = await fetch(`${API_URL}${path}`, {
+    method,
+    headers: { authorization: `Bearer ${accessToken}`, ...(body ? { 'content-type': 'application/json' } : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { message?: string };
+    throw new ScanError(data.message ?? `Request failed (${res.status}).`);
+  }
+  return (res.status === 204 ? undefined : await res.json()) as T;
+}
+
+export const getProgress = (token: string) => authed<RemoteProgress>('GET', '/me/progress', token);
+export const putProgress = (token: string, p: { done: Record<string, boolean>; mode: ModeId }) =>
+  authed<RemoteProgress>('PUT', '/me/progress', token, p);
+export const deleteMyData = (token: string) => authed<void>('DELETE', '/me', token);
 
 /** Sample data for demo mode. Breach names are generic on purpose. */
 function demoReport(): ScanReport {

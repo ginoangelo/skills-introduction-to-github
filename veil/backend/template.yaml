@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Veil privacy app backend (breach scan API).
+Description: Veil privacy app backend (breach scan API, accounts, synced progress).
 
 Parameters:
   HibpApiKeyParameterName:
@@ -27,12 +27,74 @@ Resources:
     Properties:
       CorsConfiguration:
         AllowOrigins: [!Ref AllowedOrigin]
-        AllowMethods: [POST, OPTIONS]
-        AllowHeaders: [content-type]
+        AllowMethods: [GET, POST, PUT, DELETE, OPTIONS]
+        AllowHeaders: [content-type, authorization]
+      # Every route requires a signed-in user unless it opts out (see /scan).
+      Auth:
+        DefaultAuthorizer: CognitoAuth
+        Authorizers:
+          CognitoAuth:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+              audience:
+                - !Ref UserPoolClient
       # Basic abuse protection: at most 10 requests/second, bursts of 20, across all users.
       DefaultRouteSettings:
         ThrottlingRateLimit: 10
         ThrottlingBurstLimit: 20
+
+  # Accounts: sign up with email + password, email verification code.
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: veil-users
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 10
+          RequireLowercase: true
+          RequireUppercase: false
+          RequireNumbers: true
+          RequireSymbols: false
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: veil-mobile
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+      EnableTokenRevocation: true
+      RefreshTokenValidity: 30
+
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
 
   ScanCacheTable:
     Type: AWS::DynamoDB::Table
@@ -71,6 +133,8 @@ Resources:
             ApiId: !Ref Api
             Path: /scan
             Method: POST
+            Auth:
+              Authorizer: NONE
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -82,7 +146,54 @@ Resources:
         External:
           - '@aws-sdk/*'
 
+  MeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: me.handler
+      Environment:
+        Variables:
+          USER_TABLE_NAME: !Ref UserTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        GetProgress:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /me/progress
+            Method: GET
+        PutProgress:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /me/progress
+            Method: PUT
+        DeleteMe:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /me
+            Method: DELETE
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: false
+        EntryPoints:
+          - src/handlers/me.ts
+        External:
+          - '@aws-sdk/*'
+
 Outputs:
   ApiUrl:
     Description: Put this in veil/mobile/.env.local as EXPO_PUBLIC_API_URL
     Value: !Sub https://${Api}.execute-api.${AWS::Region}.amazonaws.com
+  CognitoRegion:
+    Description: Put this in veil/mobile/.env.local as EXPO_PUBLIC_COGNITO_REGION
+    Value: !Ref AWS::Region
+  UserPoolClientId:
+    Description: Put this in veil/mobile/.env.local as EXPO_PUBLIC_COGNITO_CLIENT_ID
+    Value: !Ref UserPoolClient
