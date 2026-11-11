@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, type Keyboard
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StoryArt } from '@/components/story-art';
-import { LOCATION_OPTIONS } from '@/data/places';
+import { distanceKm, LOCATION_OPTIONS } from '@/data/places';
 import { blankStory, cleanStory, copyStory, newStoryId, storyProblems } from '@/data/story-draft';
 import { LAYERS, PATH_LABELS, ROOTS_LAYER, type Clip, type HandoffPath, type PathKind, type Story } from '@/data/types';
 import { formatTime, parseClock, parseYouTubeLink } from '@/data/youtube-link';
@@ -94,7 +94,7 @@ function StoryForm({ initial, isNew }: { initial: Story; isNew: boolean }) {
               accessibilityRole="button">
               <Text style={{ color: t.ink, fontWeight: '600' }}>← Editor</Text>
             </Pressable>
-            <Text style={[styles.h1, { color: t.ink }]}>{isNew ? 'New story' : 'Edit story'}</Text>
+            <Text style={[styles.h1, { color: t.ink }]}>{isNew ? (initial.photoFrom ? `Copy of ${initial.short}` : 'New story') : 'Edit story'}</Text>
           </View>
 
           <Section t={t} title="The basics">
@@ -117,7 +117,7 @@ function StoryForm({ initial, isNew }: { initial: Story; isNew: boolean }) {
             <Chips
               t={t}
               options={LOCATION_OPTIONS.map((c) => ({ value: c.id, label: c.name }))}
-              selected={LOCATION_OPTIONS.find((c) => c.lat === story.place.lat && c.lng === story.place.lng)?.id ?? ''}
+              selected={[...LOCATION_OPTIONS].sort((a, b) => distanceKm(story.place, a) - distanceKm(story.place, b))[0]?.id ?? ''}
               onSelect={(cid) => {
                 const c = LOCATION_OPTIONS.find((o) => o.id === cid)!;
                 set({ place: { name: c.name, region: c.region, country: c.country, countryCode: c.countryCode, lat: c.lat, lng: c.lng } });

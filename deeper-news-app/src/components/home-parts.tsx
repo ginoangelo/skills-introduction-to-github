@@ -11,6 +11,11 @@ export function StoryRing({ story, seen, t, onPress }: { story: Story; seen: boo
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Watch ${story.title}`} style={styles.ring}>
       <View style={[styles.ringOuter, { borderColor: seen ? t.line : t.accent }]}>
+        {seen && (
+          <View style={[styles.check, { backgroundColor: t.surface, borderColor: t.line }]} accessibilityLabel="Watched">
+            <Text style={{ color: t.ink, fontSize: 11, fontWeight: '800' }}>✓</Text>
+          </View>
+        )}
         <StoryArt story={story} style={[styles.ringInner, { borderColor: t.bg }]} />
       </View>
       <Text numberOfLines={2} style={[styles.ringLabel, { color: t.ink }]}>
@@ -109,7 +114,7 @@ export function ThreadCard({
       </View>
       <View style={styles.chips}>
         {thread.storyIds.map((id) => (
-          <Pressable key={id} onPress={() => onOpenStory(id)} style={[styles.mini, { backgroundColor: t.bg }]}>
+          <Pressable key={id} onPress={() => onOpenStory(id)} accessibilityRole="button" style={[styles.mini, { backgroundColor: t.bg }]}>
             <Text style={{ color: t.ink, fontSize: 13 }}>{getStory(id)?.short}</Text>
           </Pressable>
         ))}
@@ -153,6 +158,7 @@ const styles = StyleSheet.create({
   thread: { borderWidth: 1, borderRadius: 12, padding: 12, gap: 10 },
   threadHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   threadName: { fontSize: 15, fontWeight: '700' },
-  follow: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4 },
-  mini: { borderRadius: 4, paddingHorizontal: 8, paddingVertical: 4 },
+  follow: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9, minHeight: 40, justifyContent: 'center' },
+  check: { position: 'absolute', right: -4, bottom: -4, zIndex: 1, width: 22, height: 22, borderRadius: 11, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  mini: { borderRadius: 6, paddingHorizontal: 10, paddingVertical: 8 },
 });

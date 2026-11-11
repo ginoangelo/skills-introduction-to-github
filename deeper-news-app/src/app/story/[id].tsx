@@ -105,7 +105,8 @@ function Player({ story }: { story: Story }) {
   const [mapOpen, setMapOpen] = useState(false);
   const [radioOpen, setRadioOpen] = useState(false);
   const stations = useMemo(() => stationsNear(story.place), [story.place]);
-  const radioPlace = stations[0] && distanceKm(story.place, stations[0]) < 400 ? story.place.name : story.place.country;
+  // Name where the station really is, not the story's (sometimes fictional) town.
+  const radioPlace = stations[0] && distanceKm(story.place, stations[0]) < 400 ? `near ${stations[0].city}` : story.place.country;
   const openRadio = () => {
     setPaused(true); // the story waits while you listen
     setRadioOpen(true);
@@ -239,7 +240,7 @@ function Player({ story }: { story: Story }) {
       <StatusBar style="light" />
       <View
         {...pan.panHandlers}
-        style={[styles.screen, wide ? { height: screenHeight, width: (screenHeight * 9) / 16, borderRadius: 16 } : styles.fill]}>
+        style={[styles.screen, wide ? [styles.screenWide, { height: screenHeight, width: (screenHeight * 9) / 16, borderRadius: 16 }] : styles.fill]}>
         <ClipPlayer clip={clip} story={story} layer={clipIndex} playing={running && !ending && !predicting} />
 
         {/* Tap zones sit at the edges so YouTube's own controls stay usable in the middle. */}
@@ -453,7 +454,14 @@ function PredictOverlay({
     <ScrollView
       style={[StyleSheet.absoluteFill, styles.handoffScroll]}
       contentContainerStyle={[styles.handoff, { paddingTop: topInset + 24, paddingBottom: bottomInset + 24 }]}>
-      <Text style={styles.eyebrow}>Before you see what followed</Text>
+      <View style={styles.guessHead}>
+        <Text style={[styles.eyebrow, { flex: 1 }]}>Before you see what followed</Text>
+        {!answered && (
+          <Pressable onPress={onContinue} accessibilityRole="button" accessibilityLabel="Skip the guess" style={styles.skip}>
+            <Text style={styles.skipText}>Skip</Text>
+          </Pressable>
+        )}
+      </View>
       <Text style={styles.question}>What do you think happened next?</Text>
       <View style={{ gap: 10 }}>
         {options.map((o, i) => {
@@ -503,6 +511,9 @@ const styles = StyleSheet.create({
   listenBtn: { height: 36, borderRadius: 18, paddingHorizontal: 12, justifyContent: 'center', backgroundColor: video.glass },
   listenOn: { backgroundColor: video.accent },
   listenText: { color: video.ink, fontSize: 13, fontWeight: '700' },
+  guessHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  skip: { borderWidth: 1, borderColor: video.line, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
+  skipText: { color: video.ink, fontSize: 13, fontWeight: '600' },
   guess: { borderWidth: 1, borderColor: video.line, backgroundColor: video.card, borderRadius: 12, padding: 14, gap: 4 },
   guessText: { color: video.ink, fontSize: 16, fontWeight: '600', lineHeight: 21 },
   guessTag: { fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
@@ -510,6 +521,7 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
   root: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20 },
   screen: { overflow: 'hidden', backgroundColor: video.bg, alignSelf: 'stretch' },
+  screenWide: { alignSelf: 'center' },
   holdZone: { position: 'absolute', top: 110, bottom: 300, left: '24%', right: '24%' },
   tapZone: { position: 'absolute', top: 110, bottom: 280, width: '22%' },
   top: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: 14, gap: 10, backgroundColor: 'rgba(0,0,0,0.28)', paddingBottom: 10 },

@@ -24,7 +24,7 @@ export const STORIES: Story[] = [
       { title: '2019: the council puts off levee repairs', when: '2019', source: 'Town meeting archive', rights: 'Public record', why: 'A 4–3 vote pushed the repairs back five years.', seconds: 20 },
       { title: 'State hearing on emergency flood funds', when: 'Day 9', source: 'State legislature feed', rights: 'Public record', why: "The town's request cites the county's drone survey.", seconds: 20 },
     ],
-    predict: { decoys: ['The town votes to abandon its riverfront', 'A federal team takes over the levee repairs'] },
+    predict: { decoys: ['Town vote to abandon the riverfront', 'Federal takeover of the levee repairs'] },
     handoff: {
       question: "So why didn't the state send the money?",
       paths: [

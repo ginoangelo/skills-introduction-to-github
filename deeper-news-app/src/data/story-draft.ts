@@ -33,7 +33,7 @@ export function blankStory(): Story {
 /** A copy of a story to edit as your own, with a new id. */
 export function copyStory(story: Story): Story {
   const copy: Story = JSON.parse(JSON.stringify(story));
-  return { ...copy, id: '', draft: true, short: copy.short, title: `${copy.title} (copy)` };
+  return { ...copy, id: '', draft: true, photoFrom: story.photoFrom ?? story.id, title: `${copy.title} (copy)` };
 }
 
 /** Plain-language problems that stop a story from being saved. Empty when it's ready. */

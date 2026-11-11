@@ -32,9 +32,16 @@ export default function LocationScreen() {
               We use this to show stories near you first. It stays on this device, and you can change it any time.
             </Text>
           </View>
-          {location && (
+          {location ? (
             <Pressable onPress={() => router.back()} style={[styles.close, { backgroundColor: t.surface, borderColor: t.line }]} accessibilityLabel="Close">
               <Text style={{ color: t.ink, fontSize: 16 }}>✕</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
+              accessibilityRole="button"
+              style={[styles.notNow, { borderColor: t.line, backgroundColor: t.surface }]}>
+              <Text style={{ color: t.ink, fontWeight: '600' }}>Not now</Text>
             </Pressable>
           )}
         </View>
@@ -83,6 +90,7 @@ const styles = StyleSheet.create({
   page: { flex: 1, width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 16, gap: 14 },
   head: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   h1: { fontSize: 28, fontWeight: '800', letterSpacing: -0.5, marginBottom: 4 },
+  notNow: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   close: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   search: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1 },

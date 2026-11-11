@@ -68,6 +68,8 @@ export type Story = {
   place: Place;
   /** True for stories made in the editor and saved on this device. */
   draft?: boolean;
+  /** For a copy of a built-in story: whose built-in photo to keep using. */
+  photoFrom?: string;
   /** Photo link for editor stories; built-in stories use story-images.ts. */
   image?: RemoteImage;
   /** Short name for story circles. */

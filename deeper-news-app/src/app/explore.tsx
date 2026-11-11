@@ -64,7 +64,7 @@ export default function ExploreScreen() {
           <Text style={[styles.h1, { color: t.ink }]}>Explore</Text>
           <Text style={{ color: t.muted, fontSize: 13 }}>
             {location ? `Stories around ${location.name}, and how they connect.` : 'Today’s stories and how they connect.'}{' '}
-            {wide ? 'Hover a story to see its links.' : 'Tap a story to see its links.'}
+            {wide ? 'Click or tap a story to see its links.' : 'Tap a story to see its links.'}
           </Text>
         </View>
         <Text style={[styles.count, { color: t.muted }]}>

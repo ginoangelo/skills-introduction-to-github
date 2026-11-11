@@ -64,7 +64,7 @@ export const STORY_IMAGES: Record<string, StoryImage> = {
 
 /** A story's photo: the built-in one, else the editor's photo link, else none. */
 export function storyImage(story: Story): StoryImage | undefined {
-  const built = STORY_IMAGES[story.id];
+  const built = STORY_IMAGES[story.id] ?? (story.photoFrom ? STORY_IMAGES[story.photoFrom] : undefined);
   if (built) return built;
   if (story.image?.uri) return { source: { uri: story.image.uri }, alt: story.image.alt, credit: story.image.credit };
   return undefined;
