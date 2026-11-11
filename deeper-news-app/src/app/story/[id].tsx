@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { AccessibilityInfo, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, PanResponder, Platform, Share, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ClipPlayer } from '@/components/clip-player';
@@ -169,15 +169,38 @@ function Player({ story }: { story: Story }) {
   const next = useCallback(() => dispatch({ type: 'next', last: lastClip, predictAt }), [lastClip, predictAt]);
   const prev = useCallback(() => dispatch({ type: 'prev' }), []);
   const heldPause = useRef(false);
+  const [holding, setHolding] = useState(false);
   const holdStart = () => {
     if (paused) return;
     heldPause.current = true;
+    setHolding(true);
     setPaused(true);
   };
   const holdEnd = () => {
     if (!heldPause.current) return;
     heldPause.current = false;
+    setHolding(false);
     setPaused(false);
+  };
+
+  const [copied, setCopied] = useState(false);
+  const copyQuestions = async () => {
+    const text = [
+      `${story.title}`,
+      story.discuss ?? '',
+      '1. In your own words: what happened, and why does it matter?',
+      '2. Which clip gave you the strongest evidence, and why?',
+      '3. Who is affected by this story, and who gets to decide what happens next?',
+    ]
+      .filter(Boolean)
+      .join('\n');
+    try {
+      if (Platform.OS === 'web') await navigator.clipboard.writeText(text);
+      else await Share.share({ message: text });
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
   };
 
   const pickClip = (index: number) => {
@@ -206,13 +229,14 @@ function Player({ story }: { story: Story }) {
         onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 24 || Math.abs(g.dy) > 24,
         onPanResponderRelease: (_, g) => {
           if (Math.abs(g.dx) > 60 && Math.abs(g.dx) > Math.abs(g.dy)) {
-            if (g.dx < 0) goToStory(story.handoff.paths[0].storyId);
-            else goBackInChain();
+            if (g.dx < 0) {
+              if (!classMode) goToStory(story.handoff.paths[0].storyId); // class mode keeps students on the story
+            } else goBackInChain();
           } else if (g.dy > 100 && Math.abs(g.dy) > Math.abs(g.dx)) close();
           else if (g.dy < -70 && Math.abs(g.dy) > Math.abs(g.dx)) next(); // swipe up = go deeper
         },
       }),
-    [goToStory, goBackInChain, close, story, next],
+    [goToStory, goBackInChain, close, story, next, classMode],
   );
 
   // Keyboard on the website.
@@ -321,22 +345,33 @@ function Player({ story }: { story: Story }) {
                 <Text style={styles.smallBtnText}>Map</Text>
               </Pressable>
             )}
-            {stations.length > 0 && (
+            {stations.length > 0 && !classMode && (
               <Pressable onPress={openRadio} style={styles.smallBtn} accessibilityRole="button" accessibilityLabel={`Hear live radio from ${radioPlace}`}>
                 <Text style={styles.smallBtnText}>Hear it live</Text>
               </Pressable>
             )}
-            {clipIndex < lastClip && (
+            {clipIndex < lastClip && !classMode && (
               <Pressable onPress={() => dispatch({ type: 'end' })} style={styles.smallBtn} accessibilityRole="button">
-                <Text style={styles.smallBtnText}>Leads to →</Text>
+                <Text style={styles.smallBtnText}>Skip to the end</Text>
               </Pressable>
             )}
           </View>
           <Pressable onPress={next} style={styles.deeper} accessibilityRole="button">
             <Text style={styles.deeperText}>{clipIndex < lastClip ? `Deeper ↓ ${LAYERS[clipIndex + 1].name}` : 'Where it leads →'}</Text>
           </Pressable>
-          {!wide && <Text style={[styles.hint, { textAlign: 'center' }]}>Swipe up to go deeper · hold to pause · swipe left for the next story</Text>}
+          {!wide && (
+            <Text style={[styles.hint, { textAlign: 'center' }]}>
+              {clipIndex < lastClip ? 'Swipe up to go deeper · hold to pause' : 'Hold to pause'}
+              {classMode ? '' : ' · swipe left for the next story'}
+            </Text>
+          )}
         </LinearGradient>
+
+        {holding && (
+          <View pointerEvents="none" style={styles.pausedBadge}>
+            <Text style={styles.pausedText}>Paused</Text>
+          </View>
+        )}
 
         {predicting && (
           <PredictOverlay
@@ -358,7 +393,13 @@ function Player({ story }: { story: Story }) {
             <Text style={styles.question}>{story.handoff.question}</Text>
             {classMode && (
               <View style={styles.discuss}>
-                <Text style={styles.discussTitle}>Discuss</Text>
+                <View style={styles.discussHead}>
+                  <Text style={[styles.discussTitle, { flex: 1 }]}>Discuss</Text>
+                  <Pressable onPress={copyQuestions} accessibilityRole="button" style={styles.smallBtn}>
+                    <Text style={styles.smallBtnText}>{copied ? 'Copied' : 'Copy questions'}</Text>
+                  </Pressable>
+                </View>
+                {story.discuss && <Text style={styles.discussLine}>{story.discuss}</Text>}
                 <Text style={styles.discussLine}>1. In your own words: what happened, and why does it matter?</Text>
                 <Text style={styles.discussLine}>2. Which clip gave you the strongest evidence, and why?</Text>
                 <Text style={styles.discussLine}>3. Who is affected by this story, and who gets to decide what happens next?</Text>
@@ -527,17 +568,20 @@ const styles = StyleSheet.create({
   top: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: 14, gap: 10, backgroundColor: 'rgba(0,0,0,0.28)', paddingBottom: 10 },
   segs: { flexDirection: 'row', gap: 4 },
   segCol: { flex: 1, gap: 4 },
-  segLabel: { color: video.muted, fontSize: 9, fontWeight: '600', letterSpacing: 0.5, textTransform: 'uppercase', textAlign: 'center' },
+  segLabel: { color: video.muted, fontSize: 10, fontWeight: '600', letterSpacing: 0.5, textTransform: 'uppercase', textAlign: 'center' },
   segLabelOn: { color: video.ink, fontWeight: '800' },
   secondary: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
   smallBtn: { borderWidth: 1, borderColor: video.line, backgroundColor: video.glass, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8, minHeight: 36, justifyContent: 'center' },
   smallBtnText: { color: video.ink, fontSize: 13, fontWeight: '600' },
   deeper: { alignSelf: 'center', backgroundColor: video.ink, borderRadius: 999, paddingHorizontal: 28, paddingVertical: 14, minWidth: 220, alignItems: 'center' },
   deeperText: { color: video.bg, fontSize: 17, fontWeight: '800' },
+  discussHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  pausedBadge: { position: 'absolute', top: '40%', alignSelf: 'center', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 999, paddingHorizontal: 18, paddingVertical: 8 },
+  pausedText: { color: video.ink, fontSize: 15, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' },
   discuss: { borderWidth: 1, borderColor: video.accent, borderRadius: 12, padding: 14, gap: 6, backgroundColor: 'rgba(79, 209, 197, 0.08)' },
   discussTitle: { color: video.accent, fontSize: 12, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase' },
   discussLine: { color: video.ink, fontSize: 15, lineHeight: 21 },
-  seg: { flex: 1, height: 3, borderRadius: 2, backgroundColor: video.line, overflow: 'hidden' },
+  seg: { alignSelf: 'stretch', height: 3, borderRadius: 2, backgroundColor: video.line, overflow: 'hidden' },
   segFill: { height: '100%', backgroundColor: video.ink },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   avatar: { width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: video.accent },

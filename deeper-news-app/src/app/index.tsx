@@ -70,12 +70,12 @@ export default function HomeScreen() {
 
         <View style={[styles.classRow, { backgroundColor: t.surface, borderColor: classMode ? t.accent : t.line }]}>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={{ color: t.ink, fontWeight: '800' }}>Class mode</Text>
-            <Text style={{ color: t.muted, fontSize: 13 }}>
-              {classMode
-                ? 'On: no autoplay, the guess every time, discussion questions after each story, editor hidden.'
-                : 'For teachers: no autoplay, the guess every time, and discussion questions after each story.'}
+            <Text style={{ color: t.ink, fontWeight: '700', fontSize: 14 }}>
+              <Text style={{ color: t.muted, fontWeight: '500' }}>For teachers · </Text>Class mode{classMode ? ' is on' : ''}
             </Text>
+            {classMode && (
+              <Text style={{ color: t.muted, fontSize: 12 }}>No autoplay or skipping ahead, the guess every time, and discussion questions.</Text>
+            )}
           </View>
           <Switch
             value={classMode}
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   sample: { fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', borderWidth: 1, borderRadius: 3, paddingHorizontal: 8, paddingVertical: 2 },
   locBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   pin: { width: 10, height: 10, borderRadius: 5, borderWidth: 3 },
-  classRow: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
+  classRow: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
   daily: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, borderWidth: 1, borderRadius: 12, padding: 12 },
   dailyThumb: { width: 44, height: 44, borderRadius: 22 },
   prompt: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 14, borderWidth: 1, borderRadius: 12, padding: 16 },

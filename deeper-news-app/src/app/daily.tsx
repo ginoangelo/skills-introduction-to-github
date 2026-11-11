@@ -121,6 +121,11 @@ export default function DailyThreadScreen() {
               <Text style={[styles.trailChip, { borderColor: id === target.id ? t.accent : t.line, color: t.ink }]}>{getStory(id)?.short}</Text>
             </View>
           ))}
+          {!over && route.length > 1 && (
+            <Pressable onPress={() => setRoute((r) => r.slice(0, -1))} style={[styles.pill, { borderColor: t.line, paddingVertical: 4 }]} accessibilityRole="button">
+              <Text style={{ color: t.ink, fontWeight: '600', fontSize: 13 }}>↶ Undo step</Text>
+            </Pressable>
+          )}
         </View>
 
         {over ? (
@@ -188,11 +193,6 @@ export default function DailyThreadScreen() {
               );
             })}
             <View style={styles.actions}>
-              {route.length > 1 && (
-                <Pressable onPress={() => setRoute((r) => r.slice(0, -1))} style={[styles.pill, { borderColor: t.line }]} accessibilityRole="button">
-                  <Text style={{ color: t.ink, fontWeight: '600' }}>Undo step</Text>
-                </Pressable>
-              )}
               <Pressable onPress={() => setGaveUp(true)} style={[styles.pill, { borderColor: t.line }]} accessibilityRole="button">
                 <Text style={{ color: t.muted, fontWeight: '600' }}>Show me the route</Text>
               </Pressable>

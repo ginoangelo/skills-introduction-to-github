@@ -1,5 +1,110 @@
 # Deeper News: design review
 
+## Round 2 (after the cinematic player and Class mode)
+
+Reviewed on 11 November 2026, from a new web build (commit `fc9d59d`). I checked phone (390 x 844) and desktop (1280 x 820), in light and dark mode, plus a run with the device's "reduce motion" setting on.
+
+Round 2 screenshots are in `/tmp/claude-0/-home-user-skills-introduction-to-github/09bff0e7-c0af-5cef-946c-8b44371ae4b9/scratchpad/review/r2/`. Below they are named by file only. That folder is temporary.
+
+**In one line:** the player now feels like a real product. Each layer looks different, and the hand-off and Class mode do what they promise. But one new bug matters a lot: **the progress bars at the top of the player have disappeared.**
+
+### R2.1 Did the round 1 fixes work?
+
+| Fix | Works? | Notes | Screenshot |
+|---|---|---|---|
+| Answer hidden in the side panel during the guess | Yes | Ripples now reads "Guess first, then watch". It comes back after you answer. Clear and friendly. | `desk-dark-04-clip5.png` |
+| "Stay here" button on the hand-off | Yes | Tapping it stops the countdown and the hint changes to "Pick a path when you're ready." It is the brightest button on the screen, which is right. | `phone-light-07-handoff.png`, `phone-light-07b-handoff-stayed.png` |
+| No countdown with reduce motion on | Yes | With reduce motion on, the hand-off waited more than 8 seconds and did not move on. | `phone-light-26-handoff-reduced-motion.png` |
+| Darker light-mode teal and orange | Yes | I re-measured: white on teal 5.80 to 1, teal on the page 5.18 to 1, orange label 5.23 to 1. All now pass the 4.5 to 1 minimum ([WCAG 1.4.3](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)). | `phone-light-01-home.png` |
+| Home top buttons wrap on phones | Yes, nothing is cut off | "Set location" now sits alone on a second line, which looks a little loose. See Next upgrade 4. | `phone-light-01-home.png` |
+| (Not claimed) desktop player hugging the top edge | Not fixed | The player still starts at the very top of the window, 24 px higher than the side panel. | `desk-light-04-clip3.png` |
+| (Not claimed) "Boat schools" with no photo | Not fixed | It is still a flat green circle. | `desk-light-02-home-located.png` |
+| (Not claimed) "Hear it live from Marlow Creek" playing a Louisville station | Not fixed | | `phone-light-08-radio.png` |
+
+### R2.2 The new player
+
+**What works well**
+- **The five layers finally feel different.**
+  - Footage zooms in slowly (`phone-light-04-clip2.png`).
+  - Voices has a large, warm quote in a serif font (`phone-light-04-clip3.png`).
+  - Roots has a sepia wash and "FROM THE ARCHIVE 2019" in big type. It is the most striking screen in the app (`phone-dark-04-clip4.png`).
+  - Ripples has a "WHAT FOLLOWED · Day 9" calendar tab (`phone-light-06-ripples.png`).
+- **"Deeper ↓ Footage" is now a single clear button** at the bottom. It shows the next layer's name, so people know what they will get. Map / Hear it live / Leads to sit above it as smaller buttons, all 36 px tall (I measured them).
+- **Press and hold to pause works.** While I held, the pause button switched to "Play".
+- **Hand-off path cards** are taller, the photos are bigger, and the three paths are easy to tell apart (`phone-light-07-handoff.png`, `desk-dark-07-handoff.png`).
+- **Dark and light** look the same inside the player, as they should, since video stays dark.
+
+**What needs work**
+1. **The progress bars are gone (new bug, high priority).**
+   - The layer names (SURFACE FOOTAGE VOICES ROOTS RIPPLES) show at the top, but the thin bars that fill up as a clip plays are invisible. See the zoomed-in view in `phone-zoom-top.png`. So people can no longer see how long a clip has left, or that it will move on by itself.
+   - Plain cause: each bar was told to "stretch to fill" inside a column that has no spare height, so it shrinks to zero height. In `src/app/story/[id].tsx`, the `seg` style needs `flex: 1` replaced with `alignSelf: 'stretch'` (keeping `height: 3`).
+   - Effort S.
+2. **The layer names are 9 px.** That is too small to read on a phone, especially the grey ones (`phone-zoom-top.png`). Use 10–11 px, or show only the current layer's name, larger.
+3. **Every layer still uses the same flood photo.** The new looks hide this well on Voices and Roots. Surface, Footage and Ripples still look nearly the same. A second photo per story (or the Explore photos of linked stories for Ripples) would help.
+4. **The last clip's hint is wrong.** On Ripples it still says "Swipe up to go deeper", but there is nothing deeper (`phone-light-06-ripples.png`). Say "Swipe up to see where it leads".
+5. **"Leads to →" is vague and lets people skip the middle.** It jumps straight to the end, past Roots and the guess. Rename it "Skip to the end" and hide it in Class mode (see R2.3).
+6. **Holding to pause has no clear feedback.** Only the small icon in the corner changes (`phone-light-27-holding.png`). Show a short "Paused" label in the middle while the finger is down, and dim the text a little.
+7. **The guess screen is unchanged.** It is still plain black, with no ✕ and no progress bar (`phone-light-05-guessed.png`). It now looks plain next to the new layer screens. Put the Roots sepia photo faintly behind it.
+8. **The desktop hand-off shows the same three paths twice:** big cards on the left and "Where it leads" in the side panel (`desk-dark-07-handoff.png`). While the hand-off is open, use the side panel for something else, such as "Your chain so far" or the Discuss questions.
+
+### R2.3 Class mode, from a teacher's point of view
+
+I turned it on and played Marlow Creek twice.
+- **It does what it says.** The guess appeared both times. There was no countdown (the page stayed put for 7+ seconds). The editor link was gone. A "Discuss" card with three questions appeared above the paths (`phone-light-21-class-handoff.png`). The note under the switch changes to "On: …", which is clear (`phone-light-20-class-on-home.png`).
+
+**What a teacher would ask next**
+1. **"Can my students just switch it off?"** Yes. It is one tap on Home, with no lock. Add a simple 4-digit teacher code, or a link that turns it on and hides the switch (for example a "class link" to share in Google Classroom). Effort S–M, free.
+2. **"Do I have to set this on 30 devices?"** Yes. It is saved per device. A class link (same idea as above) solves this too.
+3. **"Why can students still open live radio?"** "Hear it live" is still there in Class mode. Live talk radio is unscreened, so many schools will not allow it. Hide it in Class mode, or make it something the teacher turns on.
+4. **"Can students skip the thinking part?"** Yes. "Leads to →", swiping left and the arrow keys all jump ahead. In Class mode, hide "Leads to →" and turn off swipe-to-next-story, so a story is always watched layer by layer.
+5. **The Discuss questions are the same for every story.** They are good general questions. One story-specific question (for Marlow: "Who should pay for levee repairs: the town, the state or the people who live there?") would make it feel prepared. Add an optional `discuss` field per story, and fall back to the general questions.
+6. **The Discuss card sits on a dark screen.** That works on a projector, but teachers will want to print or paste it. Add a "Copy questions" button. Later, a printable one-page "lesson sheet" per story would help (free to build).
+7. **Placement:** Class mode is the first card on Home for everyone. On a phone, three cards (Class mode, Daily Thread, "Choose your location") push the stories below the fold (`phone-light-01-home.png`). For general users, move the switch to a small "For teachers" link, and show the full card only when Class mode is on.
+
+### R2.4 Daily Thread
+
+- **What works:**
+  - The start → reach card is clear.
+  - The trail of steps (River freight › Insurance › Marlow Creek › Ostend Mills) shows your route.
+  - Stories you've already visited are greyed out and marked "ALREADY VISITED" in words, not color alone.
+  - "Show me the route" gives a gentle way out, with "Watch" links on every step (`phone-dark-24-daily-mid.png`, `desk-light-25-daily-gaveup.png`).
+  - It is a good, low-pressure daily habit: one puzzle a day, no streak.
+- **What to improve:**
+  1. **You can solve it without reading anything.** You just tap titles. Add one free "peek" per step that shows the story's Surface clip or its "why" line. Or give a bonus for routes where you watched at least one story. This ties the game to the news, which matters for teachers.
+  2. **"Undo step" is easy to miss.** It sits below the path cards, under the bottom of a phone screen once there are three paths (`phone-dark-24-daily-mid.png`). Move it next to the trail of steps at the top, as "← Back one step".
+  3. **The Home card's "Play →" is a small text link** (`phone-light-01-home.png`). Make the whole card look tappable with a filled button. The card already opens on tap, but nothing shows that.
+  4. **"Share my result" appears even after you give up.** That is fine, but make sure the shared text says "I peeked" honestly. A share card like Wordle's (small colored squares for money, people and place) would spread nicely and costs nothing.
+  5. **Daily Thread in Class mode:** a "class race" (everyone gets the same puzzle and compares steps) would be a fun warm-up. Not needed yet.
+
+### R2.5 Next 5 upgrades (ranked)
+
+1. **Bring back the progress bars, and make the layer names readable.** Without them the player feels out of control. Effort S, free. `src/app/story/[id].tsx` (`seg`, `segLabel` styles). Screenshot `phone-zoom-top.png`.
+2. **Make Class mode safe and easy to roll out.** Hide live radio and "Leads to", turn off swipe-to-next, and add a teacher code or class link. This is what turns Class mode from a demo into something a school can use. Effort M, free. `src/app/story/[id].tsx`, `src/state/app-state.tsx`, `src/app/index.tsx`. Screenshot `phone-light-21-class-handoff.png`.
+3. **Story-specific Discuss questions, plus "Copy questions".** This makes each story feel like a ready-made lesson. Effort S (add a `discuss` field in `src/data/types.ts` and `stories.ts`, and a field in the editor), free.
+4. **Tidy Home on phones.** Order: story circles first, then Daily Thread, then location. Move the Class mode switch to a small "For teachers" link (full card only when on). Put "Set location" in the same row as "Explore the map". Effort S, free. `src/app/index.tsx`. Screenshot `phone-light-01-home.png`.
+5. **Finish the player polish.** Fix the Ripples hint, rename "Leads to →" to "Skip to the end", add a "Paused" label while holding, give the guess screen a ✕ and a faint background, and center the desktop player. Effort S each, free. Screenshots `phone-light-06-ripples.png`, `phone-light-27-holding.png`, `phone-light-05-guessed.png`, `desk-light-04-clip3.png`.
+
+### R2.6 New bugs and rough edges
+
+| # | What I saw | Where | Screenshot |
+|---|---|---|---|
+| N1 | Progress bars invisible; only the layer names show (bars have zero height) | Player, all sizes and themes | `phone-zoom-top.png`, `phone-light-03-surface.png` |
+| N2 | Layer names at the top are 9 px, and the grey ones are hard to read | Player | `phone-zoom-top.png` |
+| N3 | Ripples (the last clip) still says "Swipe up to go deeper" | Player, phone | `phone-light-06-ripples.png` |
+| N4 | In Class mode, students can still skip ahead ("Leads to →", swipe left) and open live radio | Player, Class mode | `phone-light-20-class-on-home.png` |
+| N5 | Class mode can be switched off by anyone with one tap, and is per device | Home | `phone-light-20-class-on-home.png` |
+| N6 | Three cards stacked at the top of phone Home push the stories below the first screen | Home, phone | `phone-light-01-home.png` |
+| N7 | Desktop hand-off shows the three paths twice (cards and side panel) | Hand-off, desktop | `desk-dark-07-handoff.png` |
+| N8 | The photo credit ("Photo: U.S. Army Corps of Engineers…") can be reached with the Tab key, as if it were a button | Player, keyboard | found by tabbing through the player |
+| N9 | Holding to pause gives almost no visible feedback | Player | `phone-light-27-holding.png` |
+| N10 | Daily Thread: the Home card's "Play →" link is small; "Undo step" is below the bottom of the phone screen | Home, Daily | `phone-light-01-home.png`, `phone-dark-24-daily-mid.png` |
+
+Housekeeping note: in round 1, my helper scripts were written straight into the shared `scratchpad/` folder, and one of them overwrote the builder's `scratchpad/serve.js`. Sorry about that. In round 2, everything I made is inside `scratchpad/review/` only.
+
+---
+
+*Round 1 (the original review) follows, unchanged.*
+
 Reviewed on 11 November 2026, from a fresh web build of `deeper-news-app` on phone (390 x 844, plus a 320-wide check) and desktop (1280 x 820), in light and dark mode.
 
 Screenshots are in `/tmp/claude-0/-home-user-skills-introduction-to-github/09bff0e7-c0af-5cef-946c-8b44371ae4b9/scratchpad/review/`. Below they are named by file only (for example `phone-light-04-story.png`). That folder is temporary, so copy anything you want to keep.

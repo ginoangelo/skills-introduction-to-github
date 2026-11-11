@@ -25,6 +25,7 @@ export const STORIES: Story[] = [
       { title: 'State hearing on emergency flood funds', when: 'Day 9', source: 'State legislature feed', rights: 'Public record', why: "The town's request cites the county's drone survey.", seconds: 20 },
     ],
     predict: { decoys: ['Town vote to abandon the riverfront', 'Federal takeover of the levee repairs'] },
+    discuss: 'Should a town be allowed to put off safety repairs to save money? Who should decide?',
     handoff: {
       question: "So why didn't the state send the money?",
       paths: [
@@ -50,6 +51,7 @@ export const STORIES: Story[] = [
       { title: 'Contractors tour the levee site', when: 'Day 60', source: 'Local station', rights: 'Licensed', why: 'The first work under the new plan.', seconds: 20 },
     ],
     predict: { decoys: ['Residents sue to stop the new levee', 'The state pays for the levee after all'] },
+    discuss: 'Was Ostend Mills right to pay for its own levee instead of waiting for the state?',
     handoff: {
       question: 'Will the state ever pay for levees like this?',
       paths: [
@@ -75,6 +77,7 @@ export const STORIES: Story[] = [
       { title: 'Ostend Mills decides to pay for its own levee', when: 'Day 40', source: 'Local station', rights: 'Licensed', why: 'One town stops waiting for the state.', seconds: 20 },
     ],
     predict: { decoys: ['The governor finds the money elsewhere', 'The committee votes again and passes the bill'] },
+    discuss: 'When a vote ties, who should have the final say on emergency money?',
     handoff: {
       question: "Who pays when the state doesn't?",
       paths: [
@@ -100,6 +103,7 @@ export const STORIES: Story[] = [
       { title: 'A grain elevator loses its coverage', when: 'Day 25', source: 'Partner report', rights: 'Licensed', why: 'This leads into the river freight story.', seconds: 20 },
     ],
     predict: { decoys: ['The state orders the insurers to come back', 'Premiums fall once the new flood maps are out'] },
+    discuss: 'Should insurers have to keep covering homes and shops in flood zones?',
     handoff: {
       question: "What happens to a business that can't get insured?",
       paths: [
@@ -124,6 +128,7 @@ export const STORIES: Story[] = [
       { title: 'Halvard Port backs up too', when: 'Day 15', source: 'Local station', rights: 'Licensed', why: 'The same cargo was due at the port.', seconds: 20 },
     ],
     predict: { decoys: ['The grain moves by rail within a day', 'Grain prices drop across the country'] },
+    discuss: 'How can one closed river lock affect prices in places far away?',
     handoff: {
       question: 'Where was all that grain supposed to go?',
       paths: [
@@ -148,6 +153,7 @@ export const STORIES: Story[] = [
       { title: 'Grain shippers caught in both', when: 'Day 15', source: 'Local station', rights: 'Licensed', why: 'The river closure and the strike hit the same cargo.', seconds: 20 },
     ],
     predict: { decoys: ['The strike ends the next morning', 'The port cancels the automated cranes'] },
+    discuss: 'Should workers have a say when machines are brought in to do their jobs?',
     handoff: {
       question: 'What happens to the grain stuck upriver?',
       paths: [
@@ -172,6 +178,7 @@ export const STORIES: Story[] = [
       { title: 'Repair money depends on the stalled bill', when: 'Day 30', source: 'State legislature feed', rights: 'Public record', why: 'This leads into the flood budget story.', seconds: 20 },
     ],
     predict: { decoys: ['The schools move online for the year', 'A donor pays for every repair'] },
+    discuss: 'After a disaster, what should a town fix first: schools, homes or roads? Why?',
     handoff: {
       question: 'When will the schools get money for repairs?',
       paths: [
@@ -197,6 +204,7 @@ export const STORIES: Story[] = [
       { title: 'Two more districts order boats', when: 'Week 6', source: 'Regional broadcaster', rights: 'Licensed', why: 'The idea starts to spread.', seconds: 20 },
     ],
     predict: { decoys: ['Regulators ban the boats as unsafe', 'The program ends after one season'] },
+    discuss: 'What could American river towns learn from schools that float?',
     handoff: {
       question: 'Could American river towns do something like this?',
       paths: [
@@ -221,6 +229,7 @@ export const STORIES: Story[] = [
       { title: 'The first high water since the dikes moved', when: 'Month 4', source: 'Resident upload', rights: 'Consent on file', why: 'The test the plan was built for.', seconds: 20 },
     ],
     predict: { decoys: ['The town rebuilds the old dikes', 'Farmers win a court case to reverse the plan'] },
+    discuss: 'Is it better to build higher walls or to give rivers more room?',
     handoff: {
       question: 'Is a higher wall or more room for the river the better bet?',
       paths: [
@@ -245,6 +254,7 @@ export const STORIES: Story[] = [
       { title: 'Ships start choosing this port over others', when: 'Month 3', source: 'Regional broadcaster', rights: 'Licensed', why: 'What faster loading means for trade.', seconds: 20 },
     ],
     predict: { decoys: ['Workers strike, just like in Halvard', 'The cranes are shipped back'] },
+    discuss: 'Why did one port strike while this one retrained? What would you have done?',
     handoff: {
       question: 'Why did one port strike while this one retrained?',
       paths: [{ kind: 'people', storyId: 'port', reason: 'Halvard dockworkers striking over the same cranes' }],

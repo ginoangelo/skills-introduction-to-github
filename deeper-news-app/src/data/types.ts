@@ -81,6 +81,8 @@ export type Story = {
   minutes: number;
   /** One clip per layer, in layer order. */
   clips: Clip[];
+  /** A class discussion question about this story, shown first in Class mode's Discuss card. */
+  discuss?: string;
   /**
    * "What happens next?": two believable outcomes that did NOT happen. The real
    * one is the Ripples clip's title. Shown before the Ripples clip plays.
