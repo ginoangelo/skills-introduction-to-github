@@ -25,6 +25,11 @@ export type Clip = {
   startSeconds?: number;
   /** How long to play before moving to the next clip, in seconds. */
   seconds: number;
+  /**
+   * A podcast or audio clip, used when there's no YouTube video. `url` is the
+   * audio file itself (the episode's file from the show's public feed).
+   */
+  audio?: { url: string; startSeconds?: number; show: string };
 };
 
 export type PathKind = 'money' | 'people' | 'place';

@@ -81,7 +81,7 @@ export default function EditorHome() {
 }
 
 function Row({ story, t, action, onPress }: { story: Story; t: Tokens; action: string; onPress: () => void }) {
-  const clipsWithVideo = story.clips.filter((c) => c.youtubeId).length;
+  const clipsWithMedia = story.clips.filter((c) => c.youtubeId || c.audio?.url).length;
   return (
     <Pressable onPress={onPress} accessibilityRole="button" style={[styles.row, { backgroundColor: t.surface, borderColor: t.line }]}>
       <StoryArt story={story} style={styles.thumb} />
@@ -90,7 +90,7 @@ function Row({ story, t, action, onPress }: { story: Story; t: Tokens; action: s
           {story.title}
         </Text>
         <Text style={{ color: t.muted, fontSize: 13 }}>
-          {story.topic} · {story.place.name} · {clipsWithVideo} of {story.clips.length} clips have video
+          {story.topic} · {story.place.name} · {clipsWithMedia} of {story.clips.length} clips have video or audio
         </Text>
       </View>
       <Text style={{ color: t.accent, fontWeight: '700' }}>{action}</Text>

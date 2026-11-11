@@ -99,7 +99,7 @@ function Player({ story }: { story: Story }) {
   const [paused, setPaused] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
 
-  const durations = useMemo(() => story.clips.map((c) => (c.youtubeId ? c.seconds : PLACEHOLDER_SECONDS)), [story]);
+  const durations = useMemo(() => story.clips.map((c) => (c.youtubeId || c.audio?.url ? c.seconds : PLACEHOLDER_SECONDS)), [story]);
   const clip = story.clips[clipIndex];
   const duration = durations[clipIndex];
   const lastClip = story.clips.length - 1;
@@ -191,7 +191,7 @@ function Player({ story }: { story: Story }) {
       <View
         {...pan.panHandlers}
         style={[styles.screen, wide ? { height: screenHeight, width: (screenHeight * 9) / 16, borderRadius: 16 } : styles.fill]}>
-        <ClipPlayer clip={clip} story={story} layer={clipIndex} />
+        <ClipPlayer clip={clip} story={story} layer={clipIndex} playing={running && !ending && !predicting} />
 
         {/* Tap zones sit at the edges so YouTube's own controls stay usable in the middle. */}
         <Pressable accessibilityLabel="Previous clip" onPress={prev} style={[styles.tapZone, { left: 0 }]} />

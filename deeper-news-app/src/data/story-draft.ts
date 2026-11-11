@@ -47,6 +47,11 @@ export function storyProblems(story: Story, knownIds: Set<string>): string[] {
     if (!c.title.trim()) problems.push(`${layer}: add a clip title.`);
     if (!c.why.trim()) problems.push(`${layer}: say why this clip belongs in the story.`);
     if (!(c.seconds > 0)) problems.push(`${layer}: set how many seconds it plays.`);
+    if (c.audio?.url.trim()) {
+      if (!/^https:\/\//.test(c.audio.url.trim())) problems.push(`${layer}: the audio link must start with https://`);
+      if (!c.audio.show.trim()) problems.push(`${layer}: name the show or source the audio comes from.`);
+      if (!Number.isFinite(c.audio.startSeconds ?? 0)) problems.push(`${layer}: write the audio start time like 12:40.`);
+    }
   });
   const decoys = story.predict?.decoys ?? ['', ''];
   if (decoys.some((d) => d.trim()) && !decoys.every((d) => d.trim())) {
@@ -72,6 +77,11 @@ export function cleanStory(story: Story): Story {
     short: story.short.trim(),
     topic: story.topic.trim(),
     predict: hasPredict ? { decoys: [decoys[0].trim(), decoys[1].trim()] } : undefined,
+    clips: story.clips.map((c) => {
+      const url = c.audio?.url.trim();
+      const { audio: _drop, ...rest } = c;
+      return url ? { ...rest, audio: { url, show: c.audio!.show.trim(), startSeconds: c.audio!.startSeconds ?? 0 } } : rest;
+    }),
     image: story.image?.uri?.trim() ? { uri: story.image.uri.trim(), alt: story.image.alt.trim() || story.title.trim(), credit: story.image.credit.trim() } : undefined,
   };
 }

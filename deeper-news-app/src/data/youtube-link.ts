@@ -39,6 +39,14 @@ export function parseTime(raw: string): number {
   return Number(m[1] ?? 0) * 3600 + Number(m[2] ?? 0) * 60 + Number(m[3] ?? 0);
 }
 
+/** "12:40" -> 760, "1:02:03" -> 3723, "90" -> 90. Anything else -> NaN. */
+export function parseClock(raw: string): number {
+  const text = raw.trim();
+  if (!text) return 0;
+  if (!/^\d+(:\d{1,2}){0,2}$/.test(text)) return NaN;
+  return text.split(':').reduce((total, part) => total * 60 + Number(part), 0);
+}
+
 /** 74 -> "1:14", 3723 -> "1:02:03". */
 export function formatTime(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));

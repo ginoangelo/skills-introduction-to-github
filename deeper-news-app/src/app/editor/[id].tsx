@@ -7,7 +7,7 @@ import { StoryArt } from '@/components/story-art';
 import { LOCATION_OPTIONS } from '@/data/places';
 import { blankStory, cleanStory, copyStory, newStoryId, storyProblems } from '@/data/story-draft';
 import { LAYERS, PATH_LABELS, ROOTS_LAYER, type Clip, type HandoffPath, type PathKind, type Story } from '@/data/types';
-import { formatTime, parseYouTubeLink } from '@/data/youtube-link';
+import { formatTime, parseClock, parseYouTubeLink } from '@/data/youtube-link';
 import { useContent } from '@/state/content';
 import { useTokens, type Tokens } from '@/theme/tokens';
 
@@ -256,6 +256,9 @@ function ClipEditor({ t, index, clip, onChange }: { t: Tokens; index: number; cl
   const layer = LAYERS[index];
   const [link, setLink] = useState(clip.youtubeId ? `https://youtu.be/${clip.youtubeId}${clip.startSeconds ? `?t=${clip.startSeconds}` : ''}` : '');
   const parsed = parseYouTubeLink(link);
+  const [audioStart, setAudioStart] = useState(clip.audio?.startSeconds ? formatTime(clip.audio.startSeconds) : '');
+  const audio = clip.audio ?? { url: '', show: '', startSeconds: 0 };
+  const setAudio = (patch: Partial<NonNullable<Clip['audio']>>) => onChange({ audio: { ...audio, ...patch } });
 
   const onLink = (v: string) => {
     setLink(v);
@@ -282,6 +285,38 @@ function ClipEditor({ t, index, clip, onChange }: { t: Tokens; index: number; cl
         }
         hintColor={link && !parsed ? t.warm : undefined}
       />
+      <Field
+        t={t}
+        id={`clip-${index}-audio`}
+        label="Or a podcast or audio link"
+        value={audio.url}
+        onChange={(v) => setAudio({ url: v })}
+        placeholder="https://…/episode.mp3"
+        hint={
+          audio.url && clip.youtubeId
+            ? 'The YouTube link above plays instead. Clear it to use this audio.'
+            : 'The episode’s audio file from the show’s public feed (.mp3 or .m4a). Credit the show below.'
+        }
+      />
+      {!!audio.url && (
+        <View style={styles.twoCol}>
+          <Field
+            half
+            t={t}
+            id={`clip-${index}-audio-start`}
+            label="Audio starts at"
+            value={audioStart}
+            placeholder="12:40"
+            onChange={(v) => {
+              setAudioStart(v);
+              setAudio({ startSeconds: parseClock(v) });
+            }}
+            hint={Number.isFinite(parseClock(audioStart)) ? undefined : 'Write it like 12:40 or 1:02:03.'}
+            hintColor={t.warm}
+          />
+          <Field half t={t} id={`clip-${index}-audio-show`} label="Show or source" value={audio.show} onChange={(v) => setAudio({ show: v })} placeholder="Morning Edition, WFPL" />
+        </View>
+      )}
       <View style={styles.twoCol}>
         <Field half t={t} id={`clip-${index}-when`} label="When it was filmed" value={clip.when} onChange={(v) => onChange({ when: v })} placeholder="Day 0, 6:42 a.m." />
         <Field half

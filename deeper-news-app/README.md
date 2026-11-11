@@ -27,6 +27,7 @@ Open the app and choose **Open the story editor** at the bottom of Home (or go t
 
 - **New story**, or **Copy and edit** one of the samples.
 - Paste a YouTube link for each clip. Copy the link at the moment the clip should start, and the editor reads the start time from it.
+- Or use a podcast or audio clip instead: paste the episode's audio file link (.mp3 or .m4a, from the show's public feed), the start time (like 12:40) and the show's name. It plays over the story photo with a moving sound wave.
 - Pick where it happened, add a photo link, write the question it ends on, and connect up to three paths to other stories.
 - **Save** shows it in the app straight away. **Save and watch** plays it.
 
