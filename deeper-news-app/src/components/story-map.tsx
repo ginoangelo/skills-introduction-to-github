@@ -12,6 +12,7 @@ export function StoryMap({
   t,
   onPickClip,
   onPickStory,
+  hideLast,
 }: {
   story: Story;
   clipIndex: number;
@@ -19,6 +20,8 @@ export function StoryMap({
   t: Tokens;
   onPickClip: (i: number) => void;
   onPickStory: (id: string) => void;
+  /** True while "What happens next?" is open: the last clip's title is the answer. */
+  hideLast?: boolean;
 }) {
   const { getStory } = useContent();
   return (
@@ -37,7 +40,9 @@ export function StoryMap({
                 <Text style={[styles.small, { color: t.muted }]}>
                   {LAYERS[i].name} · {clip.when}
                 </Text>
-                <Text style={[styles.clipTitle, { color: on ? t.accent : t.ink }]}>{clip.title}</Text>
+                <Text style={[styles.clipTitle, { color: on ? t.accent : t.ink }]}>
+                  {hideLast && i === story.clips.length - 1 ? 'Guess first, then watch' : clip.title}
+                </Text>
               </View>
             </Pressable>
           );

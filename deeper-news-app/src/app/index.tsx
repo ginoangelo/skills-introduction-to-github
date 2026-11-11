@@ -186,7 +186,7 @@ function LocationButton({ t, location, onPress }: { t: Tokens; location: UserLoc
 const styles = StyleSheet.create({
   page: { width: '100%', maxWidth: 1120, alignSelf: 'center', paddingHorizontal: 16, gap: 22 },
   topbar: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 },
-  topRight: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
+  topRight: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, maxWidth: '100%' },
   brand: { fontSize: 22, fontWeight: '800', letterSpacing: -0.5 },
   sample: { fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', borderWidth: 1, borderRadius: 3, paddingHorizontal: 8, paddingVertical: 2 },
   locBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },

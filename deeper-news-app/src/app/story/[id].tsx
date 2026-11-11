@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ClipPlayer } from '@/components/clip-player';
@@ -170,10 +170,19 @@ function Player({ story }: { story: Story }) {
     setMapOpen(false);
   };
 
+  // "Stay here" stops the countdown. With the device's reduce-motion setting on,
+  // there's no countdown at all: people pick a path when they're ready.
+  const [stayHere, setStayHere] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion).catch(() => {});
+  }, []);
+  const autoNext = !stayHere && !reduceMotion;
+
   // When the countdown runs out, the first path plays.
   useEffect(() => {
-    if (ending && handoff >= HANDOFF_SECONDS) goToStory(story.handoff.paths[0].storyId);
-  }, [ending, handoff, goToStory, story]);
+    if (autoNext && ending && handoff >= HANDOFF_SECONDS) goToStory(story.handoff.paths[0].storyId);
+  }, [autoNext, ending, handoff, goToStory, story]);
 
   // Swipe left: next connected story. Swipe right: back along the chain. Swipe down: close.
   const pan = useMemo(
@@ -327,15 +336,24 @@ function Player({ story }: { story: Story }) {
                       <Text style={styles.pathTitle}>{target?.title}</Text>
                       <Text style={styles.pathReason}>{p.reason}</Text>
                     </View>
-                    {i === 0 && <View style={[styles.countdown, { width: `${Math.min(100, (handoff / HANDOFF_SECONDS) * 100)}%` }]} />}
+                    {i === 0 && autoNext && <View style={[styles.countdown, { width: `${Math.min(100, (handoff / HANDOFF_SECONDS) * 100)}%` }]} />}
                   </Pressable>
                 );
               })}
             </View>
             <Text style={styles.hint}>
-              {paused ? 'Paused' : `${PATH_LABELS[story.handoff.paths[0].kind]} starts in ${Math.max(0, Math.ceil(HANDOFF_SECONDS - handoff))} s`}
+              {!autoNext
+                ? 'Pick a path when you’re ready.'
+                : paused
+                  ? 'Paused'
+                  : `${PATH_LABELS[story.handoff.paths[0].kind]} starts in ${Math.max(0, Math.ceil(HANDOFF_SECONDS - handoff))} s`}
             </Text>
             <View style={styles.actions}>
+              {autoNext && (
+                <Pressable onPress={() => setStayHere(true)} style={[styles.btn, styles.btnPrimary]} accessibilityRole="button">
+                  <Text style={[styles.btnText, { color: video.bg }]}>Stay here</Text>
+                </Pressable>
+              )}
               <Pressable onPress={() => pickClip(0)} style={styles.btn}>
                 <Text style={styles.btnText}>Watch again</Text>
               </Pressable>
@@ -355,14 +373,14 @@ function Player({ story }: { story: Story }) {
             <Pressable onPress={() => setMapOpen(false)} style={[styles.sheetClose, { backgroundColor: t.bg }]} accessibilityLabel="Close story map">
               <Text style={{ color: t.ink, fontSize: 16 }}>✕</Text>
             </Pressable>
-            <StoryMap story={story} clipIndex={clipIndex} ending={ending} t={t} onPickClip={pickClip} onPickStory={goToStory} />
+            <StoryMap story={story} clipIndex={clipIndex} ending={ending} hideLast={predicting} t={t} onPickClip={pickClip} onPickStory={goToStory} />
           </View>
         )}
       </View>
 
       {wide && (
         <View style={[styles.side, { height: screenHeight, backgroundColor: t.surface, borderColor: t.line }]}>
-          <StoryMap story={story} clipIndex={clipIndex} ending={ending} t={t} onPickClip={pickClip} onPickStory={goToStory} />
+          <StoryMap story={story} clipIndex={clipIndex} ending={ending} hideLast={predicting} t={t} onPickClip={pickClip} onPickStory={goToStory} />
         </View>
       )}
     </View>

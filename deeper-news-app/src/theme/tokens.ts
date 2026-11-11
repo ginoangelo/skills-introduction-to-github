@@ -6,9 +6,9 @@ const light = {
   ink: '#0F2129',
   muted: '#587079',
   line: '#D3DEE2',
-  accent: '#0A8A81',
+  accent: '#087269',
   accentInk: '#FFFFFF',
-  warm: '#B4621A',
+  warm: '#9A5212',
 };
 
 const dark: typeof light = {
