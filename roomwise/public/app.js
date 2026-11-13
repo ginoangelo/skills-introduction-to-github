@@ -1,4 +1,4 @@
-/* RoomRise UI. One state object, one render function. */
+/* Roomwise AI UI. One state object, one render function. */
 (function () {
   var RF = window.RF;
   var MOCKUP = !!window.RF_MOCKUP;
@@ -54,9 +54,9 @@
   function ask() {
     var tips = ['Make it modern farmhouse', 'Leave out the appliances', "I'll paint it myself", "What's the total?"];
     return '<section class="card ask-card"><form id="askform" class="askrow">' +
-      (canListen ? '<button type="button" class="mic' + (state.listening ? ' on' : '') + '" data-act="mic" aria-pressed="' + state.listening + '" aria-label="' + (state.listening ? 'Stop listening' : 'Talk to RoomRise') + '">' +
+      (canListen ? '<button type="button" class="mic' + (state.listening ? ' on' : '') + '" data-act="mic" aria-pressed="' + state.listening + '" aria-label="' + (state.listening ? 'Stop listening' : 'Talk to Roomwise') + '">' +
         '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>' : '') +
-      '<input id="say" type="text" autocomplete="off" placeholder="' + (state.listening ? 'Listening…' : canListen ? 'Talk or type a change' : 'Type a change') + '" aria-label="Tell RoomRise what to change">' +
+      '<input id="say" type="text" autocomplete="off" placeholder="' + (state.listening ? 'Listening…' : canListen ? 'Talk or type a change' : 'Type a change') + '" aria-label="Tell Roomwise what to change">' +
       '<button class="btn send" type="submit">Go</button></form>' +
       (state.chat
         ? '<p class="you">“' + esc(state.chat.you) + '”</p><p class="reply" aria-live="polite">' + esc(state.chat.reply) + '</p>'
@@ -205,7 +205,7 @@
     var arv = Number(state.arv) || 0, buy = Number(state.purchase) || 0;
     var mao = arv ? Math.round(arv * 0.7 - p.totalHi) : 0;
     return '<section class="card sheet">' +
-      '<div class="sheet-head"><div><p class="eyebrow">RoomRise deal sheet</p>' +
+      '<div class="sheet-head"><div><p class="eyebrow">Roomwise AI deal sheet</p>' +
       '<input id="label" class="sheet-title" placeholder="Property address or nickname" value="' + esc(state.label) + '" aria-label="Property label"></div>' +
       '<p class="fine">' + (a.room_type === 'bathroom' ? 'Bathroom' : 'Kitchen') + ' · ZIP ' + esc(state.zip) + '<br>' + new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) + '</p></div>' +
       '<div class="sheet-img">' + RF.sketch(a.room_type, palette(t.palette), state.tier, 'Concept sketch') + '<span class="tag">Concept sketch, not a photo</span></div>' +
@@ -231,7 +231,7 @@
   function render() {
     var tabs = [['estimate', 'Estimate'], ['rates', 'My rates'], ['sheet', 'Deal sheet']];
     root.innerHTML =
-      '<header class="bar"><span class="brand">Room<b>Rise</b></span>' +
+      '<header class="bar"><span class="brand">Room<b>wise</b> <i>AI</i></span>' +
       '<span class="badge">' + (state.live ? 'Live analysis' : 'Sample numbers') + '</span></header>' +
       '<nav class="tabs" aria-label="Sections">' + tabs.map(function (t) {
         return '<button data-act="tab" data-v="' + t[0] + '" aria-current="' + (state.tab === t[0] ? 'page' : 'false') + '">' + t[1] + '</button>';
