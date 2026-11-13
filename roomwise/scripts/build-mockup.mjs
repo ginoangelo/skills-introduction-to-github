@@ -8,6 +8,12 @@ const pub = (f) => fs.readFileSync(path.join(root, "public", f), "utf8");
 const fonts = pub("index.html").match(/<link rel="stylesheet" href="https:\/\/fonts[^>]+>/)[0];
 const scripts = ["catalog.js", "diy.js", "labor-data.js", "pricing.js", "rooms.js", "looks.js", "demo.js", "voice.js", "app.js"].map((f) => `<script>\n${pub(f)}\n</script>`).join("\n");
 
+const samples = {};
+for (const room of ["kitchen", "bathroom"]) {
+  const file = path.join(root, "private", room + ".jpg");
+  if (fs.existsSync(file)) samples[room] = "data:image/jpeg;base64," + fs.readFileSync(file).toString("base64");
+}
+
 const html = `<title>Roomwise AI</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 ${fonts}
@@ -16,7 +22,7 @@ ${pub("styles.css")}
 </style>
 <p class="frame-note">Clickable mock-up with sample numbers. Pick a look, add a room or two, then try the slider, a typed request, the DIY plan and the paperwork.</p>
 <div class="device"><div id="app"></div></div>
-<script>window.RF_MOCKUP = true;</script>
+<script>window.RF_MOCKUP = true; window.RF_SAMPLES = ${JSON.stringify(samples)};</script>
 ${scripts}
 `;
 fs.mkdirSync(path.join(root, "dist"), { recursive: true });

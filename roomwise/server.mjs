@@ -1,5 +1,6 @@
 import express from "express";
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { analyzeRoom, AnalysisError } from "./lib/analyze.mjs";
 import { interpret } from "./lib/command.mjs";
@@ -10,6 +11,16 @@ app.use(express.json({ limit: "12mb" }));
 app.use(express.static(path.join(here, "public")));
 
 const hasKey = () => Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+
+// Sample "before" photos live in private/ (not in the repository). Served as data so the app can use them when present.
+app.get("/samples.js", (_req, res) => {
+  const out = {};
+  for (const room of ["kitchen", "bathroom"]) {
+    const file = path.join(here, "private", room + ".jpg");
+    if (fs.existsSync(file)) out[room] = "data:image/jpeg;base64," + fs.readFileSync(file).toString("base64");
+  }
+  res.type("js").send("window.RF_SAMPLES = " + JSON.stringify(out) + ";");
+});
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, ai: hasKey() }));
 

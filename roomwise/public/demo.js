@@ -4,12 +4,13 @@
   var DEMO = {
     kitchen: {
       room_type: 'kitchen', confidence: 'medium', sample: true,
-      summary: 'Dated but solid galley-style kitchen. Oak cabinet boxes look square and dry, so the cheapest package can keep them.',
+      summary: 'Dated but solid L-shaped kitchen. The oak cabinet boxes look square and dry, so the cheapest package can keep them.',
       observations: [
-        'Oak cabinets with worn finish near the sink',
-        'Laminate countertop lifting at the seam',
-        'Sheet vinyl floor yellowed and curling at the doorway',
-        'White appliances, mismatched ages'
+        'Oak raised-panel cabinets, finish worn below the sink',
+        'Laminate countertop stained, with an open seam at the corner',
+        'Walls painted bright green up to the upper cabinets',
+        'Drop-in double sink with a basic two-handle faucet',
+        'Appliances of mixed ages and finishes'
       ],
       unseen_risks: [
         'Water damage inside the sink base',
@@ -17,7 +18,7 @@
         'Wiring age and whether outlets are grounded'
       ],
       measurements: { floor_sf: 140, wall_sf: 320, cabinet_lf: 22, counter_sf: 42, backsplash_sf: 30, light_count: 3 },
-      current_palette: { wall: '#d9c9a3', cabinet: '#b07a3f', counter: '#c9b79a', backsplash: '#e3d6b8', floor: '#b9a27e', hardware: '#b8962e' },
+      current_palette: { wall: '#3f8f45', cabinet: '#a8672f', counter: '#d8d2c4', backsplash: '#3f8f45', floor: '#b5683c', hardware: '#8a5a2b' },
       tiers: {
         cosmetic: { concept_name: 'Fresh coat', design_notes: 'Keep the cabinet boxes. Paint them white, brighten the walls, swap pulls and the faucet, and lay plank over the old vinyl.', palette: { wall: '#eef0ec', cabinet: '#fbfaf5', counter: '#c9b79a', backsplash: '#eef0ec', floor: '#a98f6d', hardware: '#2b2f33' }, item_ids: [] },
         mid: { concept_name: 'Clean shaker', design_notes: 'New white shaker cabinets, light quartz, subway tile and stainless appliances. The safe choice for most resale buyers.', palette: { wall: '#e9ecec', cabinet: '#fbfaf5', counter: '#eceae4', backsplash: '#f7f7f4', floor: '#9c8263', hardware: '#8a8f94' }, item_ids: [] },

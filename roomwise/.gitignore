@@ -1,4 +1,7 @@
 node_modules/
 dist/
 scripts/.cache/
+# Real property photos stay out of the public repository.
+private/
+marketing/out/
 .env

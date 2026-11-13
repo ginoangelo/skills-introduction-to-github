@@ -117,7 +117,7 @@
       '<div class="layer">' + before + '</div>' +
       '<div class="layer after">' + sketch(r, r.tier, 'Concept sketch of the ' + tierDef(r.tier).name + ' package') + '</div>' +
       '<div class="divider"></div>' +
-      '<span class="tag">' + (r.photo ? 'Your photo' : 'Before') + '</span><span class="tag r">After · ' + esc(t.concept_name) + '</span></div>' +
+      '<span class="tag">' + (r.photo ? (r.samplePhoto ? 'Before · sample photo' : 'Your photo') : 'Before') + '</span><span class="tag r">After · ' + esc(t.concept_name) + '</span></div>' +
       '<input id="split" class="split" type="range" min="0" max="100" value="' + split + '" aria-label="Slide to compare before and after">' +
       '<p class="fine center">Slide to compare. The after view is a concept sketch, not a photo.</p></div>';
   }
@@ -417,8 +417,8 @@
     reader.readAsDataURL(file);
   }
 
-  function addRoom(analysis, live, photo, notice) {
-    state.rooms.push({ id: Date.now(), room: analysis.room_type, name: roomName(analysis.room_type), photo: photo, analysis: analysis, tier: 'mid', overrides: {}, live: live, split: 50 });
+  function addRoom(analysis, live, photo, notice, samplePhoto) {
+    state.rooms.push({ samplePhoto: !!(samplePhoto && photo), id: Date.now(), room: analysis.room_type, name: roomName(analysis.room_type), photo: photo, analysis: analysis, tier: 'mid', overrides: {}, live: live, split: 50 });
     state.cur = state.rooms.length - 1; state.step = 'plan'; state.tab = 'estimate';
     state.draft = { room: 'kitchen', photo: null }; state.busy = false; state.notice = ''; state.chat = notice ? { you: 'Design this room', reply: notice } : null;
     persist(); render(); window.scrollTo(0, 0);
@@ -426,7 +426,7 @@
   function estimate() {
     var d = state.draft;
     if (!/^\d{5}$/.test(state.zip)) { state.notice = 'Enter a 5-digit ZIP code so labor can be priced for the area.'; return render(); }
-    function sample(msg) { addRoom(RF.applyLook(RF.DEMO[d.room], state.look), false, d.photo, msg); }
+    function sample(msg) { var own = !!d.photo; addRoom(RF.applyLook(RF.DEMO[d.room], state.look), false, d.photo || (window.RF_SAMPLES || {})[d.room] || null, msg, !own); }
     if (MOCKUP || !d.photo) return sample('');
     if (!state.ai) return sample('No AI key is set on the server, so this photo was not analyzed. Sample numbers are shown.');
     state.busy = true; state.notice = ''; render();

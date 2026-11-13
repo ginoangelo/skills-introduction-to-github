@@ -223,3 +223,4 @@ td a { color: var(--accent); font-weight: 600; font-family: var(--text); }
 .notice.ok { background: var(--accent-soft); color: var(--accent); margin-top: 10px; }
 .copytext { width: 100%; margin-top: 6px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: 12px/1.4 var(--mono); }
 @media print { .steps, .seg.full { display: none !important; } }
+.viewer .tag { max-width: 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
