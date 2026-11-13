@@ -174,3 +174,52 @@ tr.sel td { background: var(--accent-soft); font-weight: 600; }
 .diy-save { grid-column: 2 / span 2; font: 400 12px/1.3 var(--mono); color: var(--muted); }
 
 .brand i { font: 600 11px/1 var(--mono); font-style: normal; letter-spacing: 0.08em; color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; padding: 3px 5px; vertical-align: 4px; margin-left: 2px; }
+
+/* guided flow, rooms, compare slider, plan */
+h1 { font: 800 24px/1.15 var(--display); letter-spacing: -0.01em; margin: 0 0 6px; text-wrap: balance; }
+.intro .body { margin: 0; color: var(--muted); }
+.steps { list-style: none; display: flex; gap: 6px; margin: 0 0 14px; padding: 0; }
+.steps li { flex: 1; }
+.steps button { width: 100%; display: flex; align-items: center; gap: 7px; background: none; border: 0; border-top: 3px solid var(--line); padding: 8px 0 0; font-weight: 600; font-size: 13px; color: var(--muted); }
+.steps button span { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--line); font: 600 11px/1 var(--mono); color: var(--ink); }
+.steps button[aria-current="step"] { color: var(--ink); border-top-color: var(--accent); }
+.steps button[aria-current="step"] span { background: var(--accent); color: var(--accent-ink); }
+.steps button[disabled] { opacity: 0.5; cursor: default; }
+.lookgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.lookcard { display: flex; flex-direction: column; gap: 4px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 8px 10px; min-width: 0; }
+.lookcard[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
+.lookpic { display: block; aspect-ratio: 4 / 3; border-radius: 6px; overflow: hidden; }
+.lookpic svg { display: block; width: 100%; height: 100%; }
+.lookname { font: 700 14px/1.2 var(--display); margin-top: 4px; }
+.lookbrief { font-size: 12px; line-height: 1.35; color: var(--muted); }
+.btn.wide { display: block; width: 100%; flex: none; margin-top: 4px; }
+.btn.danger { color: var(--warn); border-color: var(--line); margin-top: 14px; }
+.row .btn.danger { margin-top: 0; }
+.roombar { display: flex; flex-direction: column; gap: 6px; }
+.rooms { display: flex; flex-wrap: wrap; gap: 6px; }
+.rooms button { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; font-weight: 600; font-size: 13.5px; }
+.rooms button small { font: 400 11.5px/1 var(--mono); color: var(--muted); margin-left: 4px; }
+.rooms button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.rooms .add { border-style: dashed; color: var(--accent); }
+.projtotal { margin: 0; font-size: 13.5px; color: var(--muted); }
+.projtotal b { font-family: var(--mono); color: var(--ink); }
+.compare { display: flex; flex-direction: column; gap: 6px; }
+.layer { position: absolute; inset: 0; }
+.layer.after { clip-path: inset(0 0 0 var(--split)); }
+.divider { position: absolute; top: 0; bottom: 0; left: var(--split); width: 2px; margin-left: -1px; background: #ffffff; box-shadow: 0 0 0 1px rgba(15, 23, 29, 0.35); }
+.tag.r { left: auto; right: 8px; }
+.split { width: 100%; margin: 0; accent-color: var(--accent); }
+.center { text-align: center; margin: 0; }
+.seg.full { display: flex; }
+.seg.full button { flex: 1; padding: 8px 12px; }
+.inline { width: 5.2em; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; font: 14px var(--mono); }
+.guide.plain { border-top: 0; padding-top: 0; }
+.list.cols { columns: 2; column-gap: 20px; }
+.list.cols li { break-inside: avoid; }
+td small { color: var(--muted); }
+td a { color: var(--accent); font-weight: 600; font-family: var(--text); }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+.sheet-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.notice.ok { background: var(--accent-soft); color: var(--accent); margin-top: 10px; }
+.copytext { width: 100%; margin-top: 6px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: 12px/1.4 var(--mono); }
+@media print { .steps, .seg.full { display: none !important; } }

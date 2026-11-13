@@ -94,6 +94,10 @@
     b_faucet_set: 'bathroom faucet and shower trim kit', b_toilet: 'toilet', b_tub_new: 'alcove bathtub', b_surround_tile: 'shower wall tile', b_glass: 'bathtub glass panel', b_fan: 'bathroom exhaust fan'
   };
 
+  /* The order jobs happen in on a real rehab: demo first, clean-up last. */
+  var SEQ = { demo: 10, floor_tile: 30, paint_walls: 40, cab_install: 50, paint_cab: 52, vanity: 55, backsplash: 60, lvp: 65, toilet: 70, faucet: 72, appliances: 75, light_swap: 80, hardware: 85, mirror: 86, accessories: 87, clean: 95 };
+  Object.keys(G).forEach(function (k) { G[k].seq = SEQ[k]; });
+
   (RF.CATALOG || []).forEach(function (it) {
     it.diy = GUIDE_OF[it.id] ? G[GUIDE_OF[it.id]] : { level: 'pro', why: PRO[it.id] || 'Best left to a licensed contractor.' };
     it.shop = SHOP[it.id] || '';

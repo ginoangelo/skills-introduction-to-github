@@ -128,3 +128,12 @@ test("saying you will do it yourself is understood", () => {
   assert.deepEqual(act("I'll do the flooring myself"), [["diy", "k_lvp"]]);
   assert.deepEqual(act("hire a contractor for the flooring"), [["pro", "k_lvp"]]);
 });
+
+test("DIY jobs carry a build order, and paperwork requests are understood", () => {
+  const seq = (id) => RF.CATALOG.find((i) => i.id === id).diy.seq;
+  assert.ok(seq("k_demo") < seq("k_paint_walls") && seq("k_paint_walls") < seq("k_cab_stock") && seq("k_cab_stock") < seq("k_lvp") && seq("k_lvp") < seq("k_clean"));
+  for (const it of RF.CATALOG) if (it.diy.level !== "pro") assert.ok(it.diy.seq > 0, it.id);
+  const act = (t) => RF.parseCommand(t, { lines: [] }).actions.map((a) => [a.type, a.target]);
+  assert.deepEqual(act("show me the scope of work"), [["tab", "scope"]]);
+  assert.deepEqual(act("open my DIY plan"), [["tab", "diy"]]);
+});

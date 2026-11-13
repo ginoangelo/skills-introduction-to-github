@@ -26,7 +26,9 @@ npm run mockup     # builds dist/mockup.html, the single-file clickable mock-up
   never produces prices.
 - `public/pricing.js` turns that into dollars using the price book in
   `public/catalog.js`, the ZIP labor index and the user's own adjustments.
-- `public/app.js` is the whole interface: estimate, my rates, deal sheet.
+- `public/app.js` is the whole interface: a three-step start (look, room,
+  plan), multi-room projects, the before-and-after slider, the DIY plan, rates,
+  and the deal sheet and scope of work.
 - `public/rooms.js` draws the recolorable concept sketch used as the "after".
 - `public/looks.js` holds the five looks; `public/voice.js` and `lib/command.mjs`
   turn spoken or typed requests into changes.
@@ -47,4 +49,5 @@ npm run mockup     # builds dist/mockup.html, the single-file clickable mock-up
 - The ZIP labor index is still the starter table. `scripts/build_labor_index.py`
   rebuilds it from free BLS wage data and Census ZIP files, but needs a free
   BLS key (`BLS_API_KEY`) because the keyless daily cap was already used up.
-- There are no user accounts; rate adjustments are saved in the browser only.
+- There are no user accounts or share links. A project is saved in the browser
+  on one device; sharing is by PDF or copied text.

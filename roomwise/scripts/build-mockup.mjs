@@ -14,7 +14,7 @@ ${fonts}
 <style>
 ${pub("styles.css")}
 </style>
-<p class="frame-note">Clickable mock-up with sample numbers. Pick a look, type a request such as &quot;leave out the appliances&quot;, edit a line, open My rates and Deal sheet.</p>
+<p class="frame-note">Clickable mock-up with sample numbers. Pick a look, add a room or two, then try the slider, a typed request, the DIY plan and the paperwork.</p>
 <div class="device"><div id="app"></div></div>
 <script>window.RF_MOCKUP = true;</script>
 ${scripts}

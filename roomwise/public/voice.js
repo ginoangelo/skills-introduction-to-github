@@ -50,7 +50,9 @@
     if (/\bbefore\b/.test(t)) add('view', 'before');
     else if (/\bafter\b/.test(t) && !/after.repair/.test(t)) add('view', 'after');
 
-    if (/deal sheet/.test(t)) add('tab', 'sheet');
+    if (/scope of work|for bids/.test(t)) add('tab', 'scope');
+    else if (/\b(diy|weekend|my) plan\b/.test(t)) add('tab', 'diy');
+    else if (/deal sheet/.test(t)) add('tab', 'sheet');
     else if (/\b(my )?rates\b/.test(t)) add('tab', 'rates');
 
     var numeric = false;
