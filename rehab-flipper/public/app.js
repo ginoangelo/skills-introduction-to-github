@@ -188,7 +188,7 @@
   function ratesTab() {
     var r = RF.regionFactor(state.zip), lm = state.settings.laborMult;
     return '<section class="card"><h2>Labor in your market</h2>' +
-      '<p class="body">ZIP ' + esc(state.zip) + ' uses a labor index of <b>' + r.factor.toFixed(2) + '</b> (' + esc(r.label) + '). If your contractor runs cheaper or pricier than typical, adjust here and every estimate follows.</p>' +
+      '<p class="body">ZIP ' + esc(state.zip) + ' uses a labor index of <b>' + r.factor.toFixed(2) + '</b> (' + esc(r.label) + ', ' + (r.source ? 'from ' + esc(r.source) + ' construction wages' : 'a starter estimate') + '). If your contractor runs cheaper or pricier than typical, adjust here and every estimate follows.</p>' +
       '<label class="slider">My contractor vs. area average <b>' + Math.round(lm * 100) + '%</b>' +
       '<input id="laborMult" type="range" min="0.6" max="1.6" step="0.05" value="' + lm + '"></label></section>' +
       '<section class="card"><h2>Contingency</h2><p class="body">The buffer for surprises behind walls and under floors.</p><div class="measures">' +

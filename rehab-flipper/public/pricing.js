@@ -31,6 +31,8 @@
   function regionFactor(zip) {
     var z = String(zip || '').replace(/\D/g, '');
     if (z.length < 5) return { factor: 1, label: 'National average', known: false };
+    var gov = RF.LABOR && RF.LABOR.zip3 && RF.LABOR.zip3[z.slice(0, 3)];
+    if (gov) return { factor: gov[0], label: gov[1], known: true, source: 'BLS ' + RF.LABOR.year };
     var p = parseInt(z.slice(0, 3), 10);
     for (var i = 0; i < ZIP3.length; i++) {
       if (p >= ZIP3[i][0] && p <= ZIP3[i][1]) return { factor: ZIP3[i][2], label: ZIP3[i][3], known: true };

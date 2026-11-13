@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pub = (f) => fs.readFileSync(path.join(root, "public", f), "utf8");
 const fonts = pub("index.html").match(/<link rel="stylesheet" href="https:\/\/fonts[^>]+>/)[0];
-const scripts = ["catalog.js", "diy.js", "pricing.js", "rooms.js", "looks.js", "demo.js", "voice.js", "app.js"].map((f) => `<script>\n${pub(f)}\n</script>`).join("\n");
+const scripts = ["catalog.js", "diy.js", "labor-data.js", "pricing.js", "rooms.js", "looks.js", "demo.js", "voice.js", "app.js"].map((f) => `<script>\n${pub(f)}\n</script>`).join("\n");
 
 const html = `<title>Rehab Flipper Mock-up</title>
 <meta name="claude:viewport-fit-sides" content="cover">

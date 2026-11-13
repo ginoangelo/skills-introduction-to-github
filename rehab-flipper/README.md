@@ -44,4 +44,7 @@ npm run mockup     # builds dist/mockup.html, the single-file clickable mock-up
   because the big retailers offer no free product-price API.
 - DIY guides are general guidance, not a substitute for local code or the
   product's instructions.
+- The ZIP labor index is still the starter table. `scripts/build_labor_index.py`
+  rebuilds it from free BLS wage data and Census ZIP files, but needs a free
+  BLS key (`BLS_API_KEY`) because the keyless daily cap was already used up.
 - There are no user accounts; rate adjustments are saved in the browser only.

@@ -45,6 +45,10 @@ test("area index and contractor multiplier scale labor only", () => {
   assert.equal(sf.materials, base.materials);
   assert.ok(Math.abs(sf.laborHi - base.laborHi * 1.5 * 1.1) < 15);
   assert.equal(RF.regionFactor("123").known, false);
+  RF.LABOR = { year: "2025", zip3: { 941: [1.39, "San Francisco-Oakland-Fremont, CA"] } };
+  assert.deepEqual(RF.regionFactor("94110"), { factor: 1.39, label: "San Francisco-Oakland-Fremont, CA", known: true, source: "BLS 2025" });
+  assert.equal(RF.regionFactor("43215").source, undefined);
+  RF.LABOR = null;
 });
 
 test("overrides: quantity, unit price, leave out, contingency", () => {
