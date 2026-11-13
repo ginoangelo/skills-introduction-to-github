@@ -1,0 +1,20 @@
+{
+  "name": "rehab-flipper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Photo-to-rehab-budget MVP for house flippers: three priced packages per room.",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "mockup": "node scripts/build-mockup.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "express": "^5.3.0",
+    "zod": "^4.6.7"
+  }
+}
