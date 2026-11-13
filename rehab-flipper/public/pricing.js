@@ -68,26 +68,35 @@
       baseQty = it.unit === 'EA' || it.unit === 'LS' ? Math.ceil(baseQty) : Math.round(baseQty * 10) / 10;
       var qty = o.qty != null ? Number(o.qty) : baseQty;
       var matUnit = o.mat != null ? Number(o.mat) : it.mat;
+      var g = it.diy || { level: 'pro' };
+      var canDiy = g.level !== 'pro', isDiy = canDiy && !!o.diy;
+      var proLo = round(qty * it.labor[0] * laborMult), proHi = round(qty * it.labor[1] * laborMult);
+      var b = g.base || [0, 0], per = g.per || [0, 0];
       lines.push({
         id: id, cat: it.cat, name: it.name, unit: it.unit, qty: qty, matUnit: matUnit,
-        mat: round(qty * matUnit),
-        laborLo: round(qty * it.labor[0] * laborMult),
-        laborHi: round(qty * it.labor[1] * laborMult),
+        mat: round(qty * matUnit) + (isDiy ? g.supplies || 0 : 0),
+        laborLo: isDiy ? 0 : proLo, laborHi: isDiy ? 0 : proHi,
+        proLo: proLo, proHi: proHi, supplies: canDiy ? g.supplies || 0 : 0,
+        canDiy: canDiy, diy: isDiy, level: g.level,
+        hoursLo: canDiy ? Math.round((b[0] + qty * per[0]) * 2) / 2 : 0,
+        hoursHi: canDiy ? Math.round((b[1] + qty * per[1]) * 2) / 2 : 0,
         included: !o.off, edited: o.qty != null || o.mat != null
       });
     });
 
     var t = { materials: 0, laborLo: 0, laborHi: 0 };
+    var d = { count: 0, saveLo: 0, saveHi: 0, hoursLo: 0, hoursHi: 0 };
     lines.forEach(function (l) {
       if (!l.included) return;
       t.materials += l.mat; t.laborLo += l.laborLo; t.laborHi += l.laborHi;
+      if (l.diy) { d.count++; d.saveLo += l.proLo - l.supplies; d.saveHi += l.proHi - l.supplies; d.hoursLo += l.hoursLo; d.hoursHi += l.hoursHi; }
     });
     var tierDef = RF.TIERS.filter(function (x) { return x.id === tier; })[0];
     var custom = settings.contingency && settings.contingency[tier];
     var pct = custom != null && custom !== '' ? Number(custom) : tierDef.contingency;
     var subLo = t.materials + t.laborLo, subHi = t.materials + t.laborHi;
     return {
-      tier: tier, lines: lines, region: region,
+      tier: tier, lines: lines, region: region, diy: d,
       materials: t.materials, laborLo: t.laborLo, laborHi: t.laborHi,
       contingencyPct: pct, contLo: round(subLo * pct / 100), contHi: round(subHi * pct / 100),
       totalLo: round(subLo * (1 + pct / 100)), totalHi: round(subHi * (1 + pct / 100)),

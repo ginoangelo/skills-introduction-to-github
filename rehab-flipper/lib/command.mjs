@@ -7,7 +7,7 @@ import "../public/catalog.js";
 import "../public/looks.js";
 
 const RF = globalThis.RF;
-export const ACTION_TYPES = ["look", "tier", "room", "view", "tab", "exclude", "include", "qty", "price", "labor", "contingency", "zip", "arv", "purchase", "total", "reset"];
+export const ACTION_TYPES = ["look", "tier", "room", "view", "tab", "exclude", "include", "qty", "price", "diy", "pro", "labor", "contingency", "zip", "arv", "purchase", "total", "reset"];
 
 export const Command = z.object({
   reply: z.string(),
@@ -23,6 +23,7 @@ Actions (use "" for an unused target and 0 for an unused number):
 - view: target is before or after.
 - tab: target is estimate, rates or sheet.
 - exclude / include: target is an item id from the current scope. "Keep the existing counters" means exclude the counter item.
+- diy / pro: target is an item id. diy means the user will do that job themselves; pro means hire it out again. Only items marked canDiy can be diy.
 - qty: target is an item id, number is the new quantity in that item's unit.
 - price: target is an item id, number is the new material price per unit in dollars.
 - labor: number is the user's contractor cost as a percent of the area average (100 is average).

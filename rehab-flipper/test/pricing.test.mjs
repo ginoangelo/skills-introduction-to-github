@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import "../public/catalog.js";
+import "../public/diy.js";
 import "../public/pricing.js";
 import "../public/demo.js";
 import "../public/looks.js";
@@ -94,4 +95,32 @@ test("spoken requests turn into the right actions", () => {
   assert.deepEqual(act("ARV is 240k"), [["arv", "", 240000]]);
   assert.deepEqual(act("what's the total?"), [["total", "", 0]]);
   assert.deepEqual(act("tell me a joke"), []);
+});
+
+test("every item has either a DIY guide or a reason to hire a pro", () => {
+  for (const it of RF.CATALOG) {
+    if (it.diy.level === "pro") assert.ok(it.diy.why.length > 20, it.id);
+    else { assert.ok(it.diy.steps.length >= 3 && it.diy.tools && it.diy.watch, it.id); assert.ok(it.diy.base || it.diy.per, it.id); }
+  }
+  assert.equal(RF.shopLinks("quartz countertop")[0].url, "https://www.homedepot.com/s/quartz%20countertop");
+});
+
+test("doing a job yourself removes its labor, adds supplies and counts hours", () => {
+  const base = RF.price(kitchen, "cosmetic", {});
+  const p = RF.price(kitchen, "cosmetic", { overrides: { "cosmetic:k_paint_walls": { diy: true }, "cosmetic:k_faucet": { diy: true } } });
+  const paint = p.lines.find((l) => l.id === "k_paint_walls");
+  assert.deepEqual([paint.laborLo, paint.laborHi, paint.mat, paint.hoursLo, paint.hoursHi], [0, 0, 172, 6.5, 11]);
+  assert.equal(p.diy.count, 2);
+  assert.equal(p.diy.saveLo, 384 - 60 + 150 - 25);
+  assert.equal(base.materials + base.laborLo - p.materials - p.laborLo, p.diy.saveLo);
+  const pro = RF.price(kitchen, "mid", { overrides: { "mid:k_quartz": { diy: true } } }).lines.find((l) => l.id === "k_quartz");
+  assert.equal(pro.diy, false);
+  assert.ok(pro.laborLo > 0);
+});
+
+test("saying you will do it yourself is understood", () => {
+  const lines = RF.price(kitchen, "cosmetic", {}).lines;
+  const act = (t) => RF.parseCommand(t, { lines }).actions.map((a) => [a.type, a.target]);
+  assert.deepEqual(act("I'll do the flooring myself"), [["diy", "k_lvp"]]);
+  assert.deepEqual(act("hire a contractor for the flooring"), [["pro", "k_lvp"]]);
 });

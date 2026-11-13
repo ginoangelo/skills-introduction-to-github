@@ -28,6 +28,10 @@ npm run mockup     # builds dist/mockup.html, the single-file clickable mock-up
   `public/catalog.js`, the ZIP labor index and the user's own adjustments.
 - `public/app.js` is the whole interface: estimate, my rates, deal sheet.
 - `public/rooms.js` draws the recolorable concept sketch used as the "after".
+- `public/looks.js` holds the five looks; `public/voice.js` and `lib/command.mjs`
+  turn spoken or typed requests into changes.
+- `public/diy.js` holds the do-it-yourself guides, the hire-a-pro reasons and
+  the store search links for each price book item.
 
 ## Known limits
 
@@ -36,4 +40,8 @@ npm run mockup     # builds dist/mockup.html, the single-file clickable mock-up
 - The "after" image is a concept sketch, not a photo-realistic render. No image
   model is connected yet.
 - Photo analysis has not been run against the live API in this build.
+- Store links open a search at the retailer. No live store prices are pulled,
+  because the big retailers offer no free product-price API.
+- DIY guides are general guidance, not a substitute for local code or the
+  product's instructions.
 - There are no user accounts; rate adjustments are saved in the browser only.

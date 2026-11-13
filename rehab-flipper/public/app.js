@@ -52,7 +52,7 @@
   }
 
   function ask() {
-    var tips = ['Make it modern farmhouse', 'Leave out the appliances', "What's the total?"];
+    var tips = ['Make it modern farmhouse', 'Leave out the appliances', "I'll paint it myself", "What's the total?"];
     return '<section class="card ask-card"><form id="askform" class="askrow">' +
       (canListen ? '<button type="button" class="mic' + (state.listening ? ' on' : '') + '" data-act="mic" aria-pressed="' + state.listening + '" aria-label="' + (state.listening ? 'Stop listening' : 'Talk to Rehab Flipper') + '">' +
         '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>' : '') +
@@ -118,6 +118,37 @@
       '</section>';
   }
 
+  var LEVELS = { easy: 'Easy', moderate: 'Moderate', hard: 'Hard', pro: 'Hire a pro' };
+  function hours(l) { return l.hoursLo === l.hoursHi ? l.hoursLo : l.hoursLo + '–' + l.hoursHi; }
+  function catalogItem(id) { return RF.CATALOG.filter(function (it) { return it.id === id; })[0]; }
+  function guide(l, key) {
+    var it = catalogItem(l.id), g = it.diy, shop = RF.shopLinks(it.shop);
+    var out = '<div class="guide">';
+    if (shop.length) out += '<p class="shop">Check today\'s prices: ' + shop.map(function (s) { return '<a href="' + s.url + '" target="_blank" rel="noopener">' + s.store + '</a>'; }).join(' · ') + '</p>';
+    if (!l.canDiy) return out + '<p class="lvl pro">Hire a pro</p><p class="fine">' + esc(g.why) + '</p></div>';
+    out += '<p class="lvl ' + g.level + '">' + LEVELS[g.level] + ' to do yourself · about ' + hours(l) + ' hours</p>' +
+      '<label class="check"><input id="d-' + key + '" type="checkbox" data-edit="diy" data-key="' + key + '"' + (l.diy ? ' checked' : '') + '> I\'ll do this myself (saves ' + range(l.proLo - l.supplies, l.proHi - l.supplies) + ')</label>' +
+      '<h4>You need</h4><p class="fine">' + esc(g.tools) + '. Tools and supplies allowance: ' + usd(g.supplies) + '.</p>' +
+      '<h4>Steps</h4><ol>' + g.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' +
+      '<p class="watch"><b>Watch for:</b> ' + esc(g.watch) + '</p></div>';
+    return out;
+  }
+  function diyCard(p) {
+    var can = p.lines.filter(function (l) { return l.included && l.canDiy; });
+    if (!can.length) return '';
+    var d = p.diy;
+    return '<section class="card"><h2>Do it yourself</h2><p class="body">' +
+      (d.count ? 'You are doing ' + d.count + ' job' + (d.count > 1 ? 's' : '') + ' yourself: about <b>' + (d.hoursLo === d.hoursHi ? d.hoursLo : d.hoursLo + '–' + d.hoursHi) + ' hours</b> of your time, saving <b>' + range(d.saveLo, d.saveHi) + '</b> after tools and supplies.'
+        : 'Tick the jobs you would do yourself. Labor comes off the budget and each line shows the steps.') + '</p>' +
+      can.map(function (l) {
+        var key = p.tier + ':' + l.id;
+        return '<label class="diyrow"><input id="dc-' + key + '" type="checkbox" data-edit="diy" data-key="' + key + '"' + (l.diy ? ' checked' : '') + '>' +
+          '<span class="diy-name">' + esc(l.name) + '</span><span class="lvl ' + l.level + '">' + LEVELS[l.level] + '</span>' +
+          '<span class="diy-save">' + hours(l) + ' h · ' + short(l.proLo - l.supplies) + '–' + short(l.proHi - l.supplies) + '</span></label>';
+      }).join('') +
+      '<p class="fine">Open a line under Itemized scope for tools, steps and what to watch for. Jobs not listed here need a licensed pro.</p></section>';
+  }
+
   function lines(p) {
     var cats = [];
     p.lines.forEach(function (l) { if (cats.indexOf(l.cat) < 0) cats.push(l.cat); });
@@ -126,14 +157,14 @@
         return '<h3>' + esc(c) + '</h3>' + p.lines.filter(function (l) { return l.cat === c; }).map(function (l) {
           var key = p.tier + ':' + l.id;
           return '<details class="line' + (l.included ? '' : ' off') + '"' + (state.openLine === key ? ' open' : '') + ' data-key="' + key + '">' +
-            '<summary><span class="line-name">' + esc(l.name) + (l.edited ? ' <em>edited</em>' : '') + '</span>' +
+            '<summary><span class="line-name">' + esc(l.name) + (l.diy ? ' <em>DIY</em>' : '') + (l.edited ? ' <em>edited</em>' : '') + '</span>' +
             '<span class="line-qty">' + l.qty + ' ' + l.unit + '</span>' +
             '<span class="line-cost">' + (l.included ? range(l.mat + l.laborLo, l.mat + l.laborHi) : 'left out') + '</span></summary>' +
             '<div class="line-edit">' +
             '<label>Quantity (' + l.unit + ') <input id="q-' + key + '" type="number" min="0" step="any" data-edit="qty" data-key="' + key + '" value="' + l.qty + '"></label>' +
             '<label>Material per ' + l.unit + ' <input id="m-' + key + '" type="number" min="0" step="any" data-edit="mat" data-key="' + key + '" value="' + l.matUnit + '"></label>' +
             '<label class="check"><input id="i-' + key + '" type="checkbox" data-edit="off" data-key="' + key + '"' + (l.included ? ' checked' : '') + '> Include</label>' +
-            '<p class="fine">Materials ' + usd(l.mat) + ' · Labor ' + range(l.laborLo, l.laborHi) + '</p></div></details>';
+            '<p class="fine">Materials ' + usd(l.mat) + ' · Labor ' + (l.diy ? 'yours' : range(l.laborLo, l.laborHi)) + '</p>' + guide(l, key) + '</div></details>';
         }).join('');
       }).join('') + '</section>';
   }
@@ -151,7 +182,7 @@
 
   function estimateTab() {
     var p = priced(state.tier);
-    return viewer() + ask() + capture() + tiers() + summary(p) + concept() + lines(p) + assumptions();
+    return viewer() + ask() + capture() + tiers() + summary(p) + diyCard(p) + concept() + lines(p) + assumptions();
   }
 
   function ratesTab() {
@@ -186,7 +217,7 @@
       '<h3>' + tierDef(state.tier).name + ' scope · ' + esc(t.concept_name) + '</h3>' +
       '<div class="scroll"><table class="scope"><thead><tr><th>Item</th><th>Qty</th><th>Materials</th><th>Labor</th></tr></thead><tbody>' +
       p.lines.filter(function (l) { return l.included; }).map(function (l) {
-        return '<tr><td>' + esc(l.name) + '</td><td>' + l.qty + ' ' + l.unit + '</td><td>' + usd(l.mat) + '</td><td>' + range(l.laborLo, l.laborHi) + '</td></tr>';
+        return '<tr><td>' + esc(l.name) + '</td><td>' + l.qty + ' ' + l.unit + '</td><td>' + usd(l.mat) + '</td><td>' + (l.diy ? 'DIY' : range(l.laborLo, l.laborHi)) + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
       '<h3>Offer check</h3><div class="measures">' +
       '<label>After-repair value (your number) <span>$ <input id="arv" type="number" min="0" step="1000" value="' + esc(state.arv) + '" placeholder="0"></span></label>' +
@@ -280,6 +311,8 @@
         case 'zip': if (/^[0-9]{5}$/.test(a.target)) { state.zip = a.target; said.push('Pricing labor for ZIP ' + a.target.split('').join(' ') + '.'); } break;
         case 'arv': if (n > 0) { state.arv = String(n); state.tab = 'sheet'; said.push('After-repair value set to ' + usd(n) + '.'); } break;
         case 'purchase': if (n > 0) { state.purchase = String(n); state.tab = 'sheet'; said.push('Price set to ' + usd(n) + '.'); } break;
+        case 'diy': if ((l = line(a.target))) { if (l.canDiy) { ov(l.id).diy = true; said.push('You are doing ' + l.name.toLowerCase() + ' yourself, about ' + hours(l) + ' hours.'); } else said.push(l.name + ' needs a licensed pro, so I left it as hired out.'); } break;
+        case 'pro': if ((l = line(a.target))) { ov(l.id).diy = false; said.push('Hiring out ' + l.name.toLowerCase() + '.'); } break;
         case 'reset': state.settings = { laborMult: 1, contingency: {}, overrides: {} }; said.push('Cleared your edits.'); break;
         case 'total': said.push(''); break;
       }
@@ -301,7 +334,7 @@
     var p = priced(state.tier);
     fetch('api/command', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text, context: {
       room: state.analysis.room_type, tier: state.tier, look: state.look, zip: state.zip,
-      items: p.lines.map(function (l) { return { id: l.id, name: l.name, qty: l.qty, unit: l.unit, included: l.included }; }) } }) })
+      items: p.lines.map(function (l) { return { id: l.id, name: l.name, qty: l.qty, unit: l.unit, included: l.included, canDiy: l.canDiy, diy: l.diy }; }) } }) })
       .then(function (r) { if (!r.ok) throw new Error('command failed'); return r.json(); })
       .then(function (j) { finish(j.actions, j.reply); })
       .catch(local);
@@ -362,6 +395,7 @@
     else if (d.edit) {
       var o = state.settings.overrides[d.key] = state.settings.overrides[d.key] || {};
       if (d.edit === 'off') o.off = !el.checked;
+      else if (d.edit === 'diy') o.diy = el.checked;
       else if (el.value === '' || Number(el.value) < 0) delete o[d.edit];
       else o[d.edit] = Number(el.value);
     } else return;

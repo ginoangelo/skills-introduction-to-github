@@ -63,7 +63,9 @@
     if (!numeric) {
       var line = matchLine(t, ctx && ctx.lines);
       if (line) {
-        if (/\b(remove|skip|leave out|drop|take out|without|dont need|do not need|keep the existing|keep my|keep the old|no need)\b/.test(t)) add('exclude', line.id);
+        if (/\b(myself|ourselves|diy|do it yourself|on my own|i can do|ill do|i will do)\b/.test(t)) add('diy', line.id);
+        else if (/\b(hire|contractor|sub out|professional|pro do)\b/.test(t)) add('pro', line.id);
+        else if (/\b(remove|skip|leave out|drop|take out|without|dont need|do not need|keep the existing|keep my|keep the old|no need)\b/.test(t)) add('exclude', line.id);
         else if (/\b(add back|put back|include|add)\b/.test(t)) add('include', line.id);
         else if (n != null && /(\$|\bprice\b|\bcosts?\b|\bper\b|\bdollars?\b)/.test(t)) add('price', line.id, n);
         else if (n != null) add('qty', line.id, n);
