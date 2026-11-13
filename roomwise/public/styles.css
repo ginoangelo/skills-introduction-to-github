@@ -1,7 +1,7 @@
 /* Layout: one phone-width column, estimate-sheet feel. Numbers in mono, labels in sans. */
 :root {
-  --bg: #f4efed; --surface: #fffdfc; --ink: #2b1d23; --muted: #6b5a60; --line: #e3d8d4;
-  --accent: #bf3468; --accent-ink: #ffffff; --accent-soft: #fbe6ee; --dawn: #e08a1e;
+  --bg: #f3f0eb; --surface: #fffefb; --ink: #23211e; --muted: #666059; --line: #e0dad0;
+  --accent: #0f6e73; --accent-ink: #ffffff; --accent-soft: #dcefee; --dawn: #2a9d8f;
   --good: #1b7449; --warn: #9a5a08; --warn-soft: #fbf0dc;
   --display: "Archivo", "Arial Narrow", Arial, sans-serif;
   --text: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
@@ -9,14 +9,14 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1a1216; --surface: #251a1f; --ink: #f3e9ec; --muted: #b7a2aa; --line: #3c2b32;
-    --accent: #ff8fb3; --accent-ink: #2b0f1a; --accent-soft: #45202f; --dawn: #ffc46b;
+    --bg: #171614; --surface: #211f1c; --ink: #f1eee8; --muted: #aba498; --line: #37332d;
+    --accent: #63cfc4; --accent-ink: #06211f; --accent-soft: #153835; --dawn: #a5e8d0;
     --good: #5cc692; --warn: #e5a951; --warn-soft: #33280f; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #1a1216; --surface: #251a1f; --ink: #f3e9ec; --muted: #b7a2aa; --line: #3c2b32;
-  --accent: #ff8fb3; --accent-ink: #2b0f1a; --accent-soft: #45202f; --dawn: #ffc46b;
+  --bg: #171614; --surface: #211f1c; --ink: #f1eee8; --muted: #aba498; --line: #37332d;
+  --accent: #63cfc4; --accent-ink: #06211f; --accent-soft: #153835; --dawn: #a5e8d0;
   --good: #5cc692; --warn: #e5a951; --warn-soft: #33280f; color-scheme: dark;
 }
 
@@ -127,7 +127,7 @@ tr.sel td { background: var(--accent-soft); font-weight: 600; }
 .sheet .btn { display: block; width: 100%; margin-top: 12px; }
 
 @media (min-width: 560px) {
-  .device { border: 1px solid var(--line); border-radius: 28px; padding: 18px 16px 24px; max-width: 464px; margin-inline: auto; background: var(--bg); box-shadow: 0 18px 40px -24px rgba(43, 29, 35, 0.45); }
+  .device { border: 1px solid var(--line); border-radius: 28px; padding: 18px 16px 24px; max-width: 464px; margin-inline: auto; background: var(--bg); box-shadow: 0 18px 40px -24px rgba(35, 33, 30, 0.45); }
 }
 @media print {
   body { background: #ffffff; padding: 0; }
