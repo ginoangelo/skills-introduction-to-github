@@ -12,12 +12,12 @@
   var state = {
     tab: 'estimate', room: 'kitchen', tier: 'mid', view: 'after',
     zip: saved.zip || '43215', label: '',
-    photo: null, analysis: RF.DEMO.kitchen, live: false, busy: false, notice: '', openLine: null,
+    look: saved.look || 'clean', photo: null, analysis: RF.applyLook(RF.DEMO.kitchen, saved.look || 'clean'), live: false, busy: false, notice: '', openLine: null,
     arv: saved.arv || '', purchase: saved.purchase || '',
     settings: { laborMult: saved.laborMult || 1, contingency: saved.contingency || {}, overrides: {} }
   };
   function persist() {
-    store.set('rf.settings', { zip: state.zip, laborMult: state.settings.laborMult, contingency: state.settings.contingency, arv: state.arv, purchase: state.purchase });
+    store.set('rf.settings', { zip: state.zip, look: state.look, laborMult: state.settings.laborMult, contingency: state.settings.contingency, arv: state.arv, purchase: state.purchase });
   }
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -49,6 +49,12 @@
 
   function capture() {
     return '<section class="card capture">' +
+      '<p class="ask">What look are you going for?</p>' +
+      '<div class="looks" role="group" aria-label="Look">' + RF.LOOKS.map(function (l) {
+        return '<button class="look" data-act="look" data-v="' + l.id + '" aria-pressed="' + (state.look === l.id) + '">' +
+          '<span class="dots"><i style="background:' + l.c.cabinet + '"></i><i style="background:' + l.c.bold + '"></i><i style="background:' + l.c.hardware + '"></i></span>' + l.name + '</button>';
+      }).join('') + '</div>' +
+      '<p class="fine look-brief">' + esc(RF.look(state.look).brief) + '</p>' +
       '<div class="row">' +
       '<div class="seg" role="group" aria-label="Room type">' +
       '<button data-act="room" data-v="kitchen" aria-pressed="' + (state.room === 'kitchen') + '">Kitchen</button>' +
@@ -159,7 +165,7 @@
         var q = priced(x.id);
         return '<tr' + (x.id === state.tier ? ' class="sel"' : '') + '><td>' + x.name + '</td><td>' + usd(q.materials) + '</td><td>' + range(q.laborLo, q.laborHi) + '</td><td>' + range(q.totalLo, q.totalHi) + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
-      '<h3>' + tierDef(state.tier).name + ' scope: ' + esc(t.concept_name) + '</h3>' +
+      '<h3>' + tierDef(state.tier).name + ' scope · ' + esc(t.concept_name) + '</h3>' +
       '<div class="scroll"><table class="scope"><thead><tr><th>Item</th><th>Qty</th><th>Materials</th><th>Labor</th></tr></thead><tbody>' +
       p.lines.filter(function (l) { return l.included; }).map(function (l) {
         return '<tr><td>' + esc(l.name) + '</td><td>' + l.qty + ' ' + l.unit + '</td><td>' + usd(l.mat) + '</td><td>' + range(l.laborLo, l.laborHi) + '</td></tr>';
@@ -204,7 +210,7 @@
   }
 
   function useSample(msg) {
-    state.analysis = RF.DEMO[state.room]; state.live = false; state.settings.overrides = {};
+    state.analysis = RF.applyLook(RF.DEMO[state.room], state.look); state.live = false; state.settings.overrides = {};
     state.notice = msg; state.busy = false; render();
   }
 
@@ -213,7 +219,7 @@
     if (MOCKUP) return useSample('This mock-up shows sample numbers. In the app, your photo is analyzed here.');
     if (!state.photo) return useSample('Showing the sample ' + state.room + '. Add a photo to estimate a real room.');
     state.busy = true; state.notice = ''; render();
-    fetch('api/estimate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: state.photo, roomType: state.room, zip: state.zip }) })
+    fetch('api/estimate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: state.photo, roomType: state.room, zip: state.zip, look: state.look }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
         if (!res.ok) return useSample(res.body.error || 'The photo could not be analyzed. Showing sample numbers.');
@@ -229,7 +235,8 @@
     if (act === 'tab') state.tab = v;
     else if (act === 'tier') { state.tier = v; state.view = 'after'; state.openLine = null; }
     else if (act === 'view') state.view = v;
-    else if (act === 'room') { state.room = v; if (!state.live) { state.analysis = RF.DEMO[v]; state.settings.overrides = {}; } }
+    else if (act === 'room') { state.room = v; if (!state.live) { state.analysis = RF.applyLook(RF.DEMO[v], state.look); state.settings.overrides = {}; } }
+    else if (act === 'look') { state.look = v; state.analysis = RF.applyLook(state.analysis, v); state.view = 'after'; persist(); }
     else if (act === 'estimate') return estimate();
     else if (act === 'print') return window.print();
     else if (act === 'reset') { state.settings = { laborMult: 1, contingency: {}, overrides: {} }; persist(); }

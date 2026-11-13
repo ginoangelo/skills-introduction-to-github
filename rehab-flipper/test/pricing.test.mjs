@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import "../public/catalog.js";
 import "../public/pricing.js";
 import "../public/demo.js";
+import "../public/looks.js";
 import { sanitize } from "../lib/analyze.mjs";
 
 const RF = globalThis.RF;
@@ -64,4 +65,15 @@ test("sanitize drops unknown or wrong-room items and falls back to defaults", ()
   const s = sanitize(a);
   assert.deepEqual(s.tiers.cosmetic.item_ids, ["k_paint_walls"]);
   assert.deepEqual(s.tiers.mid.item_ids, RF.defaultItems("kitchen", "mid"));
+});
+
+test("a look restyles every package without changing scope or price", () => {
+  const before = RF.price(kitchen, "full", {});
+  const a = RF.applyLook(kitchen, "farmhouse");
+  assert.equal(a.look, "farmhouse");
+  assert.equal(a.tiers.full.palette.cabinet, RF.look("farmhouse").c.bold);
+  assert.equal(a.tiers.cosmetic.palette.counter, kitchen.current_palette.counter);
+  assert.equal(RF.price(a, "full", {}).typical, before.typical);
+  assert.equal(RF.applyLook(kitchen, "unknown").look, "clean");
+  assert.notEqual(a.tiers.mid.palette.wall, RF.applyLook(kitchen, "modern").tiers.mid.palette.wall);
 });

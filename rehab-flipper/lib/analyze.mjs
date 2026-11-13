@@ -5,6 +5,7 @@ import { z } from "zod";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import "../public/catalog.js";
 import "../public/pricing.js";
+import "../public/looks.js";
 
 const RF = globalThis.RF;
 
@@ -57,7 +58,8 @@ export class AnalysisError extends Error {
   constructor(message, status = 502) { super(message); this.status = status; }
 }
 
-export async function analyzeRoom({ imageBase64, mediaType, roomType }) {
+export async function analyzeRoom({ imageBase64, mediaType, roomType, look }) {
+  const L = RF.look(look);
   const client = new Anthropic();
   let res;
   try {
@@ -72,7 +74,7 @@ export async function analyzeRoom({ imageBase64, mediaType, roomType }) {
         role: "user",
         content: [
           { type: "image", source: { type: "base64", media_type: mediaType, data: imageBase64 } },
-          { type: "text", text: `The user says this is a ${roomType}. If the photo clearly shows the other room type, use that instead.\n\nKitchen catalog:\n${catalogText("kitchen")}\n\nBathroom catalog:\n${catalogText("bathroom")}` },
+          { type: "text", text: `The user says this is a ${roomType}. If the photo clearly shows the other room type, use that instead.\n\nThe look they are going for: ${L.name}. ${L.brief} Design all three packages toward this look, adapting it to what the room already has.\n\nKitchen catalog:\n${catalogText("kitchen")}\n\nBathroom catalog:\n${catalogText("bathroom")}` },
         ],
       }],
     });
@@ -91,7 +93,7 @@ export async function analyzeRoom({ imageBase64, mediaType, roomType }) {
   let parsed;
   try { parsed = Analysis.parse(JSON.parse(text)); }
   catch { throw new AnalysisError("The analysis came back in an unexpected shape. Try again.", 502); }
-  return sanitize(parsed);
+  return { ...sanitize(parsed), look: L.id };
 }
 
 // Keep only catalog items that exist for the room; fall back to the default package if none survive.
