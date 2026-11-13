@@ -14,7 +14,7 @@ export const Command = z.object({
   actions: z.array(z.object({ type: z.enum(ACTION_TYPES), target: z.string(), number: z.number() })),
 });
 
-const SYSTEM = `You are the voice assistant inside Rehab Flipper, an app that prices kitchen and bathroom rehabs for house flippers. The user speaks or types a request; you turn it into actions the app applies, plus a one-sentence spoken reply.
+const SYSTEM = `You are the voice assistant inside RoomRise, an app that prices kitchen and bathroom rehabs for house flippers. The user speaks or types a request; you turn it into actions the app applies, plus a one-sentence spoken reply.
 
 Actions (use "" for an unused target and 0 for an unused number):
 - look: target is a look id. Choose the closest look to what they describe.

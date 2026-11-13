@@ -1,4 +1,4 @@
-# Rehab Flipper (MVP)
+# RoomRise (MVP)
 
 Photograph a kitchen or bathroom, enter the ZIP code, and get three rehab
 packages (cosmetic, mid-grade, full), each with an itemized scope, a materials

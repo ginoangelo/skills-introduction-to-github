@@ -42,4 +42,4 @@ app.post("/api/command", async (req, res) => {
 });
 
 const port = Number(process.env.PORT) || 3000;
-app.listen(port, () => console.log(`Rehab Flipper running at http://localhost:${port} (AI ${hasKey() ? "on" : "off, sample data"})`));
+app.listen(port, () => console.log(`RoomRise running at http://localhost:${port} (AI ${hasKey() ? "on" : "off, sample data"})`));
