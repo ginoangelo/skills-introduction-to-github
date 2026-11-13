@@ -14,13 +14,14 @@ const kitchen = RF.DEMO.kitchen;
 test("every catalog id is unique and every package has items", () => {
   const ids = RF.CATALOG.map((i) => i.id);
   assert.equal(new Set(ids).size, ids.length);
-  for (const room of ["kitchen", "bathroom"]) for (const t of RF.TIERS) assert.ok(RF.defaultItems(room, t.id).length >= 5);
+  for (const { id } of RF.ROOMS) for (const t of RF.TIERS) assert.ok(RF.defaultItems(id, t.id).length >= 5, id);
 });
 
-test("packages cost more as they go up, for both rooms", () => {
-  for (const room of ["kitchen", "bathroom"]) {
-    const [c, m, f] = RF.TIERS.map((t) => RF.price(RF.DEMO[room], t.id, { zip: "43215" }));
-    assert.ok(c.totalHi < m.totalLo && m.totalHi < f.totalLo, room);
+test("packages cost more as they go up, for every room type", () => {
+  for (const { id } of RF.ROOMS) {
+    const [c, m, f] = RF.TIERS.map((t) => RF.price(RF.DEMO[id], t.id, { zip: "43215" }));
+    assert.ok(c.typical < m.typical && m.typical < f.typical, id);
+    assert.ok(c.lines.every((l) => l.qty > 0) && f.lines.length >= 5, id);
   }
 });
 
@@ -136,4 +137,15 @@ test("DIY jobs carry a build order, and paperwork requests are understood", () =
   const act = (t) => RF.parseCommand(t, { lines: [] }).actions.map((a) => [a.type, a.target]);
   assert.deepEqual(act("show me the scope of work"), [["tab", "scope"]]);
   assert.deepEqual(act("open my DIY plan"), [["tab", "diy"]]);
+});
+
+test("bedrooms and living rooms share one price book; exteriors have their own", () => {
+  assert.deepEqual(RF.defaultItems("bedroom", "mid"), RF.defaultItems("living", "mid"));
+  assert.ok(RF.defaultItems("exterior", "full").every((id) => id.startsWith("x_")));
+  const bed = RF.applyLook(RF.DEMO.bedroom, "coastal");
+  assert.equal(bed.tiers.full.palette.backsplash, RF.look("coastal").c.bold);
+  assert.match(RF.applyLook(RF.DEMO.exterior, "farmhouse").tiers.mid.design_notes, /siding/);
+  const act = (t) => RF.parseCommand(t, { lines: [] }).actions.map((a) => [a.type, a.target]);
+  assert.deepEqual(act("switch to the bedroom"), [["room", "bedroom"]]);
+  assert.deepEqual(act("compare the bids"), [["tab", "bids"]]);
 });

@@ -55,7 +55,70 @@
       steps: ['Measure each opening and every doorway on the path in before you order.', 'Order with delivery and haul-away of the old units.', 'Slide each unit in, level it and connect power and the refrigerator water line.', 'Fit the anti-tip bracket on the range.'],
       watch: 'A gas range must be connected by a licensed installer. A ducted hood needs a pro as well.' }
   };
+  Object.assign(G, {
+    carpet_out: { level: 'easy', base: [1.5, 3], supplies: 40, tools: 'Utility knife, pliers, pry bar, gloves, dust mask, contractor bags',
+      steps: ['Cut the carpet into strips about 3 feet wide and roll each one up.', 'Pull the pad and scrape off anything glued down.', 'Pry up the tack strips and pull stray staples.', 'Bag it and haul it away.'],
+      watch: 'Tack strips are sharp. Check what is under the carpet before you plan the new floor.' },
+    carpet_clean: { level: 'easy', per: [0.01, 0.02], base: [1, 1.5], supplies: 60, tools: 'Rented carpet cleaner, cleaning solution, spot treatment, fan',
+      steps: ['Vacuum thoroughly and treat stains first.', 'Run the rented cleaner slowly, overlapping each pass.', 'Make a second pass with water only to rinse.', 'Run fans and keep off it until dry.'],
+      watch: 'Pet odor in the pad will not clean out. Budget for replacement if it smells after drying.' },
+    trim_paint: { level: 'easy', per: [0.03, 0.06], supplies: 30, tools: 'Angled brush, painter\'s tape, caulk, sanding sponge, semi-gloss trim paint',
+      steps: ['Fill nail holes, caulk the top edge and sand lightly.', 'Tape the floor or slide a guard along as you go.', 'Brush two thin coats of semi-gloss.'],
+      watch: 'Paint the trim before the walls if you are doing both.' },
+    baseboard: { level: 'moderate', per: [0.06, 0.1], supplies: 70, tools: 'Miter saw, brad nailer or hammer and finish nails, coping saw, caulk, stud finder',
+      steps: ['Pry off the old baseboard and mark the studs.', 'Cut outside corners at 45 degrees and cope the inside corners.', 'Nail into the studs, then fill the holes and caulk the top edge.', 'Prime and paint.'],
+      watch: 'Install after new flooring goes down, not before.' },
+    door_hw: { level: 'easy', per: [0.3, 0.5], supplies: 10, tools: 'Screwdriver, chisel',
+      steps: ['Unscrew the old knob and latch.', 'Fit the new latch and strike plate, chiseling the mortise if the shape differs.', 'Swap hinges one at a time so the door stays hung.'],
+      watch: 'Check the backset of the old latch (2-3/8 or 2-3/4 inches) before buying.' },
+    door_slab: { level: 'hard', per: [1.5, 3], supplies: 40, tools: 'Circular saw or planer, chisel, drill, hinge template, level',
+      steps: ['Use the old door as a template for size, hinge and knob positions.', 'Trim the new slab to fit with an even gap all round.', 'Mortise the hinges and drill for the knob.', 'Hang it, check the swing and adjust.'],
+      watch: 'Old frames are rarely square. A pre-hung door is easier if the frame is damaged.' },
+    closet: { level: 'easy', base: [2, 4], supplies: 20, tools: 'Drill, level, stud finder, hacksaw for wire shelving',
+      steps: ['Remove the old rod and shelf and patch the holes.', 'Mark a level line and find the studs.', 'Mount the rails or brackets into studs, then hang shelves and rods.'],
+      watch: 'Use anchors rated for the load wherever you miss a stud.' },
+    blinds: { level: 'easy', per: [0.3, 0.5], supplies: 5, tools: 'Tape measure, drill, level',
+      steps: ['Measure each window in three places and order to the narrowest width.', 'Mount the brackets level inside the frame.', 'Snap in the headrail and attach the wand and valance.'],
+      watch: 'Measure every window. They are rarely the same size.' },
+    fan: { level: 'moderate', base: [1.5, 3], supplies: 20, tools: 'Voltage tester, screwdriver, wire nuts, stepladder',
+      steps: ['Switch off the breaker and confirm the wires are dead.', 'Take down the old fixture and check the ceiling box is rated for a fan.', 'Assemble the fan, hang it on the bracket and connect the wires by color.', 'Fit the blades and light kit, then test.'],
+      watch: 'A box not marked for fan support must be replaced with a fan-rated one. If there is no existing ceiling wiring, hire an electrician.' },
+    plates: { level: 'moderate', base: [1.5, 3], supplies: 15, tools: 'Voltage tester, screwdriver, wire stripper',
+      steps: ['Switch off the breaker and test each outlet before touching it.', 'Replace one device at a time, moving each wire to the same terminal on the new one.', 'Fit the new cover plates.'],
+      watch: 'Scorched wires, aluminum wiring or no ground wire mean stop and call an electrician.' },
+    pressure_wash: { level: 'easy', per: [0.002, 0.004], base: [1, 2], supplies: 90, tools: 'Rented pressure washer, wide-fan tip, house-wash detergent, eye protection',
+      steps: ['Close windows and cover outlets and lights.', 'Apply detergent from the bottom up and let it sit.', 'Rinse from the top down with a wide tip, keeping the wand moving and angled down.'],
+      watch: 'Too much pressure scars wood and forces water behind siding. Never spray upward under the laps.' },
+    gutter_clean: { level: 'moderate', base: [2, 4], supplies: 25, tools: 'Extension ladder with stabilizer, gloves, scoop, hose',
+      steps: ['Set the ladder on firm ground with a stabilizer.', 'Scoop debris into a bucket, working away from the downspout.', 'Flush with a hose and clear any clogged downspout.'],
+      watch: 'Falls from ladders cause serious injuries. Do not lean out; move the ladder. Hire it out on two-story houses.' },
+    yard: { level: 'easy', per: [0.004, 0.008], supplies: 40, tools: 'Rake, pruners, edger, wheelbarrow, gloves',
+      steps: ['Cut back overgrowth and clear leaves and debris.', 'Edge the beds and pull weeds.', 'Spread 2 to 3 inches of mulch.', 'Seed or patch bare lawn areas.'],
+      watch: 'Keep mulch and soil a few inches below the siding.' },
+    ext_trim: { level: 'moderate', per: [0.05, 0.09], supplies: 60, tools: 'Scraper, sander, exterior primer, exterior paint, caulk, ladder',
+      steps: ['Scrape loose paint and sand the edges smooth.', 'Replace or fill any rotted wood.', 'Prime bare wood, caulk the joints and apply two coats.'],
+      watch: 'Homes built before 1978 may have lead paint. Test first and use lead-safe methods. Soft or rotted trim must be replaced, not painted.' },
+    ext_paint: { level: 'hard', per: [0.03, 0.06], supplies: 200, tools: 'Ladders or scaffold, scraper, sprayer or rollers, exterior primer and paint, drop cloths',
+      steps: ['Wash the siding and let it dry fully.', 'Scrape, sand and prime bare spots; caulk gaps.', 'Mask windows, doors and fixtures.', 'Spray or roll two coats, working top to bottom in the shade.'],
+      watch: 'Working at height is the real risk. Pre-1978 paint may contain lead. Many owners hire this out.' },
+    door_paint: { level: 'easy', per: [1.5, 3], supplies: 20, tools: 'Screwdriver, sanding sponge, primer, exterior enamel, small roller and brush',
+      steps: ['Remove or mask the hardware.', 'Clean, sand lightly and prime bare or glossy areas.', 'Paint the panels first, then the rails, in two thin coats.'],
+      watch: 'Start early on a dry day so the door can stay open until it is no longer tacky.' },
+    curb: { level: 'easy', base: [1.5, 3], supplies: 15, tools: 'Drill, level, screwdriver',
+      steps: ['Mount new house numbers level and visible from the street.', 'Replace the mailbox and the door handle set.', 'Check everything is tight and the door latches cleanly.'],
+      watch: 'Measure the existing door-handle holes before buying a new set.' },
+    drive: { level: 'moderate', base: [4, 8], supplies: 60, tools: 'Stiff broom, crack filler, patch compound, sealer squeegee',
+      steps: ['Clean the surface and pull weeds from cracks.', 'Fill cracks and patch holes, then let them cure.', 'Spread sealer in thin coats with a squeegee.'],
+      watch: 'Sealer needs a dry 24 to 48 hours above about 50 degrees. Large heaved sections need a contractor.' }
+  });
   var PRO = {
+    s_carpet_new: 'Carpet has to be stretched with tools most people do not own. Installers are usually arranged by the store.',
+    s_elec: 'Adding outlets or circuits needs a licensed electrician and usually a permit.',
+    x_door_new: 'An entry door must be set square, sealed and flashed. A poor fit leaks air and water.',
+    x_gutter_fix: 'Gutter work is done from ladders at the roof edge and needs the right pitch.',
+    x_gutter_new: 'New gutters are formed and hung by an installer.',
+    x_roof: 'Roof work is dangerous and should be done by a licensed roofer.',
+    x_permit: 'This is a fee allowance, not a task.',
     k_quartz: 'A fabricator measures, cuts and installs stone tops. Slabs are too heavy and fragile to handle yourself.',
     k_quartz_prem: 'A fabricator measures, cuts and installs stone tops. Slabs are too heavy and fragile to handle yourself.',
     k_sink_faucet: 'Undermount sinks are mounted by the countertop fabricator, and the plumbing is hooked up on the same visit.',
@@ -80,7 +143,11 @@
     k_hardware: 'hardware', b_hardware: 'accessories', b_mirror: 'mirror', k_backsplash_subway: 'backsplash', k_backsplash_full: 'backsplash',
     k_faucet: 'faucet', b_faucet: 'faucet', k_appl_std: 'appliances', k_appl_up: 'appliances', k_lvp: 'lvp', b_lvp: 'lvp',
     k_floor_tile: 'floor_tile', b_floor_tile: 'floor_tile', k_lights_swap: 'light_swap', b_light: 'light_swap',
-    b_vanity_stock: 'vanity', b_vanity_semi: 'vanity', b_toilet: 'toilet'
+    b_vanity_stock: 'vanity', b_vanity_semi: 'vanity', b_toilet: 'toilet',
+    s_patch: 'clean', s_demo: 'carpet_out', s_paint: 'paint_walls', s_trim_paint: 'trim_paint', s_carpet_clean: 'carpet_clean', s_lvp: 'lvp',
+    s_baseboard: 'baseboard', s_door_hw: 'door_hw', s_doors: 'door_slab', s_closet: 'closet', s_blinds: 'blinds', s_lights: 'light_swap', s_fan: 'fan', s_plates: 'plates',
+    x_wash: 'pressure_wash', x_gutter_clean: 'gutter_clean', x_yard_clean: 'yard', x_landscape: 'yard', x_trim: 'ext_trim', x_paint: 'ext_paint',
+    x_door_paint: 'door_paint', x_curb: 'curb', x_lights: 'light_swap', x_drive: 'drive'
   };
   /* What to search for at a store. Items with no material to buy have none. */
   var SHOP = {
@@ -91,11 +158,15 @@
     k_lvp: 'luxury vinyl plank flooring', b_lvp: 'waterproof vinyl plank flooring', k_floor_tile: 'porcelain floor tile', b_floor_tile: 'porcelain floor tile',
     k_lights_swap: 'kitchen ceiling light fixture', k_recessed: 'recessed led lights', k_pendants: 'kitchen pendant lights', b_light: 'vanity light fixture',
     b_vanity_stock: 'bathroom vanity with top', b_vanity_semi: 'bathroom vanity quartz top', b_mirror: 'framed bathroom mirror', b_faucet: 'bathroom sink faucet',
-    b_faucet_set: 'bathroom faucet and shower trim kit', b_toilet: 'toilet', b_tub_new: 'alcove bathtub', b_surround_tile: 'shower wall tile', b_glass: 'bathtub glass panel', b_fan: 'bathroom exhaust fan'
+    b_faucet_set: 'bathroom faucet and shower trim kit', b_toilet: 'toilet', b_tub_new: 'alcove bathtub', b_surround_tile: 'shower wall tile', b_glass: 'bathtub glass panel', b_fan: 'bathroom exhaust fan',
+    s_paint: 'interior paint and primer', s_trim_paint: 'semi gloss trim paint', s_carpet_new: 'carpet', s_lvp: 'luxury vinyl plank flooring', s_baseboard: 'baseboard moulding',
+    s_door_hw: 'interior door knob', s_doors: 'interior door slab', s_closet: 'closet organizer system', s_blinds: 'faux wood blinds', s_lights: 'flush mount ceiling light',
+    s_fan: 'ceiling fan with light', s_plates: 'outlets and switch plates', x_yard_clean: 'mulch', x_landscape: 'shrubs and mulch', x_trim: 'exterior trim paint', x_paint: 'exterior house paint',
+    x_door_paint: 'exterior door paint', x_door_new: 'front entry door', x_curb: 'house numbers and mailbox', x_lights: 'outdoor wall light', x_gutter_new: 'gutters', x_drive: 'driveway sealer'
   };
 
   /* The order jobs happen in on a real rehab: demo first, clean-up last. */
-  var SEQ = { demo: 10, floor_tile: 30, paint_walls: 40, cab_install: 50, paint_cab: 52, vanity: 55, backsplash: 60, lvp: 65, toilet: 70, faucet: 72, appliances: 75, light_swap: 80, hardware: 85, mirror: 86, accessories: 87, clean: 95 };
+  var SEQ = { demo: 10, floor_tile: 30, paint_walls: 40, cab_install: 50, paint_cab: 52, vanity: 55, backsplash: 60, lvp: 65, toilet: 70, carpet_out: 12, pressure_wash: 14, gutter_clean: 16, ext_trim: 34, ext_paint: 36, door_paint: 42, baseboard: 67, trim_paint: 68, door_slab: 69, closet: 74, fan: 79, plates: 82, door_hw: 84, blinds: 88, curb: 89, drive: 90, yard: 92, carpet_clean: 96, faucet: 72, appliances: 75, light_swap: 80, hardware: 85, mirror: 86, accessories: 87, clean: 95 };
   Object.keys(G).forEach(function (k) { G[k].seq = SEQ[k]; });
 
   (RF.CATALOG || []).forEach(function (it) {

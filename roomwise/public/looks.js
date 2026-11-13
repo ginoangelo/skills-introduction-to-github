@@ -24,6 +24,8 @@
   /* Returns a copy of the analysis with all three packages restyled to the look. */
   function applyLook(analysis, id) {
     var L = look(id), c = L.c, n = L.n;
+    var kind = root.RF && root.RF.kind ? root.RF.kind(analysis.room_type) : analysis.room_type;
+    if (kind === 'space' || kind === 'exterior') return applyOther(analysis, L, kind);
     var bath = analysis.room_type === 'bathroom';
     var box = bath ? 'vanity' : 'cabinets';
     var cur = analysis.current_palette || {};
@@ -43,6 +45,36 @@
         'Everything new with ' + n.bold + ' ' + box + ' as the feature, premium quartz, ' + (bath ? 'a tiled surround with glass' : 'full-height tile') + ', tile floor and ' + n.hardware + ' fixtures.',
         { wall: c.wall, cabinet: c.bold, counter: c.counter, backsplash: c.backsplash, floor: c.tile, hardware: c.hardware })
     };
+    return out;
+  }
+
+  /* Bedrooms, living rooms and exteriors. Palette slots are reused: for a space,
+     cabinet = trim and doors and backsplash = accent wall; for an exterior,
+     wall = siding, cabinet = front door, counter = trim, backsplash = roof, floor = lawn. */
+  function applyOther(analysis, L, kind) {
+    var c = L.c, n = L.n, cur = analysis.current_palette || {}, t = analysis.tiers, white = '#fbfaf5';
+    function tier(old, name, notes, palette) { return { concept_name: name, design_notes: notes, palette: palette, item_ids: old.item_ids }; }
+    var out = Object.assign({}, analysis, { look: L.id });
+    if (kind === 'space') {
+      out.tiers = {
+        cosmetic: tier(t.cosmetic, L.name + ' refresh', 'Patch and paint the walls ' + n.wall + ' with clean white trim, deep-clean the carpet, and swap the light, blinds and door hardware to ' + n.hardware + '.',
+          { wall: c.wall, cabinet: white, counter: c.counter, backsplash: c.wall, floor: cur.floor || '#8f8375', hardware: c.hardware }),
+        mid: tier(t.mid, L.name + ' remodel', 'New neutral carpet, ' + n.wall + ' walls, freshly painted trim and a new ceiling fan with ' + n.hardware + ' details.',
+          { wall: c.wall, cabinet: white, counter: c.counter, backsplash: c.wall, floor: '#b9b1a4', hardware: c.hardware }),
+        full: tier(t.full, L.name + ' statement', 'Pull the carpet for ' + n.floor + ', add new baseboards, doors and a closet system, and paint one ' + n.bold + ' accent wall.',
+          { wall: c.wall, cabinet: white, counter: c.counter, backsplash: c.bold, floor: c.floor, hardware: c.hardware })
+      };
+    } else {
+      var roof = cur.backsplash || '#5a5f66';
+      out.tiers = {
+        cosmetic: tier(t.cosmetic, L.name + ' clean-up', 'Pressure-wash the siding, paint the front door ' + n.bold + ', touch up the trim, clean the gutters and beds, and add new house numbers and door hardware.',
+          { wall: cur.wall || c.cabinet, cabinet: c.bold, counter: white, backsplash: roof, floor: '#7d9a5c', hardware: c.hardware }),
+        mid: tier(t.mid, L.name + ' repaint', 'Repaint the siding ' + n.cabinet + ' with crisp white trim and a ' + n.bold + ' front door, replant the beds and fit new exterior lights.',
+          { wall: c.cabinet, cabinet: c.bold, counter: white, backsplash: roof, floor: '#6f9a55', hardware: c.hardware }),
+        full: tier(t.full, L.name + ' curb appeal', 'Full repaint in ' + n.cabinet + ', a new ' + n.bold + ' entry door, new gutters, fresh landscaping, a sealed driveway and an allowance for roof repairs.',
+          { wall: c.cabinet, cabinet: c.bold, counter: white, backsplash: roof, floor: '#6f9a55', hardware: c.hardware })
+      };
+    }
     return out;
   }
 

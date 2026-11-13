@@ -224,3 +224,7 @@ td a { color: var(--accent); font-weight: 600; font-family: var(--text); }
 .copytext { width: 100%; margin-top: 6px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: 12px/1.4 var(--mono); }
 @media print { .steps, .seg.full { display: none !important; } }
 .viewer .tag { max-width: 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.look.plain { padding: 7px 13px; font-weight: 600; }
+.bid { width: 6.5em; text-align: right; }
+.seg.full button { padding-inline: 6px; }
+td:has(.bid) { white-space: nowrap; }

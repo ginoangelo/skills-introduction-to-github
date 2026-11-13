@@ -4,8 +4,8 @@ Read this first when picking the project back up. Last updated 2026-11-13.
 
 ## The idea
 
-A phone app for house flippers and wholesalers. Photograph a kitchen or
-bathroom, enter the ZIP code, pick a look, and get three rehab packages
+A phone app for house flippers and wholesalers. Photograph a room or the
+outside of a house, enter the ZIP code, pick a look, and get three rehab packages
 (cosmetic, mid-grade, full), each with a picture of the finished look, an
 itemized list of materials and work, a labor range for the area, and a total
 with a buffer for surprises.
@@ -31,6 +31,7 @@ do-it-yourself plan and the offer math in one place.
 - Guided start: Look, Room, Plan.
 - Five looks that restyle every room in the project.
 - Multi-room projects with a combined total.
+- Five room types: kitchen, bathroom, bedroom, living room and exterior.
 - Three packages per room, with editable quantities and prices.
 - Before-and-after slider (the "after" is a recolored sketch).
 - Talk or type commands, with spoken replies.
@@ -39,6 +40,8 @@ do-it-yourself plan and the offer math in one place.
 - Store search links to Home Depot and Lowe's on each item.
 - Deal sheet with a 70% rule maximum-offer check, and a scope of work for
   contractor bids.
+- Bid check: enter contractor bids and compare each with the estimate range.
+- Sample "before" photos loaded from an untracked `private/` folder.
 - Saving on one device, copy-as-text and PDF export.
 
 ## What is written but never run
@@ -53,7 +56,7 @@ do-it-yourself plan and the offer math in one place.
 - A photo-realistic "after" image of the actual room. Needs an image service
   (candidates: Google Gemini image models, FLUX) and a key.
 - Accounts and share links. Needs hosting with a database.
-- Room types beyond kitchen and bathroom.
+- Installing to a phone home screen, and hosting.
 
 ## Known weak points
 

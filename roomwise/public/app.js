@@ -65,7 +65,7 @@
   }
   function roomName(type) {
     var n = state.rooms.filter(function (r) { return r.room === type; }).length;
-    return (type === 'bathroom' ? 'Bathroom' : 'Kitchen') + (n ? ' ' + (n + 1) : '');
+    return RF.room(type).name + (n ? ' ' + (n + 1) : '');
   }
   function today() { return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
   function sketch(r, tier, label) { return RF.sketch(r.analysis.room_type, palette(r.analysis.tiers[tier].palette), tier, label); }
@@ -86,16 +86,16 @@
   // ---------- step 2: room and photo ----------
   function photoStep() {
     var d = state.draft;
-    return '<section class="intro"><h1>' + (state.rooms.length ? 'Add another room' : 'Show us the room') + '</h1><p class="body">One clear photo from the doorway works best. The ZIP code prices labor for the area.</p></section>' +
+    return '<section class="intro"><h1>' + (state.rooms.length ? 'Add another room' : 'Show us the room') + '</h1><p class="body">One clear photo works best: from the doorway for a room, from the street for an exterior. The ZIP code prices labor for the area.</p></section>' +
       '<section class="card capture">' +
-      '<div class="row"><div class="seg" role="group" aria-label="Room type">' +
-      '<button data-act="draftroom" data-v="kitchen" aria-pressed="' + (d.room === 'kitchen') + '">Kitchen</button>' +
-      '<button data-act="draftroom" data-v="bathroom" aria-pressed="' + (d.room === 'bathroom') + '">Bathroom</button></div>' +
-      '<label class="zip">ZIP <input id="zip" inputmode="numeric" maxlength="5" value="' + esc(state.zip) + '" aria-label="Property ZIP code"></label></div>' +
+      '<div class="looks" role="group" aria-label="Room type">' + RF.ROOMS.map(function (x) {
+        return '<button class="look plain" data-act="draftroom" data-v="' + x.id + '" aria-pressed="' + (d.room === x.id) + '">' + x.name + '</button>';
+      }).join('') + '</div>' +
+      '<div class="row"><label class="zip">ZIP <input id="zip" inputmode="numeric" maxlength="5" value="' + esc(state.zip) + '" aria-label="Property ZIP code"></label></div>' +
       (d.photo ? '<div class="viewer"><img src="' + d.photo + '" alt="Your photo of the room"><span class="tag">Your photo</span></div>' : '') +
       '<div class="row"><label class="btn ghost" for="photo">' + (d.photo ? 'Retake photo' : 'Take or upload photo') + '</label>' +
       '<input id="photo" type="file" accept="image/*" capture="environment" hidden>' +
-      '<button class="btn" data-act="estimate"' + (state.busy ? ' disabled' : '') + '>' + (state.busy ? 'Reading the room…' : d.photo ? 'Design this room' : 'Use a sample ' + d.room) + '</button></div>' +
+      '<button class="btn" data-act="estimate"' + (state.busy ? ' disabled' : '') + '>' + (state.busy ? 'Reading the room…' : d.photo ? 'Design this room' : 'Use a sample ' + RF.room(d.room).name.toLowerCase()) + '</button></div>' +
       (state.notice ? '<p class="notice">' + esc(state.notice) + '</p>' : '') +
       (MOCKUP ? '<p class="fine">This mock-up designs a sample room. In the app, your photo is analyzed here.</p>' : '') +
       '</section>';
@@ -159,7 +159,7 @@
       '<div><dt>Labor <small>' + esc(p.region.label) + '</small></dt><dd>' + range(p.laborLo, p.laborHi) + '</dd></div>' +
       '<div><dt>Contingency <small>' + p.contingencyPct + '%</small></dt><dd>' + range(p.contLo, p.contHi) + '</dd></div>' +
       '<div class="grand"><dt>Total</dt><dd>' + range(p.totalLo, p.totalHi) + '</dd></div></dl>' +
-      (sf ? '<p class="fine">About ' + usd(p.typical / sf) + ' per square foot of floor. Not contractor verified.</p>' : '') + '</section>';
+      '<p class="fine">' + (sf ? 'About ' + usd(p.typical / sf) + ' per square foot of floor. ' : '') + 'Not contractor verified.</p>' + '</section>';
   }
 
   function diyCard(p) {
@@ -180,8 +180,12 @@
   }
 
   function concept(r) {
-    var t = r.analysis.tiers[r.tier], p = palette(t.palette), bath = r.analysis.room_type === 'bathroom';
-    var names = { wall: 'Walls', cabinet: bath ? 'Vanity' : 'Cabinets', counter: 'Counter', backsplash: bath ? 'Surround' : 'Backsplash', floor: 'Floor', hardware: 'Hardware' };
+    var t = r.analysis.tiers[r.tier], p = palette(t.palette), names = {
+      kitchen: { wall: 'Walls', cabinet: 'Cabinets', counter: 'Counter', backsplash: 'Backsplash', floor: 'Floor', hardware: 'Hardware' },
+      bathroom: { wall: 'Walls', cabinet: 'Vanity', counter: 'Counter', backsplash: 'Surround', floor: 'Floor', hardware: 'Hardware' },
+      space: { wall: 'Walls', backsplash: 'Accent wall', cabinet: 'Trim and doors', floor: 'Floor', hardware: 'Fixtures' },
+      exterior: { wall: 'Siding', cabinet: 'Front door', counter: 'Trim', backsplash: 'Roof', floor: 'Lawn', hardware: 'Fixtures' }
+    }[RF.kind(r.analysis.room_type)];
     return '<section class="card"><h2>' + esc(t.concept_name) + '</h2><p class="body">' + esc(t.design_notes) + '</p><ul class="swatches">' +
       Object.keys(names).map(function (k) { return '<li><span class="chip" style="background:' + p[k] + '"></span>' + names[k] + '</li>'; }).join('') + '</ul></section>';
   }
@@ -221,8 +225,8 @@
   function assumptions(r) {
     var a = r.analysis, m = a.measurements;
     return '<section class="card"><h2>What the estimate assumes</h2><p class="body">' + esc(a.summary) + '</p>' +
-      '<div class="measures">' + RF.MEASURES.map(function (d) {
-        return '<label>' + d.label + ' <span><input id="ms-' + d.key + '" type="number" min="0" step="any" data-measure="' + d.key + '" value="' + (m[d.key] || 0) + '"> ' + d.unit + '</span></label>';
+      '<div class="measures">' + RF.MEASURES.filter(function (d) { return d.label[RF.kind(a.room_type)]; }).map(function (d) {
+        return '<label>' + d.label[RF.kind(a.room_type)] + ' <span><input id="ms-' + d.key + '" type="number" min="0" step="any" data-measure="' + d.key + '" value="' + (m[d.key] || 0) + '"> ' + d.unit + '</span></label>';
       }).join('') + '</div>' +
       '<h3>Seen in the photo</h3><ul class="list">' + a.observations.map(function (o) { return '<li>' + esc(o) + '</li>'; }).join('') + '</ul>' +
       '<h3 class="warn">A photo can\'t show</h3><ul class="list">' + a.unseen_risks.map(function (o) { return '<li>' + esc(o) + '</li>'; }).join('') + '</ul>' +
@@ -368,12 +372,37 @@
       '<p class="fine disclaimer">Layout stays as is. Contractor to confirm all quantities on site, supply labor and listed materials unless marked by owner, pull required permits and haul away debris. Your budget figures are left off this page on purpose.</p></section>';
   }
 
+  /* Compare the bids contractors return against the estimate for the same work. */
+  function bidsSheet() {
+    var sumBid = 0, sumLo = 0, sumHi = 0, n = 0;
+    var body = state.rooms.map(function (r) {
+      var p = priced(r), bids = r.bids || {};
+      var rows = p.lines.filter(function (l) { return l.included && !l.diy; }).map(function (l) {
+        var key = p.tier + ':' + l.id, lo = l.mat + l.laborLo, hi = l.mat + l.laborHi, bid = Number(bids[key]) || 0, verdict = '';
+        if (bid) {
+          n++; sumBid += bid; sumLo += lo; sumHi += hi;
+          verdict = bid > hi ? '<span class="warn">' + usd(bid - hi) + ' over</span>' : bid < lo * 0.85 ? '<span class="warn">Low: check the scope</span>' : '<span class="good">In range</span>';
+        }
+        return '<tr><td>' + esc(l.name) + '<br><small>' + range(lo, hi) + '</small></td>' +
+          '<td>$ <input id="bid-' + r.id + '-' + key + '" class="bid" type="number" min="0" step="any" data-bid="' + key + '" data-room="' + r.id + '" value="' + (bid || '') + '" aria-label="Bid for ' + esc(l.name) + '"></td><td>' + verdict + '</td></tr>';
+      }).join('');
+      return '<h3>' + esc(r.name) + ' · ' + tierDef(r.tier).name + '</h3><div class="scroll"><table class="scope"><thead><tr><th>Work item and estimate</th><th>Bid</th><th>Verdict</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    }).join('');
+    return '<section class="card sheet"><p class="eyebrow">Bid check</p><h2>How do the bids compare?</h2>' +
+      '<p class="body">Type in what a contractor quoted for each item, materials and labor together. ' +
+      (n ? '<b>' + n + ' bid' + (n > 1 ? 's' : '') + '</b> entered, totaling <b>' + usd(sumBid) + '</b> against an estimate of <b>' + range(sumLo, sumHi) + '</b> for the same work.' +
+        (sumBid > sumHi ? ' <span class="warn">That is ' + usd(sumBid - sumHi) + ' over the top of the range.</span>' : sumBid < sumLo ? ' <span class="good">That is under the range.</span>' : ' <span class="good">That is inside the range.</span>')
+        : 'Each one is checked against the estimate range.') + '</p>' + body +
+      '<p class="fine disclaimer">The estimate comes from a starter price book and is not contractor verified, so treat a mismatch as a question to ask, not proof a bid is wrong. Jobs you are doing yourself are left out.</p></section>';
+  }
+
   function sheetTab() {
-    var scope = state.sheetView === 'scope';
+    var v = state.sheetView;
     return '<div class="seg full" role="group" aria-label="Document">' +
-      '<button data-act="sheetview" data-v="deal" aria-pressed="' + !scope + '">Deal sheet</button>' +
-      '<button data-act="sheetview" data-v="scope" aria-pressed="' + scope + '">Scope of work</button></div>' +
-      (scope ? scopeSheet() : dealSheet()) +
+      '<button data-act="sheetview" data-v="deal" aria-pressed="' + (v === 'deal') + '">Deal sheet</button>' +
+      '<button data-act="sheetview" data-v="scope" aria-pressed="' + (v === 'scope') + '">Scope of work</button>' +
+      '<button data-act="sheetview" data-v="bids" aria-pressed="' + (v === 'bids') + '">Bids</button></div>' +
+      (v === 'scope' ? scopeSheet() : v === 'bids' ? bidsSheet() : dealSheet()) +
       '<section class="card noprint"><div class="row"><button class="btn ghost" data-act="copy">Copy as text</button>' +
       (MOCKUP ? '' : '<button class="btn" data-act="print">Print or save as PDF</button>') + '</div>' + copyBox() +
       (MOCKUP ? '<p class="fine">In the app, this page also exports as a PDF.</p>' : '') + '</section>';
@@ -458,15 +487,16 @@
       switch (a.type) {
         case 'look': if (RF.look(a.target).id === a.target) { setLook(a.target); said.push('Restyled to ' + RF.look(a.target).name + '.'); } break;
         case 'tier': if (tierDef(a.target)) { r.tier = a.target; r.split = 50; ls = priced(r).lines; said.push('Showing the ' + tierDef(a.target).name + ' package.'); } break;
-        case 'room': if (a.target === 'kitchen' || a.target === 'bathroom') {
+        case 'room': if (RF.room(a.target)) {
           i = state.rooms.map(function (x) { return x.room; }).indexOf(a.target);
           if (i === state.cur) break;
           if (i >= 0) { state.cur = i; r = room(); ls = priced(r).lines; said.push('Switched to the ' + r.name.toLowerCase() + '.'); }
-          else { state.draft.room = a.target; state.step = 'photo'; said.push('Add a photo of the ' + a.target + ' to bring it into the project.'); }
+          else { state.draft.room = a.target; state.step = 'photo'; said.push('Add a photo of the ' + RF.room(a.target).name.toLowerCase() + ' to bring it into the project.'); }
         } break;
         case 'view': if (a.target === 'before' || a.target === 'after') { r.split = a.target === 'before' ? 100 : 0; state.tab = 'estimate'; said.push('Showing ' + a.target + '.'); } break;
         case 'tab':
           if (a.target === 'scope') { state.tab = 'sheet'; state.sheetView = 'scope'; said.push('Here is the scope of work.'); }
+          else if (a.target === 'bids') { state.tab = 'sheet'; state.sheetView = 'bids'; said.push('Here is the bid comparison.'); }
           else if (['estimate', 'diy', 'rates', 'sheet'].indexOf(a.target) >= 0) { state.tab = a.target; if (a.target === 'sheet') state.sheetView = 'deal'; said.push({ sheet: 'Here is the deal sheet.', rates: 'Here are your rates.', diy: 'Here is your DIY plan.', estimate: 'Back to the estimate.' }[a.target]); }
           break;
         case 'exclude': if ((l = line(a.target))) { ov(l.id).off = true; said.push('Left out ' + l.name.toLowerCase() + '.'); } break;
@@ -547,7 +577,7 @@
     else if (act === 'look') setLook(v);
     else if (act === 'draftroom') state.draft.room = v;
     else if (act === 'estimate') return estimate();
-    else if (act === 'addroom') { state.step = 'photo'; state.draft = { room: state.rooms.some(function (x) { return x.room === 'bathroom'; }) ? 'kitchen' : 'bathroom', photo: null }; }
+    else if (act === 'addroom') { state.step = 'photo'; var next = RF.ROOMS.filter(function (x) { return !state.rooms.some(function (y) { return y.room === x.id; }); })[0]; state.draft = { room: next ? next.id : 'bedroom', photo: null }; }
     else if (act === 'room') { state.cur = Number(v); state.openLine = null; state.chat = null; }
     else if (act === 'removeroom') {
       if (keep !== 'room') state.confirm = 'room';
@@ -598,6 +628,7 @@
     else if (el.id === 'purchase') state.purchase = el.value;
     else if (el.id === 'laborMult') state.settings.laborMult = Number(el.value);
     else if (d.cont) state.settings.contingency[d.cont] = el.value === '' ? null : Math.max(0, Number(el.value));
+    else if (d.bid) { var rb = state.rooms.filter(function (x) { return String(x.id) === d.room; })[0]; if (!rb) return; rb.bids = rb.bids || {}; if (el.value === '' || Number(el.value) <= 0) delete rb.bids[d.bid]; else rb.bids[d.bid] = Number(el.value); }
     else if (d.measure) { r.analysis = Object.assign({}, r.analysis, { measurements: Object.assign({}, r.analysis.measurements) }); r.analysis.measurements[d.measure] = Math.max(0, Number(el.value) || 0); }
     else if (d.edit) {
       var o = r.overrides[d.key] = r.overrides[d.key] || {};

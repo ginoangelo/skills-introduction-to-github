@@ -46,11 +46,15 @@
 
     if (/\bbath(room)?\b/.test(t)) add('room', 'bathroom');
     else if (/\bkitchen\b/.test(t)) add('room', 'kitchen');
+    else if (/\bbedroom\b/.test(t)) add('room', 'bedroom');
+    else if (/\bliving room\b/.test(t)) add('room', 'living');
+    else if (/\b(exterior|outside|curb appeal)\b/.test(t)) add('room', 'exterior');
 
     if (/\bbefore\b/.test(t)) add('view', 'before');
     else if (/\bafter\b/.test(t) && !/after.repair/.test(t)) add('view', 'after');
 
-    if (/scope of work|for bids/.test(t)) add('tab', 'scope');
+    if (/\b(compare|check) (the |my )?bids\b|bid comparison/.test(t)) add('tab', 'bids');
+    else if (/scope of work|for bids/.test(t)) add('tab', 'scope');
     else if (/\b(diy|weekend|my) plan\b/.test(t)) add('tab', 'diy');
     else if (/deal sheet/.test(t)) add('tab', 'sheet');
     else if (/\b(my )?rates\b/.test(t)) add('tab', 'rates');

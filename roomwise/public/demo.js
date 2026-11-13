@@ -48,5 +48,34 @@
       }
     }
   };
+  var blank = { wall: '#e9ecec', cabinet: '#fbfaf5', counter: '#eceae4', backsplash: '#e9ecec', floor: '#8f8375', hardware: '#8a8f94' };
+  function tiers() { return { cosmetic: { concept_name: '', design_notes: '', palette: blank, item_ids: [] }, mid: { concept_name: '', design_notes: '', palette: blank, item_ids: [] }, full: { concept_name: '', design_notes: '', palette: blank, item_ids: [] } }; }
+  DEMO.bedroom = {
+    room_type: 'bedroom', confidence: 'medium', sample: true,
+    summary: 'Standard bedroom, structurally fine. Loud two-tone paint, a painted popcorn ceiling and worn carpet are what a buyer will notice.',
+    observations: ['Walls painted two bright colors with a dark blue ceiling', 'Brown carpet, worn in the traffic path', 'Dated ceiling fan with a three-light kit', 'Mini blinds bent in places'],
+    unseen_risks: ['Hardwood or damaged subfloor under the carpet', 'How many coats it takes to cover the dark ceiling', 'Whether the outlets are grounded'],
+    measurements: { floor_sf: 140, wall_sf: 420, light_count: 1, door_count: 2, window_count: 2, trim_lf: 48 },
+    current_palette: { wall: '#43c7a3', cabinet: '#e6e8ea', counter: '#e6e8ea', backsplash: '#43c7a3', floor: '#6e5f52', hardware: '#b8962e' },
+    tiers: tiers()
+  };
+  DEMO.living = {
+    room_type: 'living', confidence: 'medium', sample: true,
+    summary: 'Good-sized living room with decent light. Stained carpet, scuffed walls and an old fan make it read as neglected.',
+    observations: ['Carpet stained in several places', 'Scuffed walls and chipped trim', 'Old ceiling fan with a yellowed light kit', 'Blinds broken on one window'],
+    unseen_risks: ['Condition of the floor under the carpet', 'Whether the fireplace or flue is usable', 'Age of the wiring behind old two-prong outlets'],
+    measurements: { floor_sf: 220, wall_sf: 520, light_count: 2, door_count: 1, window_count: 3, trim_lf: 60 },
+    current_palette: { wall: '#d8d2c2', cabinet: '#e8e2d2', counter: '#e8e2d2', backsplash: '#d8d2c2', floor: '#5f4f44', hardware: '#b8962e' },
+    tiers: tiers()
+  };
+  DEMO.exterior = {
+    room_type: 'exterior', confidence: 'medium', sample: true,
+    summary: 'Single-story house with vinyl-style siding. Sound overall, but dirty siding, a bare yard and tired trim hurt the first impression.',
+    observations: ['Siding dirty with green staining low on the walls', 'Yard mostly bare, covered in leaves', 'Trim paint peeling around the windows', 'Gutters sagging at one corner'],
+    unseen_risks: ['Roof age and condition from above', 'Rot behind the siding or at the sills', 'Drainage and grading problems near the foundation'],
+    measurements: { wall_sf: 1400, light_count: 2, door_count: 1, trim_lf: 180, yard_sf: 2500 },
+    current_palette: { wall: '#e3d9b0', cabinet: '#7a4b32', counter: '#d9d4c4', backsplash: '#5a5f66', floor: '#9a8f6a', hardware: '#6b6f73' },
+    tiers: tiers()
+  };
   root.RF = Object.assign(root.RF || {}, { DEMO: DEMO });
 })(typeof globalThis !== 'undefined' ? globalThis : this);

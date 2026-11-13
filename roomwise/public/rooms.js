@@ -76,9 +76,57 @@
     return o;
   }
 
+  function space(p, s) {
+    var o = '<rect width="400" height="232" fill="' + p.wall + '"/>';
+    if (p.backsplash !== p.wall) o += '<rect width="150" height="232" fill="' + p.backsplash + '"/>';
+    o += s.glass ? floor(p, 232, true) : '<rect x="0" y="232" width="400" height="68" fill="' + p.floor + '"/>';
+    if (s.dated) o += '<ellipse cx="150" cy="268" rx="46" ry="12" fill="' + INK + '" fill-opacity=".16"/><ellipse cx="300" cy="284" rx="26" ry="7" fill="' + INK + '" fill-opacity=".12"/>';
+    o += '<rect x="0" y="222" width="400" height="10" fill="' + p.cabinet + '" stroke="' + INK + '" stroke-opacity=".2"/>';
+    // window with blinds
+    o += '<rect x="176" y="62" width="92" height="110" fill="' + p.cabinet + '" stroke="' + INK + '" stroke-opacity=".3"/><rect x="184" y="70" width="76" height="94" fill="#cfe3ee"/>';
+    for (var y = 74; y < (s.dated ? 110 : 162); y += 7) o += '<line x1="184" y1="' + y + '" x2="260" y2="' + y + '" stroke="' + (s.dated ? '#c9b98c' : '#ffffff') + '" stroke-width="3"/>';
+    // door
+    o += '<rect x="318" y="60" width="58" height="162" fill="' + p.cabinet + '" stroke="' + INK + '" stroke-opacity=".3"/>';
+    if (s.glass) o += '<rect x="326" y="70" width="42" height="62" fill="none" stroke="' + INK + '" stroke-opacity=".2"/><rect x="326" y="142" width="42" height="70" fill="none" stroke="' + INK + '" stroke-opacity=".2"/>';
+    o += '<circle cx="328" cy="146" r="4" fill="' + (s.dated ? '#b8962e' : p.hardware) + '"/>';
+    // ceiling fan or light
+    if (s.stainless || s.dated) {
+      var blade = s.dated ? '#8a6a45' : '#f6f5f1';
+      o += '<rect x="196" y="0" width="8" height="14" fill="' + p.hardware + '"/><ellipse cx="150" cy="20" rx="46" ry="6" fill="' + blade + '" stroke="' + INK + '" stroke-opacity=".3"/><ellipse cx="250" cy="20" rx="46" ry="6" fill="' + blade + '" stroke="' + INK + '" stroke-opacity=".3"/><circle cx="200" cy="24" r="11" fill="' + (s.dated ? '#efe6c8' : '#fbfaf5') + '" stroke="' + INK + '" stroke-opacity=".3"/>';
+    } else o += '<path d="M178 0h44l-8 14h-28z" fill="#fbfaf5" stroke="' + INK + '" stroke-opacity=".3"/>';
+    if (s.dated) o += '<path d="M40 60l6 26M60 150l-4 30M120 100l5 18" stroke="' + INK + '" stroke-opacity=".18" stroke-width="2"/>';
+    return o;
+  }
+
+  function exterior(p, s) {
+    var o = '<rect width="400" height="210" fill="#cfe6f2"/><rect y="210" width="400" height="90" fill="' + p.floor + '"/>';
+    if (s.dated) o += '<ellipse cx="80" cy="262" rx="50" ry="10" fill="#a08a5a" fill-opacity=".7"/><ellipse cx="320" cy="276" rx="44" ry="9" fill="#a08a5a" fill-opacity=".7"/>';
+    // driveway and walk
+    o += '<path d="M176 300l14-78h36l14 78z" fill="' + (s.pendants ? '#8b8f93' : '#b4b1aa') + '"/>';
+    // house
+    o += '<rect x="60" y="96" width="280" height="126" fill="' + p.wall + '" stroke="' + INK + '" stroke-opacity=".3"/>';
+    for (var y = 108; y < 222; y += 12) o += '<line x1="60" y1="' + y + '" x2="340" y2="' + y + '" stroke="' + INK + '" stroke-opacity=".1"/>';
+    o += '<path d="M44 100L200 30l156 70z" fill="' + p.backsplash + '" stroke="' + INK + '" stroke-opacity=".35"/>';
+    o += '<rect x="56" y="96" width="288" height="6" fill="' + p.counter + '" stroke="' + INK + '" stroke-opacity=".25"/>';
+    if (s.dated) o += '<path d="M70 118l10 16M300 150l8 20M110 190l12 10" stroke="' + INK + '" stroke-opacity=".25" stroke-width="2"/><path d="M56 102q30 10 60 0" fill="none" stroke="' + INK + '" stroke-opacity=".4" stroke-width="2"/>';
+    [84, 264].forEach(function (x) {
+      o += '<rect x="' + x + '" y="124" width="52" height="56" fill="' + p.counter + '" stroke="' + INK + '" stroke-opacity=".3"/><rect x="' + (x + 5) + '" y="129" width="42" height="46" fill="#bcd6e4"/><line x1="' + (x + 26) + '" y1="129" x2="' + (x + 26) + '" y2="175" stroke="' + p.counter + '" stroke-width="3"/>';
+    });
+    // door and steps
+    o += '<rect x="178" y="134" width="44" height="88" fill="' + p.counter + '" stroke="' + INK + '" stroke-opacity=".3"/><rect x="183" y="139" width="34" height="83" fill="' + p.cabinet + '"/><circle cx="211" cy="184" r="3" fill="' + p.hardware + '"/>';
+    o += '<rect x="170" y="222" width="60" height="8" fill="#c9c6bf" stroke="' + INK + '" stroke-opacity=".25"/>';
+    if (!s.dated) o += '<rect x="158" y="150" width="6" height="12" rx="2" fill="' + p.hardware + '"/><rect x="236" y="150" width="6" height="12" rx="2" fill="' + p.hardware + '"/>';
+    // beds and shrubs
+    if (!s.dated) o += '<path d="M60 222h104v14H60zM236 222h104v14H236z" fill="#6b4a32"/>';
+    if (s.tile) [78, 112, 146, 254, 288, 322].forEach(function (x) { o += '<circle cx="' + x + '" cy="218" r="13" fill="#3f7d4a" stroke="' + INK + '" stroke-opacity=".25"/>'; });
+    else if (s.dated) o += '<path d="M70 222q6-34 14 0M96 222q8-46 16 0M300 222q6-40 16 0" fill="#6f7d3f" stroke="' + INK + '" stroke-opacity=".25"/>';
+    return o;
+  }
+
   function sketch(room, palette, styleKey, label) {
     var s = STYLE[styleKey] || STYLE.cosmetic;
-    var body = room === 'bathroom' ? bathroom(palette, s) : kitchen(palette, s);
+    var kind = root.RF && root.RF.kind ? root.RF.kind(room) : room;
+    var body = kind === 'bathroom' ? bathroom(palette, s) : kind === 'space' ? space(palette, s) : kind === 'exterior' ? exterior(palette, s) : kitchen(palette, s);
     return '<svg viewBox="0 0 400 300" role="img" aria-label="' + label + '" preserveAspectRatio="xMidYMid slice">' + body + '</svg>';
   }
 

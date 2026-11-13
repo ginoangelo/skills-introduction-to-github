@@ -9,7 +9,7 @@ const fonts = pub("index.html").match(/<link rel="stylesheet" href="https:\/\/fo
 const scripts = ["catalog.js", "diy.js", "labor-data.js", "pricing.js", "rooms.js", "looks.js", "demo.js", "voice.js", "app.js"].map((f) => `<script>\n${pub(f)}\n</script>`).join("\n");
 
 const samples = {};
-for (const room of ["kitchen", "bathroom"]) {
+for (const room of ["kitchen", "bathroom", "bedroom", "living", "exterior"]) {
   const file = path.join(root, "private", room + ".jpg");
   if (fs.existsSync(file)) samples[room] = "data:image/jpeg;base64," + fs.readFileSync(file).toString("base64");
 }

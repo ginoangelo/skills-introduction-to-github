@@ -41,7 +41,8 @@
   }
 
   function defaultItems(room, tier) {
-    return RF.CATALOG.filter(function (it) { return it.room === room && it.tiers.indexOf(tier) >= 0; })
+    var k = RF.kind(room);
+    return RF.CATALOG.filter(function (it) { return it.room === k && it.tiers.indexOf(tier) >= 0; })
       .map(function (it) { return it.id; });
   }
 
@@ -51,7 +52,7 @@
      settings: { zip, laborMult, contingency: {tier: pct}, overrides: { 'tier:id': { qty, mat, off } } } */
   function price(analysis, tier, settings) {
     settings = settings || {};
-    var room = analysis.room_type;
+    var room = RF.kind(analysis.room_type);
     var m = analysis.measurements || {};
     var region = regionFactor(settings.zip);
     var laborMult = region.factor * (settings.laborMult || 1);
