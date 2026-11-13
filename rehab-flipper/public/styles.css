@@ -145,3 +145,15 @@ tr.sel td { background: var(--accent-soft); font-weight: 600; }
 .dots i { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--line); margin-left: -4px; }
 .dots i:first-child { margin-left: 0; }
 .look-brief { margin: 0; }
+
+.ask-card { display: flex; flex-direction: column; gap: 8px; }
+.askrow { display: flex; gap: 8px; align-items: center; }
+.askrow input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+.askrow .send { flex: none; padding: 10px 16px; }
+.mic { flex: none; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; justify-content: center; }
+.mic.on { background: var(--warn); border-color: var(--warn); }
+.tips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tips button { background: none; border: 1px dashed var(--line); border-radius: 99px; padding: 4px 10px; font-size: 12.5px; color: var(--muted); }
+.you { margin: 0; font-size: 13px; color: var(--muted); }
+.reply { margin: 0; font-weight: 500; }
+@media print { .ask-card { display: none; } }

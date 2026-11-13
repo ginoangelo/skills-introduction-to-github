@@ -16,6 +16,10 @@
     arv: saved.arv || '', purchase: saved.purchase || '',
     settings: { laborMult: saved.laborMult || 1, contingency: saved.contingency || {}, overrides: {} }
   };
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var canListen = !!SR && !MOCKUP;
+  state.chat = null; state.listening = false; state.ai = false;
+
   function persist() {
     store.set('rf.settings', { zip: state.zip, look: state.look, laborMult: state.settings.laborMult, contingency: state.settings.contingency, arv: state.arv, purchase: state.purchase });
   }
@@ -45,6 +49,20 @@
       '<div class="seg viewer-seg" role="group" aria-label="Before or after">' +
       '<button data-act="view" data-v="before" aria-pressed="' + !isAfter + '">Before</button>' +
       '<button data-act="view" data-v="after" aria-pressed="' + isAfter + '">After</button></div></div>';
+  }
+
+  function ask() {
+    var tips = ['Make it modern farmhouse', 'Leave out the appliances', "What's the total?"];
+    return '<section class="card ask-card"><form id="askform" class="askrow">' +
+      (canListen ? '<button type="button" class="mic' + (state.listening ? ' on' : '') + '" data-act="mic" aria-pressed="' + state.listening + '" aria-label="' + (state.listening ? 'Stop listening' : 'Talk to Rehab Flipper') + '">' +
+        '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>' : '') +
+      '<input id="say" type="text" autocomplete="off" placeholder="' + (state.listening ? 'Listening…' : canListen ? 'Talk or type a change' : 'Type a change') + '" aria-label="Tell Rehab Flipper what to change">' +
+      '<button class="btn send" type="submit">Go</button></form>' +
+      (state.chat
+        ? '<p class="you">“' + esc(state.chat.you) + '”</p><p class="reply" aria-live="polite">' + esc(state.chat.reply) + '</p>'
+        : '<div class="tips">' + tips.map(function (t) { return '<button type="button" data-act="tip" data-v="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div>') +
+      (canListen ? '' : '<p class="fine">' + (MOCKUP ? 'In the app you can also tap a microphone and talk; replies are read aloud.' : 'This browser has no speech recognition, so type instead.') + '</p>') +
+      '</section>';
   }
 
   function capture() {
@@ -133,7 +151,7 @@
 
   function estimateTab() {
     var p = priced(state.tier);
-    return viewer() + capture() + tiers() + summary(p) + concept() + lines(p) + assumptions();
+    return viewer() + ask() + capture() + tiers() + summary(p) + concept() + lines(p) + assumptions();
   }
 
   function ratesTab() {
@@ -229,6 +247,81 @@
       .catch(function () { useSample('Could not reach the server. Showing sample numbers.'); });
   }
 
+  // ---------- talk to it ----------
+  function speak(text) {
+    try { if (!window.speechSynthesis) return; window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(text)); } catch (e) { /* no voice output */ }
+  }
+  function totalSentence() {
+    var p = priced(state.tier);
+    return tierDef(state.tier).name + ' package is ' + usd(p.totalLo) + ' to ' + usd(p.totalHi) + '.';
+  }
+  /* Applies actions and returns a short sentence for each one that took effect. */
+  function applyActions(actions) {
+    var said = [], lines = priced(state.tier).lines;
+    function line(id) { return lines.filter(function (l) { return l.id === id; })[0]; }
+    function ov(id) { var k = state.tier + ':' + id; return (state.settings.overrides[k] = state.settings.overrides[k] || {}); }
+    (actions || []).forEach(function (a) {
+      var n = Number(a.number), l;
+      switch (a.type) {
+        case 'look': if (RF.look(a.target).id === a.target) { state.look = a.target; state.analysis = RF.applyLook(state.analysis, a.target); state.view = 'after'; said.push('Restyled to ' + RF.look(a.target).name + '.'); } break;
+        case 'tier': if (tierDef(a.target)) { state.tier = a.target; state.view = 'after'; lines = priced(state.tier).lines; said.push('Showing the ' + tierDef(a.target).name + ' package.'); } break;
+        case 'room': if ((a.target === 'kitchen' || a.target === 'bathroom') && a.target !== state.analysis.room_type) {
+          if (state.live) said.push('Take a photo of the ' + a.target + ' to switch rooms.');
+          else { state.room = a.target; state.analysis = RF.applyLook(RF.DEMO[a.target], state.look); state.settings.overrides = {}; lines = priced(state.tier).lines; said.push('Switched to the ' + a.target + '.'); }
+        } break;
+        case 'view': if (a.target === 'before' || a.target === 'after') { state.view = a.target; state.tab = 'estimate'; said.push('Showing ' + a.target + '.'); } break;
+        case 'tab': if (['estimate', 'rates', 'sheet'].indexOf(a.target) >= 0) { state.tab = a.target; said.push(a.target === 'sheet' ? 'Here is the deal sheet.' : a.target === 'rates' ? 'Here are your rates.' : 'Back to the estimate.'); } break;
+        case 'exclude': if ((l = line(a.target))) { ov(l.id).off = true; said.push('Left out ' + l.name.toLowerCase() + '.'); } break;
+        case 'include': if ((l = line(a.target))) { ov(l.id).off = false; said.push('Added back ' + l.name.toLowerCase() + '.'); } break;
+        case 'qty': if ((l = line(a.target)) && n >= 0) { ov(l.id).qty = n; said.push('Set ' + l.name.toLowerCase() + ' to ' + n + ' ' + l.unit + '.'); } break;
+        case 'price': if ((l = line(a.target)) && n >= 0) { ov(l.id).mat = n; said.push('Priced ' + l.name.toLowerCase() + ' at ' + usd(n) + ' per ' + l.unit + '.'); } break;
+        case 'labor': if (n > 0) { state.settings.laborMult = Math.min(1.6, Math.max(0.6, n / 100)); said.push('Labor set to ' + Math.round(state.settings.laborMult * 100) + ' percent of the area average.'); } break;
+        case 'contingency': if (n >= 0 && n <= 50) { state.settings.contingency[state.tier] = n; said.push('Contingency set to ' + n + ' percent.'); } break;
+        case 'zip': if (/^[0-9]{5}$/.test(a.target)) { state.zip = a.target; said.push('Pricing labor for ZIP ' + a.target.split('').join(' ') + '.'); } break;
+        case 'arv': if (n > 0) { state.arv = String(n); state.tab = 'sheet'; said.push('After-repair value set to ' + usd(n) + '.'); } break;
+        case 'purchase': if (n > 0) { state.purchase = String(n); state.tab = 'sheet'; said.push('Price set to ' + usd(n) + '.'); } break;
+        case 'reset': state.settings = { laborMult: 1, contingency: {}, overrides: {} }; said.push('Cleared your edits.'); break;
+        case 'total': said.push(''); break;
+      }
+    });
+    persist();
+    return said;
+  }
+  function command(text, spoken) {
+    text = String(text || '').trim(); if (!text) return;
+    function finish(actions, lead) {
+      var said = applyActions(actions), reply;
+      if (!said.length) reply = lead || "I didn't catch a change. Try “make it farmhouse” or “leave out the appliances”.";
+      else reply = (lead || said.filter(Boolean).join(' ')) + ' ' + totalSentence();
+      state.chat = { you: text, reply: reply.trim() }; state.openLine = null; render();
+      if (spoken) speak(state.chat.reply);
+    }
+    function local() { finish(RF.parseCommand(text, { lines: priced(state.tier).lines }).actions); }
+    if (MOCKUP || !state.ai) return local();
+    var p = priced(state.tier);
+    fetch('api/command', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text, context: {
+      room: state.analysis.room_type, tier: state.tier, look: state.look, zip: state.zip,
+      items: p.lines.map(function (l) { return { id: l.id, name: l.name, qty: l.qty, unit: l.unit, included: l.included }; }) } }) })
+      .then(function (r) { if (!r.ok) throw new Error('command failed'); return r.json(); })
+      .then(function (j) { finish(j.actions, j.reply); })
+      .catch(local);
+  }
+  var recog = null;
+  function toggleMic() {
+    if (state.listening && recog) { recog.stop(); return; }
+    recog = new SR(); recog.lang = 'en-US'; recog.interimResults = false; recog.maxAlternatives = 1;
+    var heard = '';
+    recog.onresult = function (e) { heard = e.results[0][0].transcript; };
+    recog.onerror = function (e) { state.chat = { you: '…', reply: e.error === 'not-allowed' ? 'Microphone access is blocked. Allow it in the browser, or type instead.' : "I couldn't hear that. Try again or type it." }; };
+    recog.onend = function () { state.listening = false; if (heard) command(heard, true); else render(); };
+    state.listening = true; render();
+    try { recog.start(); } catch (e) { state.listening = false; render(); }
+  }
+  root.addEventListener('submit', function (e) {
+    if (e.target.id !== 'askform') return;
+    e.preventDefault(); command(document.getElementById('say').value, false);
+  });
+
   root.addEventListener('click', function (e) {
     var b = e.target.closest('[data-act]'); if (!b) return;
     var act = b.dataset.act, v = b.dataset.v;
@@ -238,6 +331,8 @@
     else if (act === 'room') { state.room = v; if (!state.live) { state.analysis = RF.applyLook(RF.DEMO[v], state.look); state.settings.overrides = {}; } }
     else if (act === 'look') { state.look = v; state.analysis = RF.applyLook(state.analysis, v); state.view = 'after'; persist(); }
     else if (act === 'estimate') return estimate();
+    else if (act === 'mic') return toggleMic();
+    else if (act === 'tip') return command(v, false);
     else if (act === 'print') return window.print();
     else if (act === 'reset') { state.settings = { laborMult: 1, contingency: {}, overrides: {} }; persist(); }
     render();
@@ -275,6 +370,7 @@
 
   if (!MOCKUP) {
     fetch('api/health').then(function (r) { return r.json(); }).then(function (h) {
+      state.ai = !!h.ai;
       if (!h.ai) { state.notice = 'No AI key is set on the server, so photos are not analyzed yet. Sample numbers are shown.'; render(); }
     }).catch(function () { /* static hosting: stay on sample data */ });
   }

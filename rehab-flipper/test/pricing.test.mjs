@@ -4,6 +4,7 @@ import "../public/catalog.js";
 import "../public/pricing.js";
 import "../public/demo.js";
 import "../public/looks.js";
+import "../public/voice.js";
 import { sanitize } from "../lib/analyze.mjs";
 
 const RF = globalThis.RF;
@@ -76,4 +77,21 @@ test("a look restyles every package without changing scope or price", () => {
   assert.equal(RF.price(a, "full", {}).typical, before.typical);
   assert.equal(RF.applyLook(kitchen, "unknown").look, "clean");
   assert.notEqual(a.tiers.mid.palette.wall, RF.applyLook(kitchen, "modern").tiers.mid.palette.wall);
+});
+
+test("spoken requests turn into the right actions", () => {
+  const lines = RF.price(kitchen, "mid", {}).lines;
+  const act = (t) => RF.parseCommand(t, { lines }).actions.map((a) => [a.type, a.target, a.number]);
+  assert.deepEqual(act("Make it modern farmhouse"), [["look", "farmhouse", 0]]);
+  assert.deepEqual(act("go dark modern and show me the full package"), [["look", "modern", 0], ["tier", "full", 0]]);
+  assert.deepEqual(act("Leave out the appliances"), [["exclude", "k_appl_std", 0]]);
+  assert.deepEqual(act("keep the existing counters"), [["exclude", "k_quartz", 0]]);
+  assert.deepEqual(act("add back the backsplash"), [["include", "k_backsplash_subway", 0]]);
+  assert.deepEqual(act("the cabinets are 18 linear feet"), [["qty", "k_cab_stock", 18]]);
+  assert.deepEqual(act("quartz costs $60 per square foot"), [["price", "k_quartz", 60]]);
+  assert.deepEqual(act("set contingency to 12 percent"), [["contingency", "", 12]]);
+  assert.deepEqual(act("my labor runs about 90 percent"), [["labor", "", 90]]);
+  assert.deepEqual(act("ARV is 240k"), [["arv", "", 240000]]);
+  assert.deepEqual(act("what's the total?"), [["total", "", 0]]);
+  assert.deepEqual(act("tell me a joke"), []);
 });

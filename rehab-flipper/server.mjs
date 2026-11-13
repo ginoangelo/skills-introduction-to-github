@@ -2,6 +2,7 @@ import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { analyzeRoom, AnalysisError } from "./lib/analyze.mjs";
+import { interpret } from "./lib/command.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -25,6 +26,18 @@ app.post("/api/estimate", async (req, res) => {
     if (err instanceof AnalysisError) return res.status(err.status).json({ error: err.message });
     console.error(err);
     res.status(500).json({ error: "Something went wrong on the server." });
+  }
+});
+
+app.post("/api/command", async (req, res) => {
+  const { text, context } = req.body || {};
+  if (typeof text !== "string" || !text.trim() || text.length > 500) return res.status(400).json({ error: "Say or type a short request." });
+  if (!hasKey()) return res.status(503).json({ error: "No AI key is set on the server." });
+  try {
+    res.json(await interpret({ text, context: context || {} }));
+  } catch (err) {
+    console.error(err);
+    res.status(502).json({ error: "The request could not be understood by the AI service." });
   }
 });
 

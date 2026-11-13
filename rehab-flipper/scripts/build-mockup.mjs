@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pub = (f) => fs.readFileSync(path.join(root, "public", f), "utf8");
 const fonts = pub("index.html").match(/<link rel="stylesheet" href="https:\/\/fonts[^>]+>/)[0];
-const scripts = ["catalog.js", "pricing.js", "rooms.js", "looks.js", "demo.js", "app.js"].map((f) => `<script>\n${pub(f)}\n</script>`).join("\n");
+const scripts = ["catalog.js", "pricing.js", "rooms.js", "looks.js", "demo.js", "voice.js", "app.js"].map((f) => `<script>\n${pub(f)}\n</script>`).join("\n");
 
 const html = `<title>Rehab Flipper Mock-up</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -14,7 +14,7 @@ ${fonts}
 <style>
 ${pub("styles.css")}
 </style>
-<p class="frame-note">Clickable mock-up with sample numbers. Pick a look, switch packages, edit a line, open My rates and Deal sheet.</p>
+<p class="frame-note">Clickable mock-up with sample numbers. Pick a look, type a request such as &quot;leave out the appliances&quot;, edit a line, open My rates and Deal sheet.</p>
 <div class="device"><div id="app"></div></div>
 <script>window.RF_MOCKUP = true;</script>
 ${scripts}
