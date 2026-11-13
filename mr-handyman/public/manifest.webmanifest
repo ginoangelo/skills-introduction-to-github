@@ -1,0 +1,13 @@
+{
+  "name": "Mr. Handyman — AI Home Repair",
+  "short_name": "Mr. Handyman",
+  "description": "Snap a photo of any home repair problem. Get a step-by-step fix, a line-by-line budget, and honest DIY-vs-pro advice.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#e2621b",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

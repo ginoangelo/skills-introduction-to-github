@@ -1,0 +1,23 @@
+{
+  "name": "mr-handyman",
+  "version": "1.0.0",
+  "description": "AI home repair assistant: photo diagnosis, step-by-step fixes, line-by-line budgets",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "demo": "DEMO_MODE=1 node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "express": "^5.3.0",
+    "multer": "^2.5.0",
+    "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}
