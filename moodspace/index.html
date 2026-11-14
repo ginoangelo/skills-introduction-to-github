@@ -140,6 +140,54 @@ body[data-mood="calm"] .card h1 { font-weight: 500; }
 #ptypeSel { background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--ink); }
 .typehow { font-size: 13px; color: var(--muted); }
 
+/* Lessons */
+.lesson .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice { border: 1px solid var(--line); background: rgba(255,255,255,.05); color: var(--ink); border-radius: 10px; padding: 10px 14px; font: 600 15px/1.2 var(--body); text-align: left; }
+.choice:hover:not([disabled]) { border-color: var(--accent); }
+.choice.right, .sortrow.right .choice.right, .orderitem.right { background: color-mix(in srgb, var(--up) 22%, transparent); border-color: var(--up); }
+.choice.wrong, .orderitem.wrong { background: color-mix(in srgb, var(--down) 22%, transparent); border-color: var(--down); }
+.choice[disabled] { cursor: default; opacity: 1; }
+.fb { font-size: 14px; line-height: 1.45; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.05); }
+.fb b { display: block; margin-bottom: 2px; }
+.fb.ok b { color: var(--up); } .fb.no b { color: var(--down); }
+.fb span { color: var(--muted); }
+.hint { color: var(--muted); font-size: 14px !important; }
+.goals { display: grid; gap: 8px; }
+.goals > span { font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent2); }
+.sortrows { display: grid; gap: 12px; }
+.sortrow { display: grid; gap: 6px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.sortrow p { font-size: 14px !important; line-height: 1.45 !important; }
+.orderlist { display: grid; gap: 8px; }
+.orderitem { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; text-align: left; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--ink); border-radius: 10px; padding: 10px; font: 400 14px/1.4 var(--body); }
+.orderitem b { font: 700 16px/1.2 var(--display); color: var(--accent); }
+.orderitem.on { border-color: var(--accent); }
+.lesson textarea, .lesson input { width: 100%; box-sizing: border-box; background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink); font: 400 15px/1.45 var(--body); }
+.lesson textarea { resize: vertical; min-height: 96px; }
+.lesson .field { display: grid; gap: 6px; }
+.lesson .field.row { grid-template-columns: 74px 1fr; align-items: center; }
+.lesson .field span { font-size: 13px; color: var(--muted); }
+.count { font: 400 12px/1.3 var(--mono); color: var(--muted); }
+.quote { font-style: italic; color: var(--muted); }
+.checks { display: grid; gap: 6px; }
+.check { text-align: left; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
+.check.on { border-color: var(--up); color: var(--up); }
+.verdict { font-weight: 600; }
+.timeline { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; border-left: 3px solid var(--accent); padding-left: 14px; }
+.timeline li { display: grid; gap: 2px; }
+.timeline b { font: 700 15px/1.2 var(--mono); color: var(--accent); }
+.cites { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
+.badge { align-self: flex-start; background: var(--accent2); color: var(--bg0); border-radius: 999px; padding: 8px 14px; font: 700 14px/1 var(--display); }
+.card:has(.lesson) { width: 400px; }
+body[data-audience="seniors"] .card:has(.lesson) { width: 480px; }
+#nbList { display: grid; gap: 14px; max-height: 50vh; overflow: auto; }
+.nbgroup h4 { margin: 0 0 6px; font: 700 15px/1.2 var(--display); }
+.nbrow { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.nbrow p { margin: 0; font-size: 14px; color: var(--ink) !important; overflow-wrap: anywhere; }
+.nbrow .tag { font: 500 10px/1.8 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--accent2); }
+.nbrow .x { border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; }
+.x-quote p { font-size: calc(var(--body-size) + 3px); font-style: italic; }
+.x-source .rows { font-size: 14px; }
+
 /* Chrome */
 .bar { position: fixed; left: 0; right: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -243,6 +291,7 @@ body.filming #top, body.filming #dock, body.filming #nav { opacity: 0; pointer-e
   <div id="status"></div>
   <label for="tryType" class="sr" hidden>Try a page type</label><select id="tryType" aria-label="Try a sample of a page type"></select>
   <button class="btn" id="openRemix">Open a page</button>
+  <button class="btn" id="openNb">Notebook</button>
   <button class="btn primary film-btn" id="play"><svg viewBox="0 0 10 10"><path d="M1 0l9 5-9 5z"/></svg>Watch tour</button>
 </footer>
 
@@ -278,8 +327,19 @@ body.filming #top, body.filming #dock, body.filming #nav { opacity: 0; pointer-e
       <button class="opt" data-v="tour"><b>Guided tour</b><small>Flies you through the page and reads it aloud</small></button>
       <button class="opt" data-v="explore"><b>Explore</b><small>You roam the space at your own pace</small></button>
       <button class="opt" data-v="quiet"><b>Quiet</b><small>No voice. Captions and cards only</small></button>
+      <button class="opt" data-v="lesson"><b>Lesson</b><small>Learn, check, practice and write, step by step</small></button>
     </div></div>
     <div class="row"><span class="spacer"></span><button class="btn primary" id="enter">Start watching</button></div>
+  </div>
+</div>
+
+<div id="nb" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="nbh">
+    <h3 id="nbh">My notebook</h3>
+    <p>Words, writing and sources you save in lessons. They stay on this device.</p>
+    <div id="nbList"></div>
+    <div class="row" id="nbConfirm" hidden><span class="note">Delete everything in your notebook?</span><span class="spacer"></span><button class="btn" id="nbNo">Keep it</button><button class="btn primary" id="nbYes">Delete all</button></div>
+    <div class="row"><button class="btn" id="nbClear">Clear notebook</button><span class="spacer"></span><button class="btn" id="nbCopy">Copy all</button><button class="btn primary" id="nbClose">Done</button></div>
   </div>
 </div>
 
@@ -344,7 +404,7 @@ const KID_WORDS = { approximately: "about", roughly: "about", however: "but", th
 const VIEW = { calm: "tide", focused: "tunnel", curious: "constellation", energized: "arena" };
 
 /* ---------- Text into a document ---------- */
-const sentences = t => (t.match(/[^.!?]+[.!?]+["”’)]*|[^.!?]+$/g) || []).map(s => s.trim()).filter(Boolean);
+const sentences = t => String(t).replace(/([.!?]+["”’)]*)\s+(?=["“(]?[A-Z0-9])/g, "$1\u0001").split("\u0001").map(s => s.trim()).filter(Boolean);
 const words = t => t.toLowerCase().match(/[a-z][a-z'-]{3,}/g) || [];
 const isHead = b => b.length < 90 && !/[.!?:;,"”]$/.test(b) && b.split(/\s+/).length <= 12;
 
@@ -410,6 +470,7 @@ function quizzes(doc, n) {
   return out;
 }
 function buildCards(doc, need) {
+  if (state.delivery === "lesson") return lessonFor(doc);
   if (doc.type && doc.type !== "article") {
     let cs = typedCards(doc);
     if (cs) {
@@ -453,10 +514,11 @@ const punch = s => { const w = s.replace(/[.!?]+$/, "").split(/\s+/); return w.l
 
 function faceHTML(c, i, n, mood) {
   const secs = Math.max(5, Math.round(((c.text || c.lede || (c.points || []).join(" ") || c.before || "").split(/\s+/).length) / 3.8 / 5) * 5);
-  const label = c.kind === "x" ? c.label : state.audience === "teens" && c.kind === "section" ? `${secs} sec read` : { title: "Topic", tldr: "The short version", section: "Section", fact: "Fact", quiz: state.audience === "kids" ? "Game" : "Quiz" }[c.kind];
+  const label = c.kind === "L" || c.kind === "x" ? c.label : state.audience === "teens" && c.kind === "section" ? `${secs} sec read` : { title: "Topic", tldr: "The short version", section: "Section", fact: "Fact", quiz: state.audience === "kids" ? "Game" : "Quiz" }[c.kind];
   const meta = `<div class="meta"><span><b>${String(i + 1).padStart(2, "0")}</b> / ${String(n).padStart(2, "0")}</span><span>${label}</span></div>`;
   let body = "";
-  if (c.kind === "x") body = typedFace(c, mood);
+  if (c.kind === "L") body = lessonFace(c, i);
+  else if (c.kind === "x") body = typedFace(c, mood);
   else if (c.kind === "title") body = `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.lede)}</p><div class="meta"><span>${doc.minutes} min</span><span>${doc.chunks.length} sections</span></div>`;
   else if (c.kind === "tldr") body = `<h2>${esc(c.h)}</h2><ul>${c.points.map(p => `<li>${esc(mood === "energized" ? punch(p) : p)}</li>`).join("")}</ul>`;
   else if (c.kind === "quiz") body = `<h2>${state.audience === "kids" ? "Can you guess?" : "Quick check"}</h2><p>${esc(c.before)}<span class="blank">${esc(c.answer)}</span>${esc(c.after)}</p><button class="reveal">${state.audience === "kids" ? "Show me!" : "Reveal"}</button>`;
@@ -470,8 +532,8 @@ function faceHTML(c, i, n, mood) {
   }
   if (c.kind === "section" && state.audience === "teens" && mood !== "focused" && mood !== "energized") { const k = keySentence(c.text); if (k >= 0) body += `<div class="takeaway">Key takeaway: ${esc(sentences(c.text)[k])}</div>`; }
   if (state.audience === "kids" && (c.kind === "section" || c.kind === "fact")) { const tw = trickyWords(c.text); if (tw.length) body += `<div class="words">Tricky words ${tw.map(w => `<span>${esc(syllables(w))}</span>`).join("")}</div>`; }
-  const chips = mood === "curious" && c.keys?.length ? `<div class="chips">${c.keys.map(k => `<button class="chip${k === state.trail ? " on" : ""}" data-key="${esc(k)}">↳ ${esc(k)}</button>`).join("")}</div>` : "";
-  return `<div class="face${c.kind === "quiz" ? " quiz" : ""}${c.kind === "x" ? " " + c.style.split(" ").map(x => "x-" + x).join(" ") : ""}">${meta}${body}${chips}</div>`;
+  const chips = c.kind !== "L" && mood === "curious" && c.keys?.length ? `<div class="chips">${c.keys.map(k => `<button class="chip${k === state.trail ? " on" : ""}" data-key="${esc(k)}">↳ ${esc(k)}</button>`).join("")}</div>` : "";
+  return `<div class="face${c.kind === "quiz" ? " quiz" : ""}${c.kind === "x" ? " " + c.style.split(" ").map(x => "x-" + x).join(" ") : ""}${c.kind === "L" ? " lesson L-" + c.step : ""}">${meta}${body}${chips}</div>`;
 }
 
 /* ---------- Page types: the 16 basic kinds of web page ---------- */
@@ -479,7 +541,8 @@ const TYPES = {
   home: "Home page", feed: "Feed", menu: "Menu page", search: "Search results", about: "About page",
   registration: "Sign-up page", notfound: "404 page", blog: "Blog page", article: "Article",
   portfolio: "Portfolio", services: "Services page", product: "Product page", cart: "Cart",
-  statistics: "Statistics", contact: "Contact page", landing: "Landing page" };
+  statistics: "Statistics", contact: "Contact page", landing: "Landing page",
+  news: "News story", museum: "Museum page", library: "Library page", book: "Book" };
 const TYPE_HOW = {
   home: "A hub: the welcome first, then each section as a door you can fly into.",
   feed: "A stream of posts, one after another, each the same shape.",
@@ -496,9 +559,94 @@ const TYPE_HOW = {
   cart: "Each item, then one clear total and the checkout button.",
   statistics: "Each number as a big metric with its trend, plus a comparison card.",
   contact: "The ways to reach them on one card, nothing else in the way.",
-  landing: "One message, the reasons, then a single big call to action at the end." };
+  landing: "One message, the reasons, then a single big call to action at the end.",
+  news: "The headline and who wrote it, then the story, with quotes set apart.",
+  museum: "A gallery: each object hung in its own frame with its date and material.",
+  library: "Each source as a card with its author, type, year and where to find it.",
+  book: "The story chapter by chapter." };
 
 const SAMPLES = {
+news: `City Library Opens Rooftop Reading Garden
+By Dana Whitfield · Riverside Daily · June 3, 2026
+
+The Riverside Central Library opened a rooftop reading garden on Saturday, giving downtown its first public green space above street level.
+
+The garden covers about 6,000 square feet and holds 40 benches, 120 planters and a small stage for story time. It cost $1.2 million, paid for by a state grant and private donations.
+
+More than 900 people visited on opening day, according to library staff.
+
+"This is the most beautiful place in the city to read a book," said Maria Lopez, a retired teacher who arrived before the doors opened.
+
+Not everyone is pleased. "A garden is nice, but the library closes at 6 pm, and that's unfair to people who work late," said Kevin Park, who lives two blocks away. Some neighbors say the money should have gone to longer opening hours instead.
+
+The library plans free gardening classes for kids every Saturday in July. The garden is open daily from 10 am to 5 pm, weather permitting.`,
+museum: `Ancient Egypt Gallery
+Hall 3 · Second floor · Free with admission
+
+Explore daily life along the Nile through objects made thousands of years ago.
+
+Painted Coffin of Nesmin
+c. 650 BCE · Wood, plaster and paint
+This coffin belonged to a priest named Nesmin. Its bright paint shows gods who were believed to protect him on his journey after death.
+
+Scarab Amulet
+c. 1450 BCE · Glazed stone
+Shaped like a dung beetle, the scarab stood for new life. Egyptians watched beetles roll balls of dung and linked them to the sun being rolled across the sky.
+
+Model of a Bakery
+c. 2000 BCE · Painted wood
+Tiny wooden workers grind grain and bake bread. Models like this were placed in tombs so the owner would have food forever.
+
+Senet Game Board
+c. 1350 BCE · Wood and ivory
+Senet is one of the oldest board games known. Players moved pieces along 30 squares, and the game later became linked to the journey of the soul.`,
+library: `Research Guide: Ocean Animals
+Northside Public Library · Kids and Teens
+
+Start your research here. These sources are at the library or online with your library card.
+
+The Ocean Book
+Author: Sara Mendez
+Type: Book
+Publisher: Bluewater Press
+Year: 2021
+Call number: 591.77 MEN
+An illustrated guide to sea life, from tiny plankton to blue whales.
+
+Whales Under Threat
+Author: James Okoro
+Type: Magazine article
+Publisher: Science Kids Monthly
+Year: 2023
+How noise from ships changes the way whales call to each other.
+
+Ocean Explorer Database
+Type: Database
+Publisher: Northside Public Library
+Year: 2026
+Photos, maps and short articles about thousands of sea creatures. Log in with your library card.
+
+Cool Sea Facts!!!
+Type: Website
+Publisher: Unknown
+Year: Unknown
+A personal page with sea animal facts. No author and no sources listed.`,
+book: `The Tortoise and the Hare
+A fable by Aesop, retold
+
+Chapter 1: The Challenge
+Once upon a time, a Hare was boasting to the other animals about how fast he could run. "Nobody has ever beaten me," he said.
+The Tortoise looked up from his lunch and said quietly that he would race him. The animals laughed, and the Hare laughed loudest of all.
+
+Chapter 2: The Race
+The Fox agreed to be the judge and marked a path through the meadow to the old oak tree. At the signal, the Hare shot ahead and was soon out of sight.
+Halfway along, the Hare looked back and saw no one behind him. He decided he had plenty of time and lay down in the shade for a nap.
+
+Chapter 3: The Finish
+The Tortoise kept walking, one slow step after another, and passed the sleeping Hare.
+When the Hare woke up, the sun was low, and he ran as fast as he could.
+The Tortoise was already crossing the finish line under the oak tree when the Hare arrived.
+The Fox announced the winner, and the Hare learned that slow and steady wins the race.`,
 home: `Harbor & Hearth
 Home goods made by small studios on the coast.
 Shop the winter collection
@@ -720,6 +868,10 @@ function detectType(text) {
   s.menu = shortLines >= 6 && sentencesN <= 1 ? 6 : 0;
   s.home = (/welcome|shop the|featured|collection|gift guide|latest/.test(t) ? 3 : 0) + (shortLines >= 3 && sentencesN >= 3 ? 1 : 0);
   s.article = sentencesN >= 12 ? 7 : sentencesN >= 8 ? 4 : 1;
+  s.news = /^by [A-Z][a-z]+/im.test(text) ? 9 + (/\bsaid\b/.test(t) ? 2 : 0) : 0;
+  s.museum = (/gallery|exhibit|museum|hall \d/.test(t) ? 3 : 0) + ((t.match(/\bc\. ?\d{3,4}\s?(bce|bc|ce|ad)?/g) || []).length >= 2 ? 7 : 0);
+  s.library = ((text.match(/^(author|type|publisher|call number):/gim) || []).length >= 4 ? 10 : 0) + (/library|research guide/.test(t) ? 1 : 0);
+  s.book = ((text.match(/^chapter \d+/gim) || []).length >= 2 ? 10 : 0) + (/once upon a time|a fable|a novel/.test(t) ? 3 : 0);
   return Object.entries(s).sort((a, b) => b[1] - a[1])[0][0];
 }
 
@@ -833,6 +985,24 @@ const BUILD = {
       X({ style: "finale", label: "One step", h: last ? last.h : "Get started", text: last ? last.body.join(" ") : "", cta: last ? last.h : "Get started" })];
   }
 };
+Object.assign(BUILD, {
+  news(ls, text) {
+    const [h, ...rest] = ls; const by = rest.find(l => /^by\s/i.test(l)) || ""; const body = rest.filter(l => l !== by);
+    return [X({ style: "hero", label: "News story", h, sub: by, text: body[0] }), ...body.slice(1).map((l, i) => /^["“]/.test(l) ? X({ style: "quote", label: "Quote", h: (l.match(/said ([A-Z][a-z]+ [A-Z][a-z]+)/) || [, "Someone in the story"])[1], text: l }) : X({ style: "story", label: `Paragraph ${i + 2}`, text: l }))];
+  },
+  museum(ls, text) {
+    const bs = blocksOf(text); const head = bs.shift(); const intro = bs[0] && bs[0].length === 1 && /[.!?]$/.test(bs[0][0]) ? bs.shift()[0] : "";
+    return [X({ style: "hero", label: "Museum", h: head[0], sub: head[1] || "", text: intro }), ...bs.map(b => X({ style: "frame", label: "Object", h: b[0], sub: b[1] && !/[.!?]$/.test(b[1]) ? b[1] : "", text: b.slice(b[1] && !/[.!?]$/.test(b[1]) ? 2 : 1).join(" ") }))];
+  },
+  library(ls, text) {
+    const bs = blocksOf(text); const head = bs.shift(); const intro = bs[0] && bs[0].length === 1 && /[.!?]$/.test(bs[0][0]) ? bs.shift()[0] : "";
+    return [X({ style: "hero", label: "Library", h: head[0], sub: head[1] || "", text: intro }), ...bs.map(b => { const rows = b.filter(l => /^[A-Z][a-z ]+:\s/.test(l)).map(l => [l.split(/:\s*/)[0], l.split(/:\s*/).slice(1).join(": ")]); return X({ style: "source", label: (rows.find(r => r[0] === "Type") || [, "Source"])[1], h: b[0], rows, text: b.slice(1).filter(l => !/^[A-Z][a-z ]+:\s/.test(l)).join(" ") }); })];
+  },
+  book(ls) {
+    const [h, sub, ...rest] = ls; const gs = groupsOf(rest);
+    return [X({ style: "hero", label: "Book", h, text: sub }), ...gs.map(g => X({ style: "story", label: g.h ? g.h.split(":")[0] : "Story", h: g.h ? g.h.split(":").slice(1).join(":").trim() || g.h : "", text: g.body.join(" ") }))];
+  }
+});
 function typedCards(doc) {
   const ls = linesOf(doc.raw);
   try { const cards = BUILD[doc.type](ls, doc.raw); if (cards.length > 1) return cards; } catch (e) {}
@@ -855,6 +1025,228 @@ function typedFace(c, mood) {
   return b;
 }
 
+/* ---------- Lessons: any page becomes a lesson ---------- */
+let LS = { key: "", answers: {}, writing: {}, order: {}, trust: {} };
+const NB_KEY = "moodspace-notebook";
+let NB_MEM = null; // used when this browser blocks storage
+const nbLoad = () => { if (NB_MEM) return NB_MEM; try { return JSON.parse(localStorage.getItem(NB_KEY) || "[]"); } catch (e) { return NB_MEM = []; } };
+const nbSave = list => { if (NB_MEM) { NB_MEM = list; return; } try { localStorage.setItem(NB_KEY, JSON.stringify(list)); } catch (e) { NB_MEM = list; } };
+function nbPut(entry) { const l = nbLoad(); const i = l.findIndex(x => x.id === entry.id); if (i >= 0) l[i] = entry; else l.push(entry); nbSave(l); updateNbCount(); }
+function nbDel(id) { nbSave(nbLoad().filter(x => x.id !== id)); updateNbCount(); }
+function updateNbCount() { const n = nbLoad().length; const b = document.querySelector("#openNb"); if (b) b.textContent = n ? `Notebook (${n})` : "Notebook"; }
+
+const OPINION = /\b(should|must|best|worst|great|nice|terrible|beautiful|wonderful|amazing|awful|disappointing|exciting|unfair|perfect|love|hate|i think|we think|i believe)\b/i;
+const kidsy = () => state.audience === "kids";
+const L = o => ({ kind: "L", ...o });
+const shuffle = (arr, seed) => arr.map((x, i) => [rand(seed + i * 7.31), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+const numVal = s => parseFloat(s.replace(/,/g, ""));
+function fmtLike(orig, v) {
+  const core = (orig.match(/^[\d,.]+/) || [""])[0], suf = orig.slice(core.length), dec = (core.match(/\.(\d+)$/) || [])[1];
+  let n = dec ? v.toFixed(dec.length) : String(Math.round(v));
+  if (/,/.test(core)) n = Number(n).toLocaleString("en-US", { minimumFractionDigits: dec ? dec.length : 0 });
+  return n + suf;
+}
+const PRAISE = { kids: ["Yes! Great job!", "You got it!", "Super!"], teens: ["Correct.", "Nice.", "Right."], adults: ["Correct."], seniors: ["That's right."] };
+const praise = i => { const p = PRAISE[state.audience]; return p[i % p.length]; };
+const lessonSentences = raw => linesOf(raw).filter(l => /[.!?"”]$/.test(l) && l.split(/\s+/).length > 5).flatMap(sentences).filter(s => s.split(/\s+/).length > 5);
+
+function numberQs(S, n, used) {
+  const out = [];
+  S.forEach((s, i) => {
+    if (out.length >= n || used.has(s)) return; const m = s.match(NUM); if (!m) return;
+    const ans = m[1].trim(); const v = numVal(ans); if (!isFinite(v) || v === 0 || /^(19|20)\d\d$/.test(ans)) return;
+    const d = [...new Set([v < 5 ? v + 3 : v * 2, v < 5 ? v + 6 : v / 2].map(x => fmtLike(ans, x)))].filter(x => x !== ans);
+    if (d.length < 2) return; used.add(s);
+    out.push(L({ step: "mc", id: "n" + i, label: kidsy() ? "Quick game" : "Check", h: kidsy() ? "Can you guess?" : "Pick the right number", text: s.replace(ans, "____"), choices: shuffle([ans, ...d], i + 3), answer: ans, quote: s }));
+  });
+  return out;
+}
+function tfQs(S, n, used) {
+  const out = [];
+  S.forEach((s, i) => {
+    if (out.length >= n || used.has(s) || /["“]/.test(s)) return;
+    let shown = s, truth = "True";
+    if (out.length % 2 === 0) {
+      const m = s.match(NUM);
+      if (m && isFinite(numVal(m[1]))) { shown = s.replace(m[1].trim(), fmtLike(m[1].trim(), numVal(m[1]) * 3)); truth = "False"; }
+      else if (/\b(is|are|was|were|can|has|have)\b/.test(s)) { shown = s.replace(/\b(is|are|was|were|can|has|have)\b/, "$1 not"); truth = "False"; }
+    }
+    used.add(s);
+    out.push(L({ step: "mc", id: "t" + i, label: kidsy() ? "True or false?" : "Check", h: "True or false?", text: shown, choices: ["True", "False"], answer: truth, quote: s }));
+  });
+  return out;
+}
+function wordCards(S, raw, n) {
+  const ws = [...new Set((raw.match(/[A-Za-z]{9,}/g) || []).map(w => w.toLowerCase()))].filter(w => !STOP.has(w) && S.some(s => s.toLowerCase().includes(w))).slice(0, n);
+  return ws.map((w, i) => L({ step: "word", id: "w" + i, label: "New word", h: w, sub: syllables(w), quote: S.find(s => s.toLowerCase().includes(w)) }));
+}
+function writeCard(id, h, text, hint, max) { return L({ step: "write", id, label: kidsy() ? "Your turn" : "Writing", h, text, hint, max }); }
+
+const LESSON_INFO = {
+  news: { subject: "Thinking about the news", badge: "News Detective", goals: ["Find who, what, when, where and why", "Tell facts from opinions", "Write your own headline"] },
+  museum: { subject: "Virtual field trip", badge: "Museum Explorer", goals: ["Look closely at real objects", "Put them on a timeline", "Write your own museum label"] },
+  library: { subject: "Research skills", badge: "Research Ranger", goals: ["Judge which sources you can trust", "Build citations", "Choose your best source"] },
+  book: { subject: "Reading a story", badge: "Story Keeper", goals: ["Meet the characters", "Put the story in order", "Write to a character"] },
+  product: { subject: "Money math", badge: "Smart Shopper", goals: ["Work with prices", "Figure out a discount", "Decide if it's a good deal"] },
+  cart: { subject: "Money math", badge: "Smart Shopper", goals: ["Add up a shopping cart", "Understand tax and shipping", "Check the total"] },
+  statistics: { subject: "Reading data", badge: "Data Detective", goals: ["Read the numbers", "Spot what went up and down", "Explain a trend"] },
+  default: { subject: "Reading lesson", badge: "Page Explorer", goals: ["Understand the main ideas", "Learn new words", "Sum it up in your own words"] } };
+
+function contentCards(doc) {
+  let cs = doc.type !== "article" && BUILD[doc.type] ? typedCards(doc) : null;
+  if (!cs) cs = buildBase(doc, "deep");
+  if (kidsy()) cs.forEach(c => { if (c.kind !== "x") { if (c.text) c.text = kidify(c.text); c.paras = null; if (c.lede) c.lede = kidify(c.lede); } });
+  return cs;
+}
+function lessonFor(doc) {
+  const key = doc.title + "|" + state.audience; if (LS.key !== key) LS = { key, answers: {}, writing: {}, order: {}, trust: {} };
+  const t = doc.type, info = LESSON_INFO[t] || LESSON_INFO.default, raw = doc.raw, ls = linesOf(raw);
+  const S = lessonSentences(raw), used = new Set();
+  const nQ = { kids: 2, teens: 4, adults: 3, seniors: 2 }[state.audience];
+  const cards = [L({ step: "hook", label: info.subject, h: doc.title, text: kidsy() ? "Let's explore this page together!" : `A lesson made from this ${TYPES[t].toLowerCase()}.`, goals: info.goals })];
+  const learn = contentCards(doc).filter(c => !(c.kind === "x" && /hero/.test(c.style)) && c.kind !== "title");
+  const take = kidsy() ? 3 : 5;
+  if (t === "news") {
+    const by = ls.find(l => /^by\s/i.test(l)) || "";
+    cards.push(...learn.slice(0, take));
+    cards.push(L({ step: "fivew", id: "5w", label: "Reporter's notes", h: "The five W's", text: "Fill in what the story tells you.", quote: S[0] }));
+    const facts = S.filter(s => !OPINION.test(s) && NUM.test(s) && s.split(/\s+/).length < 26).slice(0, 2), ops = S.filter(s => OPINION.test(s) && s.split(/\s+/).length < 30).slice(0, kidsy() ? 1 : 2);
+    cards.push(L({ step: "sort", id: "sort", label: "Fact or opinion?", h: "Sort each sentence", rows: shuffle([...facts.map(s => ({ s, a: "Fact" })), ...ops.map(s => ({ s, a: "Opinion" }))], 5) }));
+    cards.push(...numberQs(S, nQ - 1, used));
+    cards.push(L({ step: "trust", id: "trust", label: "Who wrote this?", h: by ? by.replace(/^by\s+/i, "") : "No author listed", checks: ["The author is named", "The date is shown", "People are quoted by name", "More than one side is heard"] }));
+    cards.push(writeCard("headline", "Write your own headline", "Tell the whole story in 10 words or fewer.", "Who did what?", 10));
+  } else if (t === "museum") {
+    const objs = typedCards(doc).filter(c => c.style === "frame");
+    objs.slice(0, kidsy() ? 3 : 5).forEach((o, i) => cards.push(L({ step: "notice", id: "o" + i, label: `Room ${i + 1}`, h: o.h, sub: o.sub, text: o.text })));
+    const dated = objs.map(o => { const m = (o.sub || "").match(/(\d{3,4})\s*(BCE|BC|CE|AD)?/i); return m ? { h: o.h, y: (/(BCE|BC)/i.test(m[2] || "") ? -1 : 1) * +m[1], label: m[0] } : null; }).filter(Boolean).sort((a, b) => a.y - b.y);
+    if (dated.length > 1) cards.push(L({ step: "timeline", label: "Timeline", h: "Oldest to newest", rows: dated.map(d => [d.label, d.h]) }));
+    if (dated.length > 2) cards.push(L({ step: "mc", id: "old", label: "Check", h: "Which object is the oldest?", text: "Use the timeline.", choices: shuffle(dated.slice(0, 3).map(d => d.h), 9), answer: dated[0].h, quote: `${dated[0].h}: ${dated[0].label}` }));
+    cards.push(...tfQs(S, nQ - 1, used));
+    cards.push(writeCard("label", "Write a museum label", kidsy() ? "Pick your favorite object. Tell visitors what it is and why it's cool." : "Pick one object. In about 40 words, tell visitors what it is and why it matters.", "What is it? Who made it? Why does it matter?", 40));
+  } else if (t === "library") {
+    const srcs = typedCards(doc).filter(c => c.style === "source");
+    const topic = doc.title.replace(/^research guide:?\s*/i, "");
+    cards.push(L({ step: "quest", label: "Your quest", h: `Research: ${topic}`, text: `Look at ${srcs.length} sources. Decide which ones you can trust, save the good ones and build your citations.` }));
+    srcs.forEach((s, i) => cards.push(L({ step: "source", id: "s" + i, label: `Source ${i + 1}`, h: s.h, rows: s.rows, text: s.text, src: s })));
+    cards.push(L({ step: "cites", label: "Citations", h: "Your citations", text: "Sources you save show up here, ready to copy.", srcs }));
+    cards.push(writeCard("best", "Which source would you use first?", "Explain your choice in two or three sentences.", "Think about who wrote it and when.", 60));
+  } else if (t === "book") {
+    const cnt = {}; linesOf(raw).flatMap(sentences).forEach(s => s.split(/\s+/).slice(1).forEach(w => { const c = w.replace(/[^A-Za-z]/g, ""); if (/^[A-Z][a-z]{2,}$/.test(c) && !STOP.has(c.toLowerCase()) && !/^(Chapter|Once|When|Nobody|Halfway)$/.test(c)) cnt[c] = (cnt[c] || 0) + 1; }));
+    const chars = Object.keys(cnt).filter(k => cnt[k] >= 2).sort((a, b) => cnt[b] - cnt[a]).slice(0, 4);
+    cards.push(...learn.slice(0, kidsy() ? 3 : 4));
+    if (chars.length) cards.push(L({ step: "chars", id: "chars", label: "Characters", h: "Who's in the story?", chars }));
+    const ev = ls.filter(l => /[.!?"”]$/.test(l)).map(l => sentences(l)[0]).filter(s => s && s.split(/\s+/).length > 5 && !/^["“]/.test(s));
+    const pick = [0, 1, 2, 3].map(k => ev[Math.round(k * (ev.length - 1) / 3)]).filter((x, i, a) => x && a.indexOf(x) === i);
+    if (pick.length >= 3) cards.push(L({ step: "order", id: "order", label: kidsy() ? "Story game" : "Sequence", h: "Put the story in order", items: shuffle(pick.map((s, i) => ({ s, i })), 4) }));
+    if (chars.length) cards.push(writeCard("letter", `Write a letter to the ${chars[0]}`, "What would you tell them about what happened?", `Dear ${chars[0]},`, 80));
+    cards.push(writeCard("ending", "Change the ending", "How else could the story end?", "What if…", 80));
+  } else if (t === "product" || t === "cart" || t === "statistics") {
+    cards.push(...learn.slice(0, take));
+    const prices = (raw.match(new RegExp(PRICE.source, "g")) || []).map(p => numVal(p.replace(/[^\d.,]/g, "")));
+    const money = v => "$" + v.toFixed(2);
+    if (t === "product" && prices[0]) {
+      const p = prices[0];
+      cards.push(L({ step: "mc", id: "disc", label: "Money math", h: "It's 20% off today", text: `The price is ${money(p)}. What does it cost with 20% off?`, choices: shuffle([money(p * .8), money(p - 20), money(p * .2)], 2), answer: money(p * .8), quote: `20% of ${money(p)} is ${money(p * .2)}. ${money(p)} − ${money(p * .2)} = ${money(p * .8)}.` }));
+      cards.push(L({ step: "mc", id: "two", label: "Money math", h: "Buying two", text: `How much would two cost at full price?`, choices: shuffle([money(p * 2), money(p + 20), money(p * 3)], 6), answer: money(p * 2), quote: `${money(p)} × 2 = ${money(p * 2)}.` }));
+      cards.push(writeCard("deal", "Is it a good deal?", "Would you buy it? Give two reasons.", "I think… because…", 60));
+    } else if (t === "cart") {
+      const items = ls.filter(l => PRICE.test(l) && !/^(subtotal|shipping|tax|total)/i.test(l)).map(l => numVal(l.match(PRICE)[0].replace(/[^\d.,]/g, "")));
+      const sub = items.reduce((a, b) => a + b, 0);
+      const taxL = ls.find(l => /^tax/i.test(l)); const tax = taxL ? numVal(taxL.match(PRICE)[0].replace(/[^\d.,]/g, "")) : 0;
+      cards.push(L({ step: "mc", id: "sub", label: "Money math", h: "Add up the items", text: `What do the ${items.length} items cost together, before shipping and tax?`, choices: shuffle([money(sub), money(sub + 10), money(sub - 12)], 3), answer: money(sub), quote: items.map(money).join(" + ") + ` = ${money(sub)}` }));
+      if (tax) cards.push(L({ step: "mc", id: "rate", label: "Money math", h: "What's the tax rate?", text: `Tax is ${money(tax)} on ${money(sub)}. About what percent is that?`, choices: shuffle([`${Math.round(tax / sub * 100)}%`, `${Math.round(tax / sub * 100) + 5}%`, `${Math.max(1, Math.round(tax / sub * 100) - 4)}%`], 8), answer: `${Math.round(tax / sub * 100)}%`, quote: `${money(tax)} ÷ ${money(sub)} ≈ ${(tax / sub * 100).toFixed(1)}%` }));
+      cards.push(writeCard("budget", "Make it fit a budget", `Your budget is ${money(Math.floor(sub * .7))}. What would you take out, and why?`, "I would remove…", 50));
+    } else {
+      const ms = ls.slice(1).map(l => { const m = l.match(/^(.*?)\s+([\d.,]+\S*)(?:\s+\S+)?\s+([+-−]\s?[\d.]+)%$/); return m ? { n: m[1], c: parseFloat(m[3].replace("−", "-")) } : null; }).filter(Boolean);
+      if (ms.length > 2) {
+        const up = [...ms].sort((a, b) => b.c - a.c), dn = [...ms].sort((a, b) => a.c - b.c);
+        cards.push(L({ step: "mc", id: "up", label: "Reading data", h: "What grew the most?", text: "Look at the change for each number.", choices: shuffle(up.slice(0, 3).map(m => m.n), 1), answer: up[0].n, quote: `${up[0].n} went up ${up[0].c}%.` }));
+        cards.push(L({ step: "mc", id: "dn", label: "Reading data", h: "What went down the most?", text: "Look for the minus signs.", choices: shuffle(dn.slice(0, 3).map(m => m.n), 2), answer: dn[0].n, quote: `${dn[0].n} changed ${dn[0].c}%.` }));
+      }
+      cards.push(writeCard("why", "Explain a trend", "Pick one number that changed. Why do you think it changed?", "I think … went up because …", 60));
+    }
+  } else {
+    cards.push(...learn.slice(0, take));
+    cards.push(...numberQs(S, Math.ceil(nQ / 2), used), ...tfQs(S, Math.floor(nQ / 2) + 1, used));
+    cards.push(writeCard("sum", "Sum it up", kidsy() ? "Tell a friend what you learned in two sentences." : "Summarize the page in three sentences.", "This page is about…", 60));
+    cards.push(writeCard("think", "What do you think?", "Was anything surprising? What do you want to know next?", "I was surprised that…", 60));
+  }
+  if (!["museum", "library"].includes(t) || !kidsy()) cards.splice(Math.min(cards.length, 1 + take), 0, ...wordCards(S, raw, kidsy() ? 2 : 3));
+  cards.push(L({ step: "wrap", label: "Finished", h: kidsy() ? "You did it!" : "Lesson complete", badge: info.badge }));
+  return cards;
+}
+
+function lessonScore() {
+  let right = 0, total = 0;
+  cards.forEach(c => {
+    if (c.kind !== "L") return;
+    if (c.step === "mc") { total++; if (LS.answers[c.id] === c.answer) right++; }
+    if (c.step === "sort") c.rows.forEach((r, k) => { total++; if (LS.answers[c.id + k] === r.a) right++; });
+    if (c.step === "order") { total++; if (LS.answers[c.id] === "ok") right++; }
+  });
+  return { right, total };
+}
+const fb = (ok, quote, i) => `<div class="fb ${ok ? "ok" : "no"}"><b>${ok ? praise(i) : kidsy() ? "Not quite. Here's the answer:" : "Not quite."}</b>${quote ? ` <span>${esc(quote)}</span>` : ""}</div>`;
+const cite = s => { const r = Object.fromEntries((s.rows || []).map(([k, v]) => [k.toLowerCase(), v])); const au = r.author && !/unknown/i.test(r.author) ? r.author.split(" ").reverse().join(", ").replace(/, (\S+)$/, ", $1") + ". " : ""; return `${au}${s.h}. ${r.publisher && !/unknown/i.test(r.publisher) ? r.publisher + ", " : ""}${r.year || "n.d."}.`; };
+
+function lessonFace(c, i) {
+  const a = LS.answers[c.id];
+  const w = id => esc(LS.writing[id] || "");
+  switch (c.step) {
+    case "hook": return `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.text)}</p><div class="goals"><span>In this lesson you will</span><ul>${c.goals.map(g => `<li>${esc(g)}</li>`).join("")}</ul></div><span class="cta">${kidsy() ? "Let's go! →" : "Start →"}</span>`;
+    case "mc": return `<h2>${esc(c.h)}</h2><p>${esc(c.text)}</p><div class="choices">${c.choices.map(ch => `<button data-act="pick" data-id="${c.id}" data-v="${esc(ch)}" class="choice${a ? ch === c.answer ? " right" : ch === a ? " wrong" : "" : ""}"${a ? " disabled" : ""}>${esc(ch)}</button>`).join("")}</div>${a ? fb(a === c.answer, c.quote, i) : ""}`;
+    case "sort": return `<h2>${esc(c.h)}</h2><div class="sortrows">${c.rows.map((r, k) => { const v = LS.answers[c.id + k]; return `<div class="sortrow${v ? v === r.a ? " right" : " wrong" : ""}"><p>${esc(r.s)}</p><div class="choices">${["Fact", "Opinion"].map(x => `<button data-act="pick" data-id="${c.id + k}" data-v="${x}" class="choice${v ? x === r.a ? " right" : x === v ? " wrong" : "" : ""}"${v ? " disabled" : ""}>${x}</button>`).join("")}</div></div>`; }).join("")}</div><p class="hint">An opinion tells you what someone thinks or feels. A fact can be checked.</p>`;
+    case "order": { const sel = LS.order[c.id] || []; const done = sel.length === c.items.length; return `<h2>${esc(c.h)}</h2><p class="hint">Tap the events in the order they happened.</p><div class="orderlist">${c.items.map((it, k) => { const pos = sel.indexOf(k); return `<button data-act="order" data-id="${c.id}" data-k="${k}" class="orderitem${pos >= 0 ? " on" : ""}${done ? it.i === pos ? " right" : " wrong" : ""}"${pos >= 0 || done ? " disabled" : ""}><b>${pos >= 0 ? pos + 1 : "·"}</b>${esc(it.s)}</button>`; }).join("")}</div>${done ? fb(a === "ok", a === "ok" ? "" : "Correct order: " + [...c.items].sort((x, y) => x.i - y.i).map(x => x.s.split(/\s+/).slice(0, 5).join(" ") + "…").join(" → "), i) + `<button class="choice" data-act="reorder" data-id="${c.id}">Try again</button>` : ""}`; }
+    case "word": return `<h2>${esc(c.h)}</h2><div class="sub">${esc(c.sub)}</div><p class="quote">“${esc(c.quote).replace(new RegExp(esc(c.h), "i"), m => `<mark>${m}</mark>`)}”</p><label class="field"><span>What do you think it means?</span><input data-w="${c.id}" value="${w(c.id)}" placeholder="I think it means…"></label><button class="choice" data-act="saveword" data-id="${c.id}">${nbLoad().some(x => x.id === LS.key + c.id) ? "Saved ✓" : "Save to my notebook"}</button>`;
+    case "write": { const n = (LS.writing[c.id] || "").trim().split(/\s+/).filter(Boolean).length; return `<h2>${esc(c.h)}</h2><p>${esc(c.text)}</p><textarea data-w="${c.id}" rows="4" placeholder="${esc(c.hint)}">${w(c.id)}</textarea><div class="count"><span data-count="${c.id}">${n} words</span>${c.max ? ` · aim for ${c.max} or fewer` : ""} · saves to your notebook</div>`; }
+    case "fivew": return `<h2>${esc(c.h)}</h2><p class="hint">${esc(c.text)} Clue: “${esc(c.quote || "")}”</p>${["Who", "What", "When", "Where", "Why"].map(k => `<label class="field row"><span>${k}</span><input data-w="${c.id}-${k}" value="${w(c.id + "-" + k)}"></label>`).join("")}`;
+    case "trust": { const t = LS.trust[c.id] || {}; const n = Object.values(t).filter(Boolean).length; return `<h2>${esc(c.h)}</h2><p class="hint">Tick what this story does.</p><div class="checks">${c.checks.map((k, j) => `<button data-act="trust" data-id="${c.id}" data-k="${j}" class="check${t[j] ? " on" : ""}">${t[j] ? "✓" : "○"} ${esc(k)}</button>`).join("")}</div><p class="verdict">${n >= 3 ? "Good signs. This story shows its work." : n ? "Some good signs. Read carefully." : "Tick the boxes to judge the story."}</p>`; }
+    case "notice": return `<div class="sub">${esc(c.sub || "")}</div><h2>${esc(c.h)}</h2><p>${esc(kidsy() ? kidify(c.text || "") : c.text || "")}</p><label class="field"><span>I notice…</span><input data-w="${c.id}-n" value="${w(c.id + "-n")}"></label><label class="field"><span>I wonder…</span><input data-w="${c.id}-w" value="${w(c.id + "-w")}"></label>`;
+    case "timeline": return `<h2>${esc(c.h)}</h2><ol class="timeline">${c.rows.map(([y, h]) => `<li><b>${esc(y)}</b><span>${esc(h)}</span></li>`).join("")}</ol>`;
+    case "quest": return `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.text)}</p>`;
+    case "source": { const t = LS.trust[c.id] || {}; const r = Object.fromEntries((c.rows || []).map(([k, v]) => [k.toLowerCase(), v])); const checks = ["An author is named", "It's recent (last 10 years)", "A known publisher or library", "It explains where facts come from"]; const n = Object.values(t).filter(Boolean).length; const saved = nbLoad().some(x => x.id === LS.key + c.id);
+      return `<h2>${esc(c.h)}</h2><dl class="rows">${(c.rows || []).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl><p>${esc(c.text || "")}</p><div class="checks">${checks.map((k, j) => `<button data-act="trust" data-id="${c.id}" data-k="${j}" class="check${t[j] ? " on" : ""}">${t[j] ? "✓" : "○"} ${esc(k)}</button>`).join("")}</div><p class="verdict">${n >= 3 ? "Looks trustworthy." : n === 2 ? "Maybe. Check another source too." : n ? "Be careful with this one." : "Tick what's true about this source."}</p><button class="choice" data-act="savesrc" data-id="${c.id}">${saved ? "Saved ✓" : "Add to my sources"}</button>`; }
+    case "cites": { const saved = c.srcs.filter((s, j) => nbLoad().some(x => x.id === LS.key + "s" + j)); return `<h2>${esc(c.h)}</h2>${saved.length ? `<ol class="cites">${saved.map(s => `<li>${esc(cite(s))}</li>`).join("")}</ol><button class="choice" data-act="copycites" data-id="${c.id}">Copy citations</button>` : `<p class="hint">${esc(c.text)}</p>`}<p class="hint">A citation tells readers exactly where your information came from.</p>`; }
+    case "chars": return `<h2>${esc(c.h)}</h2>${c.chars.map(ch => `<label class="field row"><span>${esc(ch)}</span><input data-w="${c.id}-${ch}" value="${w(c.id + "-" + ch)}" placeholder="Describe them in a few words"></label>`).join("")}`;
+    case "wrap": { const s = lessonScore(); const words = nbLoad().filter(x => x.lesson === doc.title).length; return `<div class="badge">★ ${esc(c.badge)}</div><h1>${esc(c.h)}</h1><dl class="rows"><dt>Answers</dt><dd>${s.right} of ${s.total} right</dd><dt>Notebook</dt><dd>${words} item${words === 1 ? "" : "s"} saved from this lesson</dd></dl><button class="choice" data-act="notebook">Open my notebook</button>`; }
+  }
+  return "";
+}
+function rerenderCard(i) { els[i].innerHTML = faceHTML(cards[i], i, cards.length, state.mood); els[i]._fog = null; }
+function refreshWrap() { cards.forEach((c, j) => { if (c.kind === "L" && (c.step === "wrap" || c.step === "cites")) rerenderCard(j); }); }
+function lessonAct(btn) {
+  const act = btn.dataset.act, id = btn.dataset.id, i = +btn.closest(".card").dataset.i, c = cards[i];
+  if (act === "pick") { LS.answers[id] = btn.dataset.v; }
+  else if (act === "order") { const sel = LS.order[id] = LS.order[id] || []; sel.push(+btn.dataset.k); if (sel.length === c.items.length) LS.answers[id] = sel.every((k, pos) => c.items[k].i === pos) ? "ok" : "no"; }
+  else if (act === "reorder") { LS.order[id] = []; delete LS.answers[id]; }
+  else if (act === "trust") { const t = LS.trust[id] = LS.trust[id] || {}; t[btn.dataset.k] = !t[btn.dataset.k]; }
+  else if (act === "saveword") { nbPut({ id: LS.key + id, lesson: doc.title, kind: "Word", text: `${c.h}: ${LS.writing[id] || "(no meaning written yet)"}. From: “${c.quote}”` }); }
+  else if (act === "savesrc") { const s = c.src; nbPut({ id: LS.key + id, lesson: doc.title, kind: "Source", text: cite(s) }); }
+  else if (act === "copycites") { const txt = c.srcs.filter((s, j) => nbLoad().some(x => x.id === LS.key + "s" + j)).map(cite).join("\n"); copyText(txt, btn); return; }
+  else if (act === "notebook") { openNb(); return; }
+  rerenderCard(i); refreshWrap();
+}
+function copyText(txt, btn) {
+  const done = ok => { const old = btn.textContent; btn.textContent = ok ? "Copied" : "Select the text to copy it"; setTimeout(() => btn.textContent = old, 1600); };
+  try { navigator.clipboard.writeText(txt).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+}
+const wTimers = {};
+function lessonInput(el) {
+  const id = el.dataset.w; LS.writing[id] = el.value;
+  const cnt = el.closest(".face").querySelector(`[data-count="${id}"]`); if (cnt) cnt.textContent = `${el.value.trim().split(/\s+/).filter(Boolean).length} words`;
+  clearTimeout(wTimers[id]); wTimers[id] = setTimeout(() => {
+    const c = cards[+el.closest(".card").dataset.i]; if (!el.value.trim() || c.step === "word") return;
+    const what = c.step === "notice" ? `${c.h} (${id.endsWith("-n") ? "I notice" : "I wonder"})` : c.step === "fivew" ? `Five W's: ${id.split("-").pop()}` : c.step === "chars" ? `Character: ${id.split("-").pop()}` : c.h;
+    nbPut({ id: LS.key + id, lesson: doc.title, kind: "Writing", text: `${what}: ${el.value.trim()}` }); refreshWrap();
+  }, 600);
+}
+function openNb() {
+  const list = nbLoad(), by = {};
+  list.forEach(x => (by[x.lesson] = by[x.lesson] || []).push(x));
+  $("#nbList").innerHTML = list.length ? Object.entries(by).map(([l, xs]) => `<section class="nbgroup"><h4>${esc(l)}</h4>${xs.map(x => `<div class="nbrow"><span class="tag">${esc(x.kind)}</span><p>${esc(x.text)}</p><button class="x" data-del="${esc(x.id)}" aria-label="Remove">×</button></div>`).join("")}</section>`).join("") : `<p class="note">Your notebook is empty. Words, writing and sources you save in lessons show up here.</p>`;
+  $("#nbConfirm").hidden = true; $("#nb").hidden = false;
+}
+
 /* ---------- Views: one 3D world per mood ---------- */
 function rand(seed) { const x = Math.sin(seed * 91.7) * 43758.5; return x - Math.floor(x); }
 const mobile = () => innerWidth < 700;
@@ -863,11 +1255,12 @@ const LAYOUTS = {
   focused: n => ({ pos: Array.from({ length: n }, (_, i) => ({ x: 0, y: 0, z: -i * 900, ry: 0, rz: 0 })), view: { x: 0, y: 0, z: 0, rx: -4, ry: -16, zoom: -700 }, spin: 0 }),
   curious: n => ({ pos: Array.from({ length: n }, (_, i) => { const y = 1 - 2 * (i + .5) / n, r = Math.sqrt(1 - y * y), th = i * 2.39996; const x = Math.cos(th) * r, z = Math.sin(th) * r; return { x: x * 680, y: -y * 520, z: z * 680, ry: Math.atan2(x, z) * 180 / Math.PI, rz: 0 }; }), view: { x: 0, y: 0, z: 0, rx: -8, ry: 0, zoom: -1500 }, spin: 0.08 }),
   energized: n => { const cols = mobile() ? 2 : Math.ceil(Math.sqrt(n * 1.7)), rows = Math.ceil(n / cols);
-    return { pos: Array.from({ length: n }, (_, i) => ({ x: (i % cols - (cols - 1) / 2) * 400, y: (Math.floor(i / cols) - (rows - 1) / 2) * 360, z: (rand(i + 1) - .5) * 500, ry: (rand(i + 7) - .5) * 24, rz: (rand(i + 3) - .5) * 10 })), view: { x: 0, y: 0, z: 0, rx: 0, ry: 0, zoom: -560 - rows * 190 - cols * 60 }, spin: 0 }; }
+    const gx = state.delivery === "lesson" ? 480 : 400, gy = state.delivery === "lesson" ? 760 : 360;
+    return { pos: Array.from({ length: n }, (_, i) => ({ x: (i % cols - (cols - 1) / 2) * gx, y: (Math.floor(i / cols) - (rows - 1) / 2) * gy, z: (rand(i + 1) - .5) * 500, ry: (rand(i + 7) - .5) * 24, rz: (rand(i + 3) - .5) * 10 })), view: { x: 0, y: 0, z: 0, rx: 0, ry: 0, zoom: -560 - rows * 190 - cols * 60 }, spin: 0 }; }
 };
 
 /* ---------- State, camera, render ---------- */
-const openText = (text, type) => { const d = parse(text); d.raw = text; d.type = type && type !== "auto" ? type : detectType(text); return d; };
+const openText = (text, type) => { const d = parse(text); d.raw = text; const first = linesOf(text)[0] || ""; if (isHead(first) || first.length < 90 && !/[.!?]$/.test(first)) d.title = first; d.type = type && type !== "auto" ? type : detectType(text); return d; };
 let doc = openText(SAMPLE, "article");
 const state = { audience: "adults", mood: "curious", need: "deep", delivery: "tour", focus: -1, trail: null, film: false };
 let cards = [], els = [], layout = null;
@@ -880,6 +1273,7 @@ function rebuild() {
   els = cards.map((c, i) => { const el = document.createElement("div"); el.className = "card enter"; el.dataset.i = i; world.appendChild(el); return el; });
   state.focus = -1; state.trail = null; updateTrail();
   relayout(true);
+  if (state.delivery === "lesson") setTimeout(() => { if (state.focus < 0 && !state.film) focus(0); }, 900);
   requestAnimationFrame(() => requestAnimationFrame(() => els.forEach((el, i) => setTimeout(() => el.classList.remove("enter"), reduce ? 0 : i * 45))));
   $("#typeName").textContent = TYPES[doc.type].toLowerCase().replace(/ /g, "-"); setStatus(); $("#tryType").value = doc.type;
   $("#addr").textContent = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
@@ -905,7 +1299,8 @@ function overview() {
 }
 function focus(i) {
   i = (i + cards.length) % cards.length; state.focus = i; const p = layout.pos[i];
-  Object.assign(tgt, { x: p.x, y: p.y, z: p.z, rx: 0, ry: near(cam.ry, -p.ry), zoom: mobile() ? -280 : 80 });
+  const base = mobile() ? -280 : 80, hgt = els[i] ? els[i].offsetHeight : 0, fit = hgt ? 1000 - 1000 * hgt / (0.68 * innerHeight) : base;
+  Object.assign(tgt, { x: p.x, y: p.y, z: p.z, rx: 0, ry: near(cam.ry, -p.ry), zoom: Math.min(base, fit) });
   els.forEach((e, j) => e.classList.toggle("active", j === i));
   if (!state.film) $("#nav").hidden = false;
 }
@@ -945,7 +1340,7 @@ function drawSky() {
 
 /* ---------- Moving around ---------- */
 let dragging = false, down = null;
-stage.addEventListener("pointerdown", e => { if (e.target.closest(".chip, .reveal")) return; down = { x: e.clientX, y: e.clientY, ry: tgt.ry, rx: tgt.rx, moved: false }; stage.setPointerCapture(e.pointerId); lastInteract = performance.now(); });
+stage.addEventListener("pointerdown", e => { if (e.target.closest(".chip, .reveal, button, input, textarea, label")) return; down = { x: e.clientX, y: e.clientY, ry: tgt.ry, rx: tgt.rx, moved: false }; stage.setPointerCapture(e.pointerId); lastInteract = performance.now(); });
 stage.addEventListener("pointermove", e => {
   if (!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y;
   if (!down.moved && Math.hypot(dx, dy) > 6) { down.moved = true; dragging = true; stage.classList.add("dragging"); if (state.focus >= 0) overview(); down.ry = tgt.ry; down.rx = tgt.rx; down.x = e.clientX; down.y = e.clientY; return; }
@@ -956,9 +1351,12 @@ stage.addEventListener("pointerup", e => {
   down = null; dragging = false; stage.classList.remove("dragging");
 });
 stage.addEventListener("wheel", e => { e.preventDefault(); tgt.zoom = Math.max(-5000, Math.min(400, tgt.zoom - e.deltaY * 1.4)); lastInteract = performance.now(); }, { passive: false });
-world.addEventListener("click", e => { const rv = e.target.closest(".reveal"); if (rv) { rv.closest(".face").classList.add("shown"); return; } const ch = e.target.closest(".chip"); if (!ch) return; e.stopPropagation(); follow(ch.dataset.key); });
+world.addEventListener("input", e => { if (e.target.dataset.w) lessonInput(e.target); });
+world.addEventListener("click", e => { const la = e.target.closest("[data-act]"); if (la) { e.stopPropagation(); lessonAct(la); return; } const rv = e.target.closest(".reveal"); if (rv) { rv.closest(".face").classList.add("shown"); return; } const ch = e.target.closest(".chip"); if (!ch) return; e.stopPropagation(); follow(ch.dataset.key); });
 addEventListener("keydown", e => {
   if (!$("#drawer").hidden || !$("#lens").hidden) { if (e.key === "Escape") { closeDrawer(); if (saved) closeLens(); } return; }
+  if (!$("#nb").hidden) { if (e.key === "Escape") $("#nb").hidden = true; return; }
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   if (e.key === "Escape") { state.film ? stopFilm() : overview(); }
   if (state.film) return;
   if (e.key === "ArrowRight" || e.key === "ArrowDown") focus(state.focus + 1);
@@ -984,7 +1382,7 @@ function updateTrail() {
 $("#trailClear").onclick = () => { state.trail = null; applyTrailDim(); updateTrail(); els.forEach(el => el.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"))); };
 
 /* ---------- The lens (pre-built filter) ---------- */
-const LABEL = { kids: "Kids", teens: "Teens", adults: "Adults", seniors: "Seniors", calm: "Calm", focused: "Focused", curious: "Curious", energized: "Energized", quick: "Quick", deep: "Deep dive", facts: "Facts", tour: "Tour", explore: "Explore", quiet: "Quiet" };
+const LABEL = { kids: "Kids", teens: "Teens", adults: "Adults", seniors: "Seniors", calm: "Calm", focused: "Focused", curious: "Curious", energized: "Energized", quick: "Quick", deep: "Deep dive", facts: "Facts", tour: "Tour", explore: "Explore", quiet: "Quiet", lesson: "Lesson" };
 let saved = null;
 function save() { try { localStorage.setItem("moodspace", JSON.stringify({ audience: state.audience, mood: state.mood, need: state.need, delivery: state.delivery })); } catch (e) {} saved = true; }
 function paintLens() {
@@ -994,10 +1392,10 @@ function paintLens() {
   document.body.dataset.mood = state.mood; document.body.dataset.audience = state.audience;
   setStatus();
 }
-function setStatus() { if (typeof doc === "undefined" || !doc) return; $("#status").textContent = `${TYPES[doc.type]} · for ${LABEL[state.audience].toLowerCase()} · ${VIEW[state.mood]} view · drag to orbit, tap a card`; }
+function setStatus() { if (typeof doc === "undefined" || !doc) return; $("#status").textContent = `${state.delivery === "lesson" ? "Lesson · " : ""}${TYPES[doc.type]} · for ${LABEL[state.audience].toLowerCase()} · ${VIEW[state.mood]} view · drag to orbit, tap a card`; }
 function setLens(patch) {
   const prev = { ...state }; Object.assign(state, patch); paintLens(); save();
-  if ((patch.need && patch.need !== prev.need) || (patch.audience && patch.audience !== prev.audience)) { if (state.film) stopFilm(); rebuild(); }
+  if ((patch.need && patch.need !== prev.need) || (patch.audience && patch.audience !== prev.audience) || (patch.delivery && patch.delivery !== prev.delivery && (patch.delivery === "lesson" || prev.delivery === "lesson"))) { if (state.film) stopFilm(); rebuild(); }
   else if (patch.mood && patch.mood !== prev.mood) { if (state.mood !== "curious") { state.trail = null; updateTrail(); } relayout(false); if (state.film) audio.mood(); }
   if (patch.delivery === "quiet") voiceStop();
 }
@@ -1014,6 +1412,15 @@ const RATE = { calm: .9, focused: 1, curious: 1.02, energized: 1.15 };
 const rate = () => RATE[state.mood] * (state.audience === "kids" ? .9 : state.audience === "seniors" ? .85 : 1);
 const canSpeak = () => state.delivery !== "quiet" && audio.on;
 function voiceStop() { try { tts?.stop().catch(() => {}); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} }
+
+/* ---------- Notebook ---------- */
+$("#openNb").onclick = openNb; $("#nbClose").onclick = () => { $("#nb").hidden = true; };
+$("#nb").addEventListener("click", e => { if (e.target.id === "nb") $("#nb").hidden = true; const d = e.target.closest("[data-del]"); if (d) { nbDel(d.dataset.del); openNb(); refreshWrap(); } });
+$("#nbCopy").onclick = e => copyText(nbLoad().map(x => `[${x.lesson}] ${x.kind}: ${x.text}`).join("\n"), e.target);
+$("#nbClear").onclick = () => { $("#nbConfirm").hidden = false; };
+$("#nbNo").onclick = () => { $("#nbConfirm").hidden = true; };
+$("#nbYes").onclick = () => { nbSave([]); updateNbCount(); openNb(); if (state.delivery === "lesson") rebuild(); };
+updateNbCount();
 
 /* ---------- Opening a page ---------- */
 const openDrawer = () => { $("#drawer").hidden = false; $("#err").hidden = true; $("#src").focus(); };
@@ -1056,6 +1463,7 @@ const audio = (() => {
 })();
 let shot = 0, shotTimer = null, filmId = 0;
 function narration(c) {
+  if (c.kind === "L") return [c.label, c.h, c.text, c.choices ? "Is it " + c.choices.join(", or ") + "?" : "", c.goals ? "You will " + c.goals.join(", ") : "", (c.rows || []).map(r => r.s || r.join(" ")).join(". ")].filter(Boolean).join(". ");
   if (c.kind === "x") return [c.label, c.h, c.big, c.trend, c.text, (c.list || []).join(". "), (c.rows || []).map(r => r.join(" ")).join(". "), (c.bars || []).map(b => `${b.label} ${b.chg}`).join(". "), c.cta].filter(Boolean).join(". ");
   if (c.kind === "title") return `${c.h}. ${c.lede}`;
   if (c.kind === "tldr") return c.points.join(" ");
@@ -1103,7 +1511,7 @@ $("#play").onclick = startFilm; $("#stop").onclick = stopFilm;
 $("#sound").onclick = () => { const on = audio.toggle(); $("#sound").textContent = on ? "Voice on" : "Voice off"; if (state.film) { const from = shot; const id = ++filmId; timedFilm(id, from); } };
 
 /* ---------- Boot ---------- */
-try { const s = JSON.parse(localStorage.getItem("moodspace") || "null"); if (s) { saved = true; if (["kids", "teens", "adults", "seniors"].includes(s.audience)) state.audience = s.audience; if (LAYOUTS[s.mood]) state.mood = s.mood; if (["quick", "deep", "facts"].includes(s.need)) state.need = s.need; if (["tour", "explore", "quiet"].includes(s.delivery)) state.delivery = s.delivery; } } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem("moodspace") || "null"); if (s) { saved = true; if (["kids", "teens", "adults", "seniors"].includes(s.audience)) state.audience = s.audience; if (LAYOUTS[s.mood]) state.mood = s.mood; if (["quick", "deep", "facts"].includes(s.need)) state.need = s.need; if (["tour", "explore", "quiet", "lesson"].includes(s.delivery)) state.delivery = s.delivery; } } catch (e) {}
 paintLens(); sizeSky(); rebuild(); Object.assign(cam, tgt);
 if (!saved) openLens();
 addEventListener("resize", () => { sizeSky(); relayout(false); });
