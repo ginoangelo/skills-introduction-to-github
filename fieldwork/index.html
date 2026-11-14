@@ -1,0 +1,617 @@
+<title>Fieldwork</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an app shell. Project sources on the left, four work tabs on the right:
+   Lens (read), Extract (ask AI), Datasets (objects with evidence), Deliverable (report + exports). */
+:root {
+  --bg: #f4f6f3; --panel: #ffffff; --ink: #14201a; --muted: #5d6b63; --line: #dbe2dc;
+  --accent: #0f6e5f; --accent-ink: #ffffff; --hl: #ffe27a; --ok: #1d7a43; --warn: #b4540f; --soft: #e9efea;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1513; --panel: #161e1b; --ink: #e7eee9; --muted: #98a69e; --line: #2a3631;
+  --accent: #3cc2a6; --accent-ink: #062019; --hl: #6b5a12; --ok: #4fd18a; --warn: #f0a160; --soft: #1d2723; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1513; --panel: #161e1b; --ink: #e7eee9; --muted: #98a69e; --line: #2a3631;
+  --accent: #3cc2a6; --accent-ink: #062019; --hl: #6b5a12; --ok: #4fd18a; --warn: #f0a160; --soft: #1d2723; color-scheme: dark; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.55 var(--body); }
+* { box-sizing: border-box; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+  padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+.logo { display: flex; align-items: center; gap: 10px; font: 700 20px/1 var(--display); letter-spacing: -.02em; }
+.logo svg { width: 22px; height: 22px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--soft); }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 13px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.plan { margin-left: auto; font: 500 12px/1 var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; }
+.plan b { color: var(--accent); font-weight: 500; }
+
+.app { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; padding-block: 16px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1380px; margin: 0 auto; }
+aside, main { min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+aside .card { padding: 14px; display: grid; gap: 12px; }
+.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.project { font: 700 17px/1.2 var(--display); }
+.srclist { display: grid; gap: 6px; }
+.src { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; text-align: left; border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 9px 10px; }
+.src.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.src b { font-weight: 600; font-size: 13px; }
+.src small { grid-column: 1; font: 400 11.5px/1.3 var(--mono); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.src .n { grid-row: 1 / 3; grid-column: 2; align-self: center; font: 500 11px/1 var(--mono); color: var(--accent); }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 8px 13px; font-weight: 600; font-size: 13px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:disabled { opacity: .5; cursor: default; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row .sp { flex: 1; }
+.note { color: var(--muted); font-size: 12.5px; }
+.stat { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; font-size: 13px; }
+.stat span:nth-child(even) { font: 500 13px/1.4 var(--mono); text-align: right; }
+.verified { color: var(--ok); }
+
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); padding: 0 6px; overflow-x: auto; }
+.tabs button { border: 0; background: none; padding: 13px 14px 11px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; display: flex; gap: 7px; align-items: center; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tabs i { font-style: normal; font: 500 11px/1 var(--mono); background: var(--soft); border-radius: 999px; padding: 3px 7px; color: var(--muted); }
+.pane { padding: 20px; display: grid; gap: 16px; }
+h2 { margin: 0; font: 700 22px/1.2 var(--display); letter-spacing: -.01em; text-wrap: balance; }
+h3 { margin: 0; font: 600 15px/1.3 var(--display); }
+
+/* Lens */
+.lens { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
+.reading { max-width: 66ch; display: grid; gap: 12px; }
+.reading .url { font: 400 12px/1 var(--mono); color: var(--muted); }
+.reading p { margin: 0; font-size: 15.5px; line-height: 1.7; }
+.reading p.head { font: 600 15px/1.3 var(--display); }
+mark { background: var(--hl); color: inherit; border-radius: 3px; padding: 0 2px; cursor: pointer; }
+mark.flash { outline: 2px solid var(--accent); }
+.keys { display: grid; gap: 8px; align-content: start; }
+.key { border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; display: grid; gap: 3px; font-size: 13px; }
+.key .t { font: 500 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+
+/* Extract */
+.templates { display: flex; flex-wrap: wrap; gap: 8px; }
+.tpl { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 500; }
+.tpl.on { border-color: var(--accent); color: var(--accent); }
+#req { width: 100%; min-height: 96px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--bg); font-size: 15px; line-height: 1.5; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.checks label { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.steps { display: grid; gap: 6px; font-size: 13.5px; }
+.steps div { display: flex; gap: 8px; align-items: center; color: var(--muted); }
+.steps div.done { color: var(--ink); }
+.steps div.now { color: var(--accent); font-weight: 600; }
+.steps b { width: 16px; text-align: center; }
+.msg { border-radius: 8px; padding: 10px 12px; background: var(--soft); font-size: 13.5px; }
+.msg.err { color: var(--warn); }
+
+/* Datasets */
+.objtabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.objtab { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 7px 11px; font-size: 13px; font-weight: 600; display: flex; gap: 6px; }
+.objtab span { font: 500 11.5px/1.5 var(--mono); color: var(--muted); }
+.objtab[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13px; }
+th, td { text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 11px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--soft); position: sticky; top: 0; }
+tbody tr:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); cursor: pointer; }
+tr:last-child td { border-bottom: 0; }
+td.ev { max-width: 300px; color: var(--muted); font-size: 12.5px; }
+td.ev b { display: block; font: 500 11px/1.4 var(--mono); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nf { color: var(--muted); font-style: italic; }
+
+/* Deliverable */
+.deliv { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; }
+.report { display: grid; gap: 14px; max-width: 70ch; }
+.report .sum { font-size: 15.5px; line-height: 1.65; margin: 0; }
+.report ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.export { display: grid; gap: 8px; align-content: start; }
+.export .btn { display: flex; justify-content: space-between; align-items: center; padding: 11px 13px; }
+.export .btn small { font: 500 11px/1 var(--mono); color: var(--muted); }
+.slides { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.slide { aspect-ratio: 16 / 9; max-width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 10px; display: grid; align-content: start; gap: 4px; overflow: hidden; background: var(--panel); }
+.slide b { font: 700 11px/1.2 var(--display); }
+.slide span { font-size: 8.5px; line-height: 1.35; color: var(--muted); }
+.slide.title { background: var(--accent); color: var(--accent-ink); align-content: end; }
+.slide.title span { color: var(--accent-ink); opacity: .8; }
+.flash { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.fc { border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-height: 120px; display: grid; gap: 6px; align-content: start; text-align: left; background: var(--panel); }
+.fc .t { font: 500 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.fc.flipped { background: var(--soft); }
+.cmp td:first-child { font-weight: 600; }
+
+dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); width: min(620px, calc(100% - 32px)); padding: 22px; }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+dialog form { display: grid; gap: 12px; }
+dialog label { display: grid; gap: 5px; font-size: 13px; font-weight: 600; }
+dialog input, dialog textarea { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; background: var(--bg); font-weight: 400; }
+dialog textarea { min-height: 180px; resize: vertical; font-size: 13.5px; }
+
+@media (max-width: 960px) {
+  .app { grid-template-columns: 1fr; }
+  .lens, .deliv { grid-template-columns: 1fr; }
+  .plan { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="top">
+  <div class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 4h12l-3 4 3 4H5" fill="var(--accent)"/></svg>Fieldwork</div>
+  <div class="seg" role="group" aria-label="Package">
+    <button data-pkg="student">Student</button>
+    <button data-pkg="pro">Professional</button>
+  </div>
+  <div class="plan" id="plan"></div>
+</header>
+
+<div class="app">
+  <aside>
+    <div class="card">
+      <div><div class="eyebrow">Project</div><div class="project" id="projName"></div></div>
+      <div class="eyebrow">Sources</div>
+      <div class="srclist" id="srcList"></div>
+      <div class="row"><button class="btn" id="addSrc">Add a page</button><button class="btn" id="resetProj">Reset example</button></div>
+      <div class="eyebrow">This project</div>
+      <div class="stat" id="stats"></div>
+      <p class="note" id="runNote"></p>
+    </div>
+  </aside>
+
+  <main class="card">
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="lens">Lens</button>
+      <button role="tab" data-tab="extract">Extract</button>
+      <button role="tab" data-tab="data">Datasets <i id="nRows">0</i></button>
+      <button role="tab" data-tab="deliv">Deliverable</button>
+    </div>
+    <div class="pane" id="pane"></div>
+  </main>
+</div>
+
+<dialog id="addDlg">
+  <form method="dialog" id="addForm">
+    <h2>Add a page</h2>
+    <p class="note">Copy the text of any web page and paste it here. In the browser extension, this happens with one click on the page you're viewing.</p>
+    <label for="aTitle">Page title<input id="aTitle" required placeholder="Acme Inc. Pricing"></label>
+    <label for="aUrl">Web address<input id="aUrl" placeholder="acme.com/pricing"></label>
+    <label for="aText">Page text<textarea id="aText" required placeholder="Paste the page text here"></textarea></label>
+    <div class="row"><span class="sp"></span><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="add">Add page</button></div>
+  </form>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<script>
+/* ---------- Packages and object schemas ---------- */
+const PKGS = {
+  pro: {
+    name: "Professional", lensMode: "Briefing",
+    objects: {
+      company: { label: "Companies", fields: { name: "Company", website: "Website", industry: "Industry", tagline: "Tagline", headquarters: "Headquarters" } },
+      product: { label: "Products", fields: { company: "Company", name: "Product", category: "Category", description: "Description" } },
+      price: { label: "Prices", fields: { company: "Company", plan: "Plan", price: "Price", period: "Billing", per_serving: "Unit price", includes: "Includes" } },
+      feature: { label: "Features", fields: { feature: "Feature", company: "Company", plan: "Plan" } },
+      claim: { label: "Claims & proof", fields: { company: "Company", claim: "Claim", proof: "Proof" } }
+    },
+    templates: [
+      { name: "Competitor comparison", req: "Compare these companies on pricing, plans, features and positioning. Build a comparison report, slides and a spreadsheet." },
+      { name: "Company snapshot", req: "Give me a one-page snapshot of each company: who they are, what they sell, what it costs and how they position themselves." },
+      { name: "Pricing table", req: "Pull every plan and price into one table, including the unit price where the page states it." }
+    ]
+  },
+  student: {
+    name: "Student", lensMode: "Study",
+    objects: {
+      source: { label: "Sources", fields: { title: "Title", author: "Author", publisher: "Publisher", date: "Year", citation: "APA citation" } },
+      fact: { label: "Key facts", fields: { statement: "Fact", topic: "Topic" } },
+      term: { label: "Terms", fields: { term: "Term", definition: "Definition" } },
+      question: { label: "Questions", fields: { question: "Question", answer: "Answer" } }
+    },
+    templates: [
+      { name: "Study guide + flashcards", req: "Make a study guide with the key facts, the important terms and practice questions with answers." },
+      { name: "Essay outline", req: "Build an essay outline with a thesis, three main points and the evidence for each, with citations." },
+      { name: "Annotated bibliography", req: "Create an annotated bibliography: a citation and a two-sentence summary for each source." }
+    ]
+  }
+};
+
+/* ---------- Example projects (sample pages written for this demo) ---------- */
+const CAPTURED = "Nov 14, 2026";
+const EXAMPLES = {
+  pro: {
+    name: "Meal-kit competitors",
+    request: PKGS.pro.templates[0].req,
+    sources: [
+      { id: "S1", title: "FreshCrate: Home", url: "freshcrate.example", text: `FreshCrate
+Dinner, solved in 20 minutes.
+FreshCrate delivers pre-portioned ingredients and step-by-step recipes to your door every week. Based in Austin, Texas, we work with 40 family farms across the Southwest.
+Choose from 32 new recipes every week, including vegetarian, keto and family-friendly meals.
+Rated 4.7 out of 5 by more than 18,000 customers.
+Skip a week or cancel any time.` },
+      { id: "S2", title: "FreshCrate: Plans & pricing", url: "freshcrate.example/plans", text: `FreshCrate Plans
+Classic Box: $59.94 per week for 3 meals for 2 people ($9.99 per serving).
+Family Box: $95.84 per week for 4 meals for 4 people ($5.99 per serving).
+Free shipping on every box over $50.
+All plans include recipe cards, an app with cooking timers and the option to add desserts for $4.99.` },
+      { id: "S3", title: "GreenPlate: Home & plans", url: "greenplate.example", text: `GreenPlate
+100% plant-based meal kits, delivered.
+GreenPlate is a Portland, Oregon company making vegan meal kits with organic produce and compostable packaging.
+Every box is carbon-neutral, and our packaging is 100% home compostable.
+Plans start at $10.49 per serving.
+Starter Plan: $62.94 per week for 3 meals for 2 people.
+Big Table Plan: $119.84 per week for 4 meals for 4 people ($7.49 per serving).
+Winner of the 2025 Green Business Award.` },
+      { id: "S4", title: "QuickKit: Home & pricing", url: "quickkit.example", text: `QuickKit
+Meal kits for busy people: 15-minute recipes, no chopping required.
+QuickKit is based in Chicago, Illinois, and ships to 48 states.
+Every ingredient arrives pre-chopped and pre-measured, so most meals are ready in 15 minutes.
+Solo Plan: $54.00 per week for 5 meals for 1 person ($10.80 per serving).
+Duo Plan: $89.90 per week for 5 meals for 2 people ($8.99 per serving).
+First box ships free. After that, shipping is $7.99 per box.
+Over 250,000 boxes delivered since 2023.` }
+    ],
+    result: { by: "example", objects: {
+      company: [
+        { name: "FreshCrate", website: "freshcrate.example", industry: "Meal kits", tagline: "Dinner, solved in 20 minutes.", headquarters: "Austin, Texas", source: "S1", quote: "Based in Austin, Texas, we work with 40 family farms across the Southwest." },
+        { name: "GreenPlate", website: "greenplate.example", industry: "Plant-based meal kits", tagline: "100% plant-based meal kits, delivered.", headquarters: "Portland, Oregon", source: "S3", quote: "GreenPlate is a Portland, Oregon company making vegan meal kits with organic produce and compostable packaging." },
+        { name: "QuickKit", website: "quickkit.example", industry: "Meal kits", tagline: "Meal kits for busy people: 15-minute recipes, no chopping required.", headquarters: "Chicago, Illinois", source: "S4", quote: "QuickKit is based in Chicago, Illinois, and ships to 48 states." }],
+      product: [
+        { company: "FreshCrate", name: "Weekly recipe box", category: "Meal kit", description: "Pre-portioned ingredients and recipes, 32 new recipes a week", source: "S1", quote: "Choose from 32 new recipes every week, including vegetarian, keto and family-friendly meals." },
+        { company: "FreshCrate", name: "Dessert add-on", category: "Add-on", description: "Dessert added to any box for $4.99", source: "S2", quote: "the option to add desserts for $4.99" },
+        { company: "GreenPlate", name: "Vegan meal kit", category: "Meal kit", description: "Organic, plant-based meals in compostable packaging", source: "S3", quote: "100% plant-based meal kits, delivered." },
+        { company: "QuickKit", name: "Pre-chopped meal kit", category: "Meal kit", description: "Pre-chopped, pre-measured ingredients, ready in about 15 minutes", source: "S4", quote: "Every ingredient arrives pre-chopped and pre-measured, so most meals are ready in 15 minutes." }],
+      price: [
+        { company: "FreshCrate", plan: "Classic Box", price: "$59.94", period: "per week", per_serving: "$9.99", includes: "3 meals for 2 people", source: "S2", quote: "Classic Box: $59.94 per week for 3 meals for 2 people ($9.99 per serving)." },
+        { company: "FreshCrate", plan: "Family Box", price: "$95.84", period: "per week", per_serving: "$5.99", includes: "4 meals for 4 people", source: "S2", quote: "Family Box: $95.84 per week for 4 meals for 4 people ($5.99 per serving)." },
+        { company: "GreenPlate", plan: "Starter Plan", price: "$62.94", period: "per week", per_serving: "$10.49", includes: "3 meals for 2 people", source: "S3", quote: "Starter Plan: $62.94 per week for 3 meals for 2 people." },
+        { company: "GreenPlate", plan: "Big Table Plan", price: "$119.84", period: "per week", per_serving: "$7.49", includes: "4 meals for 4 people", source: "S3", quote: "Big Table Plan: $119.84 per week for 4 meals for 4 people ($7.49 per serving)." },
+        { company: "QuickKit", plan: "Solo Plan", price: "$54.00", period: "per week", per_serving: "$10.80", includes: "5 meals for 1 person", source: "S4", quote: "Solo Plan: $54.00 per week for 5 meals for 1 person ($10.80 per serving)." },
+        { company: "QuickKit", plan: "Duo Plan", price: "$89.90", period: "per week", per_serving: "$8.99", includes: "5 meals for 2 people", source: "S4", quote: "Duo Plan: $89.90 per week for 5 meals for 2 people ($8.99 per serving)." }],
+      feature: [
+        { feature: "Skip a week or cancel any time", company: "FreshCrate", plan: "All plans", source: "S1", quote: "Skip a week or cancel any time." },
+        { feature: "Free shipping over $50", company: "FreshCrate", plan: "All plans", source: "S2", quote: "Free shipping on every box over $50." },
+        { feature: "Cooking app with timers", company: "FreshCrate", plan: "All plans", source: "S2", quote: "All plans include recipe cards, an app with cooking timers" },
+        { feature: "Home-compostable packaging", company: "GreenPlate", plan: "All plans", source: "S3", quote: "our packaging is 100% home compostable." },
+        { feature: "Carbon-neutral boxes", company: "GreenPlate", plan: "All plans", source: "S3", quote: "Every box is carbon-neutral" },
+        { feature: "Pre-chopped ingredients", company: "QuickKit", plan: "All plans", source: "S4", quote: "Every ingredient arrives pre-chopped and pre-measured" },
+        { feature: "First box ships free", company: "QuickKit", plan: "First order", source: "S4", quote: "First box ships free." }],
+      claim: [
+        { company: "FreshCrate", claim: "Dinner in 20 minutes", proof: "Rated 4.7/5 by 18,000+ customers", source: "S1", quote: "Rated 4.7 out of 5 by more than 18,000 customers." },
+        { company: "GreenPlate", claim: "100% plant-based and sustainable", proof: "2025 Green Business Award", source: "S3", quote: "Winner of the 2025 Green Business Award." },
+        { company: "QuickKit", claim: "15-minute meals, no chopping", proof: "250,000+ boxes delivered since 2023", source: "S4", quote: "Over 250,000 boxes delivered since 2023." }]
+    },
+    deliverable: {
+      title: "Meal-kit market: competitor comparison",
+      summary: "Three meal-kit companies compete on different promises: FreshCrate on variety, GreenPlate on sustainability and QuickKit on speed. FreshCrate's Family Box has the lowest price per serving at $5.99.",
+      sections: [
+        { h: "Pricing", bullets: ["FreshCrate is the cheapest per serving: $5.99 on the Family Box and $9.99 on the Classic Box.", "GreenPlate is the premium option: $10.49 per serving on the Starter Plan and $7.49 on Big Table.", "QuickKit is the only one with a plan for one person: the Solo Plan at $10.80 per serving."] },
+        { h: "Positioning", bullets: ["FreshCrate sells variety, with 32 new recipes every week.", "GreenPlate sells values: 100% plant-based, carbon-neutral boxes and compostable packaging.", "QuickKit sells time: pre-chopped ingredients and meals ready in about 15 minutes."] },
+        { h: "Shipping and flexibility", bullets: ["FreshCrate ships free on boxes over $50 and lets customers skip or cancel any time.", "QuickKit's first box ships free, then shipping is $7.99 per box.", "GreenPlate's shipping cost was not found on the pages captured."] },
+        { h: "Proof", bullets: ["FreshCrate: rated 4.7 out of 5 by more than 18,000 customers.", "QuickKit: over 250,000 boxes delivered since 2023.", "GreenPlate: winner of the 2025 Green Business Award."] },
+        { h: "Opportunities (analysis)", bullets: ["No competitor offers a plant-based plan for one person.", "Only QuickKit removes prep work, so speed is an open lane for a plant-based brand."] }]
+    } }
+  },
+  student: {
+    name: "Coral reefs research",
+    request: PKGS.student.templates[0].req,
+    sources: [
+      { id: "S1", title: "Coral Reefs: Cities Under the Sea", url: "oceanlearning.example/coral-reefs", text: `Coral Reefs: Cities Under the Sea
+By Dr. Lena Ortiz · Ocean Learning Center · 2024
+Coral reefs cover less than 1% of the ocean floor, but they support about 25% of all known marine species.
+A coral reef is built by tiny animals called coral polyps. Each polyp builds a hard skeleton of calcium carbonate, and over thousands of years these skeletons form a reef.
+Most reef-building corals depend on algae called zooxanthellae that live inside their tissues. The algae make food through photosynthesis and give corals much of their color.` },
+      { id: "S2", title: "Why Corals Turn White", url: "reefscience.example/bleaching", text: `Why Corals Turn White
+By Marcus Bell · Reef Science Weekly · 2025
+Coral bleaching happens when water becomes too warm and corals expel the algae living in their tissues. Without the algae, the coral turns white and begins to starve.
+If temperatures return to normal quickly, corals can recover. If the heat lasts for weeks, many corals die.
+Scientists have recorded several global bleaching events since 1998, each linked to unusually warm ocean temperatures.` },
+      { id: "S3", title: "The Great Barrier Reef", url: "studentencyclopedia.example/great-barrier-reef", text: `The Great Barrier Reef
+By Priya Nair · Sample Encyclopedia for Students · 2023
+The Great Barrier Reef lies off the coast of Queensland, Australia, and stretches for about 2,300 kilometres.
+It is the largest coral reef system in the world and can be seen from space.
+The reef was named a UNESCO World Heritage Site in 1981.` }
+    ],
+    result: { by: "example", objects: {
+      source: [
+        { title: "Coral Reefs: Cities Under the Sea", author: "Lena Ortiz", publisher: "Ocean Learning Center", date: "2024", citation: "Ortiz, L. (2024). Coral reefs: Cities under the sea. Ocean Learning Center.", source: "S1", quote: "By Dr. Lena Ortiz · Ocean Learning Center · 2024" },
+        { title: "Why Corals Turn White", author: "Marcus Bell", publisher: "Reef Science Weekly", date: "2025", citation: "Bell, M. (2025). Why corals turn white. Reef Science Weekly.", source: "S2", quote: "By Marcus Bell · Reef Science Weekly · 2025" },
+        { title: "The Great Barrier Reef", author: "Priya Nair", publisher: "Sample Encyclopedia for Students", date: "2023", citation: "Nair, P. (2023). The Great Barrier Reef. Sample Encyclopedia for Students.", source: "S3", quote: "By Priya Nair · Sample Encyclopedia for Students · 2023" }],
+      fact: [
+        { statement: "Reefs cover less than 1% of the ocean floor but support about 25% of known marine species.", topic: "Why reefs matter", source: "S1", quote: "Coral reefs cover less than 1% of the ocean floor, but they support about 25% of all known marine species." },
+        { statement: "Reefs are built from the calcium carbonate skeletons of coral polyps.", topic: "How reefs form", source: "S1", quote: "Each polyp builds a hard skeleton of calcium carbonate, and over thousands of years these skeletons form a reef." },
+        { statement: "Algae inside corals make food through photosynthesis and give corals their color.", topic: "Corals and algae", source: "S1", quote: "The algae make food through photosynthesis and give corals much of their color." },
+        { statement: "Bleaching happens when water gets too warm and corals expel their algae.", topic: "Bleaching", source: "S2", quote: "Coral bleaching happens when water becomes too warm and corals expel the algae living in their tissues." },
+        { statement: "Corals can recover if temperatures return to normal quickly.", topic: "Bleaching", source: "S2", quote: "If temperatures return to normal quickly, corals can recover." },
+        { statement: "The Great Barrier Reef stretches about 2,300 km off Queensland, Australia.", topic: "Great Barrier Reef", source: "S3", quote: "The Great Barrier Reef lies off the coast of Queensland, Australia, and stretches for about 2,300 kilometres." },
+        { statement: "It became a UNESCO World Heritage Site in 1981.", topic: "Great Barrier Reef", source: "S3", quote: "The reef was named a UNESCO World Heritage Site in 1981." }],
+      term: [
+        { term: "Coral polyp", definition: "A tiny animal that builds a hard skeleton; many polyps together build a reef.", source: "S1", quote: "A coral reef is built by tiny animals called coral polyps." },
+        { term: "Calcium carbonate", definition: "The hard material coral skeletons are made of.", source: "S1", quote: "Each polyp builds a hard skeleton of calcium carbonate" },
+        { term: "Zooxanthellae", definition: "Algae living inside coral tissue that make food and give coral its color.", source: "S1", quote: "Most reef-building corals depend on algae called zooxanthellae that live inside their tissues." },
+        { term: "Coral bleaching", definition: "When overheated corals expel their algae and turn white.", source: "S2", quote: "Without the algae, the coral turns white and begins to starve." }],
+      question: [
+        { question: "What share of known marine species do coral reefs support?", answer: "About 25%", source: "S1", quote: "they support about 25% of all known marine species." },
+        { question: "What causes coral bleaching?", answer: "Water that is too warm, which makes corals expel their algae.", source: "S2", quote: "Coral bleaching happens when water becomes too warm and corals expel the algae living in their tissues." },
+        { question: "Can bleached corals recover?", answer: "Yes, if temperatures return to normal quickly. Long heat waves kill many corals.", source: "S2", quote: "If the heat lasts for weeks, many corals die." },
+        { question: "How long is the Great Barrier Reef?", answer: "About 2,300 kilometres", source: "S3", quote: "stretches for about 2,300 kilometres." },
+        { question: "When did the Great Barrier Reef become a World Heritage Site?", answer: "1981", source: "S3", quote: "The reef was named a UNESCO World Heritage Site in 1981." }]
+    },
+    deliverable: {
+      title: "Study guide: Coral reefs",
+      summary: "Coral reefs are built by tiny animals and powered by algae living inside them. They cover less than 1% of the ocean floor but support about a quarter of known marine species, and warming water threatens them through bleaching.",
+      sections: [
+        { h: "What a reef is", bullets: ["Reefs are built by coral polyps, tiny animals with calcium carbonate skeletons.", "Over thousands of years, the skeletons pile up into a reef."] },
+        { h: "Corals and algae", bullets: ["Algae called zooxanthellae live inside coral tissue.", "They make food through photosynthesis and give corals their color."] },
+        { h: "Bleaching", bullets: ["Too-warm water makes corals expel their algae and turn white.", "Corals can recover if the heat ends quickly; long heat waves kill many.", "Several global bleaching events have been recorded since 1998."] },
+        { h: "The Great Barrier Reef", bullets: ["About 2,300 km long, off Queensland, Australia.", "The largest coral reef system in the world.", "A UNESCO World Heritage Site since 1981."] }]
+    } }
+  }
+};
+
+/* ---------- State ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+let pkg = store.get("fw-pkg") === "student" ? "student" : "pro";
+let project = null;
+const ui = { tab: "deliv", obj: null, src: null, focusQuote: null, tpl: 0, running: false, steps: [], msg: null, flipped: {} };
+function loadProject() { project = store.get("fw-proj-" + pkg) || clone(EXAMPLES[pkg]); project.captured = project.captured || CAPTURED; verifyAll(); ui.obj = Object.keys(PKGS[pkg].objects)[0]; ui.src = project.sources[0]?.id; ui.flipped = {}; }
+function saveProject() { store.set("fw-proj-" + pkg, project); }
+
+/* ---------- Evidence check: does the quote really appear on the page? ---------- */
+const norm = s => String(s || "").toLowerCase().replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\s+/g, " ").trim();
+function verifyAll() {
+  const r = project.result; if (!r) return;
+  Object.values(r.objects || {}).forEach(rows => rows.forEach(row => { const s = project.sources.find(x => x.id === row.source); row.verified = !!(s && row.quote && norm(s.text).includes(norm(row.quote))); }));
+}
+const allRows = () => Object.values(project.result?.objects || {}).flat();
+
+/* ---------- Rendering ---------- */
+function render() {
+  const P = PKGS[pkg];
+  document.querySelectorAll("[data-pkg]").forEach(b => b.setAttribute("aria-pressed", b.dataset.pkg === pkg));
+  $("#plan").innerHTML = `<b>${P.name}</b> plan · Monthly`;
+  $("#projName").textContent = project.name;
+  const counts = {}; allRows().forEach(r => counts[r.source] = (counts[r.source] || 0) + 1);
+  $("#srcList").innerHTML = project.sources.map(s => `<button class="src${s.id === ui.src && ui.tab === "lens" ? " on" : ""}" data-src="${s.id}"><b>${esc(s.title)}</b><small>${esc(s.url || "pasted text")}</small><span class="n">${counts[s.id] || 0}</span></button>`).join("");
+  const rows = allRows(), ver = rows.filter(r => r.verified).length;
+  $("#stats").innerHTML = `<span>Pages</span><span>${project.sources.length}</span><span>Objects extracted</span><span>${rows.length}</span><span>Matched to page text</span><span class="verified">${rows.length ? Math.round(ver / rows.length * 100) : 0}%</span><span>Captured</span><span>${esc(project.captured)}</span>`;
+  $("#runNote").textContent = project.result?.by === "example" ? "Showing an example result. Run Extract to have the AI do it live." : project.result ? "Extracted live by AI." : "Run Extract to build datasets.";
+  $("#nRows").textContent = rows.length;
+  document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === ui.tab));
+  ({ lens: renderLens, extract: renderExtract, data: renderData, deliv: renderDeliv })[ui.tab]();
+}
+
+function renderLens() {
+  const s = project.sources.find(x => x.id === ui.src) || project.sources[0]; if (!s) { $("#pane").innerHTML = `<p class="note">Add a page to start.</p>`; return; }
+  const rows = Object.entries(project.result?.objects || {}).flatMap(([t, rs]) => rs.filter(r => r.source === s.id).map(r => ({ t, r })));
+  let text = esc(s.text);
+  rows.filter(x => x.r.verified).map(x => x.r.quote).sort((a, b) => b.length - a.length).forEach(q => {
+    const eq = esc(q).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    text = text.replace(new RegExp("(?![^<]*>)" + eq), m => `<mark data-q="${esc(q)}">${m}</mark>`);
+  });
+  const paras = text.split("\n").map((l, i) => `<p class="${i === 0 ? "head" : ""}">${l}</p>`).join("");
+  const P = PKGS[pkg];
+  $("#pane").innerHTML = `<div class="row"><h2>${esc(s.title)}</h2><span class="sp"></span><span class="eyebrow">${P.lensMode} lens</span></div>
+  <div class="lens"><article class="reading"><div class="url">${esc(s.url || "pasted text")} · captured ${esc(project.captured)}</div>${paras}</article>
+  <div class="keys"><h3>${pkg === "pro" ? "Pulled from this page" : "What to learn here"}</h3>${rows.length ? rows.map(({ t, r }) => `<div class="key"><span class="t">${esc(P.objects[t].label)}</span>${esc(summary(t, r))}</div>`).join("") : `<p class="note">Nothing extracted from this page yet.</p>`}
+  <p class="note">Highlighted text is the exact evidence behind each extracted object.</p></div></div>`;
+  if (ui.focusQuote) { const m = [...document.querySelectorAll("mark")].find(x => x.dataset.q === ui.focusQuote); if (m) { m.classList.add("flash"); m.scrollIntoView({ block: "center" }); } ui.focusQuote = null; }
+}
+function summary(t, r) {
+  const f = Object.keys(PKGS[pkg].objects[t].fields);
+  return f.slice(0, 3).map(k => r[k]).filter(v => v && v !== "not found").join(" · ");
+}
+
+function renderExtract() {
+  const P = PKGS[pkg];
+  $("#pane").innerHTML = `<h2>What do you need?</h2>
+  <p class="note">Tell Fieldwork what to build. It reads the pages you pick, extracts every object with the exact quote that proves it, and builds your deliverable.</p>
+  <div class="templates">${P.templates.map((t, i) => `<button class="tpl${i === ui.tpl ? " on" : ""}" data-tpl="${i}">${esc(t.name)}</button>`).join("")}</div>
+  <label class="eyebrow" for="req">Your request</label>
+  <textarea id="req">${esc(project.request || P.templates[0].req)}</textarea>
+  <div class="eyebrow">Pages to use</div>
+  <div class="checks">${project.sources.map(s => `<label><input type="checkbox" data-use="${s.id}" checked> ${esc(s.title)}</label>`).join("")}</div>
+  <div class="row"><button class="btn primary" id="run"${ui.running ? " disabled" : ""}>${ui.running ? "Working…" : "Run extraction"}</button>${ui.running ? `<button class="btn" id="stop">Stop</button>` : ""}<span class="note">Uses your plan's AI allowance.</span></div>
+  ${ui.steps.length ? `<div class="steps">${ui.steps.map(s => `<div class="${s.state}"><b>${s.state === "done" ? "✓" : s.state === "now" ? "›" : "·"}</b>${esc(s.text)}</div>`).join("")}</div>` : ""}
+  ${ui.msg ? `<div class="msg${ui.msg.err ? " err" : ""}">${esc(ui.msg.text)}</div>` : ""}`;
+}
+
+function renderData() {
+  const P = PKGS[pkg], objs = project.result?.objects || {};
+  const t = ui.obj, schema = P.objects[t], rows = objs[t] || [];
+  const cols = Object.entries(schema.fields);
+  const srcT = id => project.sources.find(s => s.id === id)?.title || id;
+  $("#pane").innerHTML = `<div class="row"><h2>Datasets</h2><span class="sp"></span><button class="btn" data-exp="csv">Download ${esc(schema.label)} (CSV)</button><button class="btn primary" data-exp="xlsx">Download all (Excel)</button></div>
+  <p class="note">Every object is a row with its source and the exact quote that proves it. Click a row to see it highlighted on the page.</p>
+  <div class="objtabs">${Object.entries(P.objects).map(([k, o]) => `<button class="objtab" data-obj="${k}" aria-pressed="${k === t}">${esc(o.label)} <span>${(objs[k] || []).length}</span></button>`).join("")}</div>
+  <div class="tablewrap"><table><thead><tr>${cols.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th>Evidence</th></tr></thead><tbody>
+  ${rows.length ? rows.map((r, i) => `<tr data-row="${i}">${cols.map(([k]) => { const v = r[k]; return `<td class="${/price|per_serving|date/.test(k) ? "num" : ""}">${!v || v === "not found" ? `<span class="nf">not found</span>` : esc(v)}</td>`; }).join("")}<td class="ev"><b class="${r.verified ? "verified" : ""}">${r.verified ? "✓ Matched" : "⚠ Check"} · ${esc(srcT(r.source))}</b>“${esc(r.quote)}”</td></tr>`).join("") : `<tr><td colspan="${cols.length + 1}" class="nf">No ${esc(schema.label.toLowerCase())} found yet. Run Extract.</td></tr>`}
+  </tbody></table></div>`;
+}
+
+function priceTable() {
+  const rows = project.result?.objects?.price || []; if (!rows.length) return "";
+  return `<h3>Price comparison</h3><div class="tablewrap"><table class="cmp"><thead><tr><th>Company</th><th>Plan</th><th>Price</th><th>Billing</th><th>Unit price</th><th>Includes</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r.company)}</td><td>${esc(r.plan)}</td><td class="num">${esc(r.price)}</td><td>${esc(r.period)}</td><td class="num">${esc(r.per_serving || "not found")}</td><td>${esc(r.includes)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+function flashcards() {
+  const o = project.result?.objects || {};
+  return [...(o.term || []).map(r => ({ t: "Term", f: r.term, b: r.definition })), ...(o.question || []).map(r => ({ t: "Question", f: r.question, b: r.answer }))];
+}
+function slidesOf(d) { return [{ title: d.title, bullets: [d.summary], cover: true }, ...d.sections.map(s => ({ title: s.h, bullets: s.bullets }))]; }
+function renderDeliv() {
+  const d = project.result?.deliverable;
+  if (!d) { $("#pane").innerHTML = `<h2>No deliverable yet</h2><p class="note">Run Extract to build one.</p>`; return; }
+  const cards = flashcards();
+  $("#pane").innerHTML = `<div class="deliv"><div class="report"><div class="eyebrow">${pkg === "pro" ? "Report" : "Study guide"} · ${project.result.by === "example" ? "example result" : "built by AI"}</div><h2>${esc(d.title)}</h2><p class="sum">${esc(d.summary)}</p>
+  ${pkg === "pro" ? priceTable() : ""}
+  ${d.sections.map(s => `<section><h3>${esc(s.h)}</h3><ul>${s.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul></section>`).join("")}
+  ${pkg === "student" && cards.length ? `<h3>Flashcards <span class="note">(tap to flip)</span></h3><div class="flash">${cards.map((c, i) => `<button class="fc${ui.flipped[i] ? " flipped" : ""}" data-fc="${i}"><span class="t">${ui.flipped[i] ? "Answer" : c.t}</span>${esc(ui.flipped[i] ? c.b : c.f)}</button>`).join("")}</div>` : ""}
+  <h3>Slides</h3><div class="slides">${slidesOf(d).map(s => `<div class="slide${s.cover ? " title" : ""}"><b>${esc(s.title)}</b>${s.bullets.slice(0, 3).map(b => `<span>• ${esc(b)}</span>`).join("")}</div>`).join("")}</div>
+  <h3>Sources</h3><ol class="note">${project.sources.map(s => `<li>${esc(s.title)}, ${esc(s.url || "pasted text")}, captured ${esc(project.captured)}</li>`).join("")}</ol></div>
+  <div class="export"><h3>Download</h3>
+    <button class="btn" data-exp="pdf">${pkg === "pro" ? "Report" : "Study guide"} <small>PDF</small></button>
+    <button class="btn" data-exp="pptx">Slide deck <small>PowerPoint</small></button>
+    <button class="btn" data-exp="xlsx">All datasets <small>Excel</small></button>
+    ${pkg === "student" ? `<button class="btn" data-exp="cards">Flashcards <small>CSV</small></button>` : ""}
+    <p class="note" id="expMsg">Files are built in your browser. You confirm each download.</p></div></div>`;
+}
+
+/* ---------- Events ---------- */
+document.querySelector(".seg").addEventListener("click", e => { const b = e.target.closest("[data-pkg]"); if (!b || b.dataset.pkg === pkg) return; pkg = b.dataset.pkg; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; render(); });
+document.querySelector(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b) { ui.tab = b.dataset.tab; render(); } });
+$("#srcList").addEventListener("click", e => { const b = e.target.closest("[data-src]"); if (b) { ui.src = b.dataset.src; ui.tab = "lens"; render(); } });
+$("#pane").addEventListener("click", e => {
+  const t = e.target;
+  if (t.closest("[data-tpl]")) { ui.tpl = +t.closest("[data-tpl]").dataset.tpl; project.request = PKGS[pkg].templates[ui.tpl].req; renderExtract(); return; }
+  if (t.closest("[data-obj]")) { ui.obj = t.closest("[data-obj]").dataset.obj; renderData(); return; }
+  if (t.closest("[data-row]")) { const r = project.result.objects[ui.obj][+t.closest("[data-row]").dataset.row]; ui.src = r.source; ui.focusQuote = r.quote; ui.tab = "lens"; render(); return; }
+  if (t.closest("[data-fc]")) { const i = +t.closest("[data-fc]").dataset.fc; ui.flipped[i] = !ui.flipped[i]; renderDeliv(); return; }
+  if (t.closest("[data-exp]")) { doExport(t.closest("[data-exp]").dataset.exp, t.closest("[data-exp]")); return; }
+  if (t.id === "run") { runExtraction(); return; }
+  if (t.id === "stop") { ctl?.abort(); return; }
+});
+$("#pane").addEventListener("input", e => { if (e.target.id === "req") project.request = e.target.value; });
+$("#addSrc").onclick = () => { $("#addForm").reset(); $("#addDlg").showModal(); };
+$("#addDlg").addEventListener("close", () => {
+  if ($("#addDlg").returnValue !== "add") return;
+  const ids = project.sources.map(s => +s.id.slice(1)); const id = "S" + (Math.max(0, ...ids) + 1);
+  project.sources.push({ id, title: $("#aTitle").value.trim(), url: $("#aUrl").value.trim(), text: $("#aText").value.trim() });
+  ui.src = id; ui.tab = "lens"; saveProject(); render();
+});
+$("#resetProj").onclick = () => { project = clone(EXAMPLES[pkg]); project.captured = CAPTURED; verifyAll(); saveProject(); ui.steps = []; ui.msg = null; ui.src = project.sources[0].id; render(); };
+
+/* ---------- AI extraction ---------- */
+let sampleFn = null, dl = null, ctl = null;
+(async () => { if (!window.claude?.use) return; [sampleFn, dl] = await Promise.all(["sample", "downloads"].map(n => claude.use(n).catch(() => null))); })();
+function setStep(i, state) { ui.steps.forEach((s, j) => { if (j < i) s.state = "done"; else if (j === i) s.state = state || "now"; else s.state = ""; }); if (ui.tab === "extract") renderExtract(); }
+async function runExtraction() {
+  const use = [...document.querySelectorAll("[data-use]:checked")].map(x => x.dataset.use);
+  const srcs = project.sources.filter(s => use.includes(s.id));
+  if (!srcs.length) { ui.msg = { err: true, text: "Pick at least one page." }; renderExtract(); return; }
+  if (!sampleFn) { ui.msg = { err: true, text: "Live AI extraction runs when this page is open in claude.ai. The results shown are an example of what it produces." }; renderExtract(); return; }
+  const P = PKGS[pkg];
+  ui.running = true; ui.msg = null;
+  ui.steps = [{ text: `Reading ${srcs.length} page${srcs.length > 1 ? "s" : ""}` }, { text: "Extracting objects and evidence" }, { text: "Checking every quote against the page" }, { text: "Building your deliverable" }];
+  setStep(0); setTimeout(() => ui.running && ui.steps[1].state !== "done" && setStep(1), 1800);
+  const shape = Object.fromEntries(Object.entries(P.objects).map(([k, o]) => [k, [Object.fromEntries([...Object.keys(o.fields).map(f => [f, "…"]), ["source", "S1"], ["quote", "exact words from the page"]])]]));
+  const prompt = `You are Fieldwork, an extraction tool for ${pkg === "pro" ? "business intelligence for professionals" : "students doing research"}.
+Extract structured objects ONLY from the sources below. Never invent facts or use outside knowledge.
+Every object must include "source" (the source id, like S1) and "quote" (an exact, verbatim excerpt from that source, under 30 words, that proves the object). Copy the quote character for character.
+If a field is not stated in the source, write "not found".
+${pkg === "student" ? 'For "citation", write an APA 7 reference from the byline (author, year, title, publisher).' : 'For prices, keep the currency symbol. "per_serving" is the unit price if the page states one.'}
+
+The user's request: ${project.request}
+
+Sources:
+${srcs.map(s => `[${s.id}] ${s.title} (${s.url || "pasted text"})\n${s.text.slice(0, 12000)}`).join("\n\n")}
+
+Reply with only JSON in this shape:
+{"objects": ${JSON.stringify(shape)}, "deliverable": {"title": "…", "summary": "2 sentences", "sections": [{"h": "heading", "bullets": ["…"]}]}}
+The deliverable answers the user's request in 3 to 6 sections, using only facts from the objects. Label any section of your own analysis "(analysis)".`;
+  ctl = new AbortController();
+  try {
+    const r = await sampleFn.json(prompt, { signal: ctl.signal, cache: false, modelTier: "default" });
+    if (!r || !r.objects || !r.deliverable) throw { code: "bad_shape" };
+    setStep(2);
+    const objects = {}; Object.keys(P.objects).forEach(k => objects[k] = (Array.isArray(r.objects[k]) ? r.objects[k] : []).filter(x => x && typeof x === "object"));
+    project.result = { by: "ai", objects, deliverable: { title: String(r.deliverable.title || "Report"), summary: String(r.deliverable.summary || ""), sections: (r.deliverable.sections || []).map(s => ({ h: String(s.h || ""), bullets: (s.bullets || []).map(String) })) } };
+    project.captured = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    verifyAll(); saveProject();
+    const rows = allRows(), ver = rows.filter(x => x.verified).length;
+    setStep(4); ui.running = false;
+    ui.msg = { text: `Done. ${rows.length} objects extracted, ${ver} matched word for word to the page. Rows marked “Check” need a look.` };
+    render();
+  } catch (e) {
+    ui.running = false; ui.steps = [];
+    ui.msg = e?.code === "cancelled" ? { text: "Stopped. Your previous results are unchanged." } : { err: true, text: { not_granted: "Fieldwork needs permission to use Claude. Allow it from this page's permissions, then run again.", rate_limited: "Too many requests at once. Wait a moment, then run again.", bad_shape: "The extraction came back incomplete. Try again, or use fewer pages." }[e?.code] || "The extraction didn't finish. Try again." };
+    render();
+  }
+}
+
+/* ---------- Exports: PDF, PowerPoint, Excel, CSV ---------- */
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+const srcTitle = id => project.sources.find(s => s.id === id)?.title || id;
+const srcUrl = id => project.sources.find(s => s.id === id)?.url || "";
+function datasetRows(t) {
+  const f = PKGS[pkg].objects[t].fields;
+  return (project.result?.objects?.[t] || []).map(r => ({ ...Object.fromEntries(Object.entries(f).map(([k, l]) => [l, r[k] ?? ""])), "Source": srcTitle(r.source), "URL": srcUrl(r.source), "Evidence quote": r.quote, "Matched to page": r.verified ? "Yes" : "Check", "Captured": project.captured }));
+}
+function buildXlsx() {
+  const wb = XLSX.utils.book_new();
+  Object.entries(PKGS[pkg].objects).forEach(([k, o]) => { const ws = XLSX.utils.json_to_sheet(datasetRows(k)); ws["!cols"] = Object.keys(datasetRows(k)[0] || { a: 1 }).map(h => ({ wch: /quote/i.test(h) ? 60 : 22 })); XLSX.utils.book_append_sheet(wb, ws, o.label.slice(0, 31)); });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(project.sources.map(s => ({ ID: s.id, Title: s.title, URL: s.url, Captured: project.captured }))), "Pages captured");
+  return new Blob([XLSX.write(wb, { bookType: "xlsx", type: "array" })]);
+}
+function toCsv(rows) { if (!rows.length) return ""; const h = Object.keys(rows[0]); const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`; return [h.map(q).join(","), ...rows.map(r => h.map(k => q(r[k])).join(","))].join("\n"); }
+function buildPdf() {
+  const d = project.result.deliverable, { jsPDF } = window.jspdf, doc = new jsPDF({ unit: "pt", format: "letter" });
+  const M = 54, W = 612 - M * 2; let y = M;
+  const need = h => { if (y + h > 792 - M) { doc.addPage(); y = M; } };
+  const text = (t, size, style, gap, color) => { doc.setFont("helvetica", style || "normal"); doc.setFontSize(size); doc.setTextColor(...(color || [20, 32, 26])); const lines = doc.splitTextToSize(String(t), W); lines.forEach(l => { need(size * 1.35); doc.text(l, M, y); y += size * 1.35; }); y += gap || 0; };
+  text("FIELDWORK  |  " + (pkg === "pro" ? "REPORT" : "STUDY GUIDE"), 8, "bold", 14, [15, 110, 95]);
+  text(d.title, 20, "bold", 8); text(d.summary, 11, "normal", 12);
+  if (pkg === "pro" && project.result.objects.price?.length) {
+    text("Price comparison", 13, "bold", 4);
+    project.result.objects.price.forEach(r => text(`${r.company}, ${r.plan}: ${r.price} ${r.period}${r.per_serving && r.per_serving !== "not found" ? ` (${r.per_serving} per unit)` : ""}, ${r.includes}`, 10, "normal", 1));
+    y += 8;
+  }
+  d.sections.forEach(s => { need(40); text(s.h, 13, "bold", 4); s.bullets.forEach(b => text("•  " + b, 10.5, "normal", 2)); y += 8; });
+  if (pkg === "student") { text("Flashcards", 13, "bold", 4); flashcards().forEach(c => { text(c.f, 10, "bold", 0); text("Answer: " + c.b, 10, "normal", 5); }); y += 8; }
+  text("Sources", 13, "bold", 4);
+  project.sources.forEach((s, i) => text(`${i + 1}. ${s.title}. ${s.url || "pasted text"}. Captured ${project.captured}.`, 9.5, "normal", 1, [93, 107, 99]));
+  return doc.output("blob");
+}
+async function buildPptx() {
+  const d = project.result.deliverable, p = new PptxGenJS(); p.layout = "LAYOUT_WIDE";
+  const ACC = "0F6E5F", INK = "14201A";
+  let s = p.addSlide(); s.background = { color: ACC };
+  s.addText("FIELDWORK", { x: 0.6, y: 0.5, w: 6, h: 0.4, fontFace: "Arial", fontSize: 12, bold: true, color: "FFFFFF" });
+  s.addText(d.title, { x: 0.6, y: 2.2, w: 12, h: 1.4, fontFace: "Arial", fontSize: 36, bold: true, color: "FFFFFF" });
+  s.addText(d.summary, { x: 0.6, y: 3.7, w: 11.5, h: 1.4, fontFace: "Arial", fontSize: 16, color: "E6F2EF" });
+  d.sections.forEach(sec => { const sl = p.addSlide(); sl.addText(sec.h, { x: 0.6, y: 0.4, w: 12, h: 0.8, fontFace: "Arial", fontSize: 28, bold: true, color: INK }); sl.addShape(p.ShapeType.rect, { x: 0.6, y: 1.2, w: 1.2, h: 0.06, fill: { color: ACC } }); sl.addText(sec.bullets.map(b => ({ text: b, options: { bullet: true, breakLine: true } })), { x: 0.6, y: 1.5, w: 12, h: 5, fontFace: "Arial", fontSize: 18, color: INK, valign: "top", paraSpaceAfter: 10 }); });
+  const tableRows = pkg === "pro" ? (project.result.objects.price || []).map(r => [r.company, r.plan, r.price, r.per_serving || "not found", r.includes]) : (project.result.objects.term || []).map(r => [r.term, r.definition]);
+  if (tableRows.length) {
+    const head = pkg === "pro" ? ["Company", "Plan", "Price / week", "Unit price", "Includes"] : ["Term", "Definition"];
+    const sl = p.addSlide(); sl.addText(pkg === "pro" ? "Price comparison" : "Key terms", { x: 0.6, y: 0.4, w: 12, h: 0.8, fontFace: "Arial", fontSize: 28, bold: true, color: INK });
+    sl.addTable([head.map(h => ({ text: h, options: { bold: true, color: "FFFFFF", fill: { color: ACC } } })), ...tableRows.map(r => r.map(String))], { x: 0.6, y: 1.4, w: 12.1, fontFace: "Arial", fontSize: 13, color: INK, border: { type: "solid", pt: 0.5, color: "DBE2DC" } });
+  }
+  const sl = p.addSlide(); sl.addText("Sources", { x: 0.6, y: 0.4, w: 12, h: 0.8, fontFace: "Arial", fontSize: 28, bold: true, color: INK });
+  sl.addText(project.sources.map(x => ({ text: `${x.title}, ${x.url || "pasted text"}, captured ${project.captured}`, options: { bullet: true, breakLine: true } })), { x: 0.6, y: 1.4, w: 12, h: 5, fontFace: "Arial", fontSize: 14, color: "5D6B63", valign: "top" });
+  return await p.write({ outputType: "blob" });
+}
+async function doExport(kind, btn) {
+  const say = t => { const m = document.querySelector("#expMsg"); if (m) m.textContent = t; else btn.title = t; };
+  if (!project.result) { say("Run Extract first."); return; }
+  const base = slug(project.result.deliverable?.title || project.name);
+  let file;
+  try {
+    if (kind === "pdf") file = { filename: base + ".pdf", data: buildPdf() };
+    else if (kind === "pptx") file = { filename: base + ".pptx", data: await buildPptx() };
+    else if (kind === "xlsx") file = { filename: slug(project.name) + "-datasets.xlsx", data: buildXlsx() };
+    else if (kind === "csv") file = { filename: slug(project.name) + "-" + ui.obj + ".csv", data: toCsv(datasetRows(ui.obj)) };
+    else if (kind === "cards") file = { filename: slug(project.name) + "-flashcards.csv", data: toCsv(flashcards().map(c => ({ Front: c.f, Back: c.b, Type: c.t }))) };
+  } catch (e) { say("Couldn't build the file. Reload the page and try again."); return; }
+  window.__lastExport = file;
+  if (!dl) { say(`${file.filename} is ready. Downloads work when this page is open in claude.ai.`); return; }
+  try { await dl.save(file); say(`Saved ${file.filename}.`); }
+  catch (e) { say(e?.code === "declined" ? "Download cancelled." : e?.code === "rate_limited" ? "Another download is waiting. Try again in a moment." : "Downloads aren't available in this view."); }
+}
+
+loadProject(); render();
+</script>
