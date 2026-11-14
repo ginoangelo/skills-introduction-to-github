@@ -38,6 +38,10 @@ body[data-audience="kids"] {
   --body-size: 19px; --lh: 1.55; --head-weight: 600; --radius: 28px;
 }
 body[data-audience="adults"] { --body-size: 15px; }
+body[data-audience="seniors"] {
+  --display: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --body-size: 23px; --lh: 1.6; --head-weight: 700; --ink: #ffffff; --muted: #dcdce4; --line: rgba(255,255,255,.55);
+}
 [hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
@@ -75,6 +79,14 @@ body[data-mood="energized"] .card h2 { text-transform: uppercase; font-size: 27p
 body[data-audience="kids"] .card h1 { font-weight: 700; font-size: 40px; }
 body[data-audience="kids"] .card h2 { font-size: 30px; text-transform: none; letter-spacing: 0; }
 body[data-audience="kids"] .card { width: 380px; }
+body[data-audience="seniors"] .card { width: 470px; }
+body[data-audience="seniors"] .card h1 { font-size: 46px; line-height: 1.08; }
+body[data-audience="seniors"] .card h2 { font-size: 34px; text-transform: none; letter-spacing: 0; }
+body[data-audience="seniors"] .face { border-width: 2px; border-style: solid; padding: 34px; box-shadow: none; }
+body[data-audience="seniors"] .meta { font-size: 14px; color: var(--ink); }
+body[data-audience="seniors"] .btn { font-size: 17px; padding: 13px 22px; border-width: 2px; }
+body[data-audience="seniors"] #status { font-size: 15px; color: var(--ink); }
+body[data-audience="seniors"] .card mark { box-shadow: none; background: var(--accent); color: #000; padding: 0 3px; }
 .words { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .words span { font: 600 15px/1 var(--body); letter-spacing: .02em; text-transform: none; color: var(--accent2); border: 1px dashed var(--line); border-radius: 10px; padding: 6px 9px; }
 .takeaway { font: 600 13px/1.4 var(--body); color: var(--accent2); border-left: 3px solid var(--accent2); padding-left: 10px; }
@@ -166,6 +178,10 @@ body.filming #top, body.filming #dock, body.filming #nav { opacity: 0; pointer-e
   #world { top: 40%; }
   .lens-pill small { display: none; }
   body[data-audience="kids"] .card { width: 300px; }
+  body[data-audience="seniors"] .card { width: 330px; }
+  body[data-audience="seniors"] .card h2 { font-size: 28px; }
+  body[data-audience="seniors"] .face { padding: 22px; }
+  body[data-audience="seniors"] { --body-size: 20px; }
   #nav { top: auto; bottom: calc(120px + env(safe-area-inset-bottom, 0px)); right: 50%; transform: translateX(50%); flex-direction: row; }
   .panel { padding: 20px; }
   .opts .grid { grid-template-columns: 1fr 1fr; }
@@ -212,6 +228,7 @@ body.filming #top, body.filming #dock, body.filming #nav { opacity: 0; pointer-e
       <button class="opt" data-v="kids"><b>Kids</b><i>Ages 6–12</i><small>Big friendly type, short sentences, plain words, tricky words split up, guessing games</small></button>
       <button class="opt" data-v="teens"><b>Teens</b><i>Ages 13–17</i><small>Key takeaway on every card, quick-check questions, seconds-to-read</small></button>
       <button class="opt" data-v="adults"><b>Adults</b><i>18+</i><small>The full text, denser layout, nothing added</small></button>
+      <button class="opt" data-v="seniors"><b>Seniors</b><i>65+</i><small>Extra-large text, high contrast, big buttons, slower voice, less motion</small></button>
     </div></div>
     <div class="opts"><span>How do you feel?</span><div class="grid" data-group="mood">
       <button class="opt" data-v="calm"><b>Calm</b><i>Tide view</i><small>A slow spiral. Gentle pace, fewer words</small></button>
@@ -360,7 +377,7 @@ function quizzes(doc, n) {
 }
 function buildCards(doc, need) {
   const cards = buildBase(doc, need);
-  if (state.audience === "adults") return cards;
+  if (state.audience === "adults" || state.audience === "seniors") return cards;
   if (state.audience === "kids") cards.forEach(c => { if (c.text) c.text = kidify(c.text); if (c.paras) c.paras = null; if (c.lede) c.lede = kidify(c.lede); if (c.points) c.points = c.points.map(kidify); });
   if (need !== "facts") { const qs = quizzes(doc, state.audience === "kids" ? 2 : 3); const step = Math.max(2, Math.floor(cards.length / (qs.length + 1))); qs.forEach((q, i) => cards.splice(Math.min(cards.length, (i + 1) * step + i), 0, q)); }
   return cards;
@@ -404,7 +421,7 @@ function faceHTML(c, i, n, mood) {
   else {
     const ss = sentences(c.text);
     if (mood === "energized") body = `<h2>${esc(c.h)}</h2><ul>${ss.slice(0, 4).map(s => `<li>${esc(punch(s))}</li>`).join("")}</ul>`;
-    else if (mood === "calm" || state.audience === "kids") body = `<h2>${esc(c.h)}</h2><p>${esc(ss.slice(0, 3).join(" "))}</p>`;
+    else if (mood === "calm" || state.audience === "kids" || state.audience === "seniors") body = `<h2>${esc(c.h)}</h2><p>${esc(ss.slice(0, 3).join(" "))}</p>`;
     else if (mood === "focused") { const k = keySentence(c.text); body = `<h2>${esc(c.h)}</h2><p>${ss.map((s, j) => j === k ? `<mark>${esc(s)}</mark>` : esc(s)).join(" ")}</p>`; }
     else body = `<h2>${esc(c.h)}</h2>${(c.paras || [c.text]).map(p => `<p>${esc(p)}</p>`).join("")}`;
   }
@@ -468,7 +485,7 @@ function focus(i) {
 }
 function tick() {
   const k = state.film ? 0.035 : 0.075;
-  if (!reduce && state.focus < 0 && !dragging && layout.spin && performance.now() - lastInteract > 2500) tgt.ry += layout.spin;
+  if (!reduce && state.focus < 0 && !dragging && layout.spin && state.audience !== "seniors" && performance.now() - lastInteract > 2500) tgt.ry += layout.spin;
   if (state.film && !reduce) tgt.ry += 0.012;
   for (const key in cam) cam[key] += (tgt[key] - cam[key]) * (reduce ? 1 : k);
   world.style.transform = `translateZ(${cam.zoom}px) rotateX(${cam.rx}deg) rotateY(${cam.ry}deg) translate3d(${-cam.x}px,${-cam.y}px,${-cam.z}px)`;
@@ -476,8 +493,8 @@ function tick() {
   els.forEach((el, i) => {
     const p = layout.pos[i]; const x = p.x - cam.x, y = p.y - cam.y, z = p.z - cam.z;
     const z1 = -x * Math.sin(ry) + z * Math.cos(ry); const z2 = y * Math.sin(rx) + z1 * Math.cos(rx) + cam.zoom;
-    const d = 1000 - z2; const fog = z2 > 850 ? 0 : Math.max(.22, Math.min(1, 1 - (d - 2000) / 3000));
-    const v = fog.toFixed(2); if (el._fog !== v) { el._fog = v; el.style.setProperty("--fog", v); }
+    const d = 1000 - z2; const fog = z2 > 420 ? 0 : Math.max(.22, Math.min(1, 1 - (d - 2000) / 3000));
+    const v = fog.toFixed(2); if (el._fog !== v) { el._fog = v; el.style.setProperty("--fog", v); el.style.visibility = fog ? "" : "hidden"; }
   });
   drawSky();
   requestAnimationFrame(tick);
@@ -541,7 +558,7 @@ function updateTrail() {
 $("#trailClear").onclick = () => { state.trail = null; applyTrailDim(); updateTrail(); els.forEach(el => el.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"))); };
 
 /* ---------- The lens (pre-built filter) ---------- */
-const LABEL = { kids: "Kids", teens: "Teens", adults: "Adults", calm: "Calm", focused: "Focused", curious: "Curious", energized: "Energized", quick: "Quick", deep: "Deep dive", facts: "Facts", tour: "Tour", explore: "Explore", quiet: "Quiet" };
+const LABEL = { kids: "Kids", teens: "Teens", adults: "Adults", seniors: "Seniors", calm: "Calm", focused: "Focused", curious: "Curious", energized: "Energized", quick: "Quick", deep: "Deep dive", facts: "Facts", tour: "Tour", explore: "Explore", quiet: "Quiet" };
 let saved = null;
 function save() { try { localStorage.setItem("moodspace", JSON.stringify({ audience: state.audience, mood: state.mood, need: state.need, delivery: state.delivery })); } catch (e) {} saved = true; }
 function paintLens() {
@@ -567,7 +584,7 @@ $("#lens").addEventListener("click", e => { if (e.target.id === "lens" && saved)
 /* ---------- Reading aloud ---------- */
 let tts = null;
 const RATE = { calm: .9, focused: 1, curious: 1.02, energized: 1.15 };
-const rate = () => RATE[state.mood] * (state.audience === "kids" ? .9 : 1);
+const rate = () => RATE[state.mood] * (state.audience === "kids" ? .9 : state.audience === "seniors" ? .85 : 1);
 const canSpeak = () => state.delivery !== "quiet" && audio.on;
 function voiceStop() { try { tts?.stop().catch(() => {}); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} }
 
@@ -651,7 +668,7 @@ $("#play").onclick = startFilm; $("#stop").onclick = stopFilm;
 $("#sound").onclick = () => { const on = audio.toggle(); $("#sound").textContent = on ? "Voice on" : "Voice off"; if (state.film) { const from = shot; const id = ++filmId; timedFilm(id, from); } };
 
 /* ---------- Boot ---------- */
-try { const s = JSON.parse(localStorage.getItem("moodspace") || "null"); if (s) { saved = true; if (["kids", "teens", "adults"].includes(s.audience)) state.audience = s.audience; if (LAYOUTS[s.mood]) state.mood = s.mood; if (["quick", "deep", "facts"].includes(s.need)) state.need = s.need; if (["tour", "explore", "quiet"].includes(s.delivery)) state.delivery = s.delivery; } } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem("moodspace") || "null"); if (s) { saved = true; if (["kids", "teens", "adults", "seniors"].includes(s.audience)) state.audience = s.audience; if (LAYOUTS[s.mood]) state.mood = s.mood; if (["quick", "deep", "facts"].includes(s.need)) state.need = s.need; if (["tour", "explore", "quiet"].includes(s.delivery)) state.delivery = s.delivery; } } catch (e) {}
 paintLens(); sizeSky(); rebuild(); Object.assign(cam, tgt);
 if (!saved) openLens();
 addEventListener("resize", () => { sizeSky(); relayout(false); });
