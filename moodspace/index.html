@@ -1,0 +1,585 @@
+<title>Moodspace</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a full-screen 3D stage. Page content becomes cards floating in space; mood picks the
+   shape of the space (helix, corridor, constellation, wall), need picks what the cards say. */
+:root {
+  --bg0: #0d0b1c; --bg1: #1d1440;
+  --ink: #eef0f6; --muted: #a6a9c4;
+  --accent: #c39bff; --accent2: #6fe3ff;
+  --card: rgba(24, 20, 52, 0.86); --line: rgba(195, 155, 255, 0.35);
+  --radius: 14px; --head-weight: 700; --body-size: 15px; --lh: 1.6;
+  --display: "Syne", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+body[data-mood="calm"] {
+  --bg0: #071a20; --bg1: #0f3540; --ink: #e8f4f2; --muted: #9cc0bb;
+  --accent: #82d9cb; --accent2: #f3d6a4; --card: rgba(11, 42, 48, 0.82); --line: rgba(130, 217, 203, 0.28);
+  --radius: 26px; --head-weight: 500; --body-size: 17px; --lh: 1.75;
+}
+body[data-mood="focused"] {
+  --bg0: #0c0d10; --bg1: #191b21; --ink: #f4f3ee; --muted: #9a9ca4;
+  --accent: #ffb547; --accent2: #f4f3ee; --card: rgba(22, 23, 28, 0.94); --line: rgba(244, 243, 238, 0.22);
+  --radius: 3px; --head-weight: 700; --body-size: 16px; --lh: 1.65;
+}
+body[data-mood="energized"] {
+  --bg0: #1a0707; --bg1: #3b0d0a; --ink: #fff4ea; --muted: #f0b9a4;
+  --accent: #ff5b35; --accent2: #ffd23f; --card: rgba(46, 12, 10, 0.94); --line: rgba(255, 210, 63, 0.7);
+  --radius: 0px; --head-weight: 800; --body-size: 16px; --lh: 1.45;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden; color: var(--ink); font-family: var(--body);
+  background: radial-gradient(120% 90% at 50% 40%, var(--bg1), var(--bg0) 70%);
+  background-color: var(--bg0);
+  transition: background-color .8s;
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+
+#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#stage { position: fixed; inset: 0; perspective: 1000px; overflow: hidden; touch-action: none; cursor: grab; }
+#stage.dragging { cursor: grabbing; }
+#world { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+
+.card {
+  position: absolute; left: 0; top: 0; width: 360px;
+  transition: transform 1.3s cubic-bezier(.2,.75,.15,1), opacity .7s;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.card.enter { opacity: 0; }
+.face {
+  opacity: var(--fog, 1); transition: opacity .4s, box-shadow .4s, border-color .4s;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 26px 26px 22px; display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 30px 80px -30px rgba(0,0,0,.7);
+}
+.card.dim .face { opacity: calc(var(--fog, 1) * .18); }
+.card.active .face { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 40px 90px -30px rgba(0,0,0,.8); }
+body[data-mood="calm"] .face { box-shadow: 0 0 60px -10px rgba(130,217,203,.18); }
+body[data-mood="energized"] .face { border-width: 2px; box-shadow: 10px 10px 0 var(--accent); }
+body[data-mood="curious"] .face { border-style: dashed; }
+
+.meta { display: flex; justify-content: space-between; gap: 8px; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.meta b { color: var(--accent); font-weight: 500; }
+.card h2 { margin: 0; font: var(--head-weight) 25px/1.15 var(--display); text-wrap: balance; letter-spacing: -.01em; }
+.card h1 { margin: 0; font: 800 38px/1.02 var(--display); text-wrap: balance; letter-spacing: -.02em; }
+body[data-mood="energized"] .card h2 { text-transform: uppercase; font-size: 27px; letter-spacing: .01em; }
+body[data-mood="calm"] .card h1 { font-weight: 500; }
+.card p { margin: 0; font-size: var(--body-size); line-height: var(--lh); }
+.card .lede { color: var(--muted); }
+.card mark { background: none; color: var(--ink); box-shadow: inset 0 -.5em 0 color-mix(in srgb, var(--accent) 38%, transparent); }
+.card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.card li { font-size: var(--body-size); line-height: 1.4; padding-left: 22px; position: relative; }
+.card li::before { content: ""; position: absolute; left: 0; top: .5em; width: 10px; height: 3px; background: var(--accent); }
+.big { font: 800 60px/0.95 var(--display); color: var(--accent); letter-spacing: -.03em; overflow-wrap: anywhere; }
+.big.long { font-size: 42px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
+.chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 5px 10px; font: 500 11px/1 var(--mono); letter-spacing: .04em; color: var(--accent2); }
+.chip:hover, .chip.on { background: var(--accent2); color: var(--bg0); }
+
+/* Chrome */
+.bar {
+  position: fixed; left: 0; right: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#top { top: 0; padding-block: calc(14px + env(safe-area-inset-top, 0px)) 10px; background: linear-gradient(var(--bg0), transparent); }
+#dock { bottom: 0; padding-block: 28px calc(14px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(transparent, var(--bg0) 60%); justify-content: center; }
+.brand { font: 800 20px/1 var(--display); letter-spacing: -.02em; display: flex; align-items: center; gap: 9px; }
+.brand i { width: 14px; height: 14px; border-radius: 50%; background: conic-gradient(var(--accent), var(--accent2), var(--accent)); display: inline-block; }
+.address { flex: 1 1 220px; min-width: 0; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: rgba(0,0,0,.25); border-radius: 999px; padding: 8px 14px; font: 400 12px/1.2 var(--mono); color: var(--muted); }
+.address span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.address b { color: var(--accent2); font-weight: 500; }
+.btn { border: 1px solid var(--line); background: rgba(0,0,0,.3); border-radius: 999px; padding: 9px 16px; font-weight: 600; font-size: 13px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--bg0); border-color: var(--accent); }
+.group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.group > span { font: 500 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.seg { border: 1px solid var(--line); background: rgba(0,0,0,.3); border-radius: 999px; padding: 8px 13px; font-size: 13px; font-weight: 500; }
+.seg[aria-pressed="true"] { background: var(--ink); color: var(--bg0); border-color: var(--ink); }
+.film-btn { display: inline-flex; align-items: center; gap: 8px; }
+.film-btn svg { width: 12px; height: 12px; fill: currentColor; }
+.hint { position: fixed; z-index: 4; left: 50%; transform: translateX(-50%); bottom: calc(118px + env(safe-area-inset-bottom, 0px)); font: 400 11px/1 var(--mono); color: var(--muted); letter-spacing: .06em; white-space: nowrap; pointer-events: none; }
+#nav { position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); bottom: calc(112px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 8px; }
+#trail { position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); top: calc(70px + env(safe-area-inset-top, 0px)); display: flex; gap: 10px; align-items: center; font-size: 13px; background: var(--accent2); color: var(--bg0); border-radius: 999px; padding: 7px 8px 7px 14px; white-space: nowrap; }
+#trail button { border: 0; background: var(--bg0); color: var(--accent2); border-radius: 999px; padding: 4px 10px; font-size: 12px; }
+
+/* Remix drawer */
+#drawer { position: fixed; z-index: 20; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#drawer .panel { width: min(640px, 100%); background: var(--bg0); border: 1px solid var(--line); border-radius: 18px; padding: 24px; display: grid; gap: 14px; max-height: 90vh; overflow: auto; }
+#drawer h3 { margin: 0; font: 700 24px/1.1 var(--display); }
+#drawer p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 14px; max-width: 60ch; }
+#src { width: 100%; box-sizing: border-box; min-height: 200px; resize: vertical; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: 400 13px/1.5 var(--mono); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row .spacer { flex: 1; }
+.file { font-size: 13px; color: var(--muted); }
+#err { color: var(--accent2); font-size: 13px; }
+
+/* Film mode */
+#film { position: fixed; inset: 0; z-index: 15; pointer-events: none; }
+#film .bars::before, #film .bars::after { content: ""; position: absolute; left: 0; right: 0; height: 13vh; background: #000; transition: transform .8s cubic-bezier(.3,.7,.2,1); }
+#film .bars::before { top: 0; transform: translateY(-100%); }
+#film .bars::after { bottom: 0; transform: translateY(100%); }
+#film.on .bars::before, #film.on .bars::after { transform: none; }
+#caption { position: absolute; left: 50%; bottom: calc(3vh + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(780px, calc(100% - 32px)); text-align: center; font: 500 clamp(15px, 2.2vw, 20px)/1.45 var(--body); color: #fff; text-shadow: 0 2px 12px #000; opacity: 0; transition: opacity .5s; }
+#film.on #caption { opacity: 1; }
+#progress { position: absolute; top: calc(4vh + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); display: flex; gap: 4px; width: min(600px, calc(100% - 140px)); }
+#progress i { flex: 1; height: 3px; background: rgba(255,255,255,.25); border-radius: 2px; overflow: hidden; position: relative; }
+#progress i.done::after, #progress i.now::after { content: ""; position: absolute; inset: 0; background: #fff; }
+#progress i.now::after { animation: fill var(--dur, 6s) linear forwards; transform-origin: left; }
+@keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+#filmctl { display: none; position: absolute; top: calc(2.5vh + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); gap: 6px; pointer-events: auto; }
+#filmctl .btn { background: rgba(0,0,0,.6); color: #fff; border-color: rgba(255,255,255,.3); padding: 7px 12px; font-size: 12px; }
+#film.on #filmctl { display: flex; }
+body.filming #top, body.filming #dock, body.filming .hint, body.filming #nav { opacity: 0; pointer-events: none; }
+#top, #dock, .hint { transition: opacity .5s; }
+
+@media (max-width: 640px) {
+  .card { width: 300px; }
+  .face { padding: 20px; }
+  .card h1 { font-size: 30px; }
+  .big { font-size: 50px; }
+  .hint { display: none; }
+  #dock { gap: 8px; }
+  .group > span { display: none; }
+  .seg { padding: 7px 10px; font-size: 12px; }
+  #nav, .hint { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card, .face, #film .bars::before, #film .bars::after { transition-duration: .01s; }
+}
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div id="stage" aria-label="3D view of the page"><div id="world"></div></div>
+
+<header class="bar" id="top">
+  <div class="brand"><i></i>Moodspace</div>
+  <div class="address" title="The page you are viewing through the lens"><span>lens:// <b id="addr">midnight-zone</b> <span id="addrmeta"></span></span></div>
+  <button class="btn" id="openRemix">Remix a page</button>
+</header>
+
+<div class="hint" id="hint">Drag to orbit · scroll to zoom · tap a card</div>
+<div id="nav" hidden>
+  <button class="btn" id="prev">← Prev</button>
+  <button class="btn" id="back">Overview</button>
+  <button class="btn" id="next">Next →</button>
+</div>
+<div id="trail" hidden><span id="trailText"></span><button id="trailClear">Clear</button></div>
+
+<footer class="bar" id="dock">
+  <div class="group" role="group" aria-label="Mood"><span>Mood</span>
+    <button class="seg" data-mood="calm">Calm</button>
+    <button class="seg" data-mood="focused">Focused</button>
+    <button class="seg" data-mood="curious">Curious</button>
+    <button class="seg" data-mood="energized">Energized</button>
+  </div>
+  <div class="group" role="group" aria-label="Need"><span>Need</span>
+    <button class="seg" data-need="quick">Quick answer</button>
+    <button class="seg" data-need="deep">Deep dive</button>
+    <button class="seg" data-need="facts">Just the facts</button>
+  </div>
+  <button class="btn primary film-btn" id="play"><svg viewBox="0 0 10 10"><path d="M1 0l9 5-9 5z"/></svg>Play as film</button>
+</footer>
+
+<div id="film"><div class="bars"></div>
+  <div id="progress"></div>
+  <div id="filmctl"><button class="btn" id="sound">Sound on</button><button class="btn" id="stop">Exit film</button></div>
+  <div id="caption"></div>
+</div>
+
+<div id="drawer" hidden>
+  <div class="panel" role="dialog" aria-labelledby="dh">
+    <h3 id="dh">Remix a page</h3>
+    <p>Copy the text of any article, public or one you're logged in to, and paste it here. You can also open a saved page (.html or .txt). Moodspace turns it into a space you can explore. Nothing leaves your browser.</p>
+    <textarea id="src" placeholder="Paste a page's text here. Short lines without a full stop become section headings."></textarea>
+    <div class="row">
+      <label class="file">Or open a file <input type="file" id="file" accept=".html,.htm,.txt,.md,text/plain,text/html"></label>
+    </div>
+    <div id="err" hidden></div>
+    <div class="row">
+      <button class="btn" id="sample">Load the sample</button>
+      <span class="spacer"></span>
+      <button class="btn" id="cancel">Cancel</button>
+      <button class="btn primary" id="remix">Remix it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SAMPLE = `What Lives in the Midnight Zone
+
+Between 1,000 and 4,000 meters below the surface, the ocean goes completely dark. Scientists call this layer the bathypelagic, or midnight zone. It is the largest living space on Earth by volume, and we have seen only a sliver of it.
+
+No sunlight
+
+Sunlight fades fast in seawater. By 200 meters there is too little light for plants to grow, and below 1,000 meters no sunlight reaches at all. Every glow down here is made by an animal.
+
+The water is cold and steady, around 4°C almost everywhere, with little change from season to season. Without plants, the whole food web depends on what drifts down from the surface.
+
+Living light
+
+Bioluminescence is the main language of the deep. A 2017 study of deep-sea video off California found that about 76% of the animals observed could make their own light. They use it to lure prey, find mates and confuse predators.
+
+Some shrimp spit clouds of glowing mucus to blind an attacker. The anglerfish dangles a lure lit by bacteria living inside it. Other animals flash a bright burst of light to startle whatever is about to eat them.
+
+Crushing pressure
+
+Pressure rises by about one atmosphere for every 10 meters of depth. At the bottom of the midnight zone that adds up to roughly 400 times the pressure at the surface.
+
+Animals here have no air spaces to crush. Their bodies are mostly water, with soft bones and loose muscle, which also saves energy in a place where food is scarce.
+
+Marine snow
+
+Food arrives as marine snow: a steady fall of dead plankton, waste and mucus from the sunlit water above. A single flake can take weeks to sink a few thousand meters.
+
+Some of the carbon in this snow gets buried on the seafloor. That makes the deep ocean one of the planet's largest long-term stores of carbon, keeping it out of the atmosphere for centuries.
+
+The daily migration
+
+Every night, billions of animals swim up from the depths to feed near the surface, then sink back before dawn. It is the largest migration on Earth, and it happens every 24 hours.
+
+Lanternfish lead the trip. They are among the most numerous fish on the planet, yet most people have never heard of them.
+
+Still unexplored
+
+Only about a quarter of the seafloor has been mapped in high detail. New species turn up on nearly every deep expedition, and many animals are known from a single blurry video.
+
+The midnight zone is not empty. It is full of light, motion and life, and it is waiting for us to look.`;
+
+const STOP = new Set("about above after again against all also among and any are around because been before being below between both but can could did does down during each even every few for from further had has have here how into its itself just least like made make many more most much near nearly never not now off once only other our out over own same some such than that the their them then there these they this those through too under until upon very was were what when where which while who why will with within would your yours it's isn't one two three part almost little whole".split(" "));
+const $ = s => document.querySelector(s);
+const world = $("#world"), stage = $("#stage");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Parsing any page's text into a document ---------- */
+const sentences = t => (t.match(/[^.!?]+[.!?]+["”’)]*|[^.!?]+$/g) || []).map(s => s.trim()).filter(Boolean);
+const words = t => t.toLowerCase().match(/[a-z][a-z'-]{3,}/g) || [];
+const isHead = b => b.length < 90 && !/[.!?:;,"”]$/.test(b) && b.split(/\s+/).length <= 12;
+
+function parse(text) {
+  text = text.replace(/\r/g, "").trim();
+  let blocks = text.split(/\n\s*\n/);
+  if (blocks.length < 3) blocks = text.split(/\n/);
+  blocks = blocks.map(s => s.trim().replace(/\s*\n\s*/g, " ")).filter(b => b.length > 1);
+  let title = null, lede = null, cur = null; const sections = [];
+  blocks.forEach((b, i) => {
+    if (i === 0 && isHead(b)) { title = b; return; }
+    if (isHead(b)) { cur = { h: b, paras: [] }; sections.push(cur); return; }
+    if (!cur) { if (!lede) { lede = b; return; } cur = { h: null, paras: [] }; sections.push(cur); }
+    cur.paras.push(b);
+  });
+  const clean = sections.filter(s => s.paras.length);
+  // Break long sections into card-sized chunks (about 110 words)
+  const chunks = [];
+  clean.forEach(s => {
+    let buf = [], n = 0, part = 1;
+    const flush = () => { if (!buf.length) return; chunks.push({ h: s.h, part: part++, paras: buf }); buf = []; n = 0; };
+    s.paras.forEach(p => {
+      sentences(p).length; const w = p.split(/\s+/).length;
+      if (n + w > 120 && buf.length) flush();
+      if (w > 140) { // very long paragraph: split by sentences
+        let acc = "";
+        sentences(p).forEach(se => { if ((acc + se).split(/\s+/).length > 110) { buf.push(acc.trim()); flush(); acc = ""; } acc += " " + se; });
+        if (acc.trim()) { buf.push(acc.trim()); n += acc.split(/\s+/).length; }
+      } else { buf.push(p); n += w; }
+    });
+    flush();
+  });
+  chunks.forEach(c => {
+    if (!c.h) c.h = sentences(c.paras[0])[0].split(/\s+/).slice(0, 6).join(" ").replace(/[.,;:]$/, "") + "…";
+    if (c.part > 1) c.h += " (cont.)";
+  });
+  const all = [lede || "", ...chunks.flatMap(c => c.paras)].join(" ");
+  if (!title) title = (lede || all).split(/\s+/).slice(0, 7).join(" ") + "…";
+  // Keywords that link cards together
+  const df = {};
+  chunks.forEach(c => new Set(words(c.paras.join(" ")).filter(w => !STOP.has(w))).forEach(w => df[w] = (df[w] || 0) + 1));
+  chunks.forEach(c => {
+    const own = {}; words(c.paras.join(" ")).forEach(w => { if (!STOP.has(w) && df[w] >= 2) own[w] = (own[w] || 0) + 1; });
+    c.keys = Object.keys(own).sort((a, b) => (own[b] * 2 + df[b]) - (own[a] * 2 + df[a])).slice(0, 3);
+    c.text = c.paras.join(" ");
+  });
+  const wc = all.split(/\s+/).length;
+  return { title, lede, chunks, minutes: Math.max(1, Math.round(wc / 230)), words: wc };
+}
+
+/* ---------- Turning a document into cards, by need and mood ---------- */
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const NUM = /(\d[\d,.]*\s?(?:%|°C|°F|percent|meters|km|miles|million|billion|times|hours|years)?)/;
+
+function buildCards(doc, need) {
+  const cards = [];
+  const intro = { kind: "title", h: doc.title, lede: doc.lede || sentences(doc.chunks[0]?.text || "")[0] || "" };
+  if (need === "quick") {
+    cards.push({ kind: "tldr", h: "The short version", points: doc.chunks.filter(c => c.part === 1).slice(0, 5).map(c => sentences(c.text)[0]) });
+    doc.chunks.filter(c => c.part === 1).slice(0, 5).forEach(c => cards.push({ kind: "section", h: c.h, text: sentences(c.text)[0], keys: c.keys }));
+  } else if (need === "facts") {
+    cards.push(intro);
+    const facts = [];
+    [doc.lede || "", ...doc.chunks.map(c => c.text)].forEach((t, i) => sentences(t).forEach(s => { const m = s.match(NUM); if (m && facts.length < 12) facts.push({ kind: "fact", big: m[1].trim(), text: s, keys: doc.chunks[i - 1]?.keys || [] }); }));
+    if (!facts.length) facts.push({ kind: "section", h: "No numbers found", text: "This page has no figures to pull out. Try Deep dive or Quick answer instead." });
+    cards.push(...facts);
+  } else {
+    cards.push(intro);
+    doc.chunks.forEach(c => cards.push({ kind: "section", h: c.h, text: c.text, paras: c.paras, keys: c.keys }));
+  }
+  return cards;
+}
+
+function keySentence(text) {
+  const ss = sentences(text); if (ss.length < 2) return -1;
+  let best = 0, score = -1;
+  ss.forEach((s, i) => { const sc = words(s).filter(w => !STOP.has(w)).length + (NUM.test(s) ? 4 : 0); if (sc > score) { score = sc; best = i; } });
+  return best;
+}
+const punch = s => { const w = s.replace(/[.!?]+$/, "").split(/\s+/); return w.length > 14 ? w.slice(0, 13).join(" ") + "…" : w.join(" "); };
+
+function faceHTML(c, i, n, mood) {
+  const meta = `<div class="meta"><span><b>${String(i + 1).padStart(2, "0")}</b> / ${String(n).padStart(2, "0")}</span><span>${{ title: "Page", tldr: "Summary", section: "Section", fact: "Fact" }[c.kind]}</span></div>`;
+  let body = "";
+  if (c.kind === "title") {
+    body = `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.lede)}</p><div class="meta"><span>${doc.minutes} min read</span><span>${doc.chunks.length} sections</span></div>`;
+  } else if (c.kind === "tldr") {
+    body = `<h2>${esc(c.h)}</h2><ul>${c.points.map(p => `<li>${esc(mood === "energized" ? punch(p) : p)}</li>`).join("")}</ul>`;
+  } else if (c.kind === "fact") {
+    body = `<div class="big${c.big.length > 6 ? " long" : ""}">${esc(c.big)}</div><p>${esc(c.text)}</p>`;
+  } else {
+    const ss = sentences(c.text);
+    if (mood === "energized") body = `<h2>${esc(c.h)}</h2><ul>${ss.slice(0, 4).map(s => `<li>${esc(punch(s))}</li>`).join("")}</ul>`;
+    else if (mood === "calm") body = `<h2>${esc(c.h)}</h2><p>${esc(ss.slice(0, 3).join(" "))}</p>`;
+    else if (mood === "focused") {
+      const k = keySentence(c.text);
+      body = `<h2>${esc(c.h)}</h2><p>${ss.map((s, j) => j === k ? `<mark>${esc(s)}</mark>` : esc(s)).join(" ")}</p>`;
+    } else body = `<h2>${esc(c.h)}</h2>${(c.paras || [c.text]).map(p => `<p>${esc(p)}</p>`).join("")}`;
+  }
+  const chips = mood === "curious" && c.keys?.length ? `<div class="chips">${c.keys.map(k => `<button class="chip${k === state.trail ? " on" : ""}" data-key="${esc(k)}">↳ ${esc(k)}</button>`).join("")}</div>` : "";
+  return `<div class="face">${meta}${body}${chips}</div>`;
+}
+
+/* ---------- Spatial layouts, one per mood ---------- */
+function rand(seed) { let x = Math.sin(seed * 91.7) * 43758.5; return x - Math.floor(x); }
+const mobile = () => innerWidth < 700;
+const LAYOUTS = {
+  calm: n => ({ pos: Array.from({ length: n }, (_, i) => { const a = i * 0.62; return { x: 820 * Math.sin(a), y: (i - (n - 1) / 2) * 120, z: 820 * Math.cos(a), ry: a * 180 / Math.PI, rz: 0 }; }), view: { x: 0, y: 0, z: 0, rx: -6, ry: 0, zoom: -1750 }, spin: 0.05 }),
+  focused: n => ({ pos: Array.from({ length: n }, (_, i) => ({ x: 0, y: 0, z: -i * 900, ry: 0, rz: 0 })), view: { x: 0, y: 0, z: 0, rx: -4, ry: -16, zoom: -700 }, spin: 0 }),
+  curious: n => ({ pos: Array.from({ length: n }, (_, i) => { const y = 1 - 2 * (i + .5) / n, r = Math.sqrt(1 - y * y), th = i * 2.39996; const x = Math.cos(th) * r, z = Math.sin(th) * r; return { x: x * 680, y: -y * 520, z: z * 680, ry: Math.atan2(x, z) * 180 / Math.PI, rz: 0 }; }), view: { x: 0, y: 0, z: 0, rx: -8, ry: 0, zoom: -1500 }, spin: 0.08 }),
+  energized: n => { const cols = mobile() ? 2 : Math.ceil(Math.sqrt(n * 1.7)), rows = Math.ceil(n / cols);
+    return { pos: Array.from({ length: n }, (_, i) => ({ x: (i % cols - (cols - 1) / 2) * 400, y: (Math.floor(i / cols) - (rows - 1) / 2) * 360, z: (rand(i + 1) - .5) * 500, ry: (rand(i + 7) - .5) * 24, rz: (rand(i + 3) - .5) * 10 })), view: { x: 0, y: 0, z: 0, rx: 0, ry: 0, zoom: -1150 - rows * 90 }, spin: 0 }; }
+};
+
+/* ---------- State, camera and rendering ---------- */
+let doc = parse(SAMPLE);
+const state = { mood: "curious", need: "deep", focus: -1, trail: null, film: false };
+let cards = [], els = [], layout = null;
+const cam = { x: 0, y: 0, z: 0, rx: -8, ry: 0, zoom: -1500 }, tgt = { ...cam };
+let lastInteract = 0;
+
+function rebuild() {
+  cards = buildCards(doc, state.need);
+  world.innerHTML = "";
+  els = cards.map((c, i) => { const el = document.createElement("div"); el.className = "card enter"; el.dataset.i = i; world.appendChild(el); return el; });
+  state.focus = -1; state.trail = null; updateTrail();
+  relayout(true);
+  requestAnimationFrame(() => requestAnimationFrame(() => els.forEach((el, i) => setTimeout(() => el.classList.remove("enter"), reduce ? 0 : i * 45))));
+  $("#addr").textContent = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+  $("#addrmeta").textContent = `· ${doc.words.toLocaleString()} words`;
+}
+function relayout(scatter) {
+  layout = LAYOUTS[state.mood](cards.length);
+  els.forEach((el, i) => {
+    el.innerHTML = faceHTML(cards[i], i, cards.length, state.mood);
+    const p = layout.pos[i];
+    if (scatter) { el.style.transition = "none"; el.style.transform = cardT({ ...p, z: p.z - 2500 }); void el.offsetWidth; el.style.transition = ""; }
+    el.style.transform = cardT(p);
+  });
+  applyTrailDim();
+  if (state.focus >= 0) focus(state.focus); else overview();
+}
+const cardT = p => `translate(-50%,-50%) translate3d(${p.x}px,${p.y}px,${p.z}px) rotateY(${p.ry}deg) rotateZ(${p.rz}deg)`;
+const near = (cur, t) => cur + ((((t - cur) % 360) + 540) % 360 - 180);
+
+function overview() {
+  state.focus = -1; const v = layout.view, f = mobile() ? 1.55 : 1;
+  Object.assign(tgt, { x: v.x, y: v.y, z: v.z, rx: v.rx, zoom: v.zoom * f }); tgt.ry = state.mood === "focused" || state.mood === "energized" ? near(cam.ry, v.ry) : tgt.ry;
+  els.forEach(e => e.classList.remove("active")); $("#nav").hidden = true; $("#hint").hidden = false;
+}
+function focus(i) {
+  i = (i + cards.length) % cards.length; state.focus = i; const p = layout.pos[i];
+  Object.assign(tgt, { x: p.x, y: p.y, z: p.z, rx: 0, ry: near(cam.ry, -p.ry), zoom: mobile() ? -260 : 120 });
+  els.forEach((e, j) => e.classList.toggle("active", j === i));
+  if (!state.film) { $("#nav").hidden = false; $("#hint").hidden = true; }
+}
+
+function tick() {
+  const k = state.film ? 0.035 : 0.075;
+  if (!reduce && state.focus < 0 && !dragging && layout.spin && performance.now() - lastInteract > 2500) tgt.ry += layout.spin;
+  if (state.film && !reduce) tgt.ry += 0.012;
+  for (const key in cam) cam[key] += (tgt[key] - cam[key]) * (reduce ? 1 : k);
+  world.style.transform = `translateZ(${cam.zoom}px) rotateX(${cam.rx}deg) rotateY(${cam.ry}deg) translate3d(${-cam.x}px,${-cam.y}px,${-cam.z}px)`;
+  // depth fog
+  const ry = cam.ry * Math.PI / 180, rx = cam.rx * Math.PI / 180;
+  els.forEach((el, i) => {
+    const p = layout.pos[i]; let x = p.x - cam.x, y = p.y - cam.y, z = p.z - cam.z;
+    const z1 = -x * Math.sin(ry) + z * Math.cos(ry); const z2 = y * Math.sin(rx) + z1 * Math.cos(rx) + cam.zoom;
+    const d = 1000 - z2; const fog = z2 > 850 ? 0 : Math.max(.22, Math.min(1, 1 - (d - 2000) / 3000));
+    const v = fog.toFixed(2); if (el._fog !== v) { el._fog = v; el.style.setProperty("--fog", v); }
+  });
+  drawSky();
+  requestAnimationFrame(tick);
+}
+
+/* ---------- Ambient sky, tinted by mood ---------- */
+const sky = $("#sky"), sx = sky.getContext("2d"); let dots = [];
+function sizeSky() { const r = devicePixelRatio || 1; sky.width = innerWidth * r; sky.height = innerHeight * r; sx.setTransform(r, 0, 0, r, 0, 0);
+  dots = Array.from({ length: Math.round(innerWidth * innerHeight / 9000) }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, s: Math.random() * 1.6 + .3, p: Math.random() * 6.28 })); }
+const SKY = { calm: { c: "130,217,203", vx: 0, vy: -.18 }, focused: { c: "244,243,238", vx: 0, vy: 0 }, curious: { c: "190,170,255", vx: .02, vy: 0 }, energized: { c: "255,180,90", vx: -2.6, vy: 0 } };
+function drawSky() {
+  const m = SKY[state.mood], W = innerWidth, H = innerHeight; sx.clearRect(0, 0, W, H);
+  const par = cam.ry * 3; const t = performance.now() / 1000;
+  dots.forEach(d => {
+    if (!reduce) { d.x += m.vx * d.s; d.y += m.vy * d.s; if (d.x < 0) d.x += W; if (d.y < 0) d.y += H; }
+    const x = ((d.x + par * d.s) % W + W) % W;
+    const a = state.mood === "curious" ? .25 + .55 * (0.5 + 0.5 * Math.sin(t * 2 + d.p)) : state.mood === "focused" ? .18 : .45;
+    sx.fillStyle = `rgba(${m.c},${a})`;
+    if (state.mood === "energized") sx.fillRect(x, d.y, d.s * 14, d.s * .8); else { sx.beginPath(); sx.arc(x, d.y, d.s, 0, 6.28); sx.fill(); }
+  });
+}
+
+/* ---------- Interaction ---------- */
+let dragging = false, down = null;
+stage.addEventListener("pointerdown", e => { if (e.target.closest(".chip")) return; down = { x: e.clientX, y: e.clientY, ry: tgt.ry, rx: tgt.rx, moved: false }; stage.setPointerCapture(e.pointerId); lastInteract = performance.now(); });
+stage.addEventListener("pointermove", e => {
+  if (!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y;
+  if (!down.moved && Math.hypot(dx, dy) > 6) { down.moved = true; dragging = true; stage.classList.add("dragging"); if (state.focus >= 0) overview(); down.ry = tgt.ry; down.rx = tgt.rx; down.x = e.clientX; down.y = e.clientY; return; }
+  if (down.moved) { tgt.ry = down.ry + dx * .18; tgt.rx = Math.max(-40, Math.min(30, down.rx - dy * .12)); lastInteract = performance.now(); }
+});
+stage.addEventListener("pointerup", e => {
+  if (down && !down.moved && !state.film) { const c = document.elementFromPoint(e.clientX, e.clientY)?.closest(".card"); if (c) focus(+c.dataset.i); else if (state.focus >= 0) overview(); }
+  down = null; dragging = false; stage.classList.remove("dragging");
+});
+stage.addEventListener("wheel", e => { e.preventDefault(); tgt.zoom = Math.max(-5000, Math.min(400, tgt.zoom - e.deltaY * 1.4)); lastInteract = performance.now(); }, { passive: false });
+world.addEventListener("click", e => { const ch = e.target.closest(".chip"); if (!ch) return; e.stopPropagation(); follow(ch.dataset.key); });
+addEventListener("keydown", e => {
+  if (!$("#drawer").hidden) { if (e.key === "Escape") closeDrawer(); return; }
+  if (e.key === "Escape") { state.film ? stopFilm() : overview(); }
+  if (state.film) return;
+  if (e.key === "ArrowRight") focus(state.focus + 1);
+  if (e.key === "ArrowLeft") focus(state.focus < 0 ? cards.length - 1 : state.focus - 1);
+});
+$("#prev").onclick = () => focus(state.focus - 1);
+$("#next").onclick = () => focus(state.focus + 1);
+$("#back").onclick = () => overview();
+
+function follow(key) {
+  state.trail = key; applyTrailDim(); updateTrail();
+  const hits = cards.map((c, i) => (c.keys || []).includes(key) ? i : -1).filter(i => i >= 0);
+  const next = hits.find(i => i > state.focus) ?? hits[0];
+  els.forEach((el, i) => el.querySelectorAll(".chip").forEach(ch => ch.classList.toggle("on", ch.dataset.key === key)));
+  if (next != null) focus(next);
+}
+function applyTrailDim() { els.forEach((el, i) => el.classList.toggle("dim", !!state.trail && !(cards[i].keys || []).includes(state.trail))); }
+function updateTrail() {
+  const t = $("#trail"); if (!state.trail) { t.hidden = true; return; }
+  const n = cards.filter(c => (c.keys || []).includes(state.trail)).length;
+  $("#trailText").textContent = `Following “${state.trail}” across ${n} cards`; t.hidden = false;
+}
+$("#trailClear").onclick = () => { state.trail = null; applyTrailDim(); updateTrail(); els.forEach(el => el.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"))); };
+
+function setSeg() {
+  document.querySelectorAll("[data-mood].seg").forEach(b => b.setAttribute("aria-pressed", b.dataset.mood === state.mood));
+  document.querySelectorAll("[data-need]").forEach(b => b.setAttribute("aria-pressed", b.dataset.need === state.need));
+  document.body.dataset.mood = state.mood;
+  try { localStorage.setItem("moodspace", JSON.stringify({ mood: state.mood, need: state.need })); } catch (e) {}
+}
+document.querySelectorAll("[data-mood].seg").forEach(b => b.onclick = () => { if (state.mood === b.dataset.mood) return; state.mood = b.dataset.mood; if (state.mood !== "curious") { state.trail = null; updateTrail(); } setSeg(); relayout(false); if (state.film) audio.mood(); });
+document.querySelectorAll("[data-need]").forEach(b => b.onclick = () => { if (state.need === b.dataset.need) return; state.need = b.dataset.need; setSeg(); if (state.film) stopFilm(); rebuild(); });
+
+/* ---------- Remix drawer ---------- */
+const openDrawer = () => { $("#drawer").hidden = false; $("#err").hidden = true; $("#src").focus(); };
+const closeDrawer = () => { $("#drawer").hidden = true; };
+$("#openRemix").onclick = openDrawer; $("#cancel").onclick = closeDrawer;
+$("#drawer").addEventListener("click", e => { if (e.target.id === "drawer") closeDrawer(); });
+$("#sample").onclick = () => { $("#src").value = SAMPLE; };
+$("#remix").onclick = () => {
+  const t = $("#src").value.trim();
+  if (t.split(/\s+/).length < 40) { $("#err").textContent = "That's too short to explore. Paste at least a few paragraphs (40 words or more)."; $("#err").hidden = false; return; }
+  const d = parse(t); if (!d.chunks.length) { $("#err").textContent = "Couldn't find any paragraphs. Make sure the text has line breaks between paragraphs."; $("#err").hidden = false; return; }
+  doc = d; closeDrawer(); if (state.film) stopFilm(); rebuild();
+};
+$("#file").onchange = e => {
+  const f = e.target.files[0]; if (!f) return; const r = new FileReader();
+  r.onload = () => {
+    let t = r.result;
+    if (/\.html?$/i.test(f.name) || /<html|<p[\s>]/i.test(t)) {
+      const d = new DOMParser().parseFromString(t, "text/html"); const root = d.querySelector("article, main") || d.body;
+      t = [...root.querySelectorAll("h1,h2,h3,p,li")].map(n => n.textContent.trim().replace(/\s+/g, " ")).filter(Boolean).join("\n\n");
+    }
+    $("#src").value = t;
+  };
+  r.readAsText(f);
+};
+
+/* ---------- Film mode: the page as a narrated movie ---------- */
+const audio = (() => {
+  let ctx, gain, oscs = [], on = true;
+  const TONES = { calm: [110, 164.8], focused: [98, 146.8], curious: [130.8, 196, 246.9], energized: [82.4, 123.5] };
+  return {
+    start() { try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume(); gain = ctx.createGain(); gain.gain.value = 0; const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; gain.connect(lp).connect(ctx.destination); this.mood(); } catch (e) {} },
+    mood() { if (!ctx || !gain) return; oscs.forEach(o => { try { o.stop(); } catch (e) {} }); oscs = TONES[state.mood].map((f, i) => { const o = ctx.createOscillator(); o.type = state.mood === "energized" ? "sawtooth" : "sine"; o.frequency.value = f; o.detune.value = i * 6; o.connect(gain); o.start(); return o; }); gain.gain.setTargetAtTime(on ? (state.mood === "energized" ? .025 : .05) : 0, ctx.currentTime, .8); },
+    stop() { if (!gain) return; gain.gain.setTargetAtTime(0, ctx.currentTime, .3); const os = oscs; oscs = []; setTimeout(() => os.forEach(o => { try { o.stop(); } catch (e) {} }), 1200); gain = null; },
+    toggle() { on = !on; if (gain) gain.gain.setTargetAtTime(on ? .05 : 0, ctx.currentTime, .3); if (!on) speechSynthesis?.cancel?.(); return on; },
+    get on() { return on; }
+  };
+})();
+let shot = 0, shotTimer = null, filmId = 0;
+function narration(c) {
+  if (c.kind === "title") return `${c.h}. ${c.lede}`;
+  if (c.kind === "tldr") return `${c.h}. ${c.points.join(" ")}`;
+  if (c.kind === "fact") return c.text;
+  const ss = sentences(c.text); return `${c.h.replace(/…$/, "")}. ${ss.slice(0, state.mood === "calm" ? 2 : state.mood === "energized" ? 2 : 3).join(" ")}`;
+}
+function playShot() {
+  const id = filmId; if (!state.film) return;
+  if (shot >= cards.length) { stopFilm(); return; }
+  focus(shot);
+  const text = narration(cards[shot]); $("#caption").textContent = text;
+  const rate = { calm: .92, focused: 1, curious: 1.02, energized: 1.15 }[state.mood];
+  const dur = Math.max(3500, text.split(/\s+/).length * 390 / rate + 900);
+  [...$("#progress").children].forEach((b, i) => { b.className = i < shot ? "done" : i === shot ? "now" : ""; b.style.setProperty("--dur", dur + "ms"); });
+  const next = () => { if (id !== filmId || !state.film) return; shot++; playShot(); };
+  clearTimeout(shotTimer);
+  let spoke = false;
+  if (audio.on && "speechSynthesis" in window) {
+    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = rate; u.onend = () => { if (spoke) return; spoke = true; clearTimeout(shotTimer); shotTimer = setTimeout(next, 700); }; speechSynthesis.speak(u); } catch (e) {}
+  }
+  shotTimer = setTimeout(() => { spoke = true; next(); }, dur + (audio.on ? 4000 : 0));
+  if (!audio.on || !("speechSynthesis" in window)) { clearTimeout(shotTimer); shotTimer = setTimeout(next, dur); }
+}
+function startFilm() {
+  state.film = true; filmId++; shot = 0; document.body.classList.add("filming"); $("#film").classList.add("on");
+  $("#progress").innerHTML = cards.map(() => "<i></i>").join(""); $("#nav").hidden = true;
+  audio.start(); $("#sound").textContent = audio.on ? "Sound on" : "Sound off";
+  setTimeout(playShot, 600);
+}
+function stopFilm() {
+  state.film = false; filmId++; clearTimeout(shotTimer); try { speechSynthesis.cancel(); } catch (e) {}
+  audio.stop(); document.body.classList.remove("filming"); $("#film").classList.remove("on"); overview();
+}
+$("#play").onclick = startFilm; $("#stop").onclick = stopFilm;
+$("#sound").onclick = () => { const on = audio.toggle(); $("#sound").textContent = on ? "Sound on" : "Sound off"; if (on && state.film) audio.mood(); };
+
+/* ---------- Boot ---------- */
+try { const s = JSON.parse(localStorage.getItem("moodspace") || "{}"); if (LAYOUTS[s.mood]) state.mood = s.mood; if (["quick", "deep", "facts"].includes(s.need)) state.need = s.need; } catch (e) {}
+setSeg(); sizeSky(); rebuild();
+Object.assign(cam, tgt);
+addEventListener("resize", () => { sizeSky(); relayout(false); });
+requestAnimationFrame(tick);
+</script>
