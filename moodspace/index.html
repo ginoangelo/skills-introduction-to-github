@@ -108,6 +108,38 @@ body[data-mood="calm"] .card h1 { font-weight: 500; }
 .chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 5px 10px; font: 500 11px/1 var(--mono); letter-spacing: .04em; color: var(--accent2); }
 .chip:hover, .chip.on { background: var(--accent2); color: var(--bg0); }
 
+/* Page-type cards */
+:root { --up: #5be49b; --down: #ff7a7a; }
+.face .sub { font: 500 12px/1.4 var(--mono); color: var(--accent2); letter-spacing: .02em; overflow-wrap: anywhere; }
+.big.huge { font-size: 110px; line-height: .85; white-space: nowrap; }
+.x-product .big, .x-item .big, .x-total .big, .x-metric .big, .x-finale .big { white-space: nowrap; overflow-wrap: normal; font-size: 46px; }
+.cta { align-self: flex-start; display: inline-block; background: var(--accent); color: var(--bg0); border-radius: 999px; padding: 10px 18px; font: 600 14px/1 var(--body); }
+.x-door .cta, .x-post .cta, .x-result .cta { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.x-door h2 { font-size: 30px; }
+.x-hero h1, .x-lost h1 { font-size: 32px; overflow-wrap: anywhere; }
+.x-finale { border-width: 2px; border-color: var(--accent); }
+.x-finale .cta { font-size: 17px; padding: 14px 24px; }
+.x-query h1 { font-size: 30px; }
+.x-query h1::before { content: "⌕ "; color: var(--accent); }
+.x-frame { border-width: 10px; border-color: color-mix(in srgb, var(--ink) 12%, var(--card)); }
+.x-lost { text-align: left; }
+.trend { font: 600 14px/1 var(--mono); }
+.trend.up, .bars b.up { color: var(--up); } .trend.down { color: var(--down); }
+.rows { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 0; font-size: var(--body-size); }
+.rows dt { color: var(--muted); font: 500 12px/1.6 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+.rows dd { margin: 0; overflow-wrap: anywhere; }
+.bars { display: grid; gap: 10px; }
+.barrow { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 13px; }
+.barrow i { height: 8px; border-radius: 4px; background: var(--up); width: var(--w); }
+.barrow i.down { background: var(--down); }
+.barrow b { font: 500 12px/1 var(--mono); }
+.field { display: grid; gap: 6px; }
+.field span { font-size: 13px; color: var(--muted); }
+.field i { height: 42px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.04); }
+#tryType { border: 1px solid var(--line); background: rgba(0,0,0,.35); color: var(--ink); border-radius: 999px; padding: 9px 14px; font-size: 13px; max-width: 100%; }
+#ptypeSel { background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--ink); }
+.typehow { font-size: 13px; color: var(--muted); }
+
 /* Chrome */
 .bar { position: fixed; left: 0; right: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -196,7 +228,7 @@ body.filming #top, body.filming #dock, body.filming #nav { opacity: 0; pointer-e
 
 <header class="bar" id="top">
   <div class="brand"><i></i>Moodspace</div>
-  <div class="address"><span>lens:// <em id="viewName">constellation</em> / <b id="addr">midnight-zone</b></span></div>
+  <div class="address"><span>lens:// <em id="viewName">constellation</em> / <em id="typeName">article</em> / <b id="addr">midnight-zone</b></span></div>
   <button class="btn lens-pill" id="openLens">Lens <small id="lensSummary"></small></button>
 </header>
 
@@ -209,6 +241,7 @@ body.filming #top, body.filming #dock, body.filming #nav { opacity: 0; pointer-e
 
 <footer class="bar" id="dock">
   <div id="status"></div>
+  <label for="tryType" class="sr" hidden>Try a page type</label><select id="tryType" aria-label="Try a sample of a page type"></select>
   <button class="btn" id="openRemix">Open a page</button>
   <button class="btn primary film-btn" id="play"><svg viewBox="0 0 10 10"><path d="M1 0l9 5-9 5z"/></svg>Watch tour</button>
 </footer>
@@ -253,8 +286,9 @@ body.filming #top, body.filming #dock, body.filming #nav { opacity: 0; pointer-e
 <div id="drawer" class="overlay" hidden>
   <div class="panel" role="dialog" aria-labelledby="dh">
     <h3 id="dh">Open a page</h3>
-    <p>Copy the text of any web page, public or one you're logged in to, and paste it here, or open a saved page (.html or .txt). Your lens shapes how it's presented. Nothing leaves your browser.</p>
+    <p>Copy the text of any web page, public or one you're logged in to, and paste it here, or open a saved page (.html or .txt). Moodspace works out what kind of page it is (home, product, cart, contact and 12 more) and presents it that way, through your lens. Nothing leaves your browser.</p>
     <textarea id="src" placeholder="Paste a page's text here. Short lines without a full stop become section headings."></textarea>
+    <div class="row"><label class="note" for="ptypeSel">Page type</label><select id="ptypeSel"></select><span class="typehow" id="typeHow"></span></div>
     <div class="row"><label class="note">Or open a file <input type="file" id="file" accept=".html,.htm,.txt,.md,text/plain,text/html"></label></div>
     <div id="err" hidden></div>
     <div class="row"><button class="btn" id="sample">Load the sample</button><span class="spacer"></span><button class="btn" id="cancel">Cancel</button><button class="btn primary" id="remix">Open it</button></div>
@@ -376,6 +410,14 @@ function quizzes(doc, n) {
   return out;
 }
 function buildCards(doc, need) {
+  if (doc.type && doc.type !== "article") {
+    let cs = typedCards(doc);
+    if (cs) {
+      if (need === "quick") cs = cs.slice(0, 5);
+      else if (need === "facts") { const f = cs.filter(c => /\d/.test([c.big, c.h, c.text, c.trend].join(" "))); if (f.length > 1) cs = f; }
+      return cs;
+    }
+  }
   const cards = buildBase(doc, need);
   if (state.audience === "adults" || state.audience === "seniors") return cards;
   if (state.audience === "kids") cards.forEach(c => { if (c.text) c.text = kidify(c.text); if (c.paras) c.paras = null; if (c.lede) c.lede = kidify(c.lede); if (c.points) c.points = c.points.map(kidify); });
@@ -411,10 +453,11 @@ const punch = s => { const w = s.replace(/[.!?]+$/, "").split(/\s+/); return w.l
 
 function faceHTML(c, i, n, mood) {
   const secs = Math.max(5, Math.round(((c.text || c.lede || (c.points || []).join(" ") || c.before || "").split(/\s+/).length) / 3.8 / 5) * 5);
-  const label = state.audience === "teens" && c.kind === "section" ? `${secs} sec read` : { title: "Topic", tldr: "The short version", section: "Section", fact: "Fact", quiz: state.audience === "kids" ? "Game" : "Quiz" }[c.kind];
+  const label = c.kind === "x" ? c.label : state.audience === "teens" && c.kind === "section" ? `${secs} sec read` : { title: "Topic", tldr: "The short version", section: "Section", fact: "Fact", quiz: state.audience === "kids" ? "Game" : "Quiz" }[c.kind];
   const meta = `<div class="meta"><span><b>${String(i + 1).padStart(2, "0")}</b> / ${String(n).padStart(2, "0")}</span><span>${label}</span></div>`;
   let body = "";
-  if (c.kind === "title") body = `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.lede)}</p><div class="meta"><span>${doc.minutes} min</span><span>${doc.chunks.length} sections</span></div>`;
+  if (c.kind === "x") body = typedFace(c, mood);
+  else if (c.kind === "title") body = `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.lede)}</p><div class="meta"><span>${doc.minutes} min</span><span>${doc.chunks.length} sections</span></div>`;
   else if (c.kind === "tldr") body = `<h2>${esc(c.h)}</h2><ul>${c.points.map(p => `<li>${esc(mood === "energized" ? punch(p) : p)}</li>`).join("")}</ul>`;
   else if (c.kind === "quiz") body = `<h2>${state.audience === "kids" ? "Can you guess?" : "Quick check"}</h2><p>${esc(c.before)}<span class="blank">${esc(c.answer)}</span>${esc(c.after)}</p><button class="reveal">${state.audience === "kids" ? "Show me!" : "Reveal"}</button>`;
   else if (c.kind === "fact") body = `<div class="big${c.big.length > 6 ? " long" : ""}">${esc(c.big)}</div><p>${esc(c.text)}</p>`;
@@ -428,7 +471,388 @@ function faceHTML(c, i, n, mood) {
   if (c.kind === "section" && state.audience === "teens" && mood !== "focused" && mood !== "energized") { const k = keySentence(c.text); if (k >= 0) body += `<div class="takeaway">Key takeaway: ${esc(sentences(c.text)[k])}</div>`; }
   if (state.audience === "kids" && (c.kind === "section" || c.kind === "fact")) { const tw = trickyWords(c.text); if (tw.length) body += `<div class="words">Tricky words ${tw.map(w => `<span>${esc(syllables(w))}</span>`).join("")}</div>`; }
   const chips = mood === "curious" && c.keys?.length ? `<div class="chips">${c.keys.map(k => `<button class="chip${k === state.trail ? " on" : ""}" data-key="${esc(k)}">↳ ${esc(k)}</button>`).join("")}</div>` : "";
-  return `<div class="face${c.kind === "quiz" ? " quiz" : ""}">${meta}${body}${chips}</div>`;
+  return `<div class="face${c.kind === "quiz" ? " quiz" : ""}${c.kind === "x" ? " " + c.style.split(" ").map(x => "x-" + x).join(" ") : ""}">${meta}${body}${chips}</div>`;
+}
+
+/* ---------- Page types: the 16 basic kinds of web page ---------- */
+const TYPES = {
+  home: "Home page", feed: "Feed", menu: "Menu page", search: "Search results", about: "About page",
+  registration: "Sign-up page", notfound: "404 page", blog: "Blog page", article: "Article",
+  portfolio: "Portfolio", services: "Services page", product: "Product page", cart: "Cart",
+  statistics: "Statistics", contact: "Contact page", landing: "Landing page" };
+const TYPE_HOW = {
+  home: "A hub: the welcome first, then each section as a door you can fly into.",
+  feed: "A stream of posts, one after another, each the same shape.",
+  menu: "Every destination becomes a big door. Nothing else on screen.",
+  search: "Your search stays pinned as the first card, then the results in order.",
+  about: "The story, mission, values and people, one at a time.",
+  registration: "The form split into calm steps, one field per card.",
+  notfound: "A clear “you're lost” card, then doors back to safe places.",
+  blog: "Posts as cards with their dates, newest first.",
+  article: "Sections, facts and a reading path.",
+  portfolio: "Each project hung like a framed piece in a gallery.",
+  services: "Each service as a tile with its key points.",
+  product: "The product, price and one button up front, then features and reviews.",
+  cart: "Each item, then one clear total and the checkout button.",
+  statistics: "Each number as a big metric with its trend, plus a comparison card.",
+  contact: "The ways to reach them on one card, nothing else in the way.",
+  landing: "One message, the reasons, then a single big call to action at the end." };
+
+const SAMPLES = {
+home: `Harbor & Hearth
+Home goods made by small studios on the coast.
+Shop the winter collection
+Wool throws, stoneware and candles, made in batches of fifty or fewer.
+Meet the makers
+Twelve studios, each within a day's drive of the sea.
+Gift guide
+Ideas under $40, under $80 and for the person who has everything.
+Journal
+Stories from the workshops, recipes and care guides.`,
+feed: `Riverside Running Club
+
+Maya R. · 2h ago
+Sunrise loop done. 8 km along the river and the herons were out in force.
+
+Coach Dan · 5h ago
+Reminder: Thursday intervals move to 6:30 pm because of the bridge works.
+
+Priya S. · Yesterday
+First half marathon booked for April. Who's coming with me?
+
+Club news · 2 days ago
+New members welcome at Saturday's easy 5 km. Meet by the boathouse at 9.
+
+Leo T. · 3 days ago
+Lost a blue water bottle near the 3 km marker. Shout if you find it.`,
+menu: `Northside Public Library
+Find a book
+Your account
+Events this month
+Kids and teens
+Study rooms
+Digital library
+Visit us
+Help`,
+search: `Search results for "sourdough starter"
+
+How to Make a Sourdough Starter in 7 Days
+bakeathome.example/starter
+Flour, water and patience. A day-by-day guide with photos of what your starter should look like.
+
+Why Is My Starter Not Rising?
+breadclinic.example/troubleshooting
+The five most common causes, from cold kitchens to chlorinated water, and how to fix each one.
+
+Feeding Schedules Compared
+crumbjournal.example/feeding
+Once a day, twice a day or once a week in the fridge. Which schedule fits your life.
+
+Starter Hooch: Pour It Off or Stir It In?
+bakeathome.example/hooch
+What the grey liquid on top means and whether it changes the flavor.`,
+about: `About Fieldnote Coffee
+
+We started in 2014 with one used roaster and a garage that smelled like toast.
+
+Our mission
+Pay farmers fairly and roast coffee that tastes like where it comes from. We buy directly from eleven farms in four countries.
+
+What we value
+Short supply chains. Honest prices. Coffee that doesn't need sugar to taste good.
+
+The team
+Ana Ruiz, founder and head roaster. Tom Becker, green coffee buyer. Lin Zhou, cafe manager.
+
+Where we are now
+Two cafes, one roastery and a delivery van named Gerald.`,
+registration: `Create your account
+Join Plotline to plan your garden, track sowing dates and get frost alerts.
+Full name
+Email
+Password
+Confirm password
+Continue with Google
+Continue with Apple
+Create account
+Already have an account? Log in`,
+notfound: `404
+This page wandered off
+The link you followed may be broken, or the page may have moved.
+Go to the home page
+Search the site
+Browse popular guides
+Contact support`,
+blog: `The Trailhead Blog
+
+March 12, 2026 · 6 min read
+Packing for a Spring Hike
+What to bring when the morning is cold and the afternoon is warm, and what to leave in the car.
+
+March 3, 2026 · 4 min read
+Five Quiet Trails Near the City
+Places to walk on a Saturday without the crowds, all under an hour's drive.
+
+February 20, 2026 · 8 min read
+How to Read a Topographic Map
+Contour lines, scale and the one mistake almost everyone makes on their first map.
+
+February 9, 2026 · 3 min read
+Trail Etiquette in Two Minutes
+Who yields to whom, where dogs go and why you should never stack rocks.`,
+article: SAMPLE,
+portfolio: `Ines Okafor · Photography
+
+Salt Flats
+Landscape series · 2025
+Twenty-four frames shot over three dawns in the Atacama desert.
+
+The Night Market
+Documentary · 2024
+Vendors, smoke and neon in Lagos after midnight.
+
+Second Hand
+Portrait series · 2024
+Portraits of people with the oldest object they own.
+
+Quiet Rooms
+Interiors · 2023
+Empty libraries and reading rooms photographed before opening time.`,
+services: `What we do at Brightpath Studio
+
+Brand identity
+- Logo and visual system
+- Typography and color
+- Brand guidelines
+From $4,000
+
+Website design
+- Site map and wireframes
+- Design for desktop and mobile
+- Handover to your developer
+From $6,500
+
+Content and copy
+- Tone of voice
+- Website copy
+- Launch emails
+From $2,000`,
+product: `Linen Weekender Bag
+$148.00
+A roomy travel bag in washed linen with leather handles. Fits a long weekend.
+In stock · Ships in 2 days
+Features
+- 40 liter capacity
+- Water-resistant lining
+- Padded laptop sleeve
+- Detachable shoulder strap
+Colors: Sand, Olive, Charcoal
+Reviews
+4.8 out of 5 from 214 reviews
+"Survived six flights and still looks new." Rosa K.
+Add to cart`,
+cart: `Your cart
+Linen Weekender Bag, Sand $148.00
+Leather luggage tag $24.00
+Travel cubes, set of 3 $36.00
+Subtotal $208.00
+Shipping $0.00
+Tax $16.64
+Total $224.64
+Checkout`,
+statistics: `Your blog this month
+Visitors 12,480 +18%
+Page views 31,902 +11%
+Average read time 3m 42s +6%
+New subscribers 342 +24%
+Bounce rate 41% -3%
+Comments 87 -9%`,
+contact: `Contact Northwind Dental
+We reply within one working day.
+Email hello@northwind-dental.example
+Phone +1 (555) 013-2280
+Address 48 Mill Street, Portland, OR
+Hours Monday to Friday, 8 am to 6 pm
+Your name
+Your email
+Message
+Send message`,
+landing: `Sleep better in 14 nights
+Drift is a bedtime app that builds your wind-down routine for you.
+No more scrolling at midnight
+Drift dims your phone and locks distracting apps one hour before bed.
+Sounds that fade with you
+Rain, waves and white noise fade out as your breathing slows.
+A morning check-in
+Two questions each morning show how your sleep is changing.
+Start your free 14 nights
+No card needed. Cancel any time.`
+};
+
+const PRICE = /[$€£]\s?\d[\d,]*(?:\.\d{2})?/;
+const EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/;
+const PHONE = /\+?\d[\d\s().-]{7,}\d/;
+const CTA_RE = /^(add to (cart|bag)|buy now|checkout|check out|sign up|create account|log in|start|get started|try|download|subscribe|send message|book|join|continue|shop)\b/i;
+const linesOf = t => t.replace(/\r/g, "").split("\n").map(s => s.trim()).filter(Boolean);
+const blocksOf = t => t.replace(/\r/g, "").split(/\n\s*\n/).map(b => linesOf(b)).filter(b => b.length);
+const bullet = l => /^[-•*·]\s+/.test(l);
+const unbullet = l => l.replace(/^[-•*·]\s+/, "");
+
+function detectType(text) {
+  const t = text.toLowerCase(), ls = linesOf(text), n = ls.length;
+  const prices = (text.match(new RegExp(PRICE.source, "g")) || []).length;
+  const shortLines = ls.filter(l => l.split(/\s+/).length <= 4 && !/[.!?]$/.test(l)).length;
+  const sentencesN = (text.match(/[.!?](\s|$)/g) || []).length;
+  const s = {};
+  s.notfound = /\b404\b|page not found|wandered off|doesn'?t exist|does not exist/.test(t) ? 10 : 0;
+  s.cart = (/\b(your (cart|bag|basket)|subtotal)\b/.test(t) ? 5 : 0) + (/\btotal\b/.test(t) && prices >= 3 ? 3 : 0);
+  s.product = (/add to (cart|bag)|in stock|out of stock|ships in|sizes?:|colou?rs?:/.test(t) ? 5 : 0) + (prices >= 1 && prices <= 2 ? 2 : 0) + (/reviews?|out of 5|★/.test(t) ? 1 : 0);
+  s.registration = (/create (an |your )?account|sign up|register/.test(t) ? 3 : 0) + (/\bpassword\b/.test(t) ? 4 : 0) + (/already have an account/.test(t) ? 2 : 0);
+  s.contact = (EMAIL.test(text) ? 2 : 0) + (PHONE.test(text) ? 2 : 0) + (/contact|get in touch|reach us|send message|opening hours|\bhours\b/.test(t) ? 3 : 0);
+  s.statistics = (ls.filter(l => /\d/.test(l) && /[+-]\d+(\.\d+)?%|\d%/.test(l)).length >= 3 ? 6 : 0) + (/dashboard|analytics|this (week|month)|statistics|stats/.test(t) ? 2 : 0);
+  s.search = (/results? for|search results|showing \d+ results|you searched/.test(t) ? 8 : 0);
+  s.feed = ((text.match(/\b\d+\s?(m|h|d|min|hours?|days?) ago\b|\byesterday\b|· \d+ ?(h|d)\b/gi) || []).length >= 3 ? 7 : 0);
+  s.blog = ((text.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]* \d{1,2},? \d{4}\b|\d+ min read/gi) || []).length >= 3 ? 7 : 0);
+  s.portfolio = (/portfolio|photography|projects?|case stud|series ·|selected work/.test(t) ? 3 : 0) + ((text.match(/· (19|20)\d\d\b/g) || []).length >= 2 ? 3 : 0);
+  s.services = (/services|what we do|we offer|packages/.test(t) ? 3 : 0) + (/\bfrom [$€£]/.test(t) ? 3 : 0);
+  s.about = (/\babout us\b|^about |our (story|mission|team|values)|founded|we started/m.test(t) ? 4 : 0) + (/\bmission\b|\bvalues?\b/.test(t) ? 2 : 0);
+  s.landing = (/free (trial|\d+)|get started|no card|cancel any ?time|start your|download (the )?app/.test(t) ? 5 : 0) + (n < 20 ? 1 : 0);
+  s.menu = shortLines >= 6 && sentencesN <= 1 ? 6 : 0;
+  s.home = (/welcome|shop the|featured|collection|gift guide|latest/.test(t) ? 3 : 0) + (shortLines >= 3 && sentencesN >= 3 ? 1 : 0);
+  s.article = sentencesN >= 12 ? 7 : sentencesN >= 8 ? 4 : 1;
+  return Object.entries(s).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+// Each builder turns raw text into presentation cards (kind "x").
+function groupsOf(ls) {
+  const out = []; let cur = null;
+  ls.forEach(l => { if (isHead(l) && !PRICE.test(l) && !bullet(l)) { cur = { h: l, body: [] }; out.push(cur); } else { if (!cur) { cur = { h: null, body: [] }; out.push(cur); } cur.body.push(l); } });
+  return out;
+}
+const X = o => ({ kind: "x", ...o });
+const BUILD = {
+  home(ls) {
+    const [title, tagline, ...rest] = ls; const gs = groupsOf(rest);
+    return [X({ style: "hero", label: "Welcome", h: title, text: tagline }), ...gs.map(g => X({ style: "door", label: "Section", h: g.h || "More", text: g.body.join(" "), cta: "Enter" }))];
+  },
+  feed(ls, text) {
+    const bs = blocksOf(text); const title = bs[0].length === 1 ? bs.shift()[0] : "Feed";
+    return [X({ style: "hero", label: "Feed", h: title, text: `${bs.length} new posts` }), ...bs.map(b => { const [who, ...body] = b; const [name, when] = who.split(/\s·\s/); return X({ style: "post", label: when || "Post", h: name, text: body.join(" ") }); })];
+  },
+  menu(ls) {
+    const [title, ...items] = ls;
+    return [X({ style: "hero", label: "Menu", h: title, text: `${items.length} places to go` }), ...items.slice(0, 14).map(it => X({ style: "door", label: "Go to", h: unbullet(it), cta: "Open" }))];
+  },
+  search(ls, text) {
+    const bs = blocksOf(text); const head = bs.shift().join(" ");
+    const q = (head.match(/[“"']([^”"']+)[”"']/) || head.match(/(?:results? for|searched)\s+(.+)$/i) || [, head])[1];
+    return [X({ style: "query", label: "You searched for", h: q, text: `${bs.length} results` }),
+      ...bs.map((b, i) => { const [t, ...r] = b; const url = r.find(l => /\.\w{2,}\/|https?:|www\./.test(l)); return X({ style: "result", label: `Result ${i + 1}`, h: t, sub: url, text: r.filter(l => l !== url).join(" ") }); })];
+  },
+  about(ls) {
+    const [title, ...rest] = ls; const gs = groupsOf(rest); const intro = gs[0] && !gs[0].h ? gs.shift().body.join(" ") : "";
+    return [X({ style: "hero", label: "About", h: title, text: intro }), ...gs.map(g => X({ style: "story", label: /team|people/i.test(g.h || "") ? "The people" : /value/i.test(g.h || "") ? "What they value" : /mission/i.test(g.h || "") ? "Mission" : "Their story", h: g.h, text: g.body.join(" ") }))];
+  },
+  registration(ls) {
+    const [title, ...rest] = ls; const intro = rest.find(l => /[.!?]$/.test(l)) || "";
+    const fields = rest.filter(l => /^(full name|first name|last name|name|e-?mail|password|confirm password|username|phone|date of birth|company)$/i.test(l));
+    const social = rest.filter(l => /^continue with|^sign (up|in) with/i.test(l));
+    const cta = rest.find(l => /^(create account|sign up|register|join)/i.test(l)) || "Create account";
+    const alt = rest.find(l => /already have an account/i.test(l));
+    const cards = [X({ style: "hero", label: "Sign up", h: title, text: intro })];
+    fields.forEach((f, i) => cards.push(X({ style: "form", label: `Step ${i + 1} of ${fields.length}`, h: f, fields: [f] })));
+    if (social.length) cards.push(X({ style: "form", label: "Faster way", h: "Or skip the form", list: social }));
+    cards.push(X({ style: "finale", label: "Last step", h: cta, text: alt || "", cta }));
+    return cards;
+  },
+  notfound(ls) {
+    const rest = ls.filter(l => !/^404$/.test(l)); const [h, ...more] = rest;
+    const why = more.filter(l => /[.!?]$/.test(l)); const ways = more.filter(l => !/[.!?]$/.test(l));
+    return [X({ style: "lost", label: "Page not found", big: "404", h, text: why.join(" ") }), ...ways.map(w => X({ style: "door", label: "Way back", h: w, cta: "Go" }))];
+  },
+  blog(ls, text) {
+    const bs = blocksOf(text); const title = bs[0].length === 1 ? bs.shift()[0] : "Blog";
+    return [X({ style: "hero", label: "Blog", h: title, text: `${bs.length} posts` }), ...bs.map(b => { const date = b.find(l => /\d{4}|min read/.test(l)); const r = b.filter(l => l !== date); return X({ style: "post", label: date || "Post", h: r[0], text: r.slice(1).join(" "), cta: "Read" }); })];
+  },
+  portfolio(ls, text) {
+    const bs = blocksOf(text); const title = bs[0].length === 1 ? bs.shift()[0] : "Portfolio";
+    return [X({ style: "hero", label: "Portfolio", h: title, text: `${bs.length} projects` }), ...bs.map((b, i) => X({ style: "frame", label: `Project ${String(i + 1).padStart(2, "0")}`, h: b[0], sub: b.length > 2 ? b[1] : "", text: b.slice(b.length > 2 ? 2 : 1).join(" ") }))];
+  },
+  services(ls, text) {
+    const bs = blocksOf(text); const title = bs[0].length === 1 ? bs.shift()[0] : "Services";
+    return [X({ style: "hero", label: "Services", h: title, text: `${bs.length} services` }), ...bs.map(b => { const price = b.find(l => PRICE.test(l) && !bullet(l)); return X({ style: "tile", label: "Service", h: b[0], list: b.filter(bullet).map(unbullet), text: b.slice(1).filter(l => !bullet(l) && l !== price).join(" "), big: price || "" }); })];
+  },
+  product(ls) {
+    const name = ls[0]; const price = (ls.find(l => PRICE.test(l)) || "").match(PRICE)?.[0] || "";
+    const desc = ls.find(l => /[.!?]$/.test(l) && l.split(/\s+/).length > 6) || "";
+    const stock = ls.find(l => /in stock|out of stock|ships/i.test(l)) || "";
+    const feats = ls.filter(bullet).map(unbullet);
+    const options = ls.filter(l => /^(colou?rs?|sizes?|materials?):/i.test(l));
+    const rating = ls.find(l => /out of 5|★|\/5|stars/i.test(l));
+    const quotes = ls.filter(l => /^["“]/.test(l));
+    const cta = ls.find(l => CTA_RE.test(l)) || "Add to cart";
+    const cards = [X({ style: "hero product", label: "Product", h: name, big: price, text: desc, sub: stock, cta })];
+    if (feats.length) cards.push(X({ style: "tile", label: "Features", h: "What you get", list: feats }));
+    if (options.length) cards.push(X({ style: "tile", label: "Options", h: "Choose yours", rows: options.map(o => o.split(/:\s*/)) }));
+    if (rating) cards.push(X({ style: "review", label: "Reviews", big: (rating.match(/\d(\.\d)?/) || [""])[0] + " ★", h: rating, text: quotes.join(" ") }));
+    cards.push(X({ style: "finale", label: "Ready?", h: name, big: price, cta }));
+    return cards;
+  },
+  cart(ls) {
+    const sumRe = /^(subtotal|shipping|delivery|tax|vat|discount|total)\b/i;
+    const items = ls.filter(l => PRICE.test(l) && !sumRe.test(l)); const sums = ls.filter(l => sumRe.test(l));
+    const total = (sums.find(l => /^total/i.test(l)) || "").match(PRICE)?.[0] || "";
+    const cta = ls.find(l => /checkout|check out/i.test(l)) || "Checkout";
+    return [X({ style: "hero", label: "Cart", h: ls[0], text: `${items.length} items` }),
+      ...items.map((it, i) => X({ style: "item", label: `Item ${i + 1}`, h: it.replace(PRICE, "").trim(), big: it.match(PRICE)[0] })),
+      X({ style: "finale total", label: "Order total", big: total, rows: sums.map(l => [l.replace(PRICE, "").trim(), l.match(PRICE)?.[0] || ""]), cta })];
+  },
+  statistics(ls) {
+    const [title, ...rest] = ls;
+    const ms = rest.map(l => { const m = l.match(/^(.*?)\s+([\d.,]+\s?[a-z%]*(?:\s[\d.,]+s)?)\s+([+-−]\s?[\d.]+%)$/i) || l.match(/^(.*?)\s+([\d.,]+[a-z%]*)$/i); return m ? { name: m[1], val: m[2], chg: m[3] || "" } : null; }).filter(Boolean);
+    const max = Math.max(...ms.map(m => Math.abs(parseFloat(m.chg) || 0)), 1);
+    return [X({ style: "hero", label: "Statistics", h: title, text: `${ms.length} numbers to watch` }),
+      ...ms.map(m => X({ style: "metric", label: m.name, big: m.val, trend: m.chg })),
+      X({ style: "tile", label: "Compared", h: "Change this period", bars: ms.filter(m => m.chg).map(m => ({ label: m.name, chg: m.chg, pct: Math.abs(parseFloat(m.chg)) / max * 100 })) })];
+  },
+  contact(ls) {
+    const [title, ...rest] = ls; const intro = rest.find(l => /[.!?]$/.test(l) && !EMAIL.test(l)) || "";
+    const rows = [];
+    const take = (label, re) => { const l = rest.find(x => re.test(x)); if (l) rows.push([label, l.replace(new RegExp("^" + label + "\\s*:?\\s*", "i"), "")]); };
+    take("Email", EMAIL); take("Phone", /^phone|\+?\d[\d\s().-]{7,}\d/i); take("Address", /^address|\d+ [A-Z][a-z]+ (street|st|road|rd|avenue|ave|lane)/i); take("Hours", /^hours|monday|mon[-–]|open/i);
+    const fields = rest.filter(l => /^(your )?(name|email|message|phone|subject)$/i.test(l));
+    const cta = rest.find(l => /send|submit/i.test(l)) || "Send message";
+    const cards = [X({ style: "contact", label: "Get in touch", h: title, text: intro, rows })];
+    if (fields.length) cards.push(X({ style: "form", label: "Or write to them", h: "Send a message", fields, cta }));
+    return cards;
+  },
+  landing(ls) {
+    const [h, sub, ...rest] = ls; const gs = groupsOf(rest);
+    const last = gs.length > 1 && /start|get|try|download|join|sign up|book/i.test(gs[gs.length - 1].h || "") ? gs.pop() : null;
+    return [X({ style: "hero", label: "Welcome", h, text: sub }), ...gs.map(g => X({ style: "story", label: "Why it helps", h: g.h, text: g.body.join(" ") })),
+      X({ style: "finale", label: "One step", h: last ? last.h : "Get started", text: last ? last.body.join(" ") : "", cta: last ? last.h : "Get started" })];
+  }
+};
+function typedCards(doc) {
+  const ls = linesOf(doc.raw);
+  try { const cards = BUILD[doc.type](ls, doc.raw); if (cards.length > 1) return cards; } catch (e) {}
+  return null;
+}
+function typedFace(c, mood) {
+  const T = s => esc(state.audience === "kids" ? kidify(s) : mood === "energized" ? punch(s) : s);
+  let b = "";
+  if (c.big && /lost/.test(c.style)) b += `<div class="big huge">${esc(c.big)}</div>`;
+  if (c.h) b += /hero|lost|query/.test(c.style) ? `<h1>${esc(c.h)}</h1>` : `<h2>${esc(c.h)}</h2>`;
+  if (c.sub) b += `<div class="sub">${esc(c.sub)}</div>`;
+  if (c.big && !/lost/.test(c.style)) b += `<div class="big${c.big.length > 7 ? " long" : ""}">${esc(c.big)}</div>`;
+  if (c.trend) b += `<div class="trend ${/^[-−]/.test(c.trend) ? "down" : "up"}">${/^[-−]/.test(c.trend) ? "▼" : "▲"} ${esc(c.trend)} this period</div>`;
+  if (c.text) b += `<p${/hero|query/.test(c.style) ? ' class="lede"' : ""}>${T(c.text)}</p>`;
+  if (c.list?.length) b += `<ul>${c.list.map(l => `<li>${T(l)}</li>`).join("")}</ul>`;
+  if (c.rows?.length) b += `<dl class="rows">${c.rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`;
+  if (c.bars?.length) b += `<div class="bars">${c.bars.map(x => `<div class="barrow"><span>${esc(x.label)}</span><i class="${/^[-−]/.test(x.chg) ? "down" : "up"}" style="--w:${Math.max(4, x.pct).toFixed(0)}%"></i><b>${esc(x.chg)}</b></div>`).join("")}</div>`;
+  if (c.fields?.length) b += c.fields.map(f => `<div class="field"><span>${esc(f)}</span><i></i></div>`).join("");
+  if (c.cta) b += `<span class="cta">${esc(c.cta)}${/door|post/.test(c.style) ? " →" : ""}</span>`;
+  return b;
 }
 
 /* ---------- Views: one 3D world per mood ---------- */
@@ -439,11 +863,12 @@ const LAYOUTS = {
   focused: n => ({ pos: Array.from({ length: n }, (_, i) => ({ x: 0, y: 0, z: -i * 900, ry: 0, rz: 0 })), view: { x: 0, y: 0, z: 0, rx: -4, ry: -16, zoom: -700 }, spin: 0 }),
   curious: n => ({ pos: Array.from({ length: n }, (_, i) => { const y = 1 - 2 * (i + .5) / n, r = Math.sqrt(1 - y * y), th = i * 2.39996; const x = Math.cos(th) * r, z = Math.sin(th) * r; return { x: x * 680, y: -y * 520, z: z * 680, ry: Math.atan2(x, z) * 180 / Math.PI, rz: 0 }; }), view: { x: 0, y: 0, z: 0, rx: -8, ry: 0, zoom: -1500 }, spin: 0.08 }),
   energized: n => { const cols = mobile() ? 2 : Math.ceil(Math.sqrt(n * 1.7)), rows = Math.ceil(n / cols);
-    return { pos: Array.from({ length: n }, (_, i) => ({ x: (i % cols - (cols - 1) / 2) * 400, y: (Math.floor(i / cols) - (rows - 1) / 2) * 360, z: (rand(i + 1) - .5) * 500, ry: (rand(i + 7) - .5) * 24, rz: (rand(i + 3) - .5) * 10 })), view: { x: 0, y: 0, z: 0, rx: 0, ry: 0, zoom: -1150 - rows * 90 }, spin: 0 }; }
+    return { pos: Array.from({ length: n }, (_, i) => ({ x: (i % cols - (cols - 1) / 2) * 400, y: (Math.floor(i / cols) - (rows - 1) / 2) * 360, z: (rand(i + 1) - .5) * 500, ry: (rand(i + 7) - .5) * 24, rz: (rand(i + 3) - .5) * 10 })), view: { x: 0, y: 0, z: 0, rx: 0, ry: 0, zoom: -560 - rows * 190 - cols * 60 }, spin: 0 }; }
 };
 
 /* ---------- State, camera, render ---------- */
-let doc = parse(SAMPLE);
+const openText = (text, type) => { const d = parse(text); d.raw = text; d.type = type && type !== "auto" ? type : detectType(text); return d; };
+let doc = openText(SAMPLE, "article");
 const state = { audience: "adults", mood: "curious", need: "deep", delivery: "tour", focus: -1, trail: null, film: false };
 let cards = [], els = [], layout = null;
 const cam = { x: 0, y: 0, z: 0, rx: -8, ry: 0, zoom: -1500 }, tgt = { ...cam };
@@ -456,6 +881,7 @@ function rebuild() {
   state.focus = -1; state.trail = null; updateTrail();
   relayout(true);
   requestAnimationFrame(() => requestAnimationFrame(() => els.forEach((el, i) => setTimeout(() => el.classList.remove("enter"), reduce ? 0 : i * 45))));
+  $("#typeName").textContent = TYPES[doc.type].toLowerCase().replace(/ /g, "-"); setStatus(); $("#tryType").value = doc.type;
   $("#addr").textContent = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
 }
 function relayout(scatter) {
@@ -566,8 +992,9 @@ function paintLens() {
   $("#lensSummary").textContent = `${LABEL[state.audience]} · ${LABEL[state.mood]} · ${LABEL[state.need]} · ${LABEL[state.delivery]}`;
   $("#viewName").textContent = VIEW[state.mood];
   document.body.dataset.mood = state.mood; document.body.dataset.audience = state.audience;
-  $("#status").textContent = `Viewing for ${LABEL[state.audience].toLowerCase()} · ${VIEW[state.mood]} view · drag to orbit, tap a card`;
+  setStatus();
 }
+function setStatus() { if (typeof doc === "undefined" || !doc) return; $("#status").textContent = `${TYPES[doc.type]} · for ${LABEL[state.audience].toLowerCase()} · ${VIEW[state.mood]} view · drag to orbit, tap a card`; }
 function setLens(patch) {
   const prev = { ...state }; Object.assign(state, patch); paintLens(); save();
   if ((patch.need && patch.need !== prev.need) || (patch.audience && patch.audience !== prev.audience)) { if (state.film) stopFilm(); rebuild(); }
@@ -593,11 +1020,18 @@ const openDrawer = () => { $("#drawer").hidden = false; $("#err").hidden = true;
 const closeDrawer = () => { $("#drawer").hidden = true; };
 $("#openRemix").onclick = openDrawer; $("#cancel").onclick = closeDrawer;
 $("#drawer").addEventListener("click", e => { if (e.target.id === "drawer") closeDrawer(); });
-$("#sample").onclick = () => { $("#src").value = SAMPLE; };
+$("#sample").onclick = () => { const t = $("#ptypeSel").value === "auto" ? "article" : $("#ptypeSel").value; $("#src").value = SAMPLES[t]; };
+const typeOpts = Object.entries(TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+$("#ptypeSel").innerHTML = `<option value="auto">Detect automatically</option>` + typeOpts;
+$("#tryType").innerHTML = typeOpts;
+const howFor = () => { const v = $("#ptypeSel").value; $("#typeHow").textContent = v === "auto" ? "Moodspace guesses from the text." : TYPE_HOW[v]; };
+$("#ptypeSel").onchange = howFor; howFor();
+$("#tryType").onchange = e => { doc = openText(SAMPLES[e.target.value], e.target.value); if (state.film) stopFilm(); rebuild(); };
 $("#remix").onclick = () => {
   const t = $("#src").value.trim();
-  if (t.split(/\s+/).length < 40) { $("#err").textContent = "That's too short to explore. Paste at least a few paragraphs (40 words or more)."; $("#err").hidden = false; return; }
-  const d = parse(t); if (!d.chunks.length) { $("#err").textContent = "Couldn't find any paragraphs. Make sure the text has line breaks between paragraphs."; $("#err").hidden = false; return; }
+  if (t.split(/\s+/).length < 8) { $("#err").textContent = "That's too short to show. Paste a bit more of the page."; $("#err").hidden = false; return; }
+  const d = openText(t, $("#ptypeSel").value);
+  if (d.type === "article" && !d.chunks.length) { $("#err").textContent = "Couldn't find any paragraphs. Make sure the text has line breaks between paragraphs, or pick a page type."; $("#err").hidden = false; return; }
   doc = d; closeDrawer(); if (state.film) stopFilm(); rebuild();
 };
 $("#file").onchange = e => {
@@ -622,6 +1056,7 @@ const audio = (() => {
 })();
 let shot = 0, shotTimer = null, filmId = 0;
 function narration(c) {
+  if (c.kind === "x") return [c.label, c.h, c.big, c.trend, c.text, (c.list || []).join(". "), (c.rows || []).map(r => r.join(" ")).join(". "), (c.bars || []).map(b => `${b.label} ${b.chg}`).join(". "), c.cta].filter(Boolean).join(". ");
   if (c.kind === "title") return `${c.h}. ${c.lede}`;
   if (c.kind === "tldr") return c.points.join(" ");
   if (c.kind === "fact") return c.text;
