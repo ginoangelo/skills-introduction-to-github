@@ -404,7 +404,7 @@ const KID_WORDS = { approximately: "about", roughly: "about", however: "but", th
 const VIEW = { calm: "tide", focused: "tunnel", curious: "constellation", energized: "arena" };
 
 /* ---------- Text into a document ---------- */
-const sentences = t => String(t).replace(/([.!?]+["”’)]*)\s+(?=["“(]?[A-Z0-9])/g, "$1\u0001").split("\u0001").map(s => s.trim()).filter(Boolean);
+const sentences = t => String(t).replace(/(?<!\b(?:c|ca|Mr|Mrs|Ms|Dr|St|vs|No|approx))([.!?]+["”’)]*)\s+(?=["“(]?[A-Z0-9])/g, "$1\u0001").split("\u0001").map(s => s.trim()).filter(Boolean);
 const words = t => t.toLowerCase().match(/[a-z][a-z'-]{3,}/g) || [];
 const isHead = b => b.length < 90 && !/[.!?:;,"”]$/.test(b) && b.split(/\s+/).length <= 12;
 
@@ -455,7 +455,7 @@ function finish(title, lede, sections) {
 
 /* ---------- Document into cards, by need and mood ---------- */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const NUM = /(\d[\d,.]*\s?(?:%|°C|°F|percent|meters|km|miles|million|billion|trillion|times|hours|years)?)/;
+const NUM = /(\d[\d,.]*\s?(?:%|°C|°F|percent|metres|meters|feet|tonnes|tons|km|miles|million|billion|trillion|times|hours|years)?)/;
 
 const kidify = t => sentences(t).map(s => {
   s = s.replace(/[A-Za-z]+/g, w => { const r = KID_WORDS[w.toLowerCase()]; return r ? (w[0] === w[0].toUpperCase() ? r[0].toUpperCase() + r.slice(1) : r) : w; });
