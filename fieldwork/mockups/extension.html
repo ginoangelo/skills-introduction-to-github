@@ -149,6 +149,22 @@ footer.sitefoot { background: #1b1b1b; color: #999; padding: 50px 80px; font-siz
 .legend div.it { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; background: #fff; border-radius: 10px; padding: 10px 14px; font-size: 15px; }
 .legend div.it i { font-style: normal; width: 26px; height: 26px; border-radius: 50%; background: var(--fw); color: #fff; font: 700 13px Space Grotesk; display: grid; place-items: center; }
 .legend div.it small { font: 500 12px IBM Plex Mono, monospace; color: var(--fw-muted); }
+
+/* Phone views in the brand palette */
+.phone { background: radial-gradient(260px 220px at 100% 0%, color-mix(in srgb, var(--mustard) 30%, transparent), transparent 70%), radial-gradient(260px 240px at 0% 100%, color-mix(in srgb, var(--lavender) 26%, transparent), transparent 70%), var(--fw-bg); }
+.phone .pcard { border: 1.5px solid var(--fw-ink); border-top: 10px solid var(--mint); border-radius: 18px; box-shadow: 6px 6px 0 var(--mint); }
+.phone.senior .pcard { border-top-color: var(--coral); box-shadow: 6px 6px 0 var(--coral); }
+.phone .pcard h2 { font-family: Fredoka, Inter, sans-serif; font-weight: 700; }
+.phone .tag { display: inline-block; justify-self: start; background: var(--mint); color: var(--fw-ink); border: 1.5px solid var(--fw-ink); border-radius: 999px; padding: 5px 10px; }
+.phone.senior .tag { background: var(--coral); }
+.phone .prow b { font-family: Fredoka, Inter, sans-serif; color: var(--fw-ink); background: var(--mustard); border: 1.5px solid var(--fw-ink); border-radius: 10px; padding: 2px 10px; }
+.phone .prow:nth-of-type(2) b { background: var(--coral); } .phone .prow:nth-of-type(3) b { background: var(--lavender); }
+.phone .dots i { background: #e6dcc6; } .phone .dots i:nth-child(1) { background: var(--mint); } .phone .dots i:nth-child(3) { background: var(--mustard); } .phone .dots i:nth-child(4) { background: var(--sage); } .phone .dots i:nth-child(5) { background: var(--coral); } .phone .dots i:nth-child(6) { background: var(--lavender); }
+.phone .dots i.on { background: var(--fw-ink); }
+.phone .pnav span { border: 1.5px solid var(--fw-ink); border-radius: 14px; }
+.phone .pnav span.p { background: var(--fw-ink); color: #fff7e8; }
+.phone .paddr { border: 1.5px solid var(--fw-ink); border-radius: 14px; }
+.phone .pill { border: 1.5px solid var(--fw-ink); background: var(--mustard-soft, #faefc9); color: var(--fw-ink); }
 </style></head><body>
 <div id="root"></div>
 <script>
