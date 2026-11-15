@@ -2,183 +2,274 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: an app shell. Project sources on the left, four work tabs on the right:
-   Lens (read), Extract (ask AI), Datasets (objects with evidence), Deliverable (report + exports). */
+/* Layout: a bold, outlined workspace. Black sidebar for the app; a project header with pill tabs;
+   sources on the left, work on the right. Hot pink is the brand accent; yellow is reserved for evidence highlights. */
 :root {
-  --bg: #f4f6f3; --panel: #ffffff; --ink: #14201a; --muted: #5d6b63; --line: #dbe2dc;
-  --accent: #0f6e5f; --accent-ink: #ffffff; --hl: #ffe27a; --ok: #1d7a43; --warn: #b4540f; --soft: #e9efea;
+  --bg: #f4f4f0; --panel: #ffffff; --ink: #000000; --muted: #57574f; --line: #000000; --hair: #d8d8d0; --soft: #ececE5;
+  --accent: #ff4fa3; --accent-ink: #000000; --ok: #10823a; --warn: #b54708; --side: #000000; --side-ink: #ffffff; --side-dim: #9b9b93;
+  --hl: #ffe45c; --hl-ink: #000000;
   --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
   --body: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0f1513; --panel: #161e1b; --ink: #e7eee9; --muted: #98a69e; --line: #2a3631;
-  --accent: #3cc2a6; --accent-ink: #062019; --hl: #6b5a12; --ok: #4fd18a; --warn: #f0a160; --soft: #1d2723; color-scheme: dark; } }
+  --bg: #0b0b0a; --panel: #151513; --ink: #f4f4f0; --muted: #a8a89f; --line: #f4f4f0; --hair: #33332f; --soft: #1f1f1c;
+  --ok: #4ade80; --warn: #fdba74; --side: #000000; --side-ink: #f4f4f0; --side-dim: #8a8a82; color-scheme: dark; } }
 :root[data-theme="dark"] {
-  --bg: #0f1513; --panel: #161e1b; --ink: #e7eee9; --muted: #98a69e; --line: #2a3631;
-  --accent: #3cc2a6; --accent-ink: #062019; --hl: #6b5a12; --ok: #4fd18a; --warn: #f0a160; --soft: #1d2723; color-scheme: dark; }
-body { background: var(--bg); color: var(--ink); font: 14px/1.55 var(--body); }
+  --bg: #0b0b0a; --panel: #151513; --ink: #f4f4f0; --muted: #a8a89f; --line: #f4f4f0; --hair: #33332f; --soft: #1f1f1c;
+  --ok: #4ade80; --warn: #fdba74; --side: #000000; --side-ink: #f4f4f0; --side-dim: #8a8a82; color-scheme: dark; }
 * { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.55 var(--body); }
 button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 [hidden] { display: none !important; }
 
-header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
-  padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
-.logo { display: flex; align-items: center; gap: 10px; font: 700 20px/1 var(--display); letter-spacing: -.02em; }
-.logo svg { width: 22px; height: 22px; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--soft); }
-.seg button { border: 0; background: transparent; border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 13px; color: var(--muted); }
-.seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
-.plan { margin-left: auto; font: 500 12px/1 var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; }
-.plan b { color: var(--accent); font-weight: 500; }
+.shell { display: grid; grid-template-columns: 228px minmax(0, 1fr); min-height: 100%; }
+/* Sidebar */
+.sidebar { background: var(--side); color: var(--side-ink); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; border-right: 1px solid var(--line);
+  padding-left: env(safe-area-inset-left, 0px); }
+.wordmark { display: flex; align-items: center; gap: 10px; padding: 26px 20px; font: 700 23px/1 var(--display); letter-spacing: -.03em; border-bottom: 1px solid #2a2a27; }
+.wordmark svg { width: 22px; height: 22px; }
+.navi { display: flex; align-items: center; gap: 12px; width: 100%; border: 0; border-bottom: 1px solid #2a2a27; background: none; color: var(--side-ink); padding: 15px 20px; text-align: left; font-weight: 500; }
+.navi svg { width: 17px; height: 17px; flex: none; }
+.navi:hover { background: #151513; }
+.navi[aria-current="page"] { color: var(--accent); }
+.navsp { flex: 1; }
+.pkgsw { padding: 14px 16px; border-top: 1px solid #2a2a27; display: grid; gap: 8px; }
+.pkgsw > span { font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--side-dim); }
+.seg { display: flex; border: 1px solid #f4f4f0; border-radius: 999px; padding: 2px; }
+.seg button { flex: 1; border: 0; background: none; color: inherit; border-radius: 999px; padding: 6px 8px; font-size: 12.5px; font-weight: 600; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #000; }
+.me { display: flex; gap: 10px; align-items: center; padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #2a2a27; }
+.me b { display: block; font-size: 13px; } .me small { color: var(--side-dim); font-size: 12px; }
+.av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #000; display: grid; place-items: center; font: 700 12px/1 var(--display); flex: none; border: 1px solid #000; }
 
-.app { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; padding-block: 16px 40px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1380px; margin: 0 auto; }
-aside, main { min-width: 0; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
-aside .card { padding: 14px; display: grid; gap: 12px; }
-.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.project { font: 700 17px/1.2 var(--display); }
-.srclist { display: grid; gap: 6px; }
-.src { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; text-align: left; border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 9px 10px; }
-.src.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
-.src b { font-weight: 600; font-size: 13px; }
-.src small { grid-column: 1; font: 400 11.5px/1.3 var(--mono); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.src .n { grid-row: 1 / 3; grid-column: 2; align-self: center; font: 500 11px/1 var(--mono); color: var(--accent); }
-.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 8px 13px; font-weight: 600; font-size: 13px; }
-.btn:hover { border-color: var(--accent); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.btn:disabled { opacity: .5; cursor: default; }
-.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+/* Main */
+.mainwrap { min-width: 0; display: flex; flex-direction: column; }
+.phead { border-bottom: 1px solid var(--line); padding-block: 26px 0; padding-left: 32px; padding-right: max(32px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; background: var(--bg); }
+.ptitle { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ptitle h1, .pagetitle h1 { margin: 0; font: 700 34px/1.05 var(--display); letter-spacing: -.03em; text-wrap: balance; }
+.sp { flex: 1; }
+.tabs { display: flex; gap: 8px; padding-bottom: 16px; overflow-x: auto; }
+.tabs button { border: 1px solid transparent; background: none; border-radius: 999px; padding: 8px 16px; font-weight: 600; white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+.tabs button:hover { border-color: var(--line); }
+.tabs button[aria-selected="true"] { border-color: var(--line); background: var(--panel); }
+.tabs i { font-style: normal; font: 500 11px/1 var(--mono); background: var(--accent); color: #000; border-radius: 999px; padding: 3px 7px; border: 1px solid #000; }
+.work { display: grid; grid-template-columns: 300px minmax(0, 1fr); flex: 1; }
+.work.full { grid-template-columns: minmax(0, 1fr); }
+.srccol { border-right: 1px solid var(--line); padding: 22px 20px; display: grid; gap: 14px; align-content: start; }
+.pane { padding: 28px 32px 48px; padding-right: max(32px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; align-content: start; min-width: 0; }
+
+.eyebrow { font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h2 { margin: 0; font: 700 26px/1.15 var(--display); letter-spacing: -.02em; text-wrap: balance; }
+h3 { margin: 0; font: 700 16px/1.3 var(--display); letter-spacing: -.01em; }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .row .sp { flex: 1; }
-.note { color: var(--muted); font-size: 12.5px; }
-.stat { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; font-size: 13px; }
-.stat span:nth-child(even) { font: 500 13px/1.4 var(--mono); text-align: right; }
 .verified { color: var(--ok); }
 
-.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); padding: 0 6px; overflow-x: auto; }
-.tabs button { border: 0; background: none; padding: 13px 14px 11px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; display: flex; gap: 7px; align-items: center; }
-.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-.tabs i { font-style: normal; font: 500 11px/1 var(--mono); background: var(--soft); border-radius: 999px; padding: 3px 7px; color: var(--muted); }
-.pane { padding: 20px; display: grid; gap: 16px; }
-h2 { margin: 0; font: 700 22px/1.2 var(--display); letter-spacing: -.01em; text-wrap: balance; }
-h3 { margin: 0; font: 600 15px/1.3 var(--display); }
+/* Buttons */
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 4px; padding: 10px 16px; font-weight: 600; font-size: 13.5px; transition: transform .12s, box-shadow .12s; }
+.btn:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 var(--line); }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.accent { background: var(--accent); color: #000; border-color: #000; }
+.btn:disabled { opacity: .5; cursor: default; }
+
+/* Sources */
+.srclist { display: grid; gap: 8px; }
+.src { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 4px; padding: 10px 12px; }
+.src:hover { box-shadow: 3px 3px 0 var(--line); transform: translate(-1px, -1px); }
+.src.on { background: var(--accent); color: #000; }
+.src.on small { color: #3a3a35; }
+.src b { font-weight: 600; font-size: 13px; }
+.src small { grid-column: 1; font: 400 11.5px/1.3 var(--mono); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.src .n { grid-row: 1 / 3; grid-column: 2; align-self: center; font: 600 11px/1 var(--mono); border: 1px solid currentColor; border-radius: 999px; padding: 3px 7px; }
+.stat { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 12px; }
+.stat span:nth-child(even) { font: 600 13px/1.4 var(--mono); text-align: right; }
 
 /* Lens */
-.lens { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
-.reading { max-width: 66ch; display: grid; gap: 12px; }
+.lens { display: grid; grid-template-columns: minmax(0, 1fr) 280px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.reading { max-width: 70ch; display: grid; gap: 14px; padding: 28px 32px; border-right: 1px solid var(--line); }
 .reading .url { font: 400 12px/1 var(--mono); color: var(--muted); }
-.reading p { margin: 0; font-size: 15.5px; line-height: 1.7; }
-.reading p.head { font: 600 15px/1.3 var(--display); }
-mark { background: var(--hl); color: inherit; border-radius: 3px; padding: 0 2px; cursor: pointer; }
-mark.flash { outline: 2px solid var(--accent); }
-.keys { display: grid; gap: 8px; align-content: start; }
-.key { border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; display: grid; gap: 3px; font-size: 13px; }
-.key .t { font: 500 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.reading p { margin: 0; font-size: 16px; line-height: 1.75; }
+.reading p.head { font: 700 20px/1.3 var(--display); }
+mark { background: var(--hl); color: var(--hl-ink); border-radius: 2px; padding: 0 2px; cursor: pointer; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+mark.flash { outline: 2px solid var(--ink); outline-offset: 1px; }
+.keys { display: grid; gap: 10px; align-content: start; padding: 22px 20px; background: var(--bg); }
+.key { border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; display: grid; gap: 4px; font-size: 13px; background: var(--panel); }
+.key .t { font: 600 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
 
 /* Extract */
 .templates { display: flex; flex-wrap: wrap; gap: 8px; }
-.tpl { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 500; }
-.tpl.on { border-color: var(--accent); color: var(--accent); }
-#req { width: 100%; min-height: 96px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--bg); font-size: 15px; line-height: 1.5; }
-.checks { display: flex; flex-wrap: wrap; gap: 8px 14px; }
-.checks label { display: flex; gap: 6px; align-items: center; font-size: 13px; }
-.steps { display: grid; gap: 6px; font-size: 13.5px; }
-.steps div { display: flex; gap: 8px; align-items: center; color: var(--muted); }
-.steps div.done { color: var(--ink); }
-.steps div.now { color: var(--accent); font-weight: 600; }
+.tpl { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; }
+.tpl.on { background: var(--accent); color: #000; }
+#req { width: 100%; min-height: 110px; resize: vertical; border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; background: var(--panel); font-size: 16px; line-height: 1.55; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.checks label { display: flex; gap: 8px; align-items: center; font-size: 13px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--panel); }
+.steps { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.steps div { display: flex; gap: 10px; align-items: center; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--hair); }
+.steps div:last-child { border-bottom: 0; }
+.steps div.done { color: var(--ink); } .steps div.done b { color: var(--ok); }
+.steps div.now { background: var(--accent); color: #000; font-weight: 600; }
 .steps b { width: 16px; text-align: center; }
-.msg { border-radius: 8px; padding: 10px 12px; background: var(--soft); font-size: 13.5px; }
+.msg { border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; background: var(--panel); font-size: 13.5px; }
 .msg.err { color: var(--warn); }
 
 /* Datasets */
-.objtabs { display: flex; flex-wrap: wrap; gap: 6px; }
-.objtab { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 7px 11px; font-size: 13px; font-weight: 600; display: flex; gap: 6px; }
-.objtab span { font: 500 11.5px/1.5 var(--mono); color: var(--muted); }
-.objtab[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
-.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
-table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13px; }
-th, td { text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { font: 500 11px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--soft); position: sticky; top: 0; }
-tbody tr:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); cursor: pointer; }
+.objtabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.objtab { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.objtab span { font: 600 11px/1 var(--mono); }
+.objtab[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13.5px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--hair); vertical-align: top; }
+th { font: 600 10.5px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border-bottom: 1px solid var(--line); }
+tbody tr:hover { background: color-mix(in srgb, var(--accent) 30%, transparent); cursor: pointer; }
 tr:last-child td { border-bottom: 0; }
-td.ev { max-width: 300px; color: var(--muted); font-size: 12.5px; }
-td.ev b { display: block; font: 500 11px/1.4 var(--mono); }
-td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.ev { max-width: 320px; color: var(--muted); font-size: 12.5px; }
+td.ev b { display: block; font: 600 11px/1.5 var(--mono); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
 .nf { color: var(--muted); font-style: italic; }
 
 /* Deliverable */
-.deliv { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; }
-.report { display: grid; gap: 14px; max-width: 70ch; }
-.report .sum { font-size: 15.5px; line-height: 1.65; margin: 0; }
-.report ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
-.export { display: grid; gap: 8px; align-content: start; }
-.export .btn { display: flex; justify-content: space-between; align-items: center; padding: 11px 13px; }
-.export .btn small { font: 500 11px/1 var(--mono); color: var(--muted); }
-.slides { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
-.slide { aspect-ratio: 16 / 9; max-width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 10px; display: grid; align-content: start; gap: 4px; overflow: hidden; background: var(--panel); }
+.deliv { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.report { display: grid; gap: 16px; padding: 32px 36px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); box-shadow: 6px 6px 0 var(--line); }
+.report .sum { font-size: 16px; line-height: 1.7; margin: 0; max-width: 68ch; }
+.report ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 5px; max-width: 68ch; }
+.export { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); position: sticky; top: 16px; overflow: hidden; }
+.export h3 { background: var(--ink); color: var(--bg); padding: 14px 16px; }
+.export .btn { display: flex; justify-content: space-between; align-items: center; border: 0; border-bottom: 1px solid var(--hair); border-radius: 0; padding: 14px 16px; text-align: left; }
+.export .btn:hover { transform: none; box-shadow: none; background: var(--accent); color: #000; }
+.export .btn small { font: 600 11px/1 var(--mono); border: 1px solid currentColor; border-radius: 999px; padding: 3px 8px; }
+.export .note { padding: 12px 16px; }
+.slides { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+.slide { aspect-ratio: 16 / 9; max-width: 100%; border: 1px solid var(--line); border-radius: 4px; padding: 10px; display: grid; align-content: start; gap: 4px; overflow: hidden; background: var(--panel); }
 .slide b { font: 700 11px/1.2 var(--display); }
 .slide span { font-size: 8.5px; line-height: 1.35; color: var(--muted); }
-.slide.title { background: var(--accent); color: var(--accent-ink); align-content: end; }
-.slide.title span { color: var(--accent-ink); opacity: .8; }
-.flash { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-.fc { border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-height: 120px; display: grid; gap: 6px; align-content: start; text-align: left; background: var(--panel); }
-.fc .t { font: 500 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
-.fc.flipped { background: var(--soft); }
-.cmp td:first-child { font-weight: 600; }
+.slide.title { background: var(--ink); color: var(--bg); align-content: end; }
+.slide.title span { color: var(--bg); opacity: .75; }
+.flash { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.fc { border: 1px solid var(--line); border-radius: 4px; padding: 16px; min-height: 120px; display: grid; gap: 8px; align-content: start; text-align: left; background: var(--panel); font-weight: 500; }
+.fc:hover { box-shadow: 3px 3px 0 var(--line); transform: translate(-1px, -1px); }
+.fc .t { font: 600 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.fc.flipped { background: var(--accent); color: #000; }
+.fc.flipped .t { color: #3a3a35; }
+.cmp td:first-child { font-weight: 700; }
 
-dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); width: min(620px, calc(100% - 32px)); padding: 22px; }
-dialog::backdrop { background: rgba(0,0,0,.45); }
-dialog form { display: grid; gap: 12px; }
-dialog label { display: grid; gap: 5px; font-size: 13px; font-weight: 600; }
-dialog input, dialog textarea { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; background: var(--bg); font-weight: 400; }
+/* Home: project and template cards */
+.pagetitle { display: grid; gap: 8px; }
+.pagetitle p { margin: 0; color: var(--muted); font-size: 15px; max-width: 60ch; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.pcard { border: 1px solid var(--line); border-radius: 4px; background: var(--panel); text-align: left; padding: 0; display: grid; grid-template-rows: auto 1fr; overflow: hidden; transition: transform .12s, box-shadow .12s; }
+.pcard:hover { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 var(--line); }
+.cover { height: 150px; border-bottom: 1px solid var(--line); position: relative; display: grid; place-items: center; font: 700 44px/1 var(--display); letter-spacing: -.04em; overflow: hidden; }
+.c-pro { background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, #ffd1e8 14px 28px); color: #000; }
+.c-student { background: radial-gradient(#000 1.6px, transparent 1.8px) 0 0 / 16px 16px, #fff; color: #000; }
+.c-tpl { background: #000; color: var(--accent); }
+.c-tpl.y { color: var(--hl); }
+.ptag { letter-spacing: .02em; position: absolute; left: 12px; bottom: 12px; background: var(--accent); color: #000; border: 1px solid #000; font: 700 12px/1 var(--mono); padding: 6px 16px 6px 10px; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 0 100%); }
+.pbody { padding: 16px 18px 18px; display: grid; gap: 6px; align-content: start; }
+.pmeta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.chip { font: 600 11px/1 var(--mono); border: 1px solid var(--line); border-radius: 999px; padding: 5px 9px; background: var(--panel); }
+.chip.on { background: var(--accent); color: #000; border-color: #000; }
+
+/* Account */
+.phero { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); padding: 24px; }
+.av.big { width: 76px; height: 76px; font-size: 24px; }
+.phero h2 { font-size: 30px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.box { border: 1px solid var(--line); border-radius: 4px; background: var(--panel); padding: 18px 20px; display: grid; gap: 12px; align-content: start; }
+.meter { height: 12px; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--bg); }
+.meter i { display: block; height: 100%; background: var(--accent); border-right: 1px solid #000; }
+.kvs { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; font-size: 13.5px; }
+.kvs span:nth-child(even) { font-weight: 600; text-align: right; }
+.list { display: grid; gap: 0; }
+.list div { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--hair); font-size: 13.5px; }
+.list div:last-child { border-bottom: 0; }
+
+/* Checkout */
+.billsw { max-width: 340px; border-color: var(--line); }
+.billsw button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.billsw em { font-style: normal; font: 600 10px/1 var(--mono); background: var(--accent); color: #000; border-radius: 999px; padding: 2px 6px; margin-left: 4px; }
+.checkout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+.plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.plancard { border: 1px solid var(--line); border-radius: 4px; background: var(--panel); padding: 22px; display: grid; gap: 14px; align-content: start; text-align: left; transition: transform .12s, box-shadow .12s; }
+.plancard:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--line); }
+.plancard[aria-pressed="true"] { box-shadow: 6px 6px 0 var(--line); background: color-mix(in srgb, var(--accent) 22%, var(--panel)); }
+.price { font: 700 40px/1 var(--display); letter-spacing: -.03em; }
+.price small { font: 500 14px var(--body); color: var(--muted); letter-spacing: 0; }
+.plancard ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; font-size: 13.5px; }
+.plancard li { display: flex; gap: 8px; } .plancard li::before { content: "✓"; font-weight: 700; }
+.summary { border: 1px solid var(--line); border-radius: 4px; background: var(--panel); display: grid; position: sticky; top: 16px; overflow: hidden; }
+.summary h3 { background: var(--ink); color: var(--bg); padding: 14px 18px; }
+.summary .in { padding: 18px; display: grid; gap: 14px; }
+.total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 12px; font-weight: 700; }
+.total b { font: 700 24px/1 var(--display); }
+.paybox { border: 1px dashed var(--line); border-radius: 4px; padding: 14px; font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+.paybox b { color: var(--ink); }
+
+dialog { border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); width: min(620px, calc(100% - 32px)); padding: 24px; box-shadow: 8px 8px 0 var(--line); }
+dialog::backdrop { background: rgba(0,0,0,.5); }
+dialog form { display: grid; gap: 14px; }
+dialog label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
+dialog input, dialog textarea { border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; background: var(--bg); font-weight: 400; }
 dialog textarea { min-height: 180px; resize: vertical; font-size: 13.5px; }
 
-@media (max-width: 960px) {
-  .app { grid-template-columns: 1fr; }
-  .lens, .deliv { grid-template-columns: 1fr; }
-  .plan { margin-left: 0; }
+@media (max-width: 1100px) { .deliv, .checkout, .lens { grid-template-columns: 1fr; } .reading { border-right: 0; border-bottom: 1px solid var(--line); } .grid3 { grid-template-columns: 1fr; } .export, .summary { position: static; } }
+@media (max-width: 820px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: sticky; top: 0; z-index: 5; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding-top: env(safe-area-inset-top, 0px); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+  .wordmark { border: 0; padding: 12px 8px; font-size: 19px; }
+  .navi { width: auto; border: 0; padding: 10px; font-size: 13px; }
+  .navi span { display: none; }
+  .navsp, .me { display: none; }
+  .pkgsw { border: 0; padding: 6px 4px; width: 100%; grid-template-columns: auto 1fr; align-items: center; }
+  .work { grid-template-columns: 1fr; }
+  .srccol { border-right: 0; border-bottom: 1px solid var(--line); }
+  .phead, .pane, .srccol { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .ptitle h1, .pagetitle h1 { font-size: 27px; }
+  .plans { grid-template-columns: 1fr; }
+  .reading, .report { padding: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
-<header class="top">
-  <div class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 4h12l-3 4 3 4H5" fill="var(--accent)"/></svg>Fieldwork</div>
-  <div class="seg" role="group" aria-label="Package">
-    <button data-pkg="student">Student</button>
-    <button data-pkg="pro">Professional</button>
+<div class="shell">
+  <nav class="sidebar" aria-label="Main">
+    <div class="wordmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3.4 4L18 12H5" fill="#ff4fa3"/></svg>fieldwork</div>
+    <button class="navi" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9H3z"/></svg><span>Home</span></button>
+    <button class="navi" data-nav="project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M9 9v11"/></svg><span>Project</span></button>
+    <button class="navi" data-nav="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg><span>Account</span></button>
+    <button class="navi" data-nav="checkout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="1"/><path d="M2 10h20"/></svg><span>Plans &amp; billing</span></button>
+    <div class="navsp"></div>
+    <div class="pkgsw"><span>Package</span><div class="seg" role="group" aria-label="Package"><button data-pkg="student">Student</button><button data-pkg="pro">Professional</button></div></div>
+    <div class="me"><span class="av">DU</span><div><b>Demo user</b><small id="plan"></small></div></div>
+  </nav>
+  <div class="mainwrap">
+    <header class="phead" id="projHead">
+      <div class="ptitle"><div><div class="eyebrow">Project</div><h1 id="projName"></h1></div><span class="sp"></span><button class="btn primary" id="headExport">Export</button></div>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="lens">Lens</button>
+        <button role="tab" data-tab="extract">Extract</button>
+        <button role="tab" data-tab="data">Datasets <i id="nRows">0</i></button>
+        <button role="tab" data-tab="deliv">Deliverable</button>
+      </div>
+    </header>
+    <div class="work" id="work">
+      <aside class="srccol" id="srcCol">
+        <div class="eyebrow">Sources</div>
+        <div class="srclist" id="srcList"></div>
+        <div class="row"><button class="btn" id="addSrc">Add a page</button><button class="btn" id="resetProj">Reset example</button></div>
+        <div class="stat" id="stats"></div>
+        <p class="note" id="runNote"></p>
+      </aside>
+      <section class="pane" id="pane"></section>
+    </div>
   </div>
-  <div class="plan" id="plan"></div>
-</header>
-
-<div class="app">
-  <aside>
-    <div class="card">
-      <div><div class="eyebrow">Project</div><div class="project" id="projName"></div></div>
-      <div class="eyebrow">Sources</div>
-      <div class="srclist" id="srcList"></div>
-      <div class="row"><button class="btn" id="addSrc">Add a page</button><button class="btn" id="resetProj">Reset example</button></div>
-      <div class="eyebrow">This project</div>
-      <div class="stat" id="stats"></div>
-      <p class="note" id="runNote"></p>
-    </div>
-  </aside>
-
-  <main class="card">
-    <div class="tabs" role="tablist">
-      <button role="tab" data-tab="lens">Lens</button>
-      <button role="tab" data-tab="extract">Extract</button>
-      <button role="tab" data-tab="data">Datasets <i id="nRows">0</i></button>
-      <button role="tab" data-tab="deliv">Deliverable</button>
-    </div>
-    <div class="pane" id="pane"></div>
-  </main>
 </div>
 
 <dialog id="addDlg">
@@ -369,7 +460,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 let pkg = store.get("fw-pkg") === "student" ? "student" : "pro";
 let project = null;
-const ui = { tab: "deliv", obj: null, src: null, focusQuote: null, tpl: 0, running: false, steps: [], msg: null, flipped: {} };
+const ui = { tab: "deliv", bill: "month", choose: null, lastProjTab: "deliv", exportsLog: [], obj: null, src: null, focusQuote: null, tpl: 0, running: false, steps: [], msg: null, flipped: {} };
 function loadProject() { project = store.get("fw-proj-" + pkg) || clone(EXAMPLES[pkg]); project.captured = project.captured || CAPTURED; verifyAll(); ui.obj = Object.keys(PKGS[pkg].objects)[0]; ui.src = project.sources[0]?.id; ui.flipped = {}; }
 function saveProject() { store.set("fw-proj-" + pkg, project); }
 
@@ -382,10 +473,18 @@ function verifyAll() {
 const allRows = () => Object.values(project.result?.objects || {}).flat();
 
 /* ---------- Rendering ---------- */
+const PROJ_TABS = ["lens", "extract", "data", "deliv"];
+const PRICES = { student: { month: 9, year: 90 }, pro: { month: 24, year: 240 } };
+const FEATURES = {
+  student: ["Study lens on any page", "AI study guides, flashcards and quizzes", "Essay outlines with citations (APA, MLA, Chicago)", "PDF, PowerPoint and flashcard exports", "100 AI extractions a month"],
+  pro: ["Briefing lens on any page", "AI competitor briefs and company snapshots", "Business-intelligence datasets with evidence", "PDF, branded PowerPoint, Excel and CSV", "300 AI extractions a month"] };
+const fmtDate = d => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 function render() {
-  const P = PKGS[pkg];
+  const P = PKGS[pkg], inProject = PROJ_TABS.includes(ui.tab);
   document.querySelectorAll("[data-pkg]").forEach(b => b.setAttribute("aria-pressed", b.dataset.pkg === pkg));
-  $("#plan").innerHTML = `<b>${P.name}</b> plan · Monthly`;
+  $("#plan").textContent = `${P.name} · ${ui.bill === "year" ? "Yearly" : "Monthly"}`;
+  document.querySelectorAll("[data-nav]").forEach(b => { if ((inProject ? "project" : ui.tab) === b.dataset.nav) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  $("#projHead").hidden = !inProject; $("#srcCol").hidden = !inProject; $("#work").classList.toggle("full", !inProject);
   $("#projName").textContent = project.name;
   const counts = {}; allRows().forEach(r => counts[r.source] = (counts[r.source] || 0) + 1);
   $("#srcList").innerHTML = project.sources.map(s => `<button class="src${s.id === ui.src && ui.tab === "lens" ? " on" : ""}" data-src="${s.id}"><b>${esc(s.title)}</b><small>${esc(s.url || "pasted text")}</small><span class="n">${counts[s.id] || 0}</span></button>`).join("");
@@ -394,7 +493,48 @@ function render() {
   $("#runNote").textContent = project.result?.by === "example" ? "Showing an example result. Run Extract to have the AI do it live." : project.result ? "Extracted live by AI." : "Run Extract to build datasets.";
   $("#nRows").textContent = rows.length;
   document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === ui.tab));
-  ({ lens: renderLens, extract: renderExtract, data: renderData, deliv: renderDeliv })[ui.tab]();
+  if (inProject) ui.lastProjTab = ui.tab;
+  ({ lens: renderLens, extract: renderExtract, data: renderData, deliv: renderDeliv, home: renderHome, account: renderAccount, checkout: renderCheckout })[ui.tab]();
+}
+
+function renderHome() {
+  const P = PKGS[pkg];
+  const projCard = k => { const ex = store.get("fw-proj-" + k) || EXAMPLES[k]; const n = Object.values(ex.result?.objects || {}).flat().length;
+    return `<button class="pcard" data-open="${k}"><div class="cover ${k === "pro" ? "c-pro" : "c-student"}">${k === "pro" ? "BI" : "Study"}<span class="ptag">${n} objects</span></div><div class="pbody"><span class="eyebrow">${PKGS[k].name}</span><h3>${esc(ex.name)}</h3><p class="note">${ex.sources.length} pages · captured ${esc(ex.captured || CAPTURED)}</p><div class="pmeta"><span class="chip">${esc(ex.result?.deliverable?.title || "No deliverable yet")}</span></div></div></button>`; };
+  $("#pane").innerHTML = `<div class="pagetitle"><div class="eyebrow">Home</div><h1>Pick up where you left off</h1><p>Your projects, and templates that turn the pages you visit into finished work.</p></div>
+  <div class="row"><h2>Your projects</h2></div>
+  <div class="cards">${projCard(pkg)}${projCard(pkg === "pro" ? "student" : "pro")}</div>
+  <div class="row"><h2>${esc(P.name)} templates</h2><span class="sp"></span><span class="note">Each one builds a report, slides and datasets.</span></div>
+  <div class="cards">${P.templates.map((t, i) => `<button class="pcard" data-tplgo="${i}"><div class="cover c-tpl${i % 2 ? " y" : ""}">${esc(t.name.split(/[ +]/).filter(Boolean).map(w => w[0]).join("").slice(0, 3).toUpperCase())}<span class="ptag">Template</span></div><div class="pbody"><h3>${esc(t.name)}</h3><p class="note">${esc(t.req)}</p><div class="pmeta"><span class="chip">PDF</span><span class="chip">PowerPoint</span><span class="chip">Excel</span></div></div></button>`).join("")}</div>`;
+}
+
+function renderAccount() {
+  const P = PKGS[pkg], price = PRICES[pkg][ui.bill], trialEnd = new Date(Date.now() + 3 * 864e5);
+  const used = allRows().length ? 12 : 0, cap = pkg === "pro" ? 300 : 100;
+  const exportsLog = ui.exportsLog || [];
+  $("#pane").innerHTML = `<div class="phero"><span class="av big">DU</span><div style="display:grid;gap:6px"><h2>Demo user</h2><p class="note">Demo account for this prototype · member since Nov 2026</p><div class="pmeta"><span class="chip on">${esc(P.name)} plan</span><span class="chip">${ui.bill === "year" ? "Yearly" : "Monthly"} · $${price}</span><span class="chip">Trial ends ${fmtDate(trialEnd)}</span></div></div><span class="sp"></span><button class="btn" data-go="checkout">Change plan</button></div>
+  <div class="grid3">
+    <div class="box"><h3>This month</h3><div class="kvs"><span>AI extractions</span><span>${used} of ${cap}</span></div><div class="meter"><i style="width:${Math.max(2, used / cap * 100)}%"></i></div><div class="kvs"><span>Pages captured</span><span>${project.sources.length}</span><span>Objects extracted</span><span>${allRows().length}</span><span>Files exported</span><span>${exportsLog.length}</span></div><p class="note">Sample numbers for the demo.</p></div>
+    <div class="box"><h3>Preferences</h3><div class="kvs"><span>Lens mode</span><span>${esc(P.lensMode)}</span><span>View style</span><span>Chunks</span><span>${pkg === "pro" ? "Deck branding" : "Citation style"}</span><span>${pkg === "pro" ? "Your logo" : "APA 7"}</span><span>Evidence check</span><span>Always on</span></div></div>
+    <div class="box"><h3>Recent exports</h3><div class="list">${exportsLog.length ? exportsLog.slice(-5).reverse().map(x => `<div><span>${esc(x.name)}</span><span class="note">${esc(x.when)}</span></div>`).join("") : `<p class="note">Files you download show up here.</p>`}</div></div>
+  </div>
+  <div class="box"><h3>Your projects</h3><div class="list">${["pro", "student"].map(k => { const ex = store.get("fw-proj-" + k) || EXAMPLES[k]; return `<div><span><b>${esc(ex.name)}</b> · ${PKGS[k].name}</span><button class="btn" data-open="${k}">Open</button></div>`; }).join("")}</div></div>`;
+}
+
+function renderCheckout() {
+  const choose = ui.choose || pkg, b = ui.bill, price = PRICES[choose][b], trialEnd = new Date(Date.now() + 3 * 864e5);
+  $("#pane").innerHTML = `<div class="pagetitle"><div class="eyebrow">Plans &amp; billing</div><h1>Choose your plan</h1><p>Every plan starts with a 3-day free trial. Cancel any time before it ends and you won't be charged.</p></div>
+  <div class="seg billsw" role="group" aria-label="Billing"><button data-bill="month" aria-pressed="${b === "month"}">Monthly</button><button data-bill="year" aria-pressed="${b === "year"}">Yearly <em>2 months free</em></button></div>
+  <div class="checkout"><div class="plans">${["student", "pro"].map(k => `<button class="plancard" data-choose="${k}" aria-pressed="${k === choose}"><span class="eyebrow">${k === "pro" ? "For professionals" : "For students"}</span><h2>${PKGS[k].name}</h2><div class="price">$${PRICES[k][b]}<small> / ${b === "year" ? "year" : "month"}</small></div><ul>${FEATURES[k].map(f => `<li>${esc(f)}</li>`).join("")}</ul><span class="btn ${k === choose ? "primary" : ""}" style="text-align:center">${k === choose ? "Selected" : "Choose " + PKGS[k].name}</span></button>`).join("")}</div>
+  <aside class="summary"><h3>Order summary</h3><div class="in">
+    <div class="kvs"><span>Plan</span><span>${PKGS[choose].name}</span><span>Billing</span><span>${b === "year" ? "Yearly" : "Monthly"}</span><span>Free trial</span><span>3 days</span><span>First charge</span><span>${fmtDate(trialEnd)}</span></div>
+    <div class="total"><span>Due today</span><b>$0.00</b></div>
+    <p class="note">Then $${price.toFixed(2)} every ${b === "year" ? "year" : "month"} until you cancel.</p>
+    <div class="paybox"><b>Secure payment</b>Card checkout connects here at launch. This prototype doesn't collect or charge any payment details.</div>
+    <button class="btn primary" id="startTrial">Start 3-day free trial</button>
+    <p class="note" id="trialMsg">Cancel any time from Account.</p>
+  </div></aside></div>
+  <p class="note">Prices are placeholders while pricing is being tested.</p>`;
 }
 
 function renderLens() {
@@ -473,11 +613,20 @@ function renderDeliv() {
 }
 
 /* ---------- Events ---------- */
-document.querySelector(".seg").addEventListener("click", e => { const b = e.target.closest("[data-pkg]"); if (!b || b.dataset.pkg === pkg) return; pkg = b.dataset.pkg; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; render(); });
+document.querySelector(".pkgsw .seg").addEventListener("click", e => { const b = e.target.closest("[data-pkg]"); if (!b || b.dataset.pkg === pkg) return; pkg = b.dataset.pkg; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; render(); });
 document.querySelector(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b) { ui.tab = b.dataset.tab; render(); } });
+document.querySelector(".sidebar").addEventListener("click", e => { const b = e.target.closest("[data-nav]"); if (!b) return; ui.tab = b.dataset.nav === "project" ? (ui.lastProjTab || "deliv") : b.dataset.nav; render(); window.scrollTo(0, 0); });
+$("#headExport").onclick = () => { ui.tab = "deliv"; render(); };
+function openPkg(k) { if (k !== pkg) { pkg = k; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; } ui.tab = "deliv"; render(); window.scrollTo(0, 0); }
 $("#srcList").addEventListener("click", e => { const b = e.target.closest("[data-src]"); if (b) { ui.src = b.dataset.src; ui.tab = "lens"; render(); } });
 $("#pane").addEventListener("click", e => {
   const t = e.target;
+  if (t.closest("[data-open]")) { openPkg(t.closest("[data-open]").dataset.open); return; }
+  if (t.closest("[data-tplgo]")) { ui.tpl = +t.closest("[data-tplgo]").dataset.tplgo; project.request = PKGS[pkg].templates[ui.tpl].req; ui.tab = "extract"; render(); return; }
+  if (t.closest("[data-go]")) { ui.tab = t.closest("[data-go]").dataset.go; render(); return; }
+  if (t.closest("[data-bill]")) { ui.bill = t.closest("[data-bill]").dataset.bill; render(); return; }
+  if (t.closest("[data-choose]")) { ui.choose = t.closest("[data-choose]").dataset.choose; renderCheckout(); return; }
+  if (t.id === "startTrial") { $("#trialMsg").textContent = "This is a prototype, so no trial starts and nothing is charged. At launch, this button opens secure checkout."; return; }
   if (t.closest("[data-tpl]")) { ui.tpl = +t.closest("[data-tpl]").dataset.tpl; project.request = PKGS[pkg].templates[ui.tpl].req; renderExtract(); return; }
   if (t.closest("[data-obj]")) { ui.obj = t.closest("[data-obj]").dataset.obj; renderData(); return; }
   if (t.closest("[data-row]")) { const r = project.result.objects[ui.obj][+t.closest("[data-row]").dataset.row]; ui.src = r.source; ui.focusQuote = r.quote; ui.tab = "lens"; render(); return; }
@@ -608,6 +757,7 @@ async function doExport(kind, btn) {
     else if (kind === "cards") file = { filename: slug(project.name) + "-flashcards.csv", data: toCsv(flashcards().map(c => ({ Front: c.f, Back: c.b, Type: c.t }))) };
   } catch (e) { say("Couldn't build the file. Reload the page and try again."); return; }
   window.__lastExport = file;
+  ui.exportsLog.push({ name: file.filename, when: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) });
   if (!dl) { say(`${file.filename} is ready. Downloads work when this page is open in claude.ai.`); return; }
   try { await dl.save(file); say(`Saved ${file.filename}.`); }
   catch (e) { say(e?.code === "declined" ? "Download cancelled." : e?.code === "rate_limited" ? "Another download is waiting. Try again in a moment." : "Downloads aren't available in this view."); }
