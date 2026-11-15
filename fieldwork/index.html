@@ -160,6 +160,36 @@ td.num { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 6
 .fc.flipped .t { color: #3a3a35; }
 .cmp td:first-child { font-weight: 700; }
 
+/* Scrapbook */
+.scrapbar { gap: 14px; }
+.layouts { display: flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--panel); }
+.layouts button { border: 0; background: none; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+.layouts button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.groupby { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.groupby select { border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; background: var(--panel); }
+.snip { display: grid; gap: 8px; text-align: left; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); padding: 12px 14px; font-size: 13.5px; line-height: 1.45; width: 100%; transition: transform .12s, box-shadow .12s; }
+.snip:hover { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 var(--line); }
+.sbig { font: 700 24px/1 var(--display); letter-spacing: -.02em; }
+.smeta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.stype { font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; background: var(--accent-soft); color: #000; border: 1px solid var(--line); border-radius: 999px; padding: 4px 7px; }
+.ev { font: 500 11px/1.3 var(--mono); color: var(--muted); }
+.ev.verified { color: var(--ok); } .ev.check { color: var(--warn); }
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 1fr); gap: 16px; overflow-x: auto; padding-bottom: 6px; align-items: start; }
+.col { border: 1px solid var(--line); border-radius: 4px; background: var(--bg); display: grid; gap: 10px; padding: 0 12px 12px; }
+.col header { display: flex; justify-content: space-between; align-items: center; margin: 0 -12px; padding: 12px; border-bottom: 1px solid var(--line); background: var(--accent); color: #000; }
+.col header .chip { background: var(--panel); color: var(--ink); }
+.notebook { border: 1px solid var(--line); border-radius: 4px; background: var(--panel); padding: 32px 40px; display: grid; gap: 18px; max-width: 820px; box-shadow: 6px 6px 0 var(--line); }
+.notebook ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; line-height: 1.6; }
+.notebook li[data-snip] { cursor: pointer; }
+.notebook li[data-snip]:hover { background: var(--hl); color: #000; }
+.notebook sup { font: 600 10px var(--mono); color: var(--accent-strong); margin-left: 2px; }
+.notebook .notes ol { margin: 8px 0 0; padding-left: 20px; font-size: 12.5px; color: var(--muted); display: grid; gap: 4px; }
+.notebook .notes { border-top: 1px solid var(--line); padding-top: 14px; }
+.pins { columns: 4 220px; column-gap: 16px; }
+.pin { break-inside: avoid; margin-bottom: 16px; }
+.pin.hasbig { background: var(--accent-soft); }
+#snipSel { display: inline-flex; gap: 6px; align-items: center; }
+
 /* Home: project and template cards */
 .pagetitle { display: grid; gap: 8px; }
 .pagetitle p { margin: 0; color: var(--muted); font-size: 15px; max-width: 60ch; }
@@ -255,6 +285,7 @@ dialog textarea { min-height: 180px; resize: vertical; font-size: 13.5px; }
         <button role="tab" data-tab="lens">Lens</button>
         <button role="tab" data-tab="extract">Extract</button>
         <button role="tab" data-tab="data">Datasets <i id="nRows">0</i></button>
+        <button role="tab" data-tab="scrap">Scrapbook <i id="nSnips">0</i></button>
         <button role="tab" data-tab="deliv">Deliverable</button>
       </div>
     </header>
@@ -472,7 +503,7 @@ function verifyAll() {
 const allRows = () => Object.values(project.result?.objects || {}).flat();
 
 /* ---------- Rendering ---------- */
-const PROJ_TABS = ["lens", "extract", "data", "deliv"];
+const PROJ_TABS = ["lens", "extract", "data", "scrap", "deliv"];
 const PRICES = { student: { month: 9, year: 90 }, pro: { month: 24, year: 240 } };
 const FEATURES = {
   student: ["Study lens on any page", "AI study guides, flashcards and quizzes", "Essay outlines with citations (APA, MLA, Chicago)", "PDF, PowerPoint and flashcard exports", "100 AI extractions a month"],
@@ -490,10 +521,10 @@ function render() {
   const rows = allRows(), ver = rows.filter(r => r.verified).length;
   $("#stats").innerHTML = `<span>Pages</span><span>${project.sources.length}</span><span>Objects extracted</span><span>${rows.length}</span><span>Matched to page text</span><span class="verified">${rows.length ? Math.round(ver / rows.length * 100) : 0}%</span><span>Captured</span><span>${esc(project.captured)}</span>`;
   $("#runNote").textContent = project.result?.by === "example" ? "Showing an example result. Run Extract to have the AI do it live." : project.result ? "Extracted live by AI." : "Run Extract to build datasets.";
-  $("#nRows").textContent = rows.length;
+  $("#nRows").textContent = rows.length; $("#nSnips").textContent = rows.length + (project.snips || []).length;
   document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === ui.tab));
   if (inProject) ui.lastProjTab = ui.tab;
-  ({ lens: renderLens, extract: renderExtract, data: renderData, deliv: renderDeliv, home: renderHome, account: renderAccount, checkout: renderCheckout })[ui.tab]();
+  ({ lens: renderLens, extract: renderExtract, data: renderData, deliv: renderDeliv, scrap: renderScrap, home: renderHome, account: renderAccount, checkout: renderCheckout })[ui.tab]();
 }
 
 function renderHome() {
@@ -536,6 +567,57 @@ function renderCheckout() {
   <p class="note">Prices are placeholders while pricing is being tested.</p>`;
 }
 
+/* ---------- Scrapbook: one set of snips, four layouts ---------- */
+const LAYOUTS = { table: "Table", board: "Board", notebook: "Notebook", pins: "Pin board" };
+const RECOMMEND = { pro: { layout: "board", group: "company", why: "Board grouped by company is recommended for comparing competitors." }, student: { layout: "notebook", group: "topic", why: "Notebook grouped by topic is recommended for building a paper." } };
+const srcCompany = id => (project.sources.find(s => s.id === id)?.title || "Your snips").split(":")[0].trim();
+function snipLabel(t, r) {
+  const L = {
+    company: () => `${r.name}: ${r.tagline}`, product: () => `${r.name}: ${r.description}`,
+    price: () => `${r.plan}: ${r.price} ${r.period}${r.per_serving && r.per_serving !== "not found" ? ` (${r.per_serving} per serving)` : ""}`,
+    feature: () => r.feature, claim: () => `${r.claim}. ${r.proof}`,
+    source: () => r.citation, fact: () => r.statement, term: () => `${r.term}: ${r.definition}`, question: () => `${r.question} ${r.answer}` };
+  return (L[t] || (() => r.quote))();
+}
+function bigOf(t, r) {
+  if (t === "price") return r.price;
+  if (t === "fact" || t === "claim") { const ms = String(t === "fact" ? r.statement : r.proof).match(/\$?\d[\d,.]*\s?(%|km|million)?/g) || []; return ms.map(x => x.trim()).sort((a, b) => parseFloat(b.replace(/[^\d.]/g, "")) - parseFloat(a.replace(/[^\d.]/g, "")))[0] || ""; }
+  return "";
+}
+function allSnips() {
+  const out = [];
+  Object.entries(project.result?.objects || {}).forEach(([t, rows]) => rows.forEach((r, i) => out.push({ id: t + i, t, r, text: snipLabel(t, r), big: bigOf(t, r), type: PKGS[pkg].objects[t]?.label || t })));
+  (project.snips || []).forEach((s, i) => out.push({ id: "m" + i, t: "snip", r: { source: s.source, quote: s.text, verified: true }, text: s.text, big: "", type: "Your snip", manual: true }));
+  return out;
+}
+function groupOf(s) {
+  const g = ui.groupBy || RECOMMEND[pkg].group;
+  if (g === "type") return s.type;
+  if (g === "source") return srcTitle(s.r.source);
+  if (g === "company") return s.r.company || s.r.name || srcCompany(s.r.source);
+  return s.r.topic || (s.t === "term" ? "Key terms" : s.t === "question" ? "Review questions" : s.t === "source" ? "Sources" : "Your snips");
+}
+function grouped(snips) { const m = new Map(); snips.forEach(s => { const g = groupOf(s); if (!m.has(g)) m.set(g, []); m.get(g).push(s); }); return [...m.entries()]; }
+const evBadge = s => `<span class="ev ${s.r.verified ? "verified" : "check"}">${s.r.verified ? "✓" : "⚠"} ${esc(srcTitle(s.r.source))}</span>`;
+function snipCard(s, cls = "snip") { return `<button class="${cls}" data-snip="${s.id}">${s.big ? `<span class="sbig">${esc(s.big)}</span>` : ""}<span class="stxt">${esc(s.text)}</span><span class="smeta"><span class="stype">${esc(s.type)}</span>${evBadge(s)}</span></button>`; }
+function renderScrap() {
+  const groupOpts = pkg === "pro" ? { company: "Company", source: "Page", type: "Type" } : { topic: "Topic", source: "Source", type: "Type" };
+  if (ui.groupBy && !groupOpts[ui.groupBy]) ui.groupBy = null;
+  const snips = allSnips(), lay = ui.layout || RECOMMEND[pkg].layout, grp = ui.groupBy || RECOMMEND[pkg].group;
+  let body = "";
+  if (!snips.length) body = `<p class="note">No snips yet. Run Extract, or select text in the Lens and press Snip.</p>`;
+  else if (lay === "table") body = `<div class="tablewrap"><table><thead><tr><th>${esc(groupOpts[grp] || "Group")}</th><th>Snip</th><th>Type</th><th>Evidence</th></tr></thead><tbody>${grouped(snips).flatMap(([g, ss]) => ss.map(s => `<tr data-snip="${s.id}"><td><b>${esc(g)}</b></td><td>${esc(s.text)}</td><td>${esc(s.type)}</td><td class="ev">${evBadge(s)}<br>“${esc(s.r.quote)}”</td></tr>`)).join("")}</tbody></table></div>`;
+  else if (lay === "board") body = `<div class="board">${grouped(snips).map(([g, ss]) => `<section class="col"><header><h3>${esc(g)}</h3><span class="chip">${ss.length}</span></header>${ss.map(s => snipCard(s)).join("")}</section>`).join("")}</div>`;
+  else if (lay === "notebook") { let n = 0; const notes = [];
+    body = `<article class="notebook"><div class="eyebrow">Notebook · ${esc(project.name)}</div><h2>${esc(project.result?.deliverable?.title || project.name)}</h2>${grouped(snips).map(([g, ss]) => `<section><h3>${esc(g)}</h3><ul>${ss.map(s => { notes.push(s); n++; return `<li data-snip="${s.id}">${esc(s.text)}<sup>${n}</sup></li>`; }).join("")}</ul></section>`).join("")}
+    <section class="notes"><h3>Sources for each note</h3><ol>${notes.map(s => `<li>${esc(srcTitle(s.r.source))}: “${esc(s.r.quote)}”</li>`).join("")}</ol></section></article>`; }
+  else body = `<div class="pins">${snips.map(s => snipCard(s, "snip pin" + (s.big ? " hasbig" : ""))).join("")}</div>`;
+  $("#pane").innerHTML = `<div class="row"><h2>Scrapbook</h2><span class="sp"></span><button class="btn" data-exp="snips">Download snips (CSV)</button></div>
+  <div class="row scrapbar"><div class="layouts" role="group" aria-label="Layout">${Object.entries(LAYOUTS).map(([k, v]) => `<button data-layout="${k}" aria-pressed="${k === lay}">${v}${k === RECOMMEND[pkg].layout ? " ★" : ""}</button>`).join("")}</div>
+  ${lay !== "pins" ? `<label class="groupby">Group by <select id="groupBy">${Object.entries(groupOpts).map(([k, v]) => `<option value="${k}"${k === grp ? " selected" : ""}>${v}</option>`).join("")}</select></label>` : ""}
+  <span class="note">${snips.length} snips · ★ ${esc(RECOMMEND[pkg].why)}</span></div>${body}`;
+}
+
 function renderLens() {
   const s = project.sources.find(x => x.id === ui.src) || project.sources[0]; if (!s) { $("#pane").innerHTML = `<p class="note">Add a page to start.</p>`; return; }
   const rows = Object.entries(project.result?.objects || {}).flatMap(([t, rs]) => rs.filter(r => r.source === s.id).map(r => ({ t, r })));
@@ -546,7 +628,7 @@ function renderLens() {
   });
   const paras = text.split("\n").map((l, i) => `<p class="${i === 0 ? "head" : ""}">${l}</p>`).join("");
   const P = PKGS[pkg];
-  $("#pane").innerHTML = `<div class="row"><h2>${esc(s.title)}</h2><span class="sp"></span><span class="eyebrow">${P.lensMode} lens</span></div>
+  $("#pane").innerHTML = `<div class="row"><h2>${esc(s.title)}</h2><span class="sp"></span><span class="note" id="snipMsg">Select any text, then snip it.</span><button class="btn primary" id="snipSel">✂ Snip selection</button><span class="eyebrow">${P.lensMode} lens</span></div>
   <div class="lens"><article class="reading"><div class="url">${esc(s.url || "pasted text")} · captured ${esc(project.captured)}</div>${paras}</article>
   <div class="keys"><h3>${pkg === "pro" ? "Pulled from this page" : "What to learn here"}</h3>${rows.length ? rows.map(({ t, r }) => `<div class="key"><span class="t">${esc(P.objects[t].label)}</span>${esc(summary(t, r))}</div>`).join("") : `<p class="note">Nothing extracted from this page yet.</p>`}
   <p class="note">Highlighted text is the exact evidence behind each extracted object.</p></div></div>`;
@@ -612,14 +694,16 @@ function renderDeliv() {
 }
 
 /* ---------- Events ---------- */
-document.querySelector(".pkgsw .seg").addEventListener("click", e => { const b = e.target.closest("[data-pkg]"); if (!b || b.dataset.pkg === pkg) return; pkg = b.dataset.pkg; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; render(); });
+document.querySelector(".pkgsw .seg").addEventListener("click", e => { const b = e.target.closest("[data-pkg]"); if (!b || b.dataset.pkg === pkg) return; pkg = b.dataset.pkg; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; ui.layout = null; ui.groupBy = null; render(); });
 document.querySelector(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b) { ui.tab = b.dataset.tab; render(); } });
 document.querySelector(".sidebar").addEventListener("click", e => { const b = e.target.closest("[data-nav]"); if (!b) return; ui.tab = b.dataset.nav === "project" ? (ui.lastProjTab || "deliv") : b.dataset.nav; render(); window.scrollTo(0, 0); });
 $("#headExport").onclick = () => { ui.tab = "deliv"; render(); };
-function openPkg(k) { if (k !== pkg) { pkg = k; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; } ui.tab = "deliv"; render(); window.scrollTo(0, 0); }
+function openPkg(k) { if (k !== pkg) { pkg = k; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; ui.layout = null; ui.groupBy = null; } ui.tab = "deliv"; render(); window.scrollTo(0, 0); }
 $("#srcList").addEventListener("click", e => { const b = e.target.closest("[data-src]"); if (b) { ui.src = b.dataset.src; ui.tab = "lens"; render(); } });
 $("#pane").addEventListener("click", e => {
   const t = e.target;
+  if (t.closest("[data-layout]")) { ui.layout = t.closest("[data-layout]").dataset.layout; renderScrap(); return; }
+  if (t.closest("[data-snip]")) { const x = allSnips().find(z => z.id === t.closest("[data-snip]").dataset.snip); if (x) { ui.src = x.r.source; ui.focusQuote = x.r.verified ? x.r.quote : null; ui.tab = "lens"; render(); } return; }
   if (t.closest("[data-open]")) { openPkg(t.closest("[data-open]").dataset.open); return; }
   if (t.closest("[data-tplgo]")) { ui.tpl = +t.closest("[data-tplgo]").dataset.tplgo; project.request = PKGS[pkg].templates[ui.tpl].req; ui.tab = "extract"; render(); return; }
   if (t.closest("[data-go]")) { ui.tab = t.closest("[data-go]").dataset.go; render(); return; }
@@ -633,6 +717,18 @@ $("#pane").addEventListener("click", e => {
   if (t.closest("[data-exp]")) { doExport(t.closest("[data-exp]").dataset.exp, t.closest("[data-exp]")); return; }
   if (t.id === "run") { runExtraction(); return; }
   if (t.id === "stop") { ctl?.abort(); return; }
+});
+$("#pane").addEventListener("change", e => { if (e.target.id === "groupBy") { ui.groupBy = e.target.value; renderScrap(); } });
+// Capture the selection before the click clears it
+$("#pane").addEventListener("mousedown", e => {
+  if (!e.target.closest("#snipSel")) return; e.preventDefault();
+  const sel = window.getSelection(), txt = String(sel || "").replace(/\s+/g, " ").trim();
+  const inReading = sel.rangeCount && document.querySelector(".reading")?.contains(sel.getRangeAt(0).commonAncestorContainer);
+  const msg = $("#snipMsg");
+  if (!txt || !inReading) { msg.textContent = "Select some text on the page first."; return; }
+  project.snips = project.snips || []; project.snips.push({ text: txt.slice(0, 400), source: ui.src || project.sources[0].id });
+  saveProject(); sel.removeAllRanges(); $("#nSnips").textContent = allRows().length + project.snips.length;
+  msg.textContent = `Snipped. You have ${project.snips.length} snip${project.snips.length === 1 ? "" : "s"} of your own in the Scrapbook.`;
 });
 $("#pane").addEventListener("input", e => { if (e.target.id === "req") project.request = e.target.value; });
 $("#addSrc").onclick = () => { $("#addForm").reset(); $("#addDlg").showModal(); };
@@ -753,6 +849,7 @@ async function doExport(kind, btn) {
     else if (kind === "pptx") file = { filename: base + ".pptx", data: await buildPptx() };
     else if (kind === "xlsx") file = { filename: slug(project.name) + "-datasets.xlsx", data: buildXlsx() };
     else if (kind === "csv") file = { filename: slug(project.name) + "-" + ui.obj + ".csv", data: toCsv(datasetRows(ui.obj)) };
+    else if (kind === "snips") file = { filename: slug(project.name) + "-snips.csv", data: toCsv(allSnips().map(x => ({ Group: groupOf(x), Snip: x.text, Type: x.type, Source: srcTitle(x.r.source), URL: srcUrl(x.r.source), "Evidence quote": x.r.quote, "Matched to page": x.r.verified ? "Yes" : "Check" }))) };
     else if (kind === "cards") file = { filename: slug(project.name) + "-flashcards.csv", data: toCsv(flashcards().map(c => ({ Front: c.f, Back: c.b, Type: c.t }))) };
   } catch (e) { say("Couldn't build the file. Reload the page and try again."); return; }
   window.__lastExport = file;
