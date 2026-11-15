@@ -4,7 +4,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <style>
 /* Mockup of a browser with the Fieldwork extension. The "site" is a made-up meal-kit brand. */
-:root { --fw: #0f6e5f; --fw-ink: #14201a; --fw-muted: #5d6b63; --fw-line: #dbe2dc; --fw-bg: #f4f6f3; --hl: #ffe27a; }
+:root { --fw: #35618c; --fw-ink: #14201a; --fw-muted: #57574f; --fw-line: #d8d8d0; --fw-bg: #f4f4f0; --hl: #cfe0f2; }
 * { box-sizing: border-box; }
 body { margin: 0; font: 14px/1.5 Inter, Arial, sans-serif; background: #d9dcdf; color: #111; }
 .browser { position: fixed; inset: 0; display: grid; grid-template-rows: auto auto 1fr; background: #fff; }
@@ -57,11 +57,11 @@ footer.sitefoot { background: #1b1b1b; color: #999; padding: 50px 80px; font-siz
 .popup .b { background: #ff6a3d; color: #fff; font-weight: 800; padding: 13px; border-radius: 8px; }
 
 /* ---------- Fieldwork overlay ---------- */
-.fw { position: absolute; inset: 0; z-index: 5; background: rgba(244,246,243,.97); font-family: Inter, Arial, sans-serif; color: var(--fw-ink); display: grid; grid-template-rows: auto 1fr; }
+.fw { position: absolute; inset: 0; z-index: 5; background: rgba(244,244,240,.97); font-family: Inter, Arial, sans-serif; color: var(--fw-ink); display: grid; grid-template-rows: auto 1fr; }
 .fwbar { display: flex; align-items: center; gap: 12px; padding: 10px 20px; background: #fff; border-bottom: 1px solid var(--fw-line); }
 .fwlogo { display: flex; gap: 8px; align-items: center; font: 700 16px Space Grotesk, sans-serif; }
 .fwlogo svg { width: 18px; height: 18px; }
-.styles { display: flex; gap: 2px; background: #e9efea; border-radius: 999px; padding: 3px; }
+.styles { display: flex; gap: 2px; background: #ececE5; border-radius: 999px; padding: 3px; }
 .styles span { padding: 6px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--fw-muted); }
 .styles span.on { background: #fff; color: var(--fw-ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
 .fwbar .sp { flex: 1; }
@@ -77,7 +77,7 @@ footer.sitefoot { background: #1b1b1b; color: #999; padding: 50px 80px; font-siz
 .chunks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .chunk { background: #fff; border: 1px solid var(--fw-line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 7px; align-content: start; }
 .chunk.wide { grid-column: span 2; }
-.chunk.fine { border-color: #f1c58f; background: #fffaf2; }
+.chunk.fine { border-color: #a9c6e3; background: #f2f7fc; }
 .chunk h3 { margin: 0; font: 600 14.5px Space Grotesk, sans-serif; display: flex; justify-content: space-between; gap: 8px; }
 .chunk h3 small { font: 500 10.5px IBM Plex Mono, monospace; color: var(--fw); font-weight: 500; white-space: nowrap; }
 .chunk p { margin: 0; font-size: 14px; line-height: 1.55; }
@@ -147,7 +147,7 @@ footer.sitefoot { background: #1b1b1b; color: #999; padding: 50px 80px; font-siz
 </style></head><body>
 <div id="root"></div>
 <script>
-const LOGO = `<svg viewBox="0 0 24 24"><path d="M5 21V4" stroke="#14201a" stroke-width="2" stroke-linecap="round"/><path d="M5 4h12l-3 4 3 4H5" fill="#0f6e5f"/></svg>`;
+const LOGO = `<svg viewBox="0 0 24 24"><path d="M5 21V4" stroke="#14201a" stroke-width="2" stroke-linecap="round"/><path d="M5 4h12l-3 4 3 4H5" fill="#a9c6e3"/></svg>`;
 const SITE = `<div class="site">
 <div class="promo">SPRING SALE — 50% OFF YOUR FIRST BOX*</div>
 <div class="sitenav"><span class="brand">QuickKit</span><nav><span>Menu</span><span>Plans</span><span>How it works</span><span>Gifts</span><span>Blog</span></nav><span class="cta">Get started</span></div>
@@ -203,7 +203,7 @@ const VIEWS = {
     <div class="done"><div><b>✓</b>Read 4 open tabs</div><div><b>✓</b>Extracted 31 objects with quotes</div><div><b>✓</b>31 of 31 matched to the pages</div><div><b>✓</b>Built your deck and spreadsheet</div></div>
     <div class="mini"><table><tr><th>Company</th><th>Lowest / serving</th><th>Shipping</th></tr><tr><td>QuickKit</td><td>$8.99</td><td>$7.99 after box 1</td></tr><tr><td>FreshCrate</td><td>$5.99</td><td>Free over $50</td></tr><tr><td>GreenPlate</td><td>$7.49</td><td>not found</td></tr></table></div>
     <div class="exp"><span>Deck<small>PowerPoint</small></span><span>Data<small>Excel</small></span><span>Report<small>PDF</small></span></div></div></div></div>`, "tip"),
-  phone: () => `<div class="phone"><div class="pbar"><span>9:41</span><span>●●● 100%</span></div><div class="paddr"><span>quickkit.example/plans</span><span style="color:#0f6e5f;font-weight:700">Fieldwork ✓</span></div>
+  phone: () => `<div class="phone"><div class="pbar"><span>9:41</span><span>●●● 100%</span></div><div class="paddr"><span>quickkit.example/plans</span><span style="color:#35618c;font-weight:700">Fieldwork ✓</span></div>
     <div class="pcard"><span class="tag">2 of 6 · Plans & pricing</span><h2>Two plans, both weekly</h2>
     <div class="prow">Solo<b>$54.00</b><span>5 meals for 1 person · $10.80 per serving</span></div>
     <div class="prow">Duo<b>$89.90</b><span>5 meals for 2 people · $8.99 per serving</span></div>
@@ -217,11 +217,11 @@ const VIEWS = {
        ["FreshCrate: Plans", "freshcrate.example/plans", "Today, 9:32", "linear-gradient(135deg,#86efac,#15803d)", ["Family Box $5.99 / serving", "Free shipping over $50"], ["Pricing"]],
        ["GreenPlate: Home & plans", "greenplate.example", "Yesterday", "linear-gradient(135deg,#bef264,#4d7c0f)", ["100% home compostable", "Big Table $7.49 / serving"], ["Sustainability", "Pricing"]],
        ["Meal-kit market report 2026", "industrynews.example/meal-kits", "Yesterday", "linear-gradient(135deg,#93c5fd,#1e40af)", ["Quote: “Convenience beats price for under-35s.”", "Chart snipped"], ["Market", "Quotes"]]
-      ].map(([t, u, d, g, snips, tags]) => `<div class="chunk" style="padding:0;overflow:hidden"><div style="height:92px;background:${g};position:relative"><span class="pill" style="position:absolute;left:8px;bottom:8px;background:#fff">${d}</span></div><div style="padding:12px 14px;display:grid;gap:8px"><h3 style="display:block">${t}</h3><span class="meta" style="font:400 11px IBM Plex Mono,monospace;color:#5d6b63">${u}</span>${snips.map(s => `<div style="background:#fffbe6;border-left:3px solid #e5b800;padding:6px 8px;font-size:12.5px;border-radius:4px">✂ ${s}</div>`).join("")}<div class="chips">${tags.map(x => `<span>${x}</span>`).join("")}</div></div></div>`).join("")}
+      ].map(([t, u, d, g, snips, tags]) => `<div class="chunk" style="padding:0;overflow:hidden"><div style="height:92px;background:${g};position:relative"><span class="pill" style="position:absolute;left:8px;bottom:8px;background:#fff">${d}</span></div><div style="padding:12px 14px;display:grid;gap:8px"><h3 style="display:block">${t}</h3><span class="meta" style="font:400 11px IBM Plex Mono,monospace;color:#57574f">${u}</span>${snips.map(s => `<div style="background:#eef4fb;border-left:3px solid #a9c6e3;padding:6px 8px;font-size:12.5px;border-radius:4px">✂ ${s}</div>`).join("")}<div class="chips">${tags.map(x => `<span>${x}</span>`).join("")}</div></div></div>`).join("")}
     </div>
-    <div class="chunk"><h3>Snips board <small>drag snips into a report, deck or spreadsheet</small></h3><div style="display:flex;gap:10px;flex-wrap:wrap">${["Solo $54.00 / week · QuickKit", "Family Box $5.99 / serving · FreshCrate", "Big Table $7.49 / serving · GreenPlate", "“Convenience beats price for under-35s.” · Industry report", "Shipping $7.99 after box 1 · QuickKit", "Free shipping over $50 · FreshCrate"].map(s => `<span style="background:#fff;border:1px solid #dbe2dc;border-radius:10px;padding:9px 12px;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.06)">✂ ${s}</span>`).join("")}</div></div>
+    <div class="chunk"><h3>Snips board <small>drag snips into a report, deck or spreadsheet</small></h3><div style="display:flex;gap:10px;flex-wrap:wrap">${["Solo $54.00 / week · QuickKit", "Family Box $5.99 / serving · FreshCrate", "Big Table $7.49 / serving · GreenPlate", "“Convenience beats price for under-35s.” · Industry report", "Shipping $7.99 after box 1 · QuickKit", "Free shipping over $50 · FreshCrate"].map(s => `<span style="background:#fff;border:1px solid #d8d8d0;border-radius:10px;padding:9px 12px;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.06)">✂ ${s}</span>`).join("")}</div></div>
     </div></div></div>`, "tip"),
-  senior: () => `<div class="phone senior"><div class="pbar"><span>9:41</span><span>●●● 100%</span></div><div class="paddr"><span>quickkit.example/plans</span><span style="color:#0f6e5f;font-weight:700">Large view</span></div>
+  senior: () => `<div class="phone senior"><div class="pbar"><span>9:41</span><span>●●● 100%</span></div><div class="paddr"><span>quickkit.example/plans</span><span style="color:#35618c;font-weight:700">Large view</span></div>
     <div class="pcard"><span class="tag" style="font-size:14px">Fine print · 5 of 6</span><h2>Before you sign up</h2>
     <div class="prow">It renews every week<span>until you cancel it.</span></div>
     <div class="prow">Cancel by Wednesday<span>11:59 pm, before your next delivery.</span></div>

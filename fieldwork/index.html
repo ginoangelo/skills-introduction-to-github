@@ -5,11 +5,11 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: a bold, outlined workspace. Black sidebar for the app; a project header with pill tabs;
-   sources on the left, work on the right. Hot pink is the brand accent; yellow is reserved for evidence highlights. */
+   sources on the left, work on the right. One soft, natural blue is the only accent color; evidence highlights use a light tint of it. */
 :root {
   --bg: #f4f4f0; --panel: #ffffff; --ink: #000000; --muted: #57574f; --line: #000000; --hair: #d8d8d0; --soft: #ececE5;
-  --accent: #ff4fa3; --accent-ink: #000000; --ok: #10823a; --warn: #b54708; --side: #000000; --side-ink: #ffffff; --side-dim: #9b9b93;
-  --hl: #ffe45c; --hl-ink: #000000;
+  --accent: #a9c6e3; --accent-soft: #dde9f5; --accent-strong: #35618c; --accent-ink: #000000; --ok: #10823a; --warn: #b54708; --side: #000000; --side-ink: #ffffff; --side-dim: #9b9b93;
+  --hl: #cfe0f2; --hl-ink: #000000;
   --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
   --body: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -167,10 +167,9 @@ td.num { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 6
 .pcard { border: 1px solid var(--line); border-radius: 4px; background: var(--panel); text-align: left; padding: 0; display: grid; grid-template-rows: auto 1fr; overflow: hidden; transition: transform .12s, box-shadow .12s; }
 .pcard:hover { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 var(--line); }
 .cover { height: 150px; border-bottom: 1px solid var(--line); position: relative; display: grid; place-items: center; font: 700 44px/1 var(--display); letter-spacing: -.04em; overflow: hidden; }
-.c-pro { background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, #ffd1e8 14px 28px); color: #000; }
+.c-pro { background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, var(--accent-soft) 14px 28px); color: #000; }
 .c-student { background: radial-gradient(#000 1.6px, transparent 1.8px) 0 0 / 16px 16px, #fff; color: #000; }
 .c-tpl { background: #000; color: var(--accent); }
-.c-tpl.y { color: var(--hl); }
 .ptag { letter-spacing: .02em; position: absolute; left: 12px; bottom: 12px; background: var(--accent); color: #000; border: 1px solid #000; font: 700 12px/1 var(--mono); padding: 6px 16px 6px 10px; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 0 100%); }
 .pbody { padding: 16px 18px 18px; display: grid; gap: 6px; align-content: start; }
 .pmeta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
@@ -240,7 +239,7 @@ dialog textarea { min-height: 180px; resize: vertical; font-size: 13.5px; }
 
 <div class="shell">
   <nav class="sidebar" aria-label="Main">
-    <div class="wordmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3.4 4L18 12H5" fill="#ff4fa3"/></svg>fieldwork</div>
+    <div class="wordmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3.4 4L18 12H5" style="fill: var(--accent)"/></svg>fieldwork</div>
     <button class="navi" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9H3z"/></svg><span>Home</span></button>
     <button class="navi" data-nav="project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M9 9v11"/></svg><span>Project</span></button>
     <button class="navi" data-nav="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg><span>Account</span></button>
@@ -505,7 +504,7 @@ function renderHome() {
   <div class="row"><h2>Your projects</h2></div>
   <div class="cards">${projCard(pkg)}${projCard(pkg === "pro" ? "student" : "pro")}</div>
   <div class="row"><h2>${esc(P.name)} templates</h2><span class="sp"></span><span class="note">Each one builds a report, slides and datasets.</span></div>
-  <div class="cards">${P.templates.map((t, i) => `<button class="pcard" data-tplgo="${i}"><div class="cover c-tpl${i % 2 ? " y" : ""}">${esc(t.name.split(/[ +]/).filter(Boolean).map(w => w[0]).join("").slice(0, 3).toUpperCase())}<span class="ptag">Template</span></div><div class="pbody"><h3>${esc(t.name)}</h3><p class="note">${esc(t.req)}</p><div class="pmeta"><span class="chip">PDF</span><span class="chip">PowerPoint</span><span class="chip">Excel</span></div></div></button>`).join("")}</div>`;
+  <div class="cards">${P.templates.map((t, i) => `<button class="pcard" data-tplgo="${i}"><div class="cover c-tpl">${esc(t.name.split(/[ +]/).filter(Boolean).map(w => w[0]).join("").slice(0, 3).toUpperCase())}<span class="ptag">Template</span></div><div class="pbody"><h3>${esc(t.name)}</h3><p class="note">${esc(t.req)}</p><div class="pmeta"><span class="chip">PDF</span><span class="chip">PowerPoint</span><span class="chip">Excel</span></div></div></button>`).join("")}</div>`;
 }
 
 function renderAccount() {
@@ -713,7 +712,7 @@ function buildPdf() {
   const M = 54, W = 612 - M * 2; let y = M;
   const need = h => { if (y + h > 792 - M) { doc.addPage(); y = M; } };
   const text = (t, size, style, gap, color) => { doc.setFont("helvetica", style || "normal"); doc.setFontSize(size); doc.setTextColor(...(color || [20, 32, 26])); const lines = doc.splitTextToSize(String(t), W); lines.forEach(l => { need(size * 1.35); doc.text(l, M, y); y += size * 1.35; }); y += gap || 0; };
-  text("FIELDWORK  |  " + (pkg === "pro" ? "REPORT" : "STUDY GUIDE"), 8, "bold", 14, [15, 110, 95]);
+  text("FIELDWORK  |  " + (pkg === "pro" ? "REPORT" : "STUDY GUIDE"), 8, "bold", 14, [53, 97, 140]);
   text(d.title, 20, "bold", 8); text(d.summary, 11, "normal", 12);
   if (pkg === "pro" && project.result.objects.price?.length) {
     text("Price comparison", 13, "bold", 4);
@@ -728,11 +727,11 @@ function buildPdf() {
 }
 async function buildPptx() {
   const d = project.result.deliverable, p = new PptxGenJS(); p.layout = "LAYOUT_WIDE";
-  const ACC = "0F6E5F", INK = "14201A";
+  const ACC = "35618C", INK = "14201A";
   let s = p.addSlide(); s.background = { color: ACC };
   s.addText("FIELDWORK", { x: 0.6, y: 0.5, w: 6, h: 0.4, fontFace: "Arial", fontSize: 12, bold: true, color: "FFFFFF" });
   s.addText(d.title, { x: 0.6, y: 2.2, w: 12, h: 1.4, fontFace: "Arial", fontSize: 36, bold: true, color: "FFFFFF" });
-  s.addText(d.summary, { x: 0.6, y: 3.7, w: 11.5, h: 1.4, fontFace: "Arial", fontSize: 16, color: "E6F2EF" });
+  s.addText(d.summary, { x: 0.6, y: 3.7, w: 11.5, h: 1.4, fontFace: "Arial", fontSize: 16, color: "E3ECF5" });
   d.sections.forEach(sec => { const sl = p.addSlide(); sl.addText(sec.h, { x: 0.6, y: 0.4, w: 12, h: 0.8, fontFace: "Arial", fontSize: 28, bold: true, color: INK }); sl.addShape(p.ShapeType.rect, { x: 0.6, y: 1.2, w: 1.2, h: 0.06, fill: { color: ACC } }); sl.addText(sec.bullets.map(b => ({ text: b, options: { bullet: true, breakLine: true } })), { x: 0.6, y: 1.5, w: 12, h: 5, fontFace: "Arial", fontSize: 18, color: INK, valign: "top", paraSpaceAfter: 10 }); });
   const tableRows = pkg === "pro" ? (project.result.objects.price || []).map(r => [r.company, r.plan, r.price, r.per_serving || "not found", r.includes]) : (project.result.objects.term || []).map(r => [r.term, r.definition]);
   if (tableRows.length) {
