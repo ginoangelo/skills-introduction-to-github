@@ -29,6 +29,37 @@ export default function App() {
       .catch(() => setServerMode("offline"));
   }, []);
 
+  // Share-sheet import: the service worker parks the shared screenshot and opens /?shared=1.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("shared")) return;
+    window.history.replaceState(null, "", "/");
+    if (params.get("shared") !== "1" || !("caches" in window)) {
+      setError("That share didn't come through. Choose the screenshot from your photos instead.");
+      return;
+    }
+    (async () => {
+      try {
+        const cache = await caches.open("subtext-share");
+        const res = await cache.match("/shared-screenshot");
+        const textRes = await cache.match("/shared-text");
+        await cache.delete("/shared-screenshot");
+        await cache.delete("/shared-text");
+        if (!res) {
+          setError("The shared item wasn't an image. Choose a screenshot from your photos instead.");
+          return;
+        }
+        const blob = await res.blob();
+        const sharedText = textRes ? (await textRes.text()).trim() : "";
+        await pickFile(new File([blob], "shared-screenshot", { type: blob.type || "image/png" }));
+        if (sharedText) setContext(sharedText.slice(0, 280));
+      } catch {
+        setError("Couldn't read the shared screenshot. Choose it from your photos instead.");
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function pickFile(file) {
     if (!file) return;
     setError("");
@@ -149,7 +180,7 @@ export default function App() {
                 e.target.value = "";
               }}
             />
-            <small className="hint">Or drop one here. Any app, any platform.</small>
+            <small className="hint">Or drop one here. Once installed, share a screenshot straight to Subtext from any app.</small>
             {error && <p className="error">{error}</p>}
           </section>
 

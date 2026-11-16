@@ -74,6 +74,13 @@ app.post("/api/decode", async (req, res) => {
   }
 });
 
+// Share target fallback: the service worker normally intercepts this POST before it reaches
+// the network. If it ever gets here, send the user to the app without parsing the upload.
+app.post("/share", (req, res) => {
+  req.resume();
+  res.redirect(303, "/?shared=0");
+});
+
 // Serve the built web app when it exists (npm run build).
 const dist = path.join(here, "..", "web", "dist");
 if (fs.existsSync(dist)) {

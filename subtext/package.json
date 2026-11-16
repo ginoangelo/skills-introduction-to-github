@@ -1,6 +1,6 @@
 {
   "name": "subtext",
-  "version": "0.1.0",
+  "version": "1.0.0-mvp",
   "private": true,
   "description": "Subtext: read between the lines. Share a screenshot of a post, get a decoded result card.",
   "type": "module",

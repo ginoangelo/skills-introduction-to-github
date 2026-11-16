@@ -2,7 +2,24 @@
 
 Read between the lines. Share a screenshot of a post, story, caption, or reply and get a decoded result card: what it says, what it means, whether it is aimed at you, the evidence, and other readings.
 
-This is the version 1 web prototype from the Subtext PDR. One flow, no accounts, nothing about the post stored on a server.
+This is the MVP from the Subtext PDR, built as an installable web app. One flow, no accounts, nothing about the post stored on a server.
+
+## MVP checklist
+
+| PDR item | Status |
+| --- | --- |
+| Share-sheet and camera-roll import | Done. Install the app, then share a screenshot to Subtext from Instagram, Threads, or Photos (Android and desktop Chrome; iOS Safari has no share target, so use the photo picker there). |
+| Optional one-line context | Done. Shared text comes through as context too. |
+| Decode with the five-part result card | Done. One model call with a fixed output schema. |
+| Recent decodes, stored on the phone | Done. `localStorage` only, delete or clear in one tap. |
+| Free tier with a daily cap | Done. `DECODE_DAILY_CAP` per client per day. |
+| Refusals for minors and sexual content | Done. The prompt refuses and the card says why. |
+
+## Install it on a phone
+
+1. Open the app's URL in Chrome (Android) or Safari (iOS) over HTTPS, or on localhost.
+2. Choose Add to Home Screen.
+3. On Android, the share sheet now lists Subtext under any screenshot. On iOS, open Subtext and pick the screenshot from Photos.
 
 ## Run it
 
