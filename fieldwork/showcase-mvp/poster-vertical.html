@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Fieldwork MVP (phone)</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Phone-width scrolling version of the MVP poster: pitch, pricing, then one screen per card. */
+:root { --bg: #fff7e8; --ink: #2e3152; --muted: #6b6d86; --coral: #e8806f; --mustard: #e6bd4c; --sage: #93b86e; --mint: #86d0cb; --lavender: #a28ae3; }
+* { box-sizing: border-box; }
+body { margin: 0; width: 430px; color: var(--ink); font-family: Nunito, sans-serif; background: var(--bg); }
+.wrap { padding: 18px 16px 28px; display: grid; gap: 18px;
+  background: radial-gradient(360px 300px at 100% 0%, #f6dfa0, transparent 70%), radial-gradient(360px 320px at 0% 40%, #e2d8fb, transparent 70%), radial-gradient(360px 320px at 100% 80%, #d4efe9, transparent 70%); }
+header { background: var(--ink); color: var(--bg); border-radius: 22px; padding: 20px 18px; display: grid; gap: 14px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 700 34px/1 Fredoka, sans-serif; }
+.logo svg { width: 32px; height: 32px; }
+.dots { display: inline-flex; gap: 4px; } .dots i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.lead { font: 700 19px/1.35 Fredoka, sans-serif; color: var(--mustard); margin: 0; }
+.pitch { font-size: 15px; line-height: 1.5; margin: 0; }
+.prices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.price { background: var(--bg); color: var(--ink); border-radius: 16px; padding: 10px 12px; border: 2px solid var(--c); box-shadow: 4px 4px 0 var(--c); }
+.price b { display: block; font: 700 14px Fredoka, sans-serif; }
+.price span { font: 700 26px Fredoka, sans-serif; } .price small { font-size: 11.5px; color: var(--muted); display: block; line-height: 1.35; }
+.how { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.how div { background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: 8px 6px; text-align: center; font: 700 12.5px Fredoka, sans-serif; border-top: 7px solid var(--c); }
+.how div small { display: block; font: 600 10.5px Nunito, sans-serif; color: var(--muted); }
+.sect { font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 6px 2px -8px; }
+.cell { background: #fff; border: 2px solid var(--ink); border-radius: 18px; overflow: hidden; box-shadow: 5px 5px 0 var(--c); }
+.cell h3 { margin: 0; padding: 9px 12px 8px; font: 700 17px Fredoka, sans-serif; background: var(--c); border-bottom: 2px solid var(--ink); display: flex; gap: 8px; align-items: center; }
+.cell h3 em { font: 600 11px "IBM Plex Mono", monospace; font-style: normal; background: #fff7e8; border: 1.5px solid var(--ink); border-radius: 999px; padding: 1px 8px; }
+.cell p { margin: 0; padding: 9px 12px; font-size: 14px; line-height: 1.45; border-bottom: 2px solid var(--ink); background: #fffdf8; }
+.cell img { width: 100%; display: block; }
+.phones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; background: var(--bg); }
+.phones img { border: 2px solid var(--ink); border-radius: 18px; }
+footer { text-align: center; font-size: 12px; color: var(--muted); line-height: 1.5; padding: 4px 8px 0; }
+footer b { font: 700 16px Fredoka, sans-serif; color: var(--ink); display: block; margin-bottom: 2px; }
+</style></head><body><div class="wrap">
+<header>
+  <div class="logo"><svg viewBox="0 0 24 24"><path d="M5 21V4" stroke="#fff7e8" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3.4 4L18 12H5" fill="#e8806f"/></svg>fieldwork <span class="dots"><i style="background:var(--mint)"></i><i style="background:var(--mustard)"></i><i style="background:var(--lavender)"></i></span></div>
+  <p class="lead">Turn any web page into something you can read at a glance, and into finished, sourced work.</p>
+  <p class="pitch">Fieldwork is a browser extension and web app for students and professionals. AI pulls a page's facts into study guides, competitor reports, slide decks and spreadsheets, and every fact links to the exact quote that proves it.</p>
+  <div class="prices">
+    <div class="price" style="--c:var(--mint)"><b>Student</b><span>$9</span>/mo<small>or $90/year<br>3-day free trial</small></div>
+    <div class="price" style="--c:var(--lavender)"><b>Professional</b><span>$24</span>/mo<small>or $240/year<br>3-day free trial</small></div>
+  </div>
+</header>
+<div class="how">
+  <div style="--c:var(--mint)">See<small>clean view</small></div>
+  <div style="--c:var(--mustard)">Snip<small>save facts</small></div>
+  <div style="--c:var(--coral)">Extract<small>AI builds</small></div>
+  <div style="--c:var(--lavender)">Deliver<small>PDF · deck · Excel</small></div>
+</div>
+
+<div class="sect">The browser extension</div>
+<div class="cell" style="--c:var(--coral)"><h3><em>1</em>Messy page, cleaned up</h3><p>One click gathers prices, fees and fine print from all over a page into one clear screen.</p><img src="../mockups/03-after-chunks-view.png"></div>
+<div class="cell" style="--c:var(--mint)"><h3><em>2</em>Side panel on any website</h3><p>Your project sits next to the page while you browse, with snips from every open tab.</p><img src="../mockups/v2/01-desktop-side-panel.png"></div>
+<div class="cell" style="--c:var(--mustard)"><h3><em>3</em>Snip on the page</h3><p>Highlight any text and tap Snip. It's saved with its source automatically.</p><img src="../mockups/v2/02-desktop-snip-on-page.png"></div>
+
+<div class="sect">The workspace</div>
+<div class="cell" style="--c:var(--lavender)"><h3><em>4</em>Home</h3><p>Your projects and ready-made templates for reports, study guides and pricing tables.</p><img src="../screenshots/redesign/02-home-cards.png"></div>
+<div class="cell" style="--c:var(--mint)"><h3><em>5</em>Lens</h3><p>Read any captured page with the proof behind every fact highlighted.</p><img src="../screenshots/redesign/03-pro-lens.png"></div>
+<div class="cell" style="--c:var(--coral)"><h3><em>6</em>Extract</h3><p>Say what you need. The AI reads your pages and builds it, checking every quote.</p><img src="../screenshots/redesign/05-pro-extract-running.png"></div>
+<div class="cell" style="--c:var(--mustard)"><h3><em>7</em>Datasets</h3><p>Companies, prices, features and more, in tables where every row shows its evidence.</p><img src="../screenshots/redesign/04-pro-datasets.png"></div>
+<div class="cell" style="--c:var(--sage)"><h3><em>8</em>Scrapbook</h3><p>All your snips as a board, table, notebook or pin board, grouped how you like.</p><img src="../screenshots/scrapbook/02-pro-board-by-company.png"></div>
+<div class="cell" style="--c:var(--lavender)"><h3><em>9</em>Deliverable</h3><p>A finished report, ready to download as PDF, PowerPoint or Excel.</p><img src="../screenshots/redesign/01-pro-deliverable.png"></div>
+<div class="cell" style="--c:var(--coral)"><h3><em>10</em>Plans &amp; checkout</h3><p>Student or Professional, monthly or yearly, starting with a free trial.</p><img src="../screenshots/redesign/07-checkout.png"></div>
+
+<div class="sect">On phones</div>
+<div class="cell" style="--c:var(--mint)"><h3><em>11</em>iPhone, iPad and Android</h3><p>The Lens in iPhone Safari, the mobile web app, and "Share to Fieldwork" on Android.</p>
+  <div class="phones"><img src="../mockups/v2/04-iphone-safari-lens-sheet.png"><img src="../screenshots/phone/03-scrapbook-board.png"><img src="../mockups/v2/06-android-share-to-fieldwork.png"><img src="../mockups/v2/07-android-fieldwork-opened.png"></div></div>
+
+<footer><b>Fieldwork</b>Prototype screens. Sample brands are made up, and prices are placeholders.</footer>
+</div></body></html>
