@@ -65,5 +65,5 @@ At launch volumes, the AWS side is a few dollars a month: Secrets Manager is abo
 ## Before public launch
 
 - **App attestation.** Add Apple App Attest and Google Play Integrity checks so only the real app can call the service.
-- **Paid plans.** Connect RevenueCat's webhook to a DynamoDB entitlements record and raise the daily cap for Student and Pro.
+- **Paid plans.** Connect RevenueCat's webhook to a DynamoDB entitlements record and raise the daily cap to 30 for Pro.
 - **Edge protection.** If abuse shows up, put CloudFront and AWS WAF rate rules in front of the function URL.

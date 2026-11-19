@@ -39,7 +39,7 @@ export default function Home() {
         />
         {error && <Body style={{ color: t.likely }}>{error}</Body>}
         <PromoCard
-          tone="mist"
+          tone="peach"
           text="Not sure what a read looks like? Try one on an example story."
           action={<Pill kind="dark" label="See an example" onPress={showExample} />}
           art={<Art name="bubble" color={t.ink} accent={t.brand} />}
@@ -73,18 +73,18 @@ export default function Home() {
             <Icon name="tag" color={t.brand} size={20} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontFamily: fonts.displayBold, fontSize: 16, color: t.ink }}>Plans for students and pros</Text>
-            <Body muted style={{ fontSize: 14 }}>More decodes, whole threads, and sharing.</Body>
+            <Text style={{ fontFamily: fonts.displayBold, fontSize: 16, color: t.ink }}>Subtext Pro</Text>
+            <Body muted style={{ fontSize: 14 }}>30 decodes a day, whole threads, and sharing. 3 days free.</Body>
           </View>
         </Pressable>
       </Section>
 
       <Section title="How Subtext reads">
         <PromoCard
-          tone="plum"
+          tone="butter"
           text="Subtext reads posts, not people. Every read cites its evidence and shows other ways to take it."
-          action={<Pill kind="light" label="Our principles" onPress={() => router.push("/about")} />}
-          art={<Art name="quote" color={t.onColor} accent={t.plum} />}
+          action={<Pill kind="dark" label="Our principles" onPress={() => router.push("/about")} />}
+          art={<Art name="quote" color={t.brand} accent={t.brand} />}
         />
       </Section>
       <Body muted style={{ textAlign: "center", fontSize: 12.5, marginTop: 30 }}>

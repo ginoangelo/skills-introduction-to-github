@@ -11,7 +11,7 @@ Built with Expo (React Native) and Expo Router, using the Subtext design: big ti
 | About: principles, privacy, mode | `src/app/(tabs)/about.tsx` |
 | Add context, then decoding | `src/app/decode.tsx` |
 | Your read (result card) | `src/app/read/[id].tsx` |
-| Plans (paywall, draft pricing) | `src/app/plans.tsx` |
+| Plans: one Pro plan, 3-day trial (draft pricing) | `src/app/plans.tsx` |
 | Tab bar | `src/app/(tabs)/_layout.tsx` |
 
 Design tokens (colors, fonts) live in `src/lib/theme.ts`.

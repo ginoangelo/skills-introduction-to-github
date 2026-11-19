@@ -29,7 +29,7 @@ export function BrandBar() {
       <View style={styles.wordmark}>
         <View style={[styles.mark, { backgroundColor: t.brand }]}>
           <View style={[styles.markLine, { width: 16, top: 9 }]} />
-          <View style={[styles.markLine, { width: 10, top: 16, opacity: 0.7 }]} />
+          <View style={[styles.markLine, { width: 10, top: 16, backgroundColor: t.markAccent }]} />
         </View>
         <Text style={[styles.wordmarkText, { color: t.ink }]}>Subtext</Text>
       </View>
@@ -102,12 +102,12 @@ export function Pill({ label, onPress, kind = "dark", block, disabled }: { label
   );
 }
 
-export function PromoCard({ tone, text, action, art, hint }: { tone: "brand" | "plum" | "mist"; text: string; action: ReactNode; art: ReactNode; hint?: string }) {
+export function PromoCard({ tone, text, action, art, hint }: { tone: "brand" | "peach" | "butter"; text: string; action: ReactNode; art: ReactNode; hint?: string }) {
   const t = useTheme();
-  const bg = tone === "brand" ? t.brand : tone === "plum" ? t.plum : t.mist;
-  const fg = tone === "mist" ? t.ink : t.onColor;
+  const bg = tone === "brand" ? t.brand : tone === "peach" ? t.peach : t.butter;
+  const fg = tone === "brand" ? t.onColor : t.ink;
   return (
-    <View style={[styles.promo, { backgroundColor: bg, minHeight: tone === "mist" ? 140 : 168 }]}>
+    <View style={[styles.promo, { backgroundColor: bg, minHeight: tone === "peach" ? 140 : 168 }]}>
       <View style={styles.promoCopy}>
         <Text style={[styles.promoText, { color: fg }]}>{text}</Text>
         {action}

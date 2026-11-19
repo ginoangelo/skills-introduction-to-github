@@ -2,6 +2,15 @@
 
 Everything in one place: what's built, what's next and who does it, plus marketing and email ideas. Updated 2026-11-19.
 
+## Pricing and look
+
+| Plan | Price | Decodes a day | Trial |
+| --- | --- | --- | --- |
+| Free | $0 | 3 | None |
+| Pro | $6.99 a month or $39.99 a year | 30 | 3 days free |
+
+The look is sunset, light touch: warm white background, violet as the lead color, peach and butter-yellow cards, black buttons. The example story is a generic story with no platform branding.
+
 ## Where things live
 
 | Folder | What it is |
@@ -13,7 +22,7 @@ Everything in one place: what's built, what's next and who does it, plus marketi
 
 ## What's built and tested
 
-- **Phone app.** Home, decode with context chips, the result card, history with search, About, and the Plans screen.
+- **Phone app.** Home, decode with context chips, the result card, history with search, About, and the Plans screen with one Pro plan and a 3-day trial.
 - **Share sheet.** Screenshots can be shared to Subtext from Instagram, Threads, or Photos on iPhone and Android. The native projects generate correctly. It needs a real device build to try.
 - **First-decode consent and "Flag this read."** Both stores expect these for AI features.
 - **AWS backend.** It enforces the free daily cap per install and per network, and logs no content.
@@ -28,7 +37,7 @@ Everything in one place: what's built, what's next and who does it, plus marketi
 | 3 | Deploy the backend to your AWS account and add the Anthropic key | Me, with your AWS sign-in | 1 hour |
 | 4 | Put the backend URL in the app and make the first device builds | Me | 1 day |
 | 5 | Accuracy check on about 200 real screenshots, rated by people. Gate: 70% rated accurate | Both | 1 week |
-| 6 | App attestation, RevenueCat billing for the Plans screen, AWS Budgets alert | Me | 1 to 2 weeks |
+| 6 | App attestation, RevenueCat billing for the Plans screen, the 30-a-day Pro cap on the backend, AWS Budgets alert. Create the Pro subscription in both stores with a 3-day free trial | Me, with you in the store consoles | 1 to 2 weeks |
 | 7 | Privacy policy, terms, support page on your domain. Lawyer reviews terms and read wording | Me drafting, lawyer reviewing | Alongside 5 and 6 |
 | 8 | Testing: iPhone through TestFlight. Android closed test with at least 12 testers for 14 days in a row (new personal Play accounts) | You recruit, I set up | 2 weeks |
 | 9 | Store listings: screenshots, descriptions, privacy forms, age rating, review notes about safeguards | Me | 2 to 3 days |
@@ -44,12 +53,12 @@ Start recruiting Android testers now. The 14-day closed test is the step most li
 
 1. **Short videos on TikTok, Reels, and Shorts.** Screen-record a decode of a made-up cryptic story: "My friend posted this two hours after our fight." Show the read land. Run one series called "Decode the group chat."
 2. **Creator partnerships.** Dating, friendship, and relationship-advice creators decode posts their followers send in, with permission. Pay per video or give a revenue share code.
-3. **Campus ambassadors for the Student plan.** One ambassador per campus with a referral code, at a low cost per student.
-4. **Waitlist with referrals.** A landing page where sharing your link moves you up the list. Early members get one month of Pro free.
+3. **Campus ambassadors.** One ambassador per campus with a discount code for Pro. Both stores support offer codes, so students get a deal without a separate plan.
+4. **Waitlist with referrals.** A landing page where sharing your link moves you up the list. Early members get a month of Pro free.
 5. **App Store search.** Store name "Subtext: Read Between the Lines." Words to target: caption meaning, is this about me, subtweet, story meaning, shade, sneak diss.
 6. **Launch day.** Product Hunt and Reddit communities about dating and social media, plus a short founder story video.
 7. **Privacy as a selling point.** "We don't keep your screenshots." Most AI apps can't say that, and it's true here.
-8. **For Pro: professionals.** LinkedIn posts aimed at social media managers and creators: "Read the comment section before it reads you."
+8. **Creators and social media managers.** LinkedIn posts that pitch Pro's whole-thread decodes: "Read the comment section before it reads you."
 9. **The built-in loop, after launch.** The blurred share card carries a "Decoded with Subtext" tag that spreads the app every time someone shares a read.
 
 ## Email setup
@@ -71,11 +80,11 @@ Subject: Your Subtext beta is ready
 
 **3. Launch announcement**
 Subject: Subtext is live
-> Read between the lines. Subtext is now on the App Store and Google Play. Your first 3 decodes every day are free. Students get 15 a day for {student_price}.
+> Read between the lines. Subtext is now on the App Store and Google Play. Your first 3 decodes every day are free. Pro gives you 30 a day, whole-thread decodes, and blurred share cards, free for 3 days.
 
-**4. Student plan nudge, 3 days after install**
-Subject: Decoding a lot? There's a student plan
-> Students get 15 decodes a day, follow-up questions, and blurred share cards for {student_price}. Verify with your school email in the app.
+**4. Pro nudge, after someone hits the free limit twice**
+Subject: Out of free decodes again?
+> Pro gives you 30 decodes a day, whole-thread reads, and blurred share cards. Try it free for 3 days, then $6.99 a month or $39.99 a year. Cancel any time.
 
 **5. Monthly newsletter, "Decoded"**
 Subject: 3 posts, decoded

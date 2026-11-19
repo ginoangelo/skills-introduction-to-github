@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1e4dff"
+      "backgroundColor": "#7a3ed6"
     },
     "ios": {
       "bundleIdentifier": "app.subtext.mobile",
@@ -28,7 +28,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png",
-        "backgroundColor": "#1e4dff"
+        "backgroundColor": "#7a3ed6"
       },
       "edgeToEdgeEnabled": true
     },

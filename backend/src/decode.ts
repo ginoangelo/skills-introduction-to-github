@@ -87,8 +87,8 @@ export const SAMPLE_RESULT: DecodeResult = {
   refused: false,
   refusal_reason: "",
   legibility: "clear",
-  platform: "Instagram story (sample)",
-  literal: 'A story with the text "some people only miss you when they need something" and the song "thank u, next" playing.',
+  platform: "Story post (sample)",
+  literal: 'A story on a sunset background with the text "some people only miss you when they need something" and the song "thank u, next" playing.',
   meaning: "This reads as a pointed post about one person, not a general mood. The poster is signaling they're done with someone, without naming them.",
   aimed_at_you: { verdict: "Possibly", reason: "It's clearly aimed at someone, but there's no way to tell from the screenshot alone whether that someone is you." },
   evidence: [
