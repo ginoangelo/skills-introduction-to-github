@@ -1,0 +1,1523 @@
+<title>Moodspace</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Fredoka:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a viewer for web pages. You set a lens once (who's watching, mood, need, delivery);
+   each page you bring becomes cards in a full-screen 3D world. Mood picks the view (Tide,
+   Tunnel, Constellation, Arena); audience picks reading level, type size and extras. */
+:root {
+  --bg0: #0d0b1c; --bg1: #1d1440;
+  --ink: #eef0f6; --muted: #a6a9c4;
+  --accent: #c39bff; --accent2: #6fe3ff;
+  --card: rgba(24, 20, 52, 0.86); --line: rgba(195, 155, 255, 0.35);
+  --radius: 14px; --head-weight: 700; --body-size: 15px; --lh: 1.6;
+  --display: "Syne", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+body[data-mood="calm"] {
+  --bg0: #071a20; --bg1: #0f3540; --ink: #e8f4f2; --muted: #9cc0bb;
+  --accent: #82d9cb; --accent2: #f3d6a4; --card: rgba(11, 42, 48, 0.82); --line: rgba(130, 217, 203, 0.28);
+  --radius: 26px; --head-weight: 500; --body-size: 17px; --lh: 1.75;
+}
+body[data-mood="focused"] {
+  --bg0: #0c0d10; --bg1: #191b21; --ink: #f4f3ee; --muted: #9a9ca4;
+  --accent: #ffb547; --accent2: #f4f3ee; --card: rgb(22, 23, 28); --line: rgba(244, 243, 238, 0.22);
+  --radius: 3px; --head-weight: 700; --body-size: 16px; --lh: 1.65;
+}
+body[data-mood="energized"] {
+  --bg0: #1a0707; --bg1: #3b0d0a; --ink: #fff4ea; --muted: #f0b9a4;
+  --accent: #ff5b35; --accent2: #ffd23f; --card: rgba(46, 12, 10, 0.94); --line: rgba(255, 210, 63, 0.7);
+  --radius: 0px; --head-weight: 800; --body-size: 16px; --lh: 1.45;
+}
+body[data-audience="kids"] {
+  --display: "Fredoka", "Trebuchet MS", system-ui, sans-serif; --body: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --body-size: 19px; --lh: 1.55; --head-weight: 600; --radius: 28px;
+}
+body[data-audience="adults"] { --body-size: 15px; }
+body[data-audience="seniors"] {
+  --display: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --body-size: 23px; --lh: 1.6; --head-weight: 700; --ink: #ffffff; --muted: #dcdce4; --line: rgba(255,255,255,.55);
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden; color: var(--ink); font-family: var(--body);
+  background: radial-gradient(120% 90% at 50% 40%, var(--bg1), var(--bg0) 70%);
+  background-color: var(--bg0);
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+
+#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#stage { position: fixed; inset: 0; perspective: 1000px; overflow: hidden; touch-action: none; cursor: grab; }
+#stage.dragging { cursor: grabbing; }
+#world { position: absolute; left: 50%; top: 46%; width: 0; height: 0; transform-style: preserve-3d; }
+
+.card { position: absolute; left: 0; top: 0; width: 360px; transition: transform 1.3s cubic-bezier(.2,.75,.15,1), opacity .7s; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.card.enter { opacity: 0; }
+.face {
+  opacity: var(--fog, 1); transition: opacity .4s, box-shadow .4s, border-color .4s;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 26px 26px 22px; display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 30px 80px -30px rgba(0,0,0,.7);
+}
+.card.dim .face { opacity: calc(var(--fog, 1) * .18); }
+.card.active .face { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 40px 90px -30px rgba(0,0,0,.8); }
+body[data-mood="calm"] .face { box-shadow: 0 0 60px -10px rgba(130,217,203,.18); }
+body[data-mood="energized"] .face { border-width: 2px; box-shadow: 10px 10px 0 var(--accent); }
+body[data-mood="curious"] .face { border-style: dashed; }
+.meta { display: flex; justify-content: space-between; gap: 8px; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.meta b { color: var(--accent); font-weight: 500; }
+.card h2 { margin: 0; font: var(--head-weight) 25px/1.15 var(--display); text-wrap: balance; letter-spacing: -.01em; }
+.card h1 { margin: 0; font: 800 38px/1.02 var(--display); text-wrap: balance; letter-spacing: -.02em; }
+body[data-mood="energized"] .card h2 { text-transform: uppercase; font-size: 27px; letter-spacing: .01em; }
+body[data-audience="kids"] .card h1 { font-weight: 700; font-size: 40px; }
+body[data-audience="kids"] .card h2 { font-size: 30px; text-transform: none; letter-spacing: 0; }
+body[data-audience="kids"] .card { width: 380px; }
+body[data-audience="seniors"] .card { width: 470px; }
+body[data-audience="seniors"] .card h1 { font-size: 46px; line-height: 1.08; }
+body[data-audience="seniors"] .card h2 { font-size: 34px; text-transform: none; letter-spacing: 0; }
+body[data-audience="seniors"] .face { border-width: 2px; border-style: solid; padding: 34px; box-shadow: none; }
+body[data-audience="seniors"] .meta { font-size: 14px; color: var(--ink); }
+body[data-audience="seniors"] .btn { font-size: 17px; padding: 13px 22px; border-width: 2px; }
+body[data-audience="seniors"] #status { font-size: 15px; color: var(--ink); }
+body[data-audience="seniors"] .card mark { box-shadow: none; background: var(--accent); color: #000; padding: 0 3px; }
+.words { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.words span { font: 600 15px/1 var(--body); letter-spacing: .02em; text-transform: none; color: var(--accent2); border: 1px dashed var(--line); border-radius: 10px; padding: 6px 9px; }
+.takeaway { font: 600 13px/1.4 var(--body); color: var(--accent2); border-left: 3px solid var(--accent2); padding-left: 10px; }
+.quiz p { font-size: calc(var(--body-size) + 2px); }
+.blank { display: inline-block; min-width: 3.5em; border-bottom: 3px solid var(--accent); color: transparent; }
+.quiz.shown .blank { color: var(--accent); min-width: 0; }
+.reveal { justify-self: start; align-self: flex-start; border: 0; border-radius: 999px; padding: 9px 16px; background: var(--accent); color: var(--bg0); font-weight: 600; font-size: 14px; }
+.quiz.shown .reveal { display: none; }
+body[data-mood="calm"] .card h1 { font-weight: 500; }
+.card p { margin: 0; font-size: var(--body-size); line-height: var(--lh); }
+.card .lede { color: var(--muted); }
+.card mark { background: none; color: var(--ink); box-shadow: inset 0 -.5em 0 color-mix(in srgb, var(--accent) 38%, transparent); }
+.card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.card li { font-size: var(--body-size); line-height: 1.4; padding-left: 22px; position: relative; }
+.card li::before { content: ""; position: absolute; left: 0; top: .5em; width: 10px; height: 3px; background: var(--accent); }
+.big { font: 800 60px/0.95 var(--display); color: var(--accent); letter-spacing: -.03em; overflow-wrap: anywhere; }
+.big.long { font-size: 42px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
+.chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 5px 10px; font: 500 11px/1 var(--mono); letter-spacing: .04em; color: var(--accent2); }
+.chip:hover, .chip.on { background: var(--accent2); color: var(--bg0); }
+
+/* Page-type cards */
+:root { --up: #5be49b; --down: #ff7a7a; }
+.face .sub { font: 500 12px/1.4 var(--mono); color: var(--accent2); letter-spacing: .02em; overflow-wrap: anywhere; }
+.big.huge { font-size: 110px; line-height: .85; white-space: nowrap; }
+.x-product .big, .x-item .big, .x-total .big, .x-metric .big, .x-finale .big { white-space: nowrap; overflow-wrap: normal; font-size: 46px; }
+.cta { align-self: flex-start; display: inline-block; background: var(--accent); color: var(--bg0); border-radius: 999px; padding: 10px 18px; font: 600 14px/1 var(--body); }
+.x-door .cta, .x-post .cta, .x-result .cta { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.x-door h2 { font-size: 30px; }
+.x-hero h1, .x-lost h1 { font-size: 32px; overflow-wrap: anywhere; }
+.x-finale { border-width: 2px; border-color: var(--accent); }
+.x-finale .cta { font-size: 17px; padding: 14px 24px; }
+.x-query h1 { font-size: 30px; }
+.x-query h1::before { content: "⌕ "; color: var(--accent); }
+.x-frame { border-width: 10px; border-color: color-mix(in srgb, var(--ink) 12%, var(--card)); }
+.x-lost { text-align: left; }
+.trend { font: 600 14px/1 var(--mono); }
+.trend.up, .bars b.up { color: var(--up); } .trend.down { color: var(--down); }
+.rows { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 0; font-size: var(--body-size); }
+.rows dt { color: var(--muted); font: 500 12px/1.6 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+.rows dd { margin: 0; overflow-wrap: anywhere; }
+.bars { display: grid; gap: 10px; }
+.barrow { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 13px; }
+.barrow i { height: 8px; border-radius: 4px; background: var(--up); width: var(--w); }
+.barrow i.down { background: var(--down); }
+.barrow b { font: 500 12px/1 var(--mono); }
+.field { display: grid; gap: 6px; }
+.field span { font-size: 13px; color: var(--muted); }
+.field i { height: 42px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.04); }
+#tryType { border: 1px solid var(--line); background: rgba(0,0,0,.35); color: var(--ink); border-radius: 999px; padding: 9px 14px; font-size: 13px; max-width: 100%; }
+#ptypeSel { background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--ink); }
+.typehow { font-size: 13px; color: var(--muted); }
+
+/* Lessons */
+.lesson .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice { border: 1px solid var(--line); background: rgba(255,255,255,.05); color: var(--ink); border-radius: 10px; padding: 10px 14px; font: 600 15px/1.2 var(--body); text-align: left; }
+.choice:hover:not([disabled]) { border-color: var(--accent); }
+.choice.right, .sortrow.right .choice.right, .orderitem.right { background: color-mix(in srgb, var(--up) 22%, transparent); border-color: var(--up); }
+.choice.wrong, .orderitem.wrong { background: color-mix(in srgb, var(--down) 22%, transparent); border-color: var(--down); }
+.choice[disabled] { cursor: default; opacity: 1; }
+.fb { font-size: 14px; line-height: 1.45; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.05); }
+.fb b { display: block; margin-bottom: 2px; }
+.fb.ok b { color: var(--up); } .fb.no b { color: var(--down); }
+.fb span { color: var(--muted); }
+.hint { color: var(--muted); font-size: 14px !important; }
+.goals { display: grid; gap: 8px; }
+.goals > span { font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent2); }
+.sortrows { display: grid; gap: 12px; }
+.sortrow { display: grid; gap: 6px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.sortrow p { font-size: 14px !important; line-height: 1.45 !important; }
+.orderlist { display: grid; gap: 8px; }
+.orderitem { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; text-align: left; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--ink); border-radius: 10px; padding: 10px; font: 400 14px/1.4 var(--body); }
+.orderitem b { font: 700 16px/1.2 var(--display); color: var(--accent); }
+.orderitem.on { border-color: var(--accent); }
+.lesson textarea, .lesson input { width: 100%; box-sizing: border-box; background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink); font: 400 15px/1.45 var(--body); }
+.lesson textarea { resize: vertical; min-height: 96px; }
+.lesson .field { display: grid; gap: 6px; }
+.lesson .field.row { grid-template-columns: 74px 1fr; align-items: center; }
+.lesson .field span { font-size: 13px; color: var(--muted); }
+.count { font: 400 12px/1.3 var(--mono); color: var(--muted); }
+.quote { font-style: italic; color: var(--muted); }
+.checks { display: grid; gap: 6px; }
+.check { text-align: left; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
+.check.on { border-color: var(--up); color: var(--up); }
+.verdict { font-weight: 600; }
+.timeline { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; border-left: 3px solid var(--accent); padding-left: 14px; }
+.timeline li { display: grid; gap: 2px; }
+.timeline b { font: 700 15px/1.2 var(--mono); color: var(--accent); }
+.cites { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
+.badge { align-self: flex-start; background: var(--accent2); color: var(--bg0); border-radius: 999px; padding: 8px 14px; font: 700 14px/1 var(--display); }
+.card:has(.lesson) { width: 400px; }
+body[data-audience="seniors"] .card:has(.lesson) { width: 480px; }
+#nbList { display: grid; gap: 14px; max-height: 50vh; overflow: auto; }
+.nbgroup h4 { margin: 0 0 6px; font: 700 15px/1.2 var(--display); }
+.nbrow { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.nbrow p { margin: 0; font-size: 14px; color: var(--ink) !important; overflow-wrap: anywhere; }
+.nbrow .tag { font: 500 10px/1.8 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--accent2); }
+.nbrow .x { border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; }
+.x-quote p { font-size: calc(var(--body-size) + 3px); font-style: italic; }
+.x-source .rows { font-size: 14px; }
+
+/* Chrome */
+.bar { position: fixed; left: 0; right: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#top { top: 0; padding-block: calc(14px + env(safe-area-inset-top, 0px)) 10px; background: linear-gradient(var(--bg0), transparent); }
+.brand { font: 800 20px/1 var(--display); letter-spacing: -.02em; display: flex; align-items: center; gap: 9px; }
+.brand i { width: 14px; height: 14px; border-radius: 50%; background: conic-gradient(var(--accent), var(--accent2), var(--accent)); display: inline-block; }
+.address { flex: 1 1 200px; min-width: 0; display: flex; align-items: center; border: 1px solid var(--line); background: rgba(0,0,0,.25); border-radius: 999px; padding: 8px 14px; font: 400 12px/1.2 var(--mono); color: var(--muted); }
+.address span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.address b { color: var(--accent2); font-weight: 500; }
+.address em { color: var(--accent); font-style: normal; }
+.btn { border: 1px solid var(--line); background: rgba(0,0,0,.3); border-radius: 999px; padding: 9px 16px; font-weight: 600; font-size: 13px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--bg0); border-color: var(--accent); }
+.lens-pill { display: inline-flex; gap: 8px; align-items: center; }
+.lens-pill small { font: 500 11px/1 var(--mono); color: var(--accent2); letter-spacing: .04em; }
+
+#dock { bottom: 0; justify-content: center; gap: 10px; padding-block: 40px calc(16px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(transparent, var(--bg0) 55%); }
+#status { flex-basis: 100%; text-align: center; font: 400 12px/1.4 var(--mono); color: var(--muted); letter-spacing: .04em; }
+.film-btn { display: inline-flex; align-items: center; gap: 8px; }
+.film-btn svg { width: 12px; height: 12px; fill: currentColor; }
+#nav { position: fixed; z-index: 6; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; }
+#trail { position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); top: calc(70px + env(safe-area-inset-top, 0px)); display: flex; gap: 10px; align-items: center; font-size: 13px; background: var(--accent2); color: var(--bg0); border-radius: 999px; padding: 7px 8px 7px 14px; white-space: nowrap; }
+#trail button { border: 0; background: var(--bg0); color: var(--accent2); border-radius: 999px; padding: 4px 10px; font-size: 12px; }
+
+/* Overlays */
+.overlay { position: fixed; z-index: 20; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); overflow: auto; }
+.panel { width: min(760px, 100%); background: var(--bg0); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: grid; gap: 18px; box-sizing: border-box; }
+.panel h3 { margin: 0; font: 800 clamp(26px, 4vw, 34px)/1.05 var(--display); letter-spacing: -.02em; }
+.panel p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 14px; max-width: 62ch; }
+.opts { display: grid; gap: 8px; }
+.opts > span { font: 500 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.opts .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.opt { text-align: left; border: 1px solid var(--line); background: rgba(255,255,255,.03); border-radius: 12px; padding: 12px 14px; display: grid; gap: 4px; align-content: start; }
+.opt b { font: 700 15px/1.2 var(--display); }
+.opt i { font: 500 10.5px/1 var(--mono); font-style: normal; letter-spacing: .08em; text-transform: uppercase; color: var(--accent2); }
+.opt small { font-size: 12.5px; line-height: 1.35; color: var(--muted); }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 0 0 0 1px var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row .spacer { flex: 1; }
+.note { font-size: 12.5px; color: var(--muted); }
+#src { width: 100%; box-sizing: border-box; min-height: 200px; resize: vertical; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: 400 13px/1.5 var(--mono); }
+#err { color: var(--accent2); font-size: 13px; }
+
+/* Guided tour */
+#film { position: fixed; inset: 0; z-index: 15; pointer-events: none; }
+#film .bars::before, #film .bars::after { content: ""; position: absolute; left: 0; right: 0; height: 13vh; background: #000; transition: transform .8s cubic-bezier(.3,.7,.2,1); }
+#film .bars::before { top: 0; transform: translateY(-100%); }
+#film .bars::after { bottom: 0; transform: translateY(100%); }
+#film.on .bars::before, #film.on .bars::after { transform: none; }
+#caption { position: absolute; left: 50%; bottom: calc(3vh + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(780px, calc(100% - 32px)); text-align: center; font: 500 clamp(15px, 2.2vw, 20px)/1.45 var(--body); color: #fff; text-shadow: 0 2px 12px #000; opacity: 0; transition: opacity .5s; }
+#film.on #caption { opacity: 1; }
+#progress { position: absolute; top: calc(4vh + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); display: flex; gap: 4px; width: min(600px, calc(100% - 180px)); }
+#progress i { flex: 1; height: 3px; background: rgba(255,255,255,.25); border-radius: 2px; position: relative; overflow: hidden; }
+#progress i.done::after, #progress i.now::after { content: ""; position: absolute; inset: 0; background: #fff; }
+#progress i.now::after { animation: fill var(--dur, 6s) linear forwards; transform-origin: left; }
+@keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+#filmctl { display: none; position: absolute; top: calc(2.5vh + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); gap: 6px; pointer-events: auto; }
+#filmctl .btn { background: rgba(0,0,0,.6); color: #fff; border-color: rgba(255,255,255,.3); padding: 7px 12px; font-size: 12px; }
+#film.on #filmctl { display: flex; }
+body.filming #top, body.filming #dock, body.filming #nav { opacity: 0; pointer-events: none; }
+#top, #dock { transition: opacity .5s; }
+
+@media (max-width: 640px) {
+  .card { width: 290px; }
+  .face { padding: 20px; }
+  .card h1 { font-size: 30px; }
+  .big { font-size: 50px; }
+  #world { top: 40%; }
+  .lens-pill small { display: none; }
+  body[data-audience="kids"] .card { width: 300px; }
+  body[data-audience="seniors"] .card { width: 330px; }
+  body[data-audience="seniors"] .card h2 { font-size: 28px; }
+  body[data-audience="seniors"] .face { padding: 22px; }
+  body[data-audience="seniors"] { --body-size: 20px; }
+  #nav { top: auto; bottom: calc(120px + env(safe-area-inset-bottom, 0px)); right: 50%; transform: translateX(50%); flex-direction: row; }
+  .panel { padding: 20px; }
+  .opts .grid { grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card, .face, #film .bars::before, #film .bars::after { transition-duration: .01s; }
+}
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div id="stage" aria-label="3D view of the answer"><div id="world"></div></div>
+
+<header class="bar" id="top">
+  <div class="brand"><i></i>Moodspace</div>
+  <div class="address"><span>lens:// <em id="viewName">constellation</em> / <em id="typeName">article</em> / <b id="addr">midnight-zone</b></span></div>
+  <button class="btn lens-pill" id="openLens">Lens <small id="lensSummary"></small></button>
+</header>
+
+<div id="nav" hidden>
+  <button class="btn" id="prev" aria-label="Previous card">↑ Prev</button>
+  <button class="btn" id="back">Overview</button>
+  <button class="btn" id="next" aria-label="Next card">↓ Next</button>
+</div>
+<div id="trail" hidden><span id="trailText"></span><button id="trailClear">Clear</button></div>
+
+<footer class="bar" id="dock">
+  <div id="status"></div>
+  <label for="tryType" class="sr" hidden>Try a page type</label><select id="tryType" aria-label="Try a sample of a page type"></select>
+  <button class="btn" id="openRemix">Open a page</button>
+  <button class="btn" id="openNb">Notebook</button>
+  <button class="btn primary film-btn" id="play"><svg viewBox="0 0 10 10"><path d="M1 0l9 5-9 5z"/></svg>Watch tour</button>
+</footer>
+
+<div id="film"><div class="bars"></div>
+  <div id="progress"></div>
+  <div id="filmctl"><button class="btn" id="sound">Voice on</button><button class="btn" id="stop">Exit tour</button></div>
+  <div id="caption"></div>
+</div>
+
+<!-- The pre-built filter: set once, applied to everything the guide shows -->
+<div id="lens" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="lh">
+    <h3 id="lh">Set your lens</h3>
+    <p>Every page you open passes through this lens first. It changes how the page is presented, not what it says. Set it once and change it any time from the Lens button.</p>
+    <div class="opts"><span>Who's watching?</span><div class="grid" data-group="audience">
+      <button class="opt" data-v="kids"><b>Kids</b><i>Ages 6–12</i><small>Big friendly type, short sentences, plain words, tricky words split up, guessing games</small></button>
+      <button class="opt" data-v="teens"><b>Teens</b><i>Ages 13–17</i><small>Key takeaway on every card, quick-check questions, seconds-to-read</small></button>
+      <button class="opt" data-v="adults"><b>Adults</b><i>18+</i><small>The full text, denser layout, nothing added</small></button>
+      <button class="opt" data-v="seniors"><b>Seniors</b><i>65+</i><small>Extra-large text, high contrast, big buttons, slower voice, less motion</small></button>
+    </div></div>
+    <div class="opts"><span>How do you feel?</span><div class="grid" data-group="mood">
+      <button class="opt" data-v="calm"><b>Calm</b><i>Tide view</i><small>A slow spiral. Gentle pace, fewer words</small></button>
+      <button class="opt" data-v="focused"><b>Focused</b><i>Tunnel view</i><small>One idea at a time, key line highlighted</small></button>
+      <button class="opt" data-v="curious"><b>Curious</b><i>Constellation view</i><small>Linked ideas floating around you</small></button>
+      <button class="opt" data-v="energized"><b>Energized</b><i>Arena view</i><small>A bold wall of punchy bullets</small></button>
+    </div></div>
+    <div class="opts"><span>What do you need?</span><div class="grid" data-group="need">
+      <button class="opt" data-v="quick"><b>Quick answer</b><small>The point in under a minute</small></button>
+      <button class="opt" data-v="deep"><b>Deep dive</b><small>The full story, section by section</small></button>
+      <button class="opt" data-v="facts"><b>Just the facts</b><small>Numbers and hard facts only</small></button>
+    </div></div>
+    <div class="opts"><span>How should it reach you?</span><div class="grid" data-group="delivery">
+      <button class="opt" data-v="tour"><b>Guided tour</b><small>Flies you through the page and reads it aloud</small></button>
+      <button class="opt" data-v="explore"><b>Explore</b><small>You roam the space at your own pace</small></button>
+      <button class="opt" data-v="quiet"><b>Quiet</b><small>No voice. Captions and cards only</small></button>
+      <button class="opt" data-v="lesson"><b>Lesson</b><small>Learn, check, practice and write, step by step</small></button>
+    </div></div>
+    <div class="row"><span class="spacer"></span><button class="btn primary" id="enter">Start watching</button></div>
+  </div>
+</div>
+
+<div id="nb" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="nbh">
+    <h3 id="nbh">My notebook</h3>
+    <p>Words, writing and sources you save in lessons. They stay on this device.</p>
+    <div id="nbList"></div>
+    <div class="row" id="nbConfirm" hidden><span class="note">Delete everything in your notebook?</span><span class="spacer"></span><button class="btn" id="nbNo">Keep it</button><button class="btn primary" id="nbYes">Delete all</button></div>
+    <div class="row"><button class="btn" id="nbClear">Clear notebook</button><span class="spacer"></span><button class="btn" id="nbCopy">Copy all</button><button class="btn primary" id="nbClose">Done</button></div>
+  </div>
+</div>
+
+<div id="drawer" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="dh">
+    <h3 id="dh">Open a page</h3>
+    <p>Copy the text of any web page, public or one you're logged in to, and paste it here, or open a saved page (.html or .txt). Moodspace works out what kind of page it is (home, product, cart, contact and 12 more) and presents it that way, through your lens. Nothing leaves your browser.</p>
+    <textarea id="src" placeholder="Paste a page's text here. Short lines without a full stop become section headings."></textarea>
+    <div class="row"><label class="note" for="ptypeSel">Page type</label><select id="ptypeSel"></select><span class="typehow" id="typeHow"></span></div>
+    <div class="row"><label class="note">Or open a file <input type="file" id="file" accept=".html,.htm,.txt,.md,text/plain,text/html"></label></div>
+    <div id="err" hidden></div>
+    <div class="row"><button class="btn" id="sample">Load the sample</button><span class="spacer"></span><button class="btn" id="cancel">Cancel</button><button class="btn primary" id="remix">Open it</button></div>
+  </div>
+</div>
+
+<script>
+const SAMPLE = `What Lives in the Midnight Zone
+
+Between 1,000 and 4,000 meters below the surface, the ocean goes completely dark. Scientists call this layer the bathypelagic, or midnight zone. It is the largest living space on Earth by volume, and we have seen only a sliver of it.
+
+No sunlight
+
+Sunlight fades fast in seawater. By 200 meters there is too little light for plants to grow, and below 1,000 meters no sunlight reaches at all. Every glow down here is made by an animal.
+
+The water is cold and steady, around 4°C almost everywhere, with little change from season to season. Without plants, the whole food web depends on what drifts down from the surface.
+
+Living light
+
+Bioluminescence is the main language of the deep. A 2017 study of deep-sea video off California found that about 76% of the animals observed could make their own light. They use it to lure prey, find mates and confuse predators.
+
+Some shrimp spit clouds of glowing mucus to blind an attacker. The anglerfish dangles a lure lit by bacteria living inside it. Other animals flash a bright burst of light to startle whatever is about to eat them.
+
+Crushing pressure
+
+Pressure rises by about one atmosphere for every 10 meters of depth. At the bottom of the midnight zone that adds up to roughly 400 times the pressure at the surface.
+
+Animals here have no air spaces to crush. Their bodies are mostly water, with soft bones and loose muscle, which also saves energy in a place where food is scarce.
+
+Marine snow
+
+Food arrives as marine snow: a steady fall of dead plankton, waste and mucus from the sunlit water above. A single flake can take weeks to sink a few thousand meters.
+
+Some of the carbon in this snow gets buried on the seafloor. That makes the deep ocean one of the planet's largest long-term stores of carbon, keeping it out of the atmosphere for centuries.
+
+The daily migration
+
+Every night, billions of animals swim up from the depths to feed near the surface, then sink back before dawn. It is the largest migration on Earth, and it happens every 24 hours.
+
+Lanternfish lead the trip. They are among the most numerous fish on the planet, yet most people have never heard of them.
+
+Still unexplored
+
+Only about a quarter of the seafloor has been mapped in high detail. New species turn up on nearly every deep expedition, and many animals are known from a single blurry video.
+
+The midnight zone is not empty. It is full of light, motion and life, and it is waiting for us to look.`;
+
+const STOP = new Set("about above after again against all also among and any are around because been before being below between both but can could did does down during each even every few for from further had has have here how into its itself just least like made make many more most much near nearly never not now off once only other our out over own same some such than that the their them then there these they this those through too under until upon very was were what when where which while who why will with within would your yours it's isn't one two three part almost little whole".split(" "));
+const $ = s => document.querySelector(s);
+const world = $("#world"), stage = $("#stage");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const KID_WORDS = { approximately: "about", roughly: "about", however: "but", therefore: "so", consequently: "so", additionally: "also", furthermore: "also", utilize: "use", utilizes: "uses", numerous: "lots of", significant: "big", significantly: "a lot", majority: "most", individuals: "people", obtain: "get", require: "need", requires: "needs", sufficient: "enough", commence: "start", purchase: "buy", assist: "help", demonstrate: "show", observed: "seen", substantial: "big", entire: "whole", currently: "now", previously: "before", frequently: "often", rapidly: "fast", extremely: "very", inhabit: "live in", consume: "eat", predators: "hunters", prey: "food animals" };
+const VIEW = { calm: "tide", focused: "tunnel", curious: "constellation", energized: "arena" };
+
+/* ---------- Text into a document ---------- */
+const sentences = t => String(t).replace(/(?<!\b(?:c|ca|Mr|Mrs|Ms|Dr|St|vs|No|approx))([.!?]+["”’)]*)\s+(?=["“(]?[A-Z0-9])/g, "$1\u0001").split("\u0001").map(s => s.trim()).filter(Boolean);
+const words = t => t.toLowerCase().match(/[a-z][a-z'-]{3,}/g) || [];
+const isHead = b => b.length < 90 && !/[.!?:;,"”]$/.test(b) && b.split(/\s+/).length <= 12;
+
+function parse(text) {
+  text = text.replace(/\r/g, "").trim();
+  let blocks = text.split(/\n\s*\n/);
+  if (blocks.length < 3) blocks = text.split(/\n/);
+  blocks = blocks.map(s => s.trim().replace(/\s*\n\s*/g, " ")).filter(b => b.length > 1);
+  let title = null, lede = null, cur = null; const sections = [];
+  blocks.forEach((b, i) => {
+    if (i === 0 && isHead(b)) { title = b; return; }
+    if (isHead(b)) { cur = { h: b, paras: [] }; sections.push(cur); return; }
+    if (!cur) { if (!lede) { lede = b; return; } cur = { h: null, paras: [] }; sections.push(cur); }
+    cur.paras.push(b);
+  });
+  return finish(title, lede, sections.filter(s => s.paras.length));
+}
+// Split long sections into card-sized chunks and find the words that link cards
+function finish(title, lede, sections) {
+  const chunks = [];
+  sections.forEach(s => {
+    let buf = [], n = 0, part = 1;
+    const flush = () => { if (!buf.length) return; chunks.push({ h: s.h, part: part++, paras: buf }); buf = []; n = 0; };
+    s.paras.forEach(p => {
+      const w = p.split(/\s+/).length;
+      if (n + w > 120 && buf.length) flush();
+      if (w > 140) { let acc = ""; sentences(p).forEach(se => { if ((acc + se).split(/\s+/).length > 110) { buf.push(acc.trim()); flush(); acc = ""; } acc += " " + se; }); if (acc.trim()) { buf.push(acc.trim()); n += acc.split(/\s+/).length; } }
+      else { buf.push(p); n += w; }
+    });
+    flush();
+  });
+  chunks.forEach(c => {
+    if (!c.h) c.h = sentences(c.paras[0])[0].split(/\s+/).slice(0, 6).join(" ").replace(/[.,;:]$/, "") + "…";
+    if (c.part > 1) c.h += " (cont.)";
+  });
+  const all = [lede || "", ...chunks.flatMap(c => c.paras)].join(" ");
+  if (!title) title = (lede || all).split(/\s+/).slice(0, 7).join(" ") + "…";
+  const df = {};
+  chunks.forEach(c => new Set(words(c.paras.join(" ")).filter(w => !STOP.has(w))).forEach(w => df[w] = (df[w] || 0) + 1));
+  chunks.forEach(c => {
+    const own = {}; words(c.paras.join(" ")).forEach(w => { if (!STOP.has(w) && df[w] >= 2) own[w] = (own[w] || 0) + 1; });
+    c.keys = Object.keys(own).sort((a, b) => (own[b] * 2 + df[b]) - (own[a] * 2 + df[a])).slice(0, 3);
+    c.text = c.paras.join(" ");
+  });
+  const wc = all.split(/\s+/).length;
+  return { title, lede, chunks, minutes: Math.max(1, Math.round(wc / 230)), words: wc };
+}
+
+/* ---------- Document into cards, by need and mood ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const NUM = /(\d[\d,.]*\s?(?:%|°C|°F|percent|metres|meters|feet|tonnes|tons|km|miles|million|billion|trillion|times|hours|years)?)/;
+
+const kidify = t => sentences(t).map(s => {
+  s = s.replace(/[A-Za-z]+/g, w => { const r = KID_WORDS[w.toLowerCase()]; return r ? (w[0] === w[0].toUpperCase() ? r[0].toUpperCase() + r.slice(1) : r) : w; });
+  const ws = s.split(/\s+/); if (ws.length <= 20) return s;
+  const cut = s.slice(0, s.indexOf(",", 40) > 0 ? s.indexOf(",", 40) : undefined); return (cut.split(/\s+/).length <= 22 ? cut : ws.slice(0, 18).join(" ")).replace(/[,;:]$/, "") + ".";
+}).join(" ");
+const syllables = w => (w.match(/[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi) || [w]).join("·");
+function trickyWords(t) { return [...new Set((t.match(/[A-Za-z]{11,}/g) || []).map(w => w.toLowerCase()))].filter(w => !STOP.has(w)).slice(0, 2); }
+function quizzes(doc, n) {
+  const out = [];
+  doc.chunks.forEach(c => sentences(c.text).forEach(s => { const m = s.match(NUM); if (m && out.length < n && s.split(/\s+/).length < 32) out.push({ kind: "quiz", before: s.slice(0, m.index), answer: m[1].trim(), after: s.slice(m.index + m[1].trim().length) }); }));
+  return out;
+}
+function buildCards(doc, need) {
+  if (state.delivery === "lesson") return lessonFor(doc);
+  if (doc.type && doc.type !== "article") {
+    let cs = typedCards(doc);
+    if (cs) {
+      if (need === "quick") cs = cs.slice(0, 5);
+      else if (need === "facts") { const f = cs.filter(c => /\d/.test([c.big, c.h, c.text, c.trend].join(" "))); if (f.length > 1) cs = f; }
+      return cs;
+    }
+  }
+  const cards = buildBase(doc, need);
+  if (state.audience === "adults" || state.audience === "seniors") return cards;
+  if (state.audience === "kids") cards.forEach(c => { if (c.text) c.text = kidify(c.text); if (c.paras) c.paras = null; if (c.lede) c.lede = kidify(c.lede); if (c.points) c.points = c.points.map(kidify); });
+  if (need !== "facts") { const qs = quizzes(doc, state.audience === "kids" ? 2 : 3); const step = Math.max(2, Math.floor(cards.length / (qs.length + 1))); qs.forEach((q, i) => cards.splice(Math.min(cards.length, (i + 1) * step + i), 0, q)); }
+  return cards;
+}
+function buildBase(doc, need) {
+  const cards = [];
+  const intro = { kind: "title", h: doc.title, lede: doc.lede || sentences(doc.chunks[0]?.text || "")[0] || "" };
+  const firsts = doc.chunks.filter(c => c.part === 1);
+  if (need === "quick") {
+    cards.push({ kind: "tldr", h: doc.title, points: firsts.slice(0, 5).map(c => sentences(c.text)[0]) });
+    firsts.slice(0, 5).forEach(c => cards.push({ kind: "section", h: c.h, text: sentences(c.text).slice(0, 2).join(" "), keys: c.keys }));
+  } else if (need === "facts") {
+    cards.push(intro);
+    const facts = [];
+    [doc.lede || "", ...doc.chunks.map(c => c.text)].forEach((t, i) => sentences(t).forEach(s => { const m = s.match(NUM); if (m && facts.length < 12) facts.push({ kind: "fact", big: m[1].trim(), text: s, keys: doc.chunks[i - 1]?.keys || [] }); }));
+    if (!facts.length) facts.push({ kind: "section", h: "No numbers here", text: "This answer has no figures to pull out. Try a deep dive instead." });
+    cards.push(...facts);
+  } else {
+    cards.push(intro);
+    doc.chunks.forEach(c => cards.push({ kind: "section", h: c.h, text: c.text, paras: c.paras, keys: c.keys }));
+  }
+  return cards;
+}
+function keySentence(text) {
+  const ss = sentences(text); if (ss.length < 2) return -1;
+  let best = 0, score = -1;
+  ss.forEach((s, i) => { const sc = words(s).filter(w => !STOP.has(w)).length + (NUM.test(s) ? 4 : 0); if (sc > score) { score = sc; best = i; } });
+  return best;
+}
+const punch = s => { const w = s.replace(/[.!?]+$/, "").split(/\s+/); return w.length > 14 ? w.slice(0, 13).join(" ") + "…" : w.join(" "); };
+
+function faceHTML(c, i, n, mood) {
+  const secs = Math.max(5, Math.round(((c.text || c.lede || (c.points || []).join(" ") || c.before || "").split(/\s+/).length) / 3.8 / 5) * 5);
+  const label = c.kind === "L" || c.kind === "x" ? c.label : state.audience === "teens" && c.kind === "section" ? `${secs} sec read` : { title: "Topic", tldr: "The short version", section: "Section", fact: "Fact", quiz: state.audience === "kids" ? "Game" : "Quiz" }[c.kind];
+  const meta = `<div class="meta"><span><b>${String(i + 1).padStart(2, "0")}</b> / ${String(n).padStart(2, "0")}</span><span>${label}</span></div>`;
+  let body = "";
+  if (c.kind === "L") body = lessonFace(c, i);
+  else if (c.kind === "x") body = typedFace(c, mood);
+  else if (c.kind === "title") body = `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.lede)}</p><div class="meta"><span>${doc.minutes} min</span><span>${doc.chunks.length} sections</span></div>`;
+  else if (c.kind === "tldr") body = `<h2>${esc(c.h)}</h2><ul>${c.points.map(p => `<li>${esc(mood === "energized" ? punch(p) : p)}</li>`).join("")}</ul>`;
+  else if (c.kind === "quiz") body = `<h2>${state.audience === "kids" ? "Can you guess?" : "Quick check"}</h2><p>${esc(c.before)}<span class="blank">${esc(c.answer)}</span>${esc(c.after)}</p><button class="reveal">${state.audience === "kids" ? "Show me!" : "Reveal"}</button>`;
+  else if (c.kind === "fact") body = `<div class="big${c.big.length > 6 ? " long" : ""}">${esc(c.big)}</div><p>${esc(c.text)}</p>`;
+  else {
+    const ss = sentences(c.text);
+    if (mood === "energized") body = `<h2>${esc(c.h)}</h2><ul>${ss.slice(0, 4).map(s => `<li>${esc(punch(s))}</li>`).join("")}</ul>`;
+    else if (mood === "calm" || state.audience === "kids" || state.audience === "seniors") body = `<h2>${esc(c.h)}</h2><p>${esc(ss.slice(0, 3).join(" "))}</p>`;
+    else if (mood === "focused") { const k = keySentence(c.text); body = `<h2>${esc(c.h)}</h2><p>${ss.map((s, j) => j === k ? `<mark>${esc(s)}</mark>` : esc(s)).join(" ")}</p>`; }
+    else body = `<h2>${esc(c.h)}</h2>${(c.paras || [c.text]).map(p => `<p>${esc(p)}</p>`).join("")}`;
+  }
+  if (c.kind === "section" && state.audience === "teens" && mood !== "focused" && mood !== "energized") { const k = keySentence(c.text); if (k >= 0) body += `<div class="takeaway">Key takeaway: ${esc(sentences(c.text)[k])}</div>`; }
+  if (state.audience === "kids" && (c.kind === "section" || c.kind === "fact")) { const tw = trickyWords(c.text); if (tw.length) body += `<div class="words">Tricky words ${tw.map(w => `<span>${esc(syllables(w))}</span>`).join("")}</div>`; }
+  const chips = c.kind !== "L" && mood === "curious" && c.keys?.length ? `<div class="chips">${c.keys.map(k => `<button class="chip${k === state.trail ? " on" : ""}" data-key="${esc(k)}">↳ ${esc(k)}</button>`).join("")}</div>` : "";
+  return `<div class="face${c.kind === "quiz" ? " quiz" : ""}${c.kind === "x" ? " " + c.style.split(" ").map(x => "x-" + x).join(" ") : ""}${c.kind === "L" ? " lesson L-" + c.step : ""}">${meta}${body}${chips}</div>`;
+}
+
+/* ---------- Page types: the 16 basic kinds of web page ---------- */
+const TYPES = {
+  home: "Home page", feed: "Feed", menu: "Menu page", search: "Search results", about: "About page",
+  registration: "Sign-up page", notfound: "404 page", blog: "Blog page", article: "Article",
+  portfolio: "Portfolio", services: "Services page", product: "Product page", cart: "Cart",
+  statistics: "Statistics", contact: "Contact page", landing: "Landing page",
+  news: "News story", museum: "Museum page", library: "Library page", book: "Book" };
+const TYPE_HOW = {
+  home: "A hub: the welcome first, then each section as a door you can fly into.",
+  feed: "A stream of posts, one after another, each the same shape.",
+  menu: "Every destination becomes a big door. Nothing else on screen.",
+  search: "Your search stays pinned as the first card, then the results in order.",
+  about: "The story, mission, values and people, one at a time.",
+  registration: "The form split into calm steps, one field per card.",
+  notfound: "A clear “you're lost” card, then doors back to safe places.",
+  blog: "Posts as cards with their dates, newest first.",
+  article: "Sections, facts and a reading path.",
+  portfolio: "Each project hung like a framed piece in a gallery.",
+  services: "Each service as a tile with its key points.",
+  product: "The product, price and one button up front, then features and reviews.",
+  cart: "Each item, then one clear total and the checkout button.",
+  statistics: "Each number as a big metric with its trend, plus a comparison card.",
+  contact: "The ways to reach them on one card, nothing else in the way.",
+  landing: "One message, the reasons, then a single big call to action at the end.",
+  news: "The headline and who wrote it, then the story, with quotes set apart.",
+  museum: "A gallery: each object hung in its own frame with its date and material.",
+  library: "Each source as a card with its author, type, year and where to find it.",
+  book: "The story chapter by chapter." };
+
+const SAMPLES = {
+news: `City Library Opens Rooftop Reading Garden
+By Dana Whitfield · Riverside Daily · June 3, 2026
+
+The Riverside Central Library opened a rooftop reading garden on Saturday, giving downtown its first public green space above street level.
+
+The garden covers about 6,000 square feet and holds 40 benches, 120 planters and a small stage for story time. It cost $1.2 million, paid for by a state grant and private donations.
+
+More than 900 people visited on opening day, according to library staff.
+
+"This is the most beautiful place in the city to read a book," said Maria Lopez, a retired teacher who arrived before the doors opened.
+
+Not everyone is pleased. "A garden is nice, but the library closes at 6 pm, and that's unfair to people who work late," said Kevin Park, who lives two blocks away. Some neighbors say the money should have gone to longer opening hours instead.
+
+The library plans free gardening classes for kids every Saturday in July. The garden is open daily from 10 am to 5 pm, weather permitting.`,
+museum: `Ancient Egypt Gallery
+Hall 3 · Second floor · Free with admission
+
+Explore daily life along the Nile through objects made thousands of years ago.
+
+Painted Coffin of Nesmin
+c. 650 BCE · Wood, plaster and paint
+This coffin belonged to a priest named Nesmin. Its bright paint shows gods who were believed to protect him on his journey after death.
+
+Scarab Amulet
+c. 1450 BCE · Glazed stone
+Shaped like a dung beetle, the scarab stood for new life. Egyptians watched beetles roll balls of dung and linked them to the sun being rolled across the sky.
+
+Model of a Bakery
+c. 2000 BCE · Painted wood
+Tiny wooden workers grind grain and bake bread. Models like this were placed in tombs so the owner would have food forever.
+
+Senet Game Board
+c. 1350 BCE · Wood and ivory
+Senet is one of the oldest board games known. Players moved pieces along 30 squares, and the game later became linked to the journey of the soul.`,
+library: `Research Guide: Ocean Animals
+Northside Public Library · Kids and Teens
+
+Start your research here. These sources are at the library or online with your library card.
+
+The Ocean Book
+Author: Sara Mendez
+Type: Book
+Publisher: Bluewater Press
+Year: 2021
+Call number: 591.77 MEN
+An illustrated guide to sea life, from tiny plankton to blue whales.
+
+Whales Under Threat
+Author: James Okoro
+Type: Magazine article
+Publisher: Science Kids Monthly
+Year: 2023
+How noise from ships changes the way whales call to each other.
+
+Ocean Explorer Database
+Type: Database
+Publisher: Northside Public Library
+Year: 2026
+Photos, maps and short articles about thousands of sea creatures. Log in with your library card.
+
+Cool Sea Facts!!!
+Type: Website
+Publisher: Unknown
+Year: Unknown
+A personal page with sea animal facts. No author and no sources listed.`,
+book: `The Tortoise and the Hare
+A fable by Aesop, retold
+
+Chapter 1: The Challenge
+Once upon a time, a Hare was boasting to the other animals about how fast he could run. "Nobody has ever beaten me," he said.
+The Tortoise looked up from his lunch and said quietly that he would race him. The animals laughed, and the Hare laughed loudest of all.
+
+Chapter 2: The Race
+The Fox agreed to be the judge and marked a path through the meadow to the old oak tree. At the signal, the Hare shot ahead and was soon out of sight.
+Halfway along, the Hare looked back and saw no one behind him. He decided he had plenty of time and lay down in the shade for a nap.
+
+Chapter 3: The Finish
+The Tortoise kept walking, one slow step after another, and passed the sleeping Hare.
+When the Hare woke up, the sun was low, and he ran as fast as he could.
+The Tortoise was already crossing the finish line under the oak tree when the Hare arrived.
+The Fox announced the winner, and the Hare learned that slow and steady wins the race.`,
+home: `Harbor & Hearth
+Home goods made by small studios on the coast.
+Shop the winter collection
+Wool throws, stoneware and candles, made in batches of fifty or fewer.
+Meet the makers
+Twelve studios, each within a day's drive of the sea.
+Gift guide
+Ideas under $40, under $80 and for the person who has everything.
+Journal
+Stories from the workshops, recipes and care guides.`,
+feed: `Riverside Running Club
+
+Maya R. · 2h ago
+Sunrise loop done. 8 km along the river and the herons were out in force.
+
+Coach Dan · 5h ago
+Reminder: Thursday intervals move to 6:30 pm because of the bridge works.
+
+Priya S. · Yesterday
+First half marathon booked for April. Who's coming with me?
+
+Club news · 2 days ago
+New members welcome at Saturday's easy 5 km. Meet by the boathouse at 9.
+
+Leo T. · 3 days ago
+Lost a blue water bottle near the 3 km marker. Shout if you find it.`,
+menu: `Northside Public Library
+Find a book
+Your account
+Events this month
+Kids and teens
+Study rooms
+Digital library
+Visit us
+Help`,
+search: `Search results for "sourdough starter"
+
+How to Make a Sourdough Starter in 7 Days
+bakeathome.example/starter
+Flour, water and patience. A day-by-day guide with photos of what your starter should look like.
+
+Why Is My Starter Not Rising?
+breadclinic.example/troubleshooting
+The five most common causes, from cold kitchens to chlorinated water, and how to fix each one.
+
+Feeding Schedules Compared
+crumbjournal.example/feeding
+Once a day, twice a day or once a week in the fridge. Which schedule fits your life.
+
+Starter Hooch: Pour It Off or Stir It In?
+bakeathome.example/hooch
+What the grey liquid on top means and whether it changes the flavor.`,
+about: `About Fieldnote Coffee
+
+We started in 2014 with one used roaster and a garage that smelled like toast.
+
+Our mission
+Pay farmers fairly and roast coffee that tastes like where it comes from. We buy directly from eleven farms in four countries.
+
+What we value
+Short supply chains. Honest prices. Coffee that doesn't need sugar to taste good.
+
+The team
+Ana Ruiz, founder and head roaster. Tom Becker, green coffee buyer. Lin Zhou, cafe manager.
+
+Where we are now
+Two cafes, one roastery and a delivery van named Gerald.`,
+registration: `Create your account
+Join Plotline to plan your garden, track sowing dates and get frost alerts.
+Full name
+Email
+Password
+Confirm password
+Continue with Google
+Continue with Apple
+Create account
+Already have an account? Log in`,
+notfound: `404
+This page wandered off
+The link you followed may be broken, or the page may have moved.
+Go to the home page
+Search the site
+Browse popular guides
+Contact support`,
+blog: `The Trailhead Blog
+
+March 12, 2026 · 6 min read
+Packing for a Spring Hike
+What to bring when the morning is cold and the afternoon is warm, and what to leave in the car.
+
+March 3, 2026 · 4 min read
+Five Quiet Trails Near the City
+Places to walk on a Saturday without the crowds, all under an hour's drive.
+
+February 20, 2026 · 8 min read
+How to Read a Topographic Map
+Contour lines, scale and the one mistake almost everyone makes on their first map.
+
+February 9, 2026 · 3 min read
+Trail Etiquette in Two Minutes
+Who yields to whom, where dogs go and why you should never stack rocks.`,
+article: SAMPLE,
+portfolio: `Ines Okafor · Photography
+
+Salt Flats
+Landscape series · 2025
+Twenty-four frames shot over three dawns in the Atacama desert.
+
+The Night Market
+Documentary · 2024
+Vendors, smoke and neon in Lagos after midnight.
+
+Second Hand
+Portrait series · 2024
+Portraits of people with the oldest object they own.
+
+Quiet Rooms
+Interiors · 2023
+Empty libraries and reading rooms photographed before opening time.`,
+services: `What we do at Brightpath Studio
+
+Brand identity
+- Logo and visual system
+- Typography and color
+- Brand guidelines
+From $4,000
+
+Website design
+- Site map and wireframes
+- Design for desktop and mobile
+- Handover to your developer
+From $6,500
+
+Content and copy
+- Tone of voice
+- Website copy
+- Launch emails
+From $2,000`,
+product: `Linen Weekender Bag
+$148.00
+A roomy travel bag in washed linen with leather handles. Fits a long weekend.
+In stock · Ships in 2 days
+Features
+- 40 liter capacity
+- Water-resistant lining
+- Padded laptop sleeve
+- Detachable shoulder strap
+Colors: Sand, Olive, Charcoal
+Reviews
+4.8 out of 5 from 214 reviews
+"Survived six flights and still looks new." Rosa K.
+Add to cart`,
+cart: `Your cart
+Linen Weekender Bag, Sand $148.00
+Leather luggage tag $24.00
+Travel cubes, set of 3 $36.00
+Subtotal $208.00
+Shipping $0.00
+Tax $16.64
+Total $224.64
+Checkout`,
+statistics: `Your blog this month
+Visitors 12,480 +18%
+Page views 31,902 +11%
+Average read time 3m 42s +6%
+New subscribers 342 +24%
+Bounce rate 41% -3%
+Comments 87 -9%`,
+contact: `Contact Northwind Dental
+We reply within one working day.
+Email hello@northwind-dental.example
+Phone +1 (555) 013-2280
+Address 48 Mill Street, Portland, OR
+Hours Monday to Friday, 8 am to 6 pm
+Your name
+Your email
+Message
+Send message`,
+landing: `Sleep better in 14 nights
+Drift is a bedtime app that builds your wind-down routine for you.
+No more scrolling at midnight
+Drift dims your phone and locks distracting apps one hour before bed.
+Sounds that fade with you
+Rain, waves and white noise fade out as your breathing slows.
+A morning check-in
+Two questions each morning show how your sleep is changing.
+Start your free 14 nights
+No card needed. Cancel any time.`
+};
+
+const PRICE = /[$€£]\s?\d[\d,]*(?:\.\d{2})?/;
+const EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/;
+const PHONE = /\+?\d[\d\s().-]{7,}\d/;
+const CTA_RE = /^(add to (cart|bag)|buy now|checkout|check out|sign up|create account|log in|start|get started|try|download|subscribe|send message|book|join|continue|shop)\b/i;
+const linesOf = t => t.replace(/\r/g, "").split("\n").map(s => s.trim()).filter(Boolean);
+const blocksOf = t => t.replace(/\r/g, "").split(/\n\s*\n/).map(b => linesOf(b)).filter(b => b.length);
+const bullet = l => /^[-•*·]\s+/.test(l);
+const unbullet = l => l.replace(/^[-•*·]\s+/, "");
+
+function detectType(text) {
+  const t = text.toLowerCase(), ls = linesOf(text), n = ls.length;
+  const prices = (text.match(new RegExp(PRICE.source, "g")) || []).length;
+  const shortLines = ls.filter(l => l.split(/\s+/).length <= 4 && !/[.!?]$/.test(l)).length;
+  const sentencesN = (text.match(/[.!?](\s|$)/g) || []).length;
+  const s = {};
+  s.notfound = /\b404\b|page not found|wandered off|doesn'?t exist|does not exist/.test(t) ? 10 : 0;
+  s.cart = (/\b(your (cart|bag|basket)|subtotal)\b/.test(t) ? 5 : 0) + (/\btotal\b/.test(t) && prices >= 3 ? 3 : 0);
+  s.product = (/add to (cart|bag)|in stock|out of stock|ships in|sizes?:|colou?rs?:/.test(t) ? 5 : 0) + (prices >= 1 && prices <= 2 ? 2 : 0) + (/reviews?|out of 5|★/.test(t) ? 1 : 0);
+  s.registration = (/create (an |your )?account|sign up|register/.test(t) ? 3 : 0) + (/\bpassword\b/.test(t) ? 4 : 0) + (/already have an account/.test(t) ? 2 : 0);
+  s.contact = (EMAIL.test(text) ? 2 : 0) + (PHONE.test(text) ? 2 : 0) + (/contact|get in touch|reach us|send message|opening hours|\bhours\b/.test(t) ? 3 : 0);
+  s.statistics = (ls.filter(l => /\d/.test(l) && /[+-]\d+(\.\d+)?%|\d%/.test(l)).length >= 3 ? 6 : 0) + (/dashboard|analytics|this (week|month)|statistics|stats/.test(t) ? 2 : 0);
+  s.search = (/results? for|search results|showing \d+ results|you searched/.test(t) ? 8 : 0);
+  s.feed = ((text.match(/\b\d+\s?(m|h|d|min|hours?|days?) ago\b|\byesterday\b|· \d+ ?(h|d)\b/gi) || []).length >= 3 ? 7 : 0);
+  s.blog = ((text.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]* \d{1,2},? \d{4}\b|\d+ min read/gi) || []).length >= 3 ? 7 : 0);
+  s.portfolio = (/portfolio|photography|projects?|case stud|series ·|selected work/.test(t) ? 3 : 0) + ((text.match(/· (19|20)\d\d\b/g) || []).length >= 2 ? 3 : 0);
+  s.services = (/services|what we do|we offer|packages/.test(t) ? 3 : 0) + (/\bfrom [$€£]/.test(t) ? 3 : 0);
+  s.about = (/\babout us\b|^about |our (story|mission|team|values)|founded|we started/m.test(t) ? 4 : 0) + (/\bmission\b|\bvalues?\b/.test(t) ? 2 : 0);
+  s.landing = (/free (trial|\d+)|get started|no card|cancel any ?time|start your|download (the )?app/.test(t) ? 5 : 0) + (n < 20 ? 1 : 0);
+  s.menu = shortLines >= 6 && sentencesN <= 1 ? 6 : 0;
+  s.home = (/welcome|shop the|featured|collection|gift guide|latest/.test(t) ? 3 : 0) + (shortLines >= 3 && sentencesN >= 3 ? 1 : 0);
+  s.article = sentencesN >= 12 ? 7 : sentencesN >= 8 ? 4 : 1;
+  s.news = /^by [A-Z][a-z]+/im.test(text) ? 9 + (/\bsaid\b/.test(t) ? 2 : 0) : 0;
+  s.museum = (/gallery|exhibit|museum|hall \d/.test(t) ? 3 : 0) + ((t.match(/\bc\. ?\d{3,4}\s?(bce|bc|ce|ad)?/g) || []).length >= 2 ? 7 : 0);
+  s.library = ((text.match(/^(author|type|publisher|call number):/gim) || []).length >= 4 ? 10 : 0) + (/library|research guide/.test(t) ? 1 : 0);
+  s.book = ((text.match(/^chapter \d+/gim) || []).length >= 2 ? 10 : 0) + (/once upon a time|a fable|a novel/.test(t) ? 3 : 0);
+  return Object.entries(s).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+// Each builder turns raw text into presentation cards (kind "x").
+function groupsOf(ls) {
+  const out = []; let cur = null;
+  ls.forEach(l => { if (isHead(l) && !PRICE.test(l) && !bullet(l)) { cur = { h: l, body: [] }; out.push(cur); } else { if (!cur) { cur = { h: null, body: [] }; out.push(cur); } cur.body.push(l); } });
+  return out;
+}
+const X = o => ({ kind: "x", ...o });
+const BUILD = {
+  home(ls) {
+    const [title, tagline, ...rest] = ls; const gs = groupsOf(rest);
+    return [X({ style: "hero", label: "Welcome", h: title, text: tagline }), ...gs.map(g => X({ style: "door", label: "Section", h: g.h || "More", text: g.body.join(" "), cta: "Enter" }))];
+  },
+  feed(ls, text) {
+    const bs = blocksOf(text); const title = bs[0].length === 1 ? bs.shift()[0] : "Feed";
+    return [X({ style: "hero", label: "Feed", h: title, text: `${bs.length} new posts` }), ...bs.map(b => { const [who, ...body] = b; const [name, when] = who.split(/\s·\s/); return X({ style: "post", label: when || "Post", h: name, text: body.join(" ") }); })];
+  },
+  menu(ls) {
+    const [title, ...items] = ls;
+    return [X({ style: "hero", label: "Menu", h: title, text: `${items.length} places to go` }), ...items.slice(0, 14).map(it => X({ style: "door", label: "Go to", h: unbullet(it), cta: "Open" }))];
+  },
+  search(ls, text) {
+    const bs = blocksOf(text); const head = bs.shift().join(" ");
+    const q = (head.match(/[“"']([^”"']+)[”"']/) || head.match(/(?:results? for|searched)\s+(.+)$/i) || [, head])[1];
+    return [X({ style: "query", label: "You searched for", h: q, text: `${bs.length} results` }),
+      ...bs.map((b, i) => { const [t, ...r] = b; const url = r.find(l => /\.\w{2,}\/|https?:|www\./.test(l)); return X({ style: "result", label: `Result ${i + 1}`, h: t, sub: url, text: r.filter(l => l !== url).join(" ") }); })];
+  },
+  about(ls) {
+    const [title, ...rest] = ls; const gs = groupsOf(rest); const intro = gs[0] && !gs[0].h ? gs.shift().body.join(" ") : "";
+    return [X({ style: "hero", label: "About", h: title, text: intro }), ...gs.map(g => X({ style: "story", label: /team|people/i.test(g.h || "") ? "The people" : /value/i.test(g.h || "") ? "What they value" : /mission/i.test(g.h || "") ? "Mission" : "Their story", h: g.h, text: g.body.join(" ") }))];
+  },
+  registration(ls) {
+    const [title, ...rest] = ls; const intro = rest.find(l => /[.!?]$/.test(l)) || "";
+    const fields = rest.filter(l => /^(full name|first name|last name|name|e-?mail|password|confirm password|username|phone|date of birth|company)$/i.test(l));
+    const social = rest.filter(l => /^continue with|^sign (up|in) with/i.test(l));
+    const cta = rest.find(l => /^(create account|sign up|register|join)/i.test(l)) || "Create account";
+    const alt = rest.find(l => /already have an account/i.test(l));
+    const cards = [X({ style: "hero", label: "Sign up", h: title, text: intro })];
+    fields.forEach((f, i) => cards.push(X({ style: "form", label: `Step ${i + 1} of ${fields.length}`, h: f, fields: [f] })));
+    if (social.length) cards.push(X({ style: "form", label: "Faster way", h: "Or skip the form", list: social }));
+    cards.push(X({ style: "finale", label: "Last step", h: cta, text: alt || "", cta }));
+    return cards;
+  },
+  notfound(ls) {
+    const rest = ls.filter(l => !/^404$/.test(l)); const [h, ...more] = rest;
+    const why = more.filter(l => /[.!?]$/.test(l)); const ways = more.filter(l => !/[.!?]$/.test(l));
+    return [X({ style: "lost", label: "Page not found", big: "404", h, text: why.join(" ") }), ...ways.map(w => X({ style: "door", label: "Way back", h: w, cta: "Go" }))];
+  },
+  blog(ls, text) {
+    const bs = blocksOf(text); const title = bs[0].length === 1 ? bs.shift()[0] : "Blog";
+    return [X({ style: "hero", label: "Blog", h: title, text: `${bs.length} posts` }), ...bs.map(b => { const date = b.find(l => /\d{4}|min read/.test(l)); const r = b.filter(l => l !== date); return X({ style: "post", label: date || "Post", h: r[0], text: r.slice(1).join(" "), cta: "Read" }); })];
+  },
+  portfolio(ls, text) {
+    const bs = blocksOf(text); const title = bs[0].length === 1 ? bs.shift()[0] : "Portfolio";
+    return [X({ style: "hero", label: "Portfolio", h: title, text: `${bs.length} projects` }), ...bs.map((b, i) => X({ style: "frame", label: `Project ${String(i + 1).padStart(2, "0")}`, h: b[0], sub: b.length > 2 ? b[1] : "", text: b.slice(b.length > 2 ? 2 : 1).join(" ") }))];
+  },
+  services(ls, text) {
+    const bs = blocksOf(text); const title = bs[0].length === 1 ? bs.shift()[0] : "Services";
+    return [X({ style: "hero", label: "Services", h: title, text: `${bs.length} services` }), ...bs.map(b => { const price = b.find(l => PRICE.test(l) && !bullet(l)); return X({ style: "tile", label: "Service", h: b[0], list: b.filter(bullet).map(unbullet), text: b.slice(1).filter(l => !bullet(l) && l !== price).join(" "), big: price || "" }); })];
+  },
+  product(ls) {
+    const name = ls[0]; const price = (ls.find(l => PRICE.test(l)) || "").match(PRICE)?.[0] || "";
+    const desc = ls.find(l => /[.!?]$/.test(l) && l.split(/\s+/).length > 6) || "";
+    const stock = ls.find(l => /in stock|out of stock|ships/i.test(l)) || "";
+    const feats = ls.filter(bullet).map(unbullet);
+    const options = ls.filter(l => /^(colou?rs?|sizes?|materials?):/i.test(l));
+    const rating = ls.find(l => /out of 5|★|\/5|stars/i.test(l));
+    const quotes = ls.filter(l => /^["“]/.test(l));
+    const cta = ls.find(l => CTA_RE.test(l)) || "Add to cart";
+    const cards = [X({ style: "hero product", label: "Product", h: name, big: price, text: desc, sub: stock, cta })];
+    if (feats.length) cards.push(X({ style: "tile", label: "Features", h: "What you get", list: feats }));
+    if (options.length) cards.push(X({ style: "tile", label: "Options", h: "Choose yours", rows: options.map(o => o.split(/:\s*/)) }));
+    if (rating) cards.push(X({ style: "review", label: "Reviews", big: (rating.match(/\d(\.\d)?/) || [""])[0] + " ★", h: rating, text: quotes.join(" ") }));
+    cards.push(X({ style: "finale", label: "Ready?", h: name, big: price, cta }));
+    return cards;
+  },
+  cart(ls) {
+    const sumRe = /^(subtotal|shipping|delivery|tax|vat|discount|total)\b/i;
+    const items = ls.filter(l => PRICE.test(l) && !sumRe.test(l)); const sums = ls.filter(l => sumRe.test(l));
+    const total = (sums.find(l => /^total/i.test(l)) || "").match(PRICE)?.[0] || "";
+    const cta = ls.find(l => /checkout|check out/i.test(l)) || "Checkout";
+    return [X({ style: "hero", label: "Cart", h: ls[0], text: `${items.length} items` }),
+      ...items.map((it, i) => X({ style: "item", label: `Item ${i + 1}`, h: it.replace(PRICE, "").trim(), big: it.match(PRICE)[0] })),
+      X({ style: "finale total", label: "Order total", big: total, rows: sums.map(l => [l.replace(PRICE, "").trim(), l.match(PRICE)?.[0] || ""]), cta })];
+  },
+  statistics(ls) {
+    const [title, ...rest] = ls;
+    const ms = rest.map(l => { const m = l.match(/^(.*?)\s+([\d.,]+\s?[a-z%]*(?:\s[\d.,]+s)?)\s+([+-−]\s?[\d.]+%)$/i) || l.match(/^(.*?)\s+([\d.,]+[a-z%]*)$/i); return m ? { name: m[1], val: m[2], chg: m[3] || "" } : null; }).filter(Boolean);
+    const max = Math.max(...ms.map(m => Math.abs(parseFloat(m.chg) || 0)), 1);
+    return [X({ style: "hero", label: "Statistics", h: title, text: `${ms.length} numbers to watch` }),
+      ...ms.map(m => X({ style: "metric", label: m.name, big: m.val, trend: m.chg })),
+      X({ style: "tile", label: "Compared", h: "Change this period", bars: ms.filter(m => m.chg).map(m => ({ label: m.name, chg: m.chg, pct: Math.abs(parseFloat(m.chg)) / max * 100 })) })];
+  },
+  contact(ls) {
+    const [title, ...rest] = ls; const intro = rest.find(l => /[.!?]$/.test(l) && !EMAIL.test(l)) || "";
+    const rows = [];
+    const take = (label, re) => { const l = rest.find(x => re.test(x)); if (l) rows.push([label, l.replace(new RegExp("^" + label + "\\s*:?\\s*", "i"), "")]); };
+    take("Email", EMAIL); take("Phone", /^phone|\+?\d[\d\s().-]{7,}\d/i); take("Address", /^address|\d+ [A-Z][a-z]+ (street|st|road|rd|avenue|ave|lane)/i); take("Hours", /^hours|monday|mon[-–]|open/i);
+    const fields = rest.filter(l => /^(your )?(name|email|message|phone|subject)$/i.test(l));
+    const cta = rest.find(l => /send|submit/i.test(l)) || "Send message";
+    const cards = [X({ style: "contact", label: "Get in touch", h: title, text: intro, rows })];
+    if (fields.length) cards.push(X({ style: "form", label: "Or write to them", h: "Send a message", fields, cta }));
+    return cards;
+  },
+  landing(ls) {
+    const [h, sub, ...rest] = ls; const gs = groupsOf(rest);
+    const last = gs.length > 1 && /start|get|try|download|join|sign up|book/i.test(gs[gs.length - 1].h || "") ? gs.pop() : null;
+    return [X({ style: "hero", label: "Welcome", h, text: sub }), ...gs.map(g => X({ style: "story", label: "Why it helps", h: g.h, text: g.body.join(" ") })),
+      X({ style: "finale", label: "One step", h: last ? last.h : "Get started", text: last ? last.body.join(" ") : "", cta: last ? last.h : "Get started" })];
+  }
+};
+Object.assign(BUILD, {
+  news(ls, text) {
+    const [h, ...rest] = ls; const by = rest.find(l => /^by\s/i.test(l)) || ""; const body = rest.filter(l => l !== by);
+    return [X({ style: "hero", label: "News story", h, sub: by, text: body[0] }), ...body.slice(1).map((l, i) => /^["“]/.test(l) ? X({ style: "quote", label: "Quote", h: (l.match(/said ([A-Z][a-z]+ [A-Z][a-z]+)/) || [, "Someone in the story"])[1], text: l }) : X({ style: "story", label: `Paragraph ${i + 2}`, text: l }))];
+  },
+  museum(ls, text) {
+    const bs = blocksOf(text); const head = bs.shift(); const intro = bs[0] && bs[0].length === 1 && /[.!?]$/.test(bs[0][0]) ? bs.shift()[0] : "";
+    return [X({ style: "hero", label: "Museum", h: head[0], sub: head[1] || "", text: intro }), ...bs.map(b => X({ style: "frame", label: "Object", h: b[0], sub: b[1] && !/[.!?]$/.test(b[1]) ? b[1] : "", text: b.slice(b[1] && !/[.!?]$/.test(b[1]) ? 2 : 1).join(" ") }))];
+  },
+  library(ls, text) {
+    const bs = blocksOf(text); const head = bs.shift(); const intro = bs[0] && bs[0].length === 1 && /[.!?]$/.test(bs[0][0]) ? bs.shift()[0] : "";
+    return [X({ style: "hero", label: "Library", h: head[0], sub: head[1] || "", text: intro }), ...bs.map(b => { const rows = b.filter(l => /^[A-Z][a-z ]+:\s/.test(l)).map(l => [l.split(/:\s*/)[0], l.split(/:\s*/).slice(1).join(": ")]); return X({ style: "source", label: (rows.find(r => r[0] === "Type") || [, "Source"])[1], h: b[0], rows, text: b.slice(1).filter(l => !/^[A-Z][a-z ]+:\s/.test(l)).join(" ") }); })];
+  },
+  book(ls) {
+    const [h, sub, ...rest] = ls; const gs = groupsOf(rest);
+    return [X({ style: "hero", label: "Book", h, text: sub }), ...gs.map(g => X({ style: "story", label: g.h ? g.h.split(":")[0] : "Story", h: g.h ? g.h.split(":").slice(1).join(":").trim() || g.h : "", text: g.body.join(" ") }))];
+  }
+});
+function typedCards(doc) {
+  const ls = linesOf(doc.raw);
+  try { const cards = BUILD[doc.type](ls, doc.raw); if (cards.length > 1) return cards; } catch (e) {}
+  return null;
+}
+function typedFace(c, mood) {
+  const T = s => esc(state.audience === "kids" ? kidify(s) : mood === "energized" ? punch(s) : s);
+  let b = "";
+  if (c.big && /lost/.test(c.style)) b += `<div class="big huge">${esc(c.big)}</div>`;
+  if (c.h) b += /hero|lost|query/.test(c.style) ? `<h1>${esc(c.h)}</h1>` : `<h2>${esc(c.h)}</h2>`;
+  if (c.sub) b += `<div class="sub">${esc(c.sub)}</div>`;
+  if (c.big && !/lost/.test(c.style)) b += `<div class="big${c.big.length > 7 ? " long" : ""}">${esc(c.big)}</div>`;
+  if (c.trend) b += `<div class="trend ${/^[-−]/.test(c.trend) ? "down" : "up"}">${/^[-−]/.test(c.trend) ? "▼" : "▲"} ${esc(c.trend)} this period</div>`;
+  if (c.text) b += `<p${/hero|query/.test(c.style) ? ' class="lede"' : ""}>${T(c.text)}</p>`;
+  if (c.list?.length) b += `<ul>${c.list.map(l => `<li>${T(l)}</li>`).join("")}</ul>`;
+  if (c.rows?.length) b += `<dl class="rows">${c.rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`;
+  if (c.bars?.length) b += `<div class="bars">${c.bars.map(x => `<div class="barrow"><span>${esc(x.label)}</span><i class="${/^[-−]/.test(x.chg) ? "down" : "up"}" style="--w:${Math.max(4, x.pct).toFixed(0)}%"></i><b>${esc(x.chg)}</b></div>`).join("")}</div>`;
+  if (c.fields?.length) b += c.fields.map(f => `<div class="field"><span>${esc(f)}</span><i></i></div>`).join("");
+  if (c.cta) b += `<span class="cta">${esc(c.cta)}${/door|post/.test(c.style) ? " →" : ""}</span>`;
+  return b;
+}
+
+/* ---------- Lessons: any page becomes a lesson ---------- */
+let LS = { key: "", answers: {}, writing: {}, order: {}, trust: {} };
+const NB_KEY = "moodspace-notebook";
+let NB_MEM = null; // used when this browser blocks storage
+const nbLoad = () => { if (NB_MEM) return NB_MEM; try { return JSON.parse(localStorage.getItem(NB_KEY) || "[]"); } catch (e) { return NB_MEM = []; } };
+const nbSave = list => { if (NB_MEM) { NB_MEM = list; return; } try { localStorage.setItem(NB_KEY, JSON.stringify(list)); } catch (e) { NB_MEM = list; } };
+function nbPut(entry) { const l = nbLoad(); const i = l.findIndex(x => x.id === entry.id); if (i >= 0) l[i] = entry; else l.push(entry); nbSave(l); updateNbCount(); }
+function nbDel(id) { nbSave(nbLoad().filter(x => x.id !== id)); updateNbCount(); }
+function updateNbCount() { const n = nbLoad().length; const b = document.querySelector("#openNb"); if (b) b.textContent = n ? `Notebook (${n})` : "Notebook"; }
+
+const OPINION = /\b(should|must|best|worst|great|nice|terrible|beautiful|wonderful|amazing|awful|disappointing|exciting|unfair|perfect|love|hate|i think|we think|i believe)\b/i;
+const kidsy = () => state.audience === "kids";
+const L = o => ({ kind: "L", ...o });
+const shuffle = (arr, seed) => arr.map((x, i) => [rand(seed + i * 7.31), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+const numVal = s => parseFloat(s.replace(/,/g, ""));
+function fmtLike(orig, v) {
+  const core = (orig.match(/^[\d,.]+/) || [""])[0], suf = orig.slice(core.length), dec = (core.match(/\.(\d+)$/) || [])[1];
+  let n = dec ? v.toFixed(dec.length) : String(Math.round(v));
+  if (/,/.test(core)) n = Number(n).toLocaleString("en-US", { minimumFractionDigits: dec ? dec.length : 0 });
+  return n + suf;
+}
+const PRAISE = { kids: ["Yes! Great job!", "You got it!", "Super!"], teens: ["Correct.", "Nice.", "Right."], adults: ["Correct."], seniors: ["That's right."] };
+const praise = i => { const p = PRAISE[state.audience]; return p[i % p.length]; };
+const lessonSentences = raw => linesOf(raw).filter(l => /[.!?"”]$/.test(l) && l.split(/\s+/).length > 5).flatMap(sentences).filter(s => s.split(/\s+/).length > 5);
+
+function numberQs(S, n, used) {
+  const out = [];
+  S.forEach((s, i) => {
+    if (out.length >= n || used.has(s)) return; const m = s.match(NUM); if (!m) return;
+    const ans = m[1].trim(); const v = numVal(ans); if (!isFinite(v) || v === 0 || /^(19|20)\d\d$/.test(ans)) return;
+    const d = [...new Set([v < 5 ? v + 3 : v * 2, v < 5 ? v + 6 : v / 2].map(x => fmtLike(ans, x)))].filter(x => x !== ans);
+    if (d.length < 2) return; used.add(s);
+    out.push(L({ step: "mc", id: "n" + i, label: kidsy() ? "Quick game" : "Check", h: kidsy() ? "Can you guess?" : "Pick the right number", text: s.replace(ans, "____"), choices: shuffle([ans, ...d], i + 3), answer: ans, quote: s }));
+  });
+  return out;
+}
+function tfQs(S, n, used) {
+  const out = [];
+  S.forEach((s, i) => {
+    if (out.length >= n || used.has(s) || /["“]/.test(s)) return;
+    let shown = s, truth = "True";
+    if (out.length % 2 === 0) {
+      const m = s.match(NUM);
+      if (m && isFinite(numVal(m[1]))) { shown = s.replace(m[1].trim(), fmtLike(m[1].trim(), numVal(m[1]) * 3)); truth = "False"; }
+      else if (/\b(is|are|was|were|can|has|have)\b/.test(s)) { shown = s.replace(/\b(is|are|was|were|can|has|have)\b/, "$1 not"); truth = "False"; }
+    }
+    used.add(s);
+    out.push(L({ step: "mc", id: "t" + i, label: kidsy() ? "True or false?" : "Check", h: "True or false?", text: shown, choices: ["True", "False"], answer: truth, quote: s }));
+  });
+  return out;
+}
+function wordCards(S, raw, n) {
+  const ws = [...new Set((raw.match(/[A-Za-z]{9,}/g) || []).map(w => w.toLowerCase()))].filter(w => !STOP.has(w) && S.some(s => s.toLowerCase().includes(w))).slice(0, n);
+  return ws.map((w, i) => L({ step: "word", id: "w" + i, label: "New word", h: w, sub: syllables(w), quote: S.find(s => s.toLowerCase().includes(w)) }));
+}
+function writeCard(id, h, text, hint, max) { return L({ step: "write", id, label: kidsy() ? "Your turn" : "Writing", h, text, hint, max }); }
+
+const LESSON_INFO = {
+  news: { subject: "Thinking about the news", badge: "News Detective", goals: ["Find who, what, when, where and why", "Tell facts from opinions", "Write your own headline"] },
+  museum: { subject: "Virtual field trip", badge: "Museum Explorer", goals: ["Look closely at real objects", "Put them on a timeline", "Write your own museum label"] },
+  library: { subject: "Research skills", badge: "Research Ranger", goals: ["Judge which sources you can trust", "Build citations", "Choose your best source"] },
+  book: { subject: "Reading a story", badge: "Story Keeper", goals: ["Meet the characters", "Put the story in order", "Write to a character"] },
+  product: { subject: "Money math", badge: "Smart Shopper", goals: ["Work with prices", "Figure out a discount", "Decide if it's a good deal"] },
+  cart: { subject: "Money math", badge: "Smart Shopper", goals: ["Add up a shopping cart", "Understand tax and shipping", "Check the total"] },
+  statistics: { subject: "Reading data", badge: "Data Detective", goals: ["Read the numbers", "Spot what went up and down", "Explain a trend"] },
+  default: { subject: "Reading lesson", badge: "Page Explorer", goals: ["Understand the main ideas", "Learn new words", "Sum it up in your own words"] } };
+
+function contentCards(doc) {
+  let cs = doc.type !== "article" && BUILD[doc.type] ? typedCards(doc) : null;
+  if (!cs) cs = buildBase(doc, "deep");
+  if (kidsy()) cs.forEach(c => { if (c.kind !== "x") { if (c.text) c.text = kidify(c.text); c.paras = null; if (c.lede) c.lede = kidify(c.lede); } });
+  return cs;
+}
+function lessonFor(doc) {
+  const key = doc.title + "|" + state.audience; if (LS.key !== key) LS = { key, answers: {}, writing: {}, order: {}, trust: {} };
+  const t = doc.type, info = LESSON_INFO[t] || LESSON_INFO.default, raw = doc.raw, ls = linesOf(raw);
+  const S = lessonSentences(raw), used = new Set();
+  const nQ = { kids: 2, teens: 4, adults: 3, seniors: 2 }[state.audience];
+  const cards = [L({ step: "hook", label: info.subject, h: doc.title, text: kidsy() ? "Let's explore this page together!" : `A lesson made from this ${TYPES[t].toLowerCase()}.`, goals: info.goals })];
+  const learn = contentCards(doc).filter(c => !(c.kind === "x" && /hero/.test(c.style)) && c.kind !== "title");
+  const take = kidsy() ? 3 : 5;
+  if (t === "news") {
+    const by = ls.find(l => /^by\s/i.test(l)) || "";
+    cards.push(...learn.slice(0, take));
+    cards.push(L({ step: "fivew", id: "5w", label: "Reporter's notes", h: "The five W's", text: "Fill in what the story tells you.", quote: S[0] }));
+    const facts = S.filter(s => !OPINION.test(s) && NUM.test(s) && s.split(/\s+/).length < 26).slice(0, 2), ops = S.filter(s => OPINION.test(s) && s.split(/\s+/).length < 30).slice(0, kidsy() ? 1 : 2);
+    cards.push(L({ step: "sort", id: "sort", label: "Fact or opinion?", h: "Sort each sentence", rows: shuffle([...facts.map(s => ({ s, a: "Fact" })), ...ops.map(s => ({ s, a: "Opinion" }))], 5) }));
+    cards.push(...numberQs(S, nQ - 1, used));
+    cards.push(L({ step: "trust", id: "trust", label: "Who wrote this?", h: by ? by.replace(/^by\s+/i, "") : "No author listed", checks: ["The author is named", "The date is shown", "People are quoted by name", "More than one side is heard"] }));
+    cards.push(writeCard("headline", "Write your own headline", "Tell the whole story in 10 words or fewer.", "Who did what?", 10));
+  } else if (t === "museum") {
+    const objs = typedCards(doc).filter(c => c.style === "frame");
+    objs.slice(0, kidsy() ? 3 : 5).forEach((o, i) => cards.push(L({ step: "notice", id: "o" + i, label: `Room ${i + 1}`, h: o.h, sub: o.sub, text: o.text })));
+    const dated = objs.map(o => { const m = (o.sub || "").match(/(\d{3,4})\s*(BCE|BC|CE|AD)?/i); return m ? { h: o.h, y: (/(BCE|BC)/i.test(m[2] || "") ? -1 : 1) * +m[1], label: m[0] } : null; }).filter(Boolean).sort((a, b) => a.y - b.y);
+    if (dated.length > 1) cards.push(L({ step: "timeline", label: "Timeline", h: "Oldest to newest", rows: dated.map(d => [d.label, d.h]) }));
+    if (dated.length > 2) cards.push(L({ step: "mc", id: "old", label: "Check", h: "Which object is the oldest?", text: "Use the timeline.", choices: shuffle(dated.slice(0, 3).map(d => d.h), 9), answer: dated[0].h, quote: `${dated[0].h}: ${dated[0].label}` }));
+    cards.push(...tfQs(S, nQ - 1, used));
+    cards.push(writeCard("label", "Write a museum label", kidsy() ? "Pick your favorite object. Tell visitors what it is and why it's cool." : "Pick one object. In about 40 words, tell visitors what it is and why it matters.", "What is it? Who made it? Why does it matter?", 40));
+  } else if (t === "library") {
+    const srcs = typedCards(doc).filter(c => c.style === "source");
+    const topic = doc.title.replace(/^research guide:?\s*/i, "");
+    cards.push(L({ step: "quest", label: "Your quest", h: `Research: ${topic}`, text: `Look at ${srcs.length} sources. Decide which ones you can trust, save the good ones and build your citations.` }));
+    srcs.forEach((s, i) => cards.push(L({ step: "source", id: "s" + i, label: `Source ${i + 1}`, h: s.h, rows: s.rows, text: s.text, src: s })));
+    cards.push(L({ step: "cites", label: "Citations", h: "Your citations", text: "Sources you save show up here, ready to copy.", srcs }));
+    cards.push(writeCard("best", "Which source would you use first?", "Explain your choice in two or three sentences.", "Think about who wrote it and when.", 60));
+  } else if (t === "book") {
+    const cnt = {}; linesOf(raw).flatMap(sentences).forEach(s => s.split(/\s+/).slice(1).forEach(w => { const c = w.replace(/[^A-Za-z]/g, ""); if (/^[A-Z][a-z]{2,}$/.test(c) && !STOP.has(c.toLowerCase()) && !/^(Chapter|Once|When|Nobody|Halfway)$/.test(c)) cnt[c] = (cnt[c] || 0) + 1; }));
+    const chars = Object.keys(cnt).filter(k => cnt[k] >= 2).sort((a, b) => cnt[b] - cnt[a]).slice(0, 4);
+    cards.push(...learn.slice(0, kidsy() ? 3 : 4));
+    if (chars.length) cards.push(L({ step: "chars", id: "chars", label: "Characters", h: "Who's in the story?", chars }));
+    const ev = ls.filter(l => /[.!?"”]$/.test(l)).map(l => sentences(l)[0]).filter(s => s && s.split(/\s+/).length > 5 && !/^["“]/.test(s));
+    const pick = [0, 1, 2, 3].map(k => ev[Math.round(k * (ev.length - 1) / 3)]).filter((x, i, a) => x && a.indexOf(x) === i);
+    if (pick.length >= 3) cards.push(L({ step: "order", id: "order", label: kidsy() ? "Story game" : "Sequence", h: "Put the story in order", items: shuffle(pick.map((s, i) => ({ s, i })), 4) }));
+    if (chars.length) cards.push(writeCard("letter", `Write a letter to the ${chars[0]}`, "What would you tell them about what happened?", `Dear ${chars[0]},`, 80));
+    cards.push(writeCard("ending", "Change the ending", "How else could the story end?", "What if…", 80));
+  } else if (t === "product" || t === "cart" || t === "statistics") {
+    cards.push(...learn.slice(0, take));
+    const prices = (raw.match(new RegExp(PRICE.source, "g")) || []).map(p => numVal(p.replace(/[^\d.,]/g, "")));
+    const money = v => "$" + v.toFixed(2);
+    if (t === "product" && prices[0]) {
+      const p = prices[0];
+      cards.push(L({ step: "mc", id: "disc", label: "Money math", h: "It's 20% off today", text: `The price is ${money(p)}. What does it cost with 20% off?`, choices: shuffle([money(p * .8), money(p - 20), money(p * .2)], 2), answer: money(p * .8), quote: `20% of ${money(p)} is ${money(p * .2)}. ${money(p)} − ${money(p * .2)} = ${money(p * .8)}.` }));
+      cards.push(L({ step: "mc", id: "two", label: "Money math", h: "Buying two", text: `How much would two cost at full price?`, choices: shuffle([money(p * 2), money(p + 20), money(p * 3)], 6), answer: money(p * 2), quote: `${money(p)} × 2 = ${money(p * 2)}.` }));
+      cards.push(writeCard("deal", "Is it a good deal?", "Would you buy it? Give two reasons.", "I think… because…", 60));
+    } else if (t === "cart") {
+      const items = ls.filter(l => PRICE.test(l) && !/^(subtotal|shipping|tax|total)/i.test(l)).map(l => numVal(l.match(PRICE)[0].replace(/[^\d.,]/g, "")));
+      const sub = items.reduce((a, b) => a + b, 0);
+      const taxL = ls.find(l => /^tax/i.test(l)); const tax = taxL ? numVal(taxL.match(PRICE)[0].replace(/[^\d.,]/g, "")) : 0;
+      cards.push(L({ step: "mc", id: "sub", label: "Money math", h: "Add up the items", text: `What do the ${items.length} items cost together, before shipping and tax?`, choices: shuffle([money(sub), money(sub + 10), money(sub - 12)], 3), answer: money(sub), quote: items.map(money).join(" + ") + ` = ${money(sub)}` }));
+      if (tax) cards.push(L({ step: "mc", id: "rate", label: "Money math", h: "What's the tax rate?", text: `Tax is ${money(tax)} on ${money(sub)}. About what percent is that?`, choices: shuffle([`${Math.round(tax / sub * 100)}%`, `${Math.round(tax / sub * 100) + 5}%`, `${Math.max(1, Math.round(tax / sub * 100) - 4)}%`], 8), answer: `${Math.round(tax / sub * 100)}%`, quote: `${money(tax)} ÷ ${money(sub)} ≈ ${(tax / sub * 100).toFixed(1)}%` }));
+      cards.push(writeCard("budget", "Make it fit a budget", `Your budget is ${money(Math.floor(sub * .7))}. What would you take out, and why?`, "I would remove…", 50));
+    } else {
+      const ms = ls.slice(1).map(l => { const m = l.match(/^(.*?)\s+([\d.,]+\S*)(?:\s+\S+)?\s+([+-−]\s?[\d.]+)%$/); return m ? { n: m[1], c: parseFloat(m[3].replace("−", "-")) } : null; }).filter(Boolean);
+      if (ms.length > 2) {
+        const up = [...ms].sort((a, b) => b.c - a.c), dn = [...ms].sort((a, b) => a.c - b.c);
+        cards.push(L({ step: "mc", id: "up", label: "Reading data", h: "What grew the most?", text: "Look at the change for each number.", choices: shuffle(up.slice(0, 3).map(m => m.n), 1), answer: up[0].n, quote: `${up[0].n} went up ${up[0].c}%.` }));
+        cards.push(L({ step: "mc", id: "dn", label: "Reading data", h: "What went down the most?", text: "Look for the minus signs.", choices: shuffle(dn.slice(0, 3).map(m => m.n), 2), answer: dn[0].n, quote: `${dn[0].n} changed ${dn[0].c}%.` }));
+      }
+      cards.push(writeCard("why", "Explain a trend", "Pick one number that changed. Why do you think it changed?", "I think … went up because …", 60));
+    }
+  } else {
+    cards.push(...learn.slice(0, take));
+    cards.push(...numberQs(S, Math.ceil(nQ / 2), used), ...tfQs(S, Math.floor(nQ / 2) + 1, used));
+    cards.push(writeCard("sum", "Sum it up", kidsy() ? "Tell a friend what you learned in two sentences." : "Summarize the page in three sentences.", "This page is about…", 60));
+    cards.push(writeCard("think", "What do you think?", "Was anything surprising? What do you want to know next?", "I was surprised that…", 60));
+  }
+  if (!["museum", "library"].includes(t) || !kidsy()) cards.splice(Math.min(cards.length, 1 + take), 0, ...wordCards(S, raw, kidsy() ? 2 : 3));
+  cards.push(L({ step: "wrap", label: "Finished", h: kidsy() ? "You did it!" : "Lesson complete", badge: info.badge }));
+  return cards;
+}
+
+function lessonScore() {
+  let right = 0, total = 0;
+  cards.forEach(c => {
+    if (c.kind !== "L") return;
+    if (c.step === "mc") { total++; if (LS.answers[c.id] === c.answer) right++; }
+    if (c.step === "sort") c.rows.forEach((r, k) => { total++; if (LS.answers[c.id + k] === r.a) right++; });
+    if (c.step === "order") { total++; if (LS.answers[c.id] === "ok") right++; }
+  });
+  return { right, total };
+}
+const fb = (ok, quote, i) => `<div class="fb ${ok ? "ok" : "no"}"><b>${ok ? praise(i) : kidsy() ? "Not quite. Here's the answer:" : "Not quite."}</b>${quote ? ` <span>${esc(quote)}</span>` : ""}</div>`;
+const cite = s => { const r = Object.fromEntries((s.rows || []).map(([k, v]) => [k.toLowerCase(), v])); const au = r.author && !/unknown/i.test(r.author) ? r.author.split(" ").reverse().join(", ").replace(/, (\S+)$/, ", $1") + ". " : ""; return `${au}${s.h}. ${r.publisher && !/unknown/i.test(r.publisher) ? r.publisher + ", " : ""}${r.year || "n.d."}.`; };
+
+function lessonFace(c, i) {
+  const a = LS.answers[c.id];
+  const w = id => esc(LS.writing[id] || "");
+  switch (c.step) {
+    case "hook": return `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.text)}</p><div class="goals"><span>In this lesson you will</span><ul>${c.goals.map(g => `<li>${esc(g)}</li>`).join("")}</ul></div><span class="cta">${kidsy() ? "Let's go! →" : "Start →"}</span>`;
+    case "mc": return `<h2>${esc(c.h)}</h2><p>${esc(c.text)}</p><div class="choices">${c.choices.map(ch => `<button data-act="pick" data-id="${c.id}" data-v="${esc(ch)}" class="choice${a ? ch === c.answer ? " right" : ch === a ? " wrong" : "" : ""}"${a ? " disabled" : ""}>${esc(ch)}</button>`).join("")}</div>${a ? fb(a === c.answer, c.quote, i) : ""}`;
+    case "sort": return `<h2>${esc(c.h)}</h2><div class="sortrows">${c.rows.map((r, k) => { const v = LS.answers[c.id + k]; return `<div class="sortrow${v ? v === r.a ? " right" : " wrong" : ""}"><p>${esc(r.s)}</p><div class="choices">${["Fact", "Opinion"].map(x => `<button data-act="pick" data-id="${c.id + k}" data-v="${x}" class="choice${v ? x === r.a ? " right" : x === v ? " wrong" : "" : ""}"${v ? " disabled" : ""}>${x}</button>`).join("")}</div></div>`; }).join("")}</div><p class="hint">An opinion tells you what someone thinks or feels. A fact can be checked.</p>`;
+    case "order": { const sel = LS.order[c.id] || []; const done = sel.length === c.items.length; return `<h2>${esc(c.h)}</h2><p class="hint">Tap the events in the order they happened.</p><div class="orderlist">${c.items.map((it, k) => { const pos = sel.indexOf(k); return `<button data-act="order" data-id="${c.id}" data-k="${k}" class="orderitem${pos >= 0 ? " on" : ""}${done ? it.i === pos ? " right" : " wrong" : ""}"${pos >= 0 || done ? " disabled" : ""}><b>${pos >= 0 ? pos + 1 : "·"}</b>${esc(it.s)}</button>`; }).join("")}</div>${done ? fb(a === "ok", a === "ok" ? "" : "Correct order: " + [...c.items].sort((x, y) => x.i - y.i).map(x => x.s.split(/\s+/).slice(0, 5).join(" ") + "…").join(" → "), i) + `<button class="choice" data-act="reorder" data-id="${c.id}">Try again</button>` : ""}`; }
+    case "word": return `<h2>${esc(c.h)}</h2><div class="sub">${esc(c.sub)}</div><p class="quote">“${esc(c.quote).replace(new RegExp(esc(c.h), "i"), m => `<mark>${m}</mark>`)}”</p><label class="field"><span>What do you think it means?</span><input data-w="${c.id}" value="${w(c.id)}" placeholder="I think it means…"></label><button class="choice" data-act="saveword" data-id="${c.id}">${nbLoad().some(x => x.id === LS.key + c.id) ? "Saved ✓" : "Save to my notebook"}</button>`;
+    case "write": { const n = (LS.writing[c.id] || "").trim().split(/\s+/).filter(Boolean).length; return `<h2>${esc(c.h)}</h2><p>${esc(c.text)}</p><textarea data-w="${c.id}" rows="4" placeholder="${esc(c.hint)}">${w(c.id)}</textarea><div class="count"><span data-count="${c.id}">${n} words</span>${c.max ? ` · aim for ${c.max} or fewer` : ""} · saves to your notebook</div>`; }
+    case "fivew": return `<h2>${esc(c.h)}</h2><p class="hint">${esc(c.text)} Clue: “${esc(c.quote || "")}”</p>${["Who", "What", "When", "Where", "Why"].map(k => `<label class="field row"><span>${k}</span><input data-w="${c.id}-${k}" value="${w(c.id + "-" + k)}"></label>`).join("")}`;
+    case "trust": { const t = LS.trust[c.id] || {}; const n = Object.values(t).filter(Boolean).length; return `<h2>${esc(c.h)}</h2><p class="hint">Tick what this story does.</p><div class="checks">${c.checks.map((k, j) => `<button data-act="trust" data-id="${c.id}" data-k="${j}" class="check${t[j] ? " on" : ""}">${t[j] ? "✓" : "○"} ${esc(k)}</button>`).join("")}</div><p class="verdict">${n >= 3 ? "Good signs. This story shows its work." : n ? "Some good signs. Read carefully." : "Tick the boxes to judge the story."}</p>`; }
+    case "notice": return `<div class="sub">${esc(c.sub || "")}</div><h2>${esc(c.h)}</h2><p>${esc(kidsy() ? kidify(c.text || "") : c.text || "")}</p><label class="field"><span>I notice…</span><input data-w="${c.id}-n" value="${w(c.id + "-n")}"></label><label class="field"><span>I wonder…</span><input data-w="${c.id}-w" value="${w(c.id + "-w")}"></label>`;
+    case "timeline": return `<h2>${esc(c.h)}</h2><ol class="timeline">${c.rows.map(([y, h]) => `<li><b>${esc(y)}</b><span>${esc(h)}</span></li>`).join("")}</ol>`;
+    case "quest": return `<h1>${esc(c.h)}</h1><p class="lede">${esc(c.text)}</p>`;
+    case "source": { const t = LS.trust[c.id] || {}; const r = Object.fromEntries((c.rows || []).map(([k, v]) => [k.toLowerCase(), v])); const checks = ["An author is named", "It's recent (last 10 years)", "A known publisher or library", "It explains where facts come from"]; const n = Object.values(t).filter(Boolean).length; const saved = nbLoad().some(x => x.id === LS.key + c.id);
+      return `<h2>${esc(c.h)}</h2><dl class="rows">${(c.rows || []).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl><p>${esc(c.text || "")}</p><div class="checks">${checks.map((k, j) => `<button data-act="trust" data-id="${c.id}" data-k="${j}" class="check${t[j] ? " on" : ""}">${t[j] ? "✓" : "○"} ${esc(k)}</button>`).join("")}</div><p class="verdict">${n >= 3 ? "Looks trustworthy." : n === 2 ? "Maybe. Check another source too." : n ? "Be careful with this one." : "Tick what's true about this source."}</p><button class="choice" data-act="savesrc" data-id="${c.id}">${saved ? "Saved ✓" : "Add to my sources"}</button>`; }
+    case "cites": { const saved = c.srcs.filter((s, j) => nbLoad().some(x => x.id === LS.key + "s" + j)); return `<h2>${esc(c.h)}</h2>${saved.length ? `<ol class="cites">${saved.map(s => `<li>${esc(cite(s))}</li>`).join("")}</ol><button class="choice" data-act="copycites" data-id="${c.id}">Copy citations</button>` : `<p class="hint">${esc(c.text)}</p>`}<p class="hint">A citation tells readers exactly where your information came from.</p>`; }
+    case "chars": return `<h2>${esc(c.h)}</h2>${c.chars.map(ch => `<label class="field row"><span>${esc(ch)}</span><input data-w="${c.id}-${ch}" value="${w(c.id + "-" + ch)}" placeholder="Describe them in a few words"></label>`).join("")}`;
+    case "wrap": { const s = lessonScore(); const words = nbLoad().filter(x => x.lesson === doc.title).length; return `<div class="badge">★ ${esc(c.badge)}</div><h1>${esc(c.h)}</h1><dl class="rows"><dt>Answers</dt><dd>${s.right} of ${s.total} right</dd><dt>Notebook</dt><dd>${words} item${words === 1 ? "" : "s"} saved from this lesson</dd></dl><button class="choice" data-act="notebook">Open my notebook</button>`; }
+  }
+  return "";
+}
+function rerenderCard(i) { els[i].innerHTML = faceHTML(cards[i], i, cards.length, state.mood); els[i]._fog = null; }
+function refreshWrap() { cards.forEach((c, j) => { if (c.kind === "L" && (c.step === "wrap" || c.step === "cites")) rerenderCard(j); }); }
+function lessonAct(btn) {
+  const act = btn.dataset.act, id = btn.dataset.id, i = +btn.closest(".card").dataset.i, c = cards[i];
+  if (act === "pick") { LS.answers[id] = btn.dataset.v; }
+  else if (act === "order") { const sel = LS.order[id] = LS.order[id] || []; sel.push(+btn.dataset.k); if (sel.length === c.items.length) LS.answers[id] = sel.every((k, pos) => c.items[k].i === pos) ? "ok" : "no"; }
+  else if (act === "reorder") { LS.order[id] = []; delete LS.answers[id]; }
+  else if (act === "trust") { const t = LS.trust[id] = LS.trust[id] || {}; t[btn.dataset.k] = !t[btn.dataset.k]; }
+  else if (act === "saveword") { nbPut({ id: LS.key + id, lesson: doc.title, kind: "Word", text: `${c.h}: ${LS.writing[id] || "(no meaning written yet)"}. From: “${c.quote}”` }); }
+  else if (act === "savesrc") { const s = c.src; nbPut({ id: LS.key + id, lesson: doc.title, kind: "Source", text: cite(s) }); }
+  else if (act === "copycites") { const txt = c.srcs.filter((s, j) => nbLoad().some(x => x.id === LS.key + "s" + j)).map(cite).join("\n"); copyText(txt, btn); return; }
+  else if (act === "notebook") { openNb(); return; }
+  rerenderCard(i); refreshWrap();
+}
+function copyText(txt, btn) {
+  const done = ok => { const old = btn.textContent; btn.textContent = ok ? "Copied" : "Select the text to copy it"; setTimeout(() => btn.textContent = old, 1600); };
+  try { navigator.clipboard.writeText(txt).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+}
+const wTimers = {};
+function lessonInput(el) {
+  const id = el.dataset.w; LS.writing[id] = el.value;
+  const cnt = el.closest(".face").querySelector(`[data-count="${id}"]`); if (cnt) cnt.textContent = `${el.value.trim().split(/\s+/).filter(Boolean).length} words`;
+  clearTimeout(wTimers[id]); wTimers[id] = setTimeout(() => {
+    const c = cards[+el.closest(".card").dataset.i]; if (!el.value.trim() || c.step === "word") return;
+    const what = c.step === "notice" ? `${c.h} (${id.endsWith("-n") ? "I notice" : "I wonder"})` : c.step === "fivew" ? `Five W's: ${id.split("-").pop()}` : c.step === "chars" ? `Character: ${id.split("-").pop()}` : c.h;
+    nbPut({ id: LS.key + id, lesson: doc.title, kind: "Writing", text: `${what}: ${el.value.trim()}` }); refreshWrap();
+  }, 600);
+}
+function openNb() {
+  const list = nbLoad(), by = {};
+  list.forEach(x => (by[x.lesson] = by[x.lesson] || []).push(x));
+  $("#nbList").innerHTML = list.length ? Object.entries(by).map(([l, xs]) => `<section class="nbgroup"><h4>${esc(l)}</h4>${xs.map(x => `<div class="nbrow"><span class="tag">${esc(x.kind)}</span><p>${esc(x.text)}</p><button class="x" data-del="${esc(x.id)}" aria-label="Remove">×</button></div>`).join("")}</section>`).join("") : `<p class="note">Your notebook is empty. Words, writing and sources you save in lessons show up here.</p>`;
+  $("#nbConfirm").hidden = true; $("#nb").hidden = false;
+}
+
+/* ---------- Views: one 3D world per mood ---------- */
+function rand(seed) { const x = Math.sin(seed * 91.7) * 43758.5; return x - Math.floor(x); }
+const mobile = () => innerWidth < 700;
+const LAYOUTS = {
+  calm: n => ({ pos: Array.from({ length: n }, (_, i) => { const a = i * 0.62; return { x: 820 * Math.sin(a), y: (i - (n - 1) / 2) * 120, z: 820 * Math.cos(a), ry: a * 180 / Math.PI, rz: 0 }; }), view: { x: 0, y: 0, z: 0, rx: -6, ry: 0, zoom: -1750 }, spin: 0.05 }),
+  focused: n => ({ pos: Array.from({ length: n }, (_, i) => ({ x: 0, y: 0, z: -i * 900, ry: 0, rz: 0 })), view: { x: 0, y: 0, z: 0, rx: -4, ry: -16, zoom: -700 }, spin: 0 }),
+  curious: n => ({ pos: Array.from({ length: n }, (_, i) => { const y = 1 - 2 * (i + .5) / n, r = Math.sqrt(1 - y * y), th = i * 2.39996; const x = Math.cos(th) * r, z = Math.sin(th) * r; return { x: x * 680, y: -y * 520, z: z * 680, ry: Math.atan2(x, z) * 180 / Math.PI, rz: 0 }; }), view: { x: 0, y: 0, z: 0, rx: -8, ry: 0, zoom: -1500 }, spin: 0.08 }),
+  energized: n => { const cols = mobile() ? 2 : Math.ceil(Math.sqrt(n * 1.7)), rows = Math.ceil(n / cols);
+    const gx = state.delivery === "lesson" ? 480 : 400, gy = state.delivery === "lesson" ? 760 : 360;
+    return { pos: Array.from({ length: n }, (_, i) => ({ x: (i % cols - (cols - 1) / 2) * gx, y: (Math.floor(i / cols) - (rows - 1) / 2) * gy, z: (rand(i + 1) - .5) * 500, ry: (rand(i + 7) - .5) * 24, rz: (rand(i + 3) - .5) * 10 })), view: { x: 0, y: 0, z: 0, rx: 0, ry: 0, zoom: -560 - rows * 190 - cols * 60 }, spin: 0 }; }
+};
+
+/* ---------- State, camera, render ---------- */
+const openText = (text, type) => { const d = parse(text); d.raw = text; const first = linesOf(text)[0] || ""; if (isHead(first) || first.length < 90 && !/[.!?]$/.test(first)) d.title = first; d.type = type && type !== "auto" ? type : detectType(text); return d; };
+let doc = openText(SAMPLE, "article");
+const state = { audience: "adults", mood: "curious", need: "deep", delivery: "tour", focus: -1, trail: null, film: false };
+let cards = [], els = [], layout = null;
+const cam = { x: 0, y: 0, z: 0, rx: -8, ry: 0, zoom: -1500 }, tgt = { ...cam };
+let lastInteract = 0;
+
+function rebuild() {
+  cards = buildCards(doc, state.need);
+  world.innerHTML = "";
+  els = cards.map((c, i) => { const el = document.createElement("div"); el.className = "card enter"; el.dataset.i = i; world.appendChild(el); return el; });
+  state.focus = -1; state.trail = null; updateTrail();
+  relayout(true);
+  if (state.delivery === "lesson") setTimeout(() => { if (state.focus < 0 && !state.film) focus(0); }, 900);
+  requestAnimationFrame(() => requestAnimationFrame(() => els.forEach((el, i) => setTimeout(() => el.classList.remove("enter"), reduce ? 0 : i * 45))));
+  $("#typeName").textContent = TYPES[doc.type].toLowerCase().replace(/ /g, "-"); setStatus(); $("#tryType").value = doc.type;
+  $("#addr").textContent = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+}
+function relayout(scatter) {
+  layout = LAYOUTS[state.mood](cards.length);
+  els.forEach((el, i) => {
+    el.innerHTML = faceHTML(cards[i], i, cards.length, state.mood);
+    const p = layout.pos[i];
+    if (scatter) { el.style.transition = "none"; el.style.transform = cardT({ ...p, z: p.z - 2500 }); void el.offsetWidth; el.style.transition = ""; }
+    el.style.transform = cardT(p);
+  });
+  applyTrailDim();
+  if (state.focus >= 0) focus(state.focus); else overview();
+}
+const cardT = p => `translate(-50%,-50%) translate3d(${p.x}px,${p.y}px,${p.z}px) rotateY(${p.ry}deg) rotateZ(${p.rz}deg)`;
+const near = (cur, t) => cur + ((((t - cur) % 360) + 540) % 360 - 180);
+function overview() {
+  state.focus = -1; const v = layout.view, f = mobile() ? 1.55 : 1;
+  Object.assign(tgt, { x: v.x, y: v.y, z: v.z, rx: v.rx, zoom: v.zoom * f });
+  if (!layout.spin) tgt.ry = near(cam.ry, v.ry);
+  els.forEach(e => e.classList.remove("active")); $("#nav").hidden = true;
+}
+function focus(i) {
+  i = (i + cards.length) % cards.length; state.focus = i; const p = layout.pos[i];
+  const base = mobile() ? -280 : 80, hgt = els[i] ? els[i].offsetHeight : 0, fit = hgt ? 1000 - 1000 * hgt / (0.68 * innerHeight) : base;
+  Object.assign(tgt, { x: p.x, y: p.y, z: p.z, rx: 0, ry: near(cam.ry, -p.ry), zoom: Math.min(base, fit) });
+  els.forEach((e, j) => e.classList.toggle("active", j === i));
+  if (!state.film) $("#nav").hidden = false;
+}
+function tick() {
+  const k = state.film ? 0.035 : 0.075;
+  if (!reduce && state.focus < 0 && !dragging && layout.spin && state.audience !== "seniors" && performance.now() - lastInteract > 2500) tgt.ry += layout.spin;
+  if (state.film && !reduce) tgt.ry += 0.012;
+  for (const key in cam) cam[key] += (tgt[key] - cam[key]) * (reduce ? 1 : k);
+  world.style.transform = `translateZ(${cam.zoom}px) rotateX(${cam.rx}deg) rotateY(${cam.ry}deg) translate3d(${-cam.x}px,${-cam.y}px,${-cam.z}px)`;
+  const ry = cam.ry * Math.PI / 180, rx = cam.rx * Math.PI / 180;
+  els.forEach((el, i) => {
+    const p = layout.pos[i]; const x = p.x - cam.x, y = p.y - cam.y, z = p.z - cam.z;
+    const z1 = -x * Math.sin(ry) + z * Math.cos(ry); const z2 = y * Math.sin(rx) + z1 * Math.cos(rx) + cam.zoom;
+    const d = 1000 - z2; const fog = z2 > 420 ? 0 : Math.max(.22, Math.min(1, 1 - (d - 2000) / 3000));
+    const v = fog.toFixed(2); if (el._fog !== v) { el._fog = v; el.style.setProperty("--fog", v); el.style.visibility = fog ? "" : "hidden"; }
+  });
+  drawSky();
+  requestAnimationFrame(tick);
+}
+
+/* ---------- Ambient sky ---------- */
+const sky = $("#sky"), sx = sky.getContext("2d"); let dots = [];
+function sizeSky() { const r = devicePixelRatio || 1; sky.width = innerWidth * r; sky.height = innerHeight * r; sx.setTransform(r, 0, 0, r, 0, 0);
+  dots = Array.from({ length: Math.round(innerWidth * innerHeight / 9000) }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, s: Math.random() * 1.6 + .3, p: Math.random() * 6.28 })); }
+const SKY = { calm: { c: "130,217,203", vx: 0, vy: -.18 }, focused: { c: "244,243,238", vx: 0, vy: 0 }, curious: { c: "190,170,255", vx: .02, vy: 0 }, energized: { c: "255,180,90", vx: -2.6, vy: 0 } };
+function drawSky() {
+  const m = SKY[state.mood], W = innerWidth, H = innerHeight; sx.clearRect(0, 0, W, H);
+  const par = cam.ry * 3, t = performance.now() / 1000, boost = 1;
+  dots.forEach(d => {
+    if (!reduce) { d.x += m.vx * d.s * boost; d.y += m.vy * d.s * boost; if (d.x < 0) d.x += W; if (d.x > W) d.x -= W; if (d.y < 0) d.y += H; }
+    const x = ((d.x + par * d.s) % W + W) % W;
+    const a = state.mood === "curious" ? .25 + .55 * (0.5 + 0.5 * Math.sin(t * 2 + d.p)) : state.mood === "focused" ? .18 : .45;
+    sx.fillStyle = `rgba(${m.c},${a})`;
+    if (state.mood === "energized") sx.fillRect(x, d.y, d.s * 14, d.s * .8); else { sx.beginPath(); sx.arc(x, d.y, d.s, 0, 6.28); sx.fill(); }
+  });
+}
+
+/* ---------- Moving around ---------- */
+let dragging = false, down = null;
+stage.addEventListener("pointerdown", e => { if (e.target.closest(".chip, .reveal, button, input, textarea, label")) return; down = { x: e.clientX, y: e.clientY, ry: tgt.ry, rx: tgt.rx, moved: false }; stage.setPointerCapture(e.pointerId); lastInteract = performance.now(); });
+stage.addEventListener("pointermove", e => {
+  if (!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y;
+  if (!down.moved && Math.hypot(dx, dy) > 6) { down.moved = true; dragging = true; stage.classList.add("dragging"); if (state.focus >= 0) overview(); down.ry = tgt.ry; down.rx = tgt.rx; down.x = e.clientX; down.y = e.clientY; return; }
+  if (down.moved) { tgt.ry = down.ry + dx * .18; tgt.rx = Math.max(-40, Math.min(30, down.rx - dy * .12)); lastInteract = performance.now(); }
+});
+stage.addEventListener("pointerup", e => {
+  if (down && !down.moved && !state.film) { const c = document.elementFromPoint(e.clientX, e.clientY)?.closest(".card"); if (c) focus(+c.dataset.i); else if (state.focus >= 0) overview(); }
+  down = null; dragging = false; stage.classList.remove("dragging");
+});
+stage.addEventListener("wheel", e => { e.preventDefault(); tgt.zoom = Math.max(-5000, Math.min(400, tgt.zoom - e.deltaY * 1.4)); lastInteract = performance.now(); }, { passive: false });
+world.addEventListener("input", e => { if (e.target.dataset.w) lessonInput(e.target); });
+world.addEventListener("click", e => { const la = e.target.closest("[data-act]"); if (la) { e.stopPropagation(); lessonAct(la); return; } const rv = e.target.closest(".reveal"); if (rv) { rv.closest(".face").classList.add("shown"); return; } const ch = e.target.closest(".chip"); if (!ch) return; e.stopPropagation(); follow(ch.dataset.key); });
+addEventListener("keydown", e => {
+  if (!$("#drawer").hidden || !$("#lens").hidden) { if (e.key === "Escape") { closeDrawer(); if (saved) closeLens(); } return; }
+  if (!$("#nb").hidden) { if (e.key === "Escape") $("#nb").hidden = true; return; }
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.key === "Escape") { state.film ? stopFilm() : overview(); }
+  if (state.film) return;
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") focus(state.focus + 1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") focus(state.focus < 0 ? cards.length - 1 : state.focus - 1);
+});
+$("#prev").onclick = () => focus(state.focus - 1);
+$("#next").onclick = () => focus(state.focus + 1);
+$("#back").onclick = () => overview();
+
+function follow(key) {
+  state.trail = key; applyTrailDim(); updateTrail();
+  const hits = cards.map((c, i) => (c.keys || []).includes(key) ? i : -1).filter(i => i >= 0);
+  const next = hits.find(i => i > state.focus) ?? hits[0];
+  els.forEach(el => el.querySelectorAll(".chip").forEach(ch => ch.classList.toggle("on", ch.dataset.key === key)));
+  if (next != null) focus(next);
+}
+function applyTrailDim() { els.forEach((el, i) => el.classList.toggle("dim", !!state.trail && !(cards[i].keys || []).includes(state.trail))); }
+function updateTrail() {
+  const t = $("#trail"); if (!state.trail) { t.hidden = true; return; }
+  const n = cards.filter(c => (c.keys || []).includes(state.trail)).length;
+  $("#trailText").textContent = `Following “${state.trail}” across ${n} cards`; t.hidden = false;
+}
+$("#trailClear").onclick = () => { state.trail = null; applyTrailDim(); updateTrail(); els.forEach(el => el.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"))); };
+
+/* ---------- The lens (pre-built filter) ---------- */
+const LABEL = { kids: "Kids", teens: "Teens", adults: "Adults", seniors: "Seniors", calm: "Calm", focused: "Focused", curious: "Curious", energized: "Energized", quick: "Quick", deep: "Deep dive", facts: "Facts", tour: "Tour", explore: "Explore", quiet: "Quiet", lesson: "Lesson" };
+let saved = null;
+function save() { try { localStorage.setItem("moodspace", JSON.stringify({ audience: state.audience, mood: state.mood, need: state.need, delivery: state.delivery })); } catch (e) {} saved = true; }
+function paintLens() {
+  document.querySelectorAll("#lens [data-group]").forEach(g => g.querySelectorAll(".opt").forEach(o => o.setAttribute("aria-pressed", o.dataset.v === state[g.dataset.group])));
+  $("#lensSummary").textContent = `${LABEL[state.audience]} · ${LABEL[state.mood]} · ${LABEL[state.need]} · ${LABEL[state.delivery]}`;
+  $("#viewName").textContent = VIEW[state.mood];
+  document.body.dataset.mood = state.mood; document.body.dataset.audience = state.audience;
+  setStatus();
+}
+function setStatus() { if (typeof doc === "undefined" || !doc) return; $("#status").textContent = `${state.delivery === "lesson" ? "Lesson · " : ""}${TYPES[doc.type]} · for ${LABEL[state.audience].toLowerCase()} · ${VIEW[state.mood]} view · drag to orbit, tap a card`; }
+function setLens(patch) {
+  const prev = { ...state }; Object.assign(state, patch); paintLens(); save();
+  if ((patch.need && patch.need !== prev.need) || (patch.audience && patch.audience !== prev.audience) || (patch.delivery && patch.delivery !== prev.delivery && (patch.delivery === "lesson" || prev.delivery === "lesson"))) { if (state.film) stopFilm(); rebuild(); }
+  else if (patch.mood && patch.mood !== prev.mood) { if (state.mood !== "curious") { state.trail = null; updateTrail(); } relayout(false); if (state.film) audio.mood(); }
+  if (patch.delivery === "quiet") voiceStop();
+}
+document.querySelectorAll("#lens [data-group]").forEach(g => g.addEventListener("click", e => { const o = e.target.closest(".opt"); if (o) setLens({ [g.dataset.group]: o.dataset.v }); }));
+function openLens() { $("#lens").hidden = false; $("#enter").focus(); }
+function closeLens() { $("#lens").hidden = true; }
+$("#openLens").onclick = openLens;
+$("#enter").onclick = () => { closeLens(); save(); };
+$("#lens").addEventListener("click", e => { if (e.target.id === "lens" && saved) closeLens(); });
+
+/* ---------- Reading aloud ---------- */
+let tts = null;
+const RATE = { calm: .9, focused: 1, curious: 1.02, energized: 1.15 };
+const rate = () => RATE[state.mood] * (state.audience === "kids" ? .9 : state.audience === "seniors" ? .85 : 1);
+const canSpeak = () => state.delivery !== "quiet" && audio.on;
+function voiceStop() { try { tts?.stop().catch(() => {}); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} }
+
+/* ---------- Notebook ---------- */
+$("#openNb").onclick = openNb; $("#nbClose").onclick = () => { $("#nb").hidden = true; };
+$("#nb").addEventListener("click", e => { if (e.target.id === "nb") $("#nb").hidden = true; const d = e.target.closest("[data-del]"); if (d) { nbDel(d.dataset.del); openNb(); refreshWrap(); } });
+$("#nbCopy").onclick = e => copyText(nbLoad().map(x => `[${x.lesson}] ${x.kind}: ${x.text}`).join("\n"), e.target);
+$("#nbClear").onclick = () => { $("#nbConfirm").hidden = false; };
+$("#nbNo").onclick = () => { $("#nbConfirm").hidden = true; };
+$("#nbYes").onclick = () => { nbSave([]); updateNbCount(); openNb(); if (state.delivery === "lesson") rebuild(); };
+updateNbCount();
+
+/* ---------- Opening a page ---------- */
+const openDrawer = () => { $("#drawer").hidden = false; $("#err").hidden = true; $("#src").focus(); };
+const closeDrawer = () => { $("#drawer").hidden = true; };
+$("#openRemix").onclick = openDrawer; $("#cancel").onclick = closeDrawer;
+$("#drawer").addEventListener("click", e => { if (e.target.id === "drawer") closeDrawer(); });
+$("#sample").onclick = () => { const t = $("#ptypeSel").value === "auto" ? "article" : $("#ptypeSel").value; $("#src").value = SAMPLES[t]; };
+const typeOpts = Object.entries(TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+$("#ptypeSel").innerHTML = `<option value="auto">Detect automatically</option>` + typeOpts;
+$("#tryType").innerHTML = typeOpts;
+const howFor = () => { const v = $("#ptypeSel").value; $("#typeHow").textContent = v === "auto" ? "Moodspace guesses from the text." : TYPE_HOW[v]; };
+$("#ptypeSel").onchange = howFor; howFor();
+$("#tryType").onchange = e => { doc = openText(SAMPLES[e.target.value], e.target.value); if (state.film) stopFilm(); rebuild(); };
+$("#remix").onclick = () => {
+  const t = $("#src").value.trim();
+  if (t.split(/\s+/).length < 8) { $("#err").textContent = "That's too short to show. Paste a bit more of the page."; $("#err").hidden = false; return; }
+  const d = openText(t, $("#ptypeSel").value);
+  if (d.type === "article" && !d.chunks.length) { $("#err").textContent = "Couldn't find any paragraphs. Make sure the text has line breaks between paragraphs, or pick a page type."; $("#err").hidden = false; return; }
+  doc = d; closeDrawer(); if (state.film) stopFilm(); rebuild();
+};
+$("#file").onchange = e => {
+  const f = e.target.files[0]; if (!f) return; const r = new FileReader();
+  r.onload = () => { let t = r.result;
+    if (/\.html?$/i.test(f.name) || /<html|<p[\s>]/i.test(t)) { const d = new DOMParser().parseFromString(t, "text/html"); const root = d.querySelector("article, main") || d.body; t = [...root.querySelectorAll("h1,h2,h3,p,li")].map(n => n.textContent.trim().replace(/\s+/g, " ")).filter(Boolean).join("\n\n"); }
+    $("#src").value = t; };
+  r.readAsText(f);
+};
+
+/* ---------- Guided tour ---------- */
+const audio = (() => {
+  let ctx, gain, oscs = [], on = true;
+  const TONES = { calm: [110, 164.8], focused: [98, 146.8], curious: [130.8, 196, 246.9], energized: [82.4, 123.5] };
+  return {
+    start() { try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume(); gain = ctx.createGain(); gain.gain.value = 0; const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; gain.connect(lp).connect(ctx.destination); this.mood(); } catch (e) {} },
+    mood() { if (!ctx || !gain) return; oscs.forEach(o => { try { o.stop(); } catch (e) {} }); oscs = TONES[state.mood].map((f, i) => { const o = ctx.createOscillator(); o.type = state.mood === "energized" ? "sawtooth" : "sine"; o.frequency.value = f; o.detune.value = i * 6; o.connect(gain); o.start(); return o; }); gain.gain.setTargetAtTime(on && state.delivery !== "quiet" ? (state.mood === "energized" ? .02 : .04) : 0, ctx.currentTime, .8); },
+    stop() { if (!gain) return; gain.gain.setTargetAtTime(0, ctx.currentTime, .3); const os = oscs; oscs = []; setTimeout(() => os.forEach(o => { try { o.stop(); } catch (e) {} }), 1200); gain = null; },
+    toggle() { on = !on; if (gain) gain.gain.setTargetAtTime(on ? .04 : 0, ctx.currentTime, .3); if (!on) voiceStop(); return on; },
+    get on() { return on; }
+  };
+})();
+let shot = 0, shotTimer = null, filmId = 0;
+function narration(c) {
+  if (c.kind === "L") return [c.label, c.h, c.text, c.choices ? "Is it " + c.choices.join(", or ") + "?" : "", c.goals ? "You will " + c.goals.join(", ") : "", (c.rows || []).map(r => r.s || r.join(" ")).join(". ")].filter(Boolean).join(". ");
+  if (c.kind === "x") return [c.label, c.h, c.big, c.trend, c.text, (c.list || []).join(". "), (c.rows || []).map(r => r.join(" ")).join(". "), (c.bars || []).map(b => `${b.label} ${b.chg}`).join(". "), c.cta].filter(Boolean).join(". ");
+  if (c.kind === "title") return `${c.h}. ${c.lede}`;
+  if (c.kind === "tldr") return c.points.join(" ");
+  if (c.kind === "fact") return c.text;
+  if (c.kind === "quiz") return `${state.audience === "kids" ? "Can you guess?" : "Quick check."} ${c.before} blank ${c.after} … The answer is ${c.answer}.`;
+  const ss = sentences(c.text); return `${c.h.replace(/…$/, "")}. ${ss.slice(0, state.mood === "calm" || state.mood === "energized" ? 2 : 3).join(" ")}`;
+}
+const est = c => Math.max(3500, narration(c).split(/\s+/).length * 390 / rate() + 900);
+function showShot(i) {
+  shot = i; focus(i); $("#caption").textContent = narration(cards[i]);
+  const dur = est(cards[i]);
+  [...$("#progress").children].forEach((b, j) => { b.className = j < i ? "done" : j === i ? "now" : ""; b.style.setProperty("--dur", dur + "ms"); });
+  return dur;
+}
+function startFilm() {
+  if (state.film || !cards.length) return;
+  state.film = true; const id = ++filmId; document.body.classList.add("filming"); $("#film").classList.add("on");
+  $("#progress").innerHTML = cards.map(() => "<i></i>").join(""); $("#nav").hidden = true;
+  audio.start(); $("#sound").textContent = canSpeak() ? "Voice on" : "Voice off";
+  if (tts && canSpeak()) {
+    // One reading, one line per card; the camera follows the voice
+    const off = tts.onLine(({ id: lid }) => { if (id === filmId && lid != null) showShot(+lid); });
+    showShot(0);
+    tts.speak(cards.map((c, i) => ({ text: narration(c).slice(0, 1900), id: String(i) })), { rate: rate() })
+      .then(() => { off?.(); if (id === filmId) setTimeout(() => id === filmId && stopFilm(), 900); })
+      .catch(() => { off?.(); if (id === filmId && state.film) timedFilm(id, shot); });
+  } else timedFilm(id, 0);
+}
+function timedFilm(id, from) {
+  const step = i => {
+    if (id !== filmId || !state.film) return;
+    if (i >= cards.length) { stopFilm(); return; }
+    const dur = showShot(i);
+    if (canSpeak() && !tts && "speechSynthesis" in window) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(narration(cards[i])); u.rate = rate(); speechSynthesis.speak(u); } catch (e) {} }
+    clearTimeout(shotTimer); shotTimer = setTimeout(() => step(i + 1), dur);
+  };
+  step(from);
+}
+function stopFilm() {
+  if (!state.film) return;
+  state.film = false; filmId++; clearTimeout(shotTimer); voiceStop();
+  audio.stop(); document.body.classList.remove("filming"); $("#film").classList.remove("on"); overview();
+}
+$("#play").onclick = startFilm; $("#stop").onclick = stopFilm;
+$("#sound").onclick = () => { const on = audio.toggle(); $("#sound").textContent = on ? "Voice on" : "Voice off"; if (state.film) { const from = shot; const id = ++filmId; timedFilm(id, from); } };
+
+/* ---------- Boot ---------- */
+try { const s = JSON.parse(localStorage.getItem("moodspace") || "null"); if (s) { saved = true; if (["kids", "teens", "adults", "seniors"].includes(s.audience)) state.audience = s.audience; if (LAYOUTS[s.mood]) state.mood = s.mood; if (["quick", "deep", "facts"].includes(s.need)) state.need = s.need; if (["tour", "explore", "quiet", "lesson"].includes(s.delivery)) state.delivery = s.delivery; } } catch (e) {}
+paintLens(); sizeSky(); rebuild(); Object.assign(cam, tgt);
+if (!saved) openLens();
+addEventListener("resize", () => { sizeSky(); relayout(false); });
+requestAnimationFrame(tick);
+(async () => {
+  if (!window.claude?.use) return;
+  tts = await claude.use("tts").catch(() => null);
+})();
+</script>

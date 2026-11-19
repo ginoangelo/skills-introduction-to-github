@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fieldwork extension mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* Mockup of a browser with the Fieldwork extension. The "site" is a made-up meal-kit brand. */
+:root { --fw: #c2513f; --fw-ink: #2e3152; --fw-muted: #6b6d86; --fw-line: #e6dcc6; --fw-bg: #fff7e8; --hl: #fde7a6; --mint: #86d0cb; --coral: #e8806f; --mustard: #e6bd4c; --sage: #93b86e; --lavender: #a28ae3; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px/1.5 Inter, Arial, sans-serif; background: #d9dcdf; color: #111; }
+.browser { position: fixed; inset: 0; display: grid; grid-template-rows: auto auto 1fr; background: #fff; }
+.tabs { background: #dfe3e8; padding: 8px 12px 0; display: flex; gap: 6px; align-items: end; }
+.tab { background: #fff; border-radius: 10px 10px 0 0; padding: 8px 14px; font-size: 12.5px; display: flex; gap: 8px; align-items: center; width: 260px; }
+.tab i { width: 14px; height: 14px; border-radius: 4px; background: #ff6a3d; display: inline-block; }
+.tab.ghost { background: transparent; color: #555; width: 200px; }
+.toolbar { position: relative; z-index: 20; display: flex; gap: 10px; align-items: center; padding: 8px 12px; border-bottom: 1px solid #e3e6ea; }
+.nav { display: flex; gap: 12px; color: #777; font-size: 16px; }
+.addr { flex: 1; background: #f1f3f4; border-radius: 999px; padding: 7px 16px; font-size: 13px; color: #333; display: flex; gap: 8px; align-items: center; }
+.addr .lock { color: #2a7; }
+.ext { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; position: relative; }
+.ext.on { background: color-mix(in srgb, var(--fw) 14%, transparent); outline: 2px solid var(--fw); }
+.ext svg { width: 18px; height: 18px; }
+.ext .tip { position: absolute; top: 38px; right: 0; white-space: nowrap; background: var(--fw-ink); color: #fff; font-size: 12px; padding: 6px 10px; border-radius: 6px; }
+.viewport { position: relative; overflow: hidden; }
+
+/* ---------- The messy website ---------- */
+.site { font-family: Inter, Arial, sans-serif; color: #1b1b1b; }
+.promo { background: #ff6a3d; color: #fff; text-align: center; font-weight: 700; padding: 10px; letter-spacing: .04em; font-size: 13px; }
+.sitenav { display: flex; justify-content: space-between; align-items: center; padding: 18px 48px; border-bottom: 1px solid #eee; }
+.brand { font: 900 26px/1 "Playfair Display", serif; color: #ff6a3d; }
+.sitenav nav { display: flex; gap: 26px; font-weight: 600; font-size: 14px; }
+.sitenav .cta { background: #1b1b1b; color: #fff; border-radius: 999px; padding: 10px 20px; font-weight: 700; }
+.hero { height: 620px; background: radial-gradient(circle at 70% 40%, #ffd3b8, #ff8a5c 40%, #c2410c); display: grid; align-content: center; padding: 0 80px; color: #fff; }
+.hero h1 { font: 900 84px/0.95 "Playfair Display", serif; margin: 0 0 18px; max-width: 760px; }
+.hero p { font-size: 20px; max-width: 520px; margin: 0 0 26px; }
+.hero .cta { justify-self: start; background: #fff; color: #c2410c; padding: 16px 30px; border-radius: 999px; font-weight: 800; font-size: 16px; }
+.big-img { height: 520px; background: linear-gradient(135deg, #2f4f2f, #6b8e23 60%, #c5d86d); display: grid; place-items: center; color: #fff; font: 900 64px/1 "Playfair Display", serif; }
+.logos { display: flex; justify-content: center; gap: 70px; padding: 40px; color: #aaa; font-weight: 800; letter-spacing: .2em; font-size: 13px; }
+.icons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; padding: 70px 80px; text-align: center; }
+.icons div b { display: block; font: 900 40px/1 "Playfair Display", serif; color: #ff6a3d; margin-bottom: 8px; }
+.testi { background: #fff4ee; padding: 90px 140px; text-align: center; font: 700 30px/1.35 "Playfair Display", serif; }
+.testi small { display: block; font: 600 14px Inter; margin-top: 16px; color: #888; }
+.pricing { padding: 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.plan { border: 2px solid #eee; border-radius: 20px; padding: 30px; }
+.plan h3 { font: 900 30px "Playfair Display", serif; margin: 0 0 8px; }
+.plan .p { font-size: 40px; font-weight: 800; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; padding: 70px 80px; background: #fafafa; }
+.faq { padding: 70px 160px; }
+.faq div { border-bottom: 1px solid #eee; padding: 20px 0; font-weight: 700; font-size: 18px; display: flex; justify-content: space-between; }
+footer.sitefoot { background: #1b1b1b; color: #999; padding: 50px 80px; font-size: 11px; }
+.cookie { position: absolute; left: 0; right: 0; bottom: 0; background: #222; color: #eee; padding: 18px 40px; display: flex; gap: 20px; align-items: center; font-size: 13px; z-index: 3; }
+.cookie b { margin-left: auto; background: #ff6a3d; color: #fff; padding: 9px 18px; border-radius: 6px; }
+.popup-bg { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: grid; place-items: center; z-index: 2; }
+.popup { width: 460px; background: #fff; border-radius: 18px; padding: 36px; text-align: center; position: relative; }
+.popup h2 { font: 900 36px/1.05 "Playfair Display", serif; margin: 0 0 10px; color: #c2410c; }
+.popup .x { position: absolute; top: 14px; right: 18px; font-size: 22px; color: #999; }
+.popup input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 14px 0 10px; }
+.popup .b { background: #ff6a3d; color: #fff; font-weight: 800; padding: 13px; border-radius: 8px; }
+
+/* ---------- Fieldwork overlay ---------- */
+.fw { position: absolute; inset: 0; z-index: 5; background: rgba(255,247,232,.97); font-family: Inter, Arial, sans-serif; color: var(--fw-ink); display: grid; grid-template-rows: auto 1fr; }
+.fwbar { display: flex; align-items: center; gap: 12px; padding: 10px 20px; background: #fff; border-bottom: 1px solid var(--fw-line); }
+.fwlogo { display: flex; gap: 8px; align-items: center; font: 700 16px Space Grotesk, sans-serif; }
+.fwlogo svg { width: 18px; height: 18px; }
+.styles { display: flex; gap: 2px; background: #ececE5; border-radius: 999px; padding: 3px; }
+.styles span { padding: 6px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--fw-muted); }
+.styles span.on { background: #fff; color: var(--fw-ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.fwbar .sp { flex: 1; }
+.pill { font: 500 11.5px IBM Plex Mono, monospace; border: 1px solid var(--fw-line); border-radius: 999px; padding: 6px 10px; color: var(--fw-muted); background: #fff; }
+.pill.ok { color: #1d7a43; border-color: #bfe0cb; background: #f0faf3; }
+.fwbtn { border: 1px solid var(--fw-line); background: #fff; border-radius: 8px; padding: 7px 12px; font-weight: 600; font-size: 12.5px; }
+.fwbtn.primary { background: var(--fw); color: #fff; border-color: var(--fw); }
+.fwbody { overflow: hidden; display: grid; justify-items: center; padding: 26px 24px; }
+.center { width: min(1060px, 100%); display: grid; gap: 14px; align-content: start; }
+.pagehead { display: flex; align-items: end; gap: 14px; }
+.pagehead h1 { margin: 0; font: 700 28px/1.1 Space Grotesk, sans-serif; letter-spacing: -.01em; }
+.pagehead .meta { font: 400 12px IBM Plex Mono, monospace; color: var(--fw-muted); }
+.chunks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.chunk { background: #fff; border: 1px solid var(--fw-line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 7px; align-content: start; }
+.chunk.wide { grid-column: span 2; }
+.chunk.fine { border-color: var(--coral); background: #fdf0ec; }
+.chunk { border-top: 6px solid var(--c, var(--mint)); }
+.chunk:nth-child(5n+2) { --c: var(--mustard); } .chunk:nth-child(5n+3) { --c: var(--coral); } .chunk:nth-child(5n+4) { --c: var(--sage); } .chunk:nth-child(5n) { --c: var(--lavender); }
+.fwbtn.primary { background: var(--fw-ink); border-color: var(--fw-ink); }
+.styles span.on { background: var(--mustard); color: var(--fw-ink); }
+.fwlogo, .pagehead h1, .legend h1, .onecard, .pcard h2 { font-family: Fredoka, Inter, sans-serif; }
+.chunk h3 { margin: 0; font: 600 14.5px Space Grotesk, sans-serif; display: flex; justify-content: space-between; gap: 8px; }
+.chunk h3 small { font: 500 10.5px IBM Plex Mono, monospace; color: var(--fw); font-weight: 500; white-space: nowrap; }
+.chunk p { margin: 0; font-size: 14px; line-height: 1.55; }
+.chunk table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+.chunk th, .chunk td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--fw-line); }
+.chunk th { font: 500 10.5px IBM Plex Mono, monospace; text-transform: uppercase; color: var(--fw-muted); letter-spacing: .05em; }
+.chunk td.n { font-variant-numeric: tabular-nums; font-weight: 600; }
+.big { font: 700 26px/1 Space Grotesk, sans-serif; color: var(--fw); }
+.foot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 12.5px; color: var(--fw-muted); }
+.tag { font: 500 10.5px IBM Plex Mono, monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--fw); }
+/* one-screen */
+.onecard { background: #fff; border: 1px solid var(--fw-line); border-radius: 16px; padding: 28px 32px; display: grid; gap: 14px; max-width: 760px; justify-self: center; }
+.onecard p { margin: 0; font-size: 17px; line-height: 1.7; }
+.onecard mark { background: var(--hl); border-radius: 3px; padding: 0 2px; }
+.kv { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.kv div { background: var(--fw-bg); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.kv b { font: 700 20px Space Grotesk, sans-serif; } .kv span { font-size: 12px; color: var(--fw-muted); }
+/* Q&A */
+.qa { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.q { background: #fff; border: 1px solid var(--fw-line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; }
+.q b { font: 600 15px Space Grotesk, sans-serif; } .q p { margin: 0; font-size: 14px; }
+/* side panel */
+.withpanel { display: grid; grid-template-columns: 1fr 400px; height: 100%; }
+.panel { background: #fff; border-left: 1px solid var(--fw-line); padding: 18px; display: grid; gap: 12px; align-content: start; overflow: hidden; }
+.panel h2 { margin: 0; font: 700 18px Space Grotesk, sans-serif; }
+.req { border: 1px solid var(--fw-line); border-radius: 10px; padding: 12px; font-size: 14px; background: var(--fw-bg); line-height: 1.5; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips span { border: 1px solid var(--fw-line); border-radius: 999px; padding: 5px 10px; font-size: 12px; }
+.chips span.on { border-color: var(--fw); color: var(--fw); }
+.done { display: grid; gap: 6px; font-size: 13px; }
+.done div { display: flex; gap: 8px; } .done b { color: #1d7a43; }
+.mini { border: 1px solid var(--fw-line); border-radius: 10px; overflow: hidden; font-size: 12px; }
+.mini table { width: 100%; border-collapse: collapse; }
+.mini th, .mini td { padding: 6px 8px; border-bottom: 1px solid var(--fw-line); text-align: left; }
+.mini th { background: var(--fw-bg); font: 500 10px IBM Plex Mono, monospace; text-transform: uppercase; color: var(--fw-muted); }
+.exp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.exp span { border: 1px solid var(--fw-line); border-radius: 8px; padding: 9px; text-align: center; font-weight: 600; font-size: 12.5px; }
+.exp span small { display: block; font: 500 10px IBM Plex Mono, monospace; color: var(--fw-muted); }
+/* phone */
+.phone { position: fixed; inset: 0; background: var(--fw-bg); display: grid; grid-template-rows: auto auto 1fr auto; font-family: Inter, sans-serif; color: var(--fw-ink); }
+.pbar { padding: 14px 16px 8px; display: flex; justify-content: space-between; font-weight: 600; font-size: 14px; }
+.paddr { margin: 0 12px 8px; background: #fff; border-radius: 12px; padding: 9px 12px; font-size: 13px; display: flex; justify-content: space-between; border: 1px solid var(--fw-line); }
+.pcard { margin: 6px 16px; background: #fff; border: 1px solid var(--fw-line); border-radius: 18px; padding: 22px; display: grid; gap: 12px; align-content: start; box-shadow: 0 10px 30px -12px rgba(0,0,0,.2); }
+.pcard h2 { margin: 0; font: 700 26px/1.15 Space Grotesk, sans-serif; }
+.prow { display: grid; grid-template-columns: 1fr auto; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--fw-line); font-size: 16px; }
+.prow b { font: 700 22px Space Grotesk, sans-serif; color: var(--fw); }
+.prow span { grid-column: 1 / -1; color: var(--fw-muted); font-size: 14px; }
+.dots { display: flex; gap: 6px; justify-content: center; padding: 12px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: #c6d1c9; } .dots i.on { background: var(--fw); width: 22px; border-radius: 4px; }
+.pnav { display: flex; justify-content: space-between; padding: 0 16px 22px; gap: 10px; }
+.pnav span { flex: 1; text-align: center; border: 1px solid var(--fw-line); background: #fff; border-radius: 12px; padding: 13px; font-weight: 600; }
+.pnav span.p { background: var(--fw); color: #fff; border-color: var(--fw); }
+.senior .pcard h2 { font-size: 32px; } .senior .prow { font-size: 21px; } .senior .prow b { font-size: 28px; } .senior .prow span { font-size: 18px; color: #333; }
+.senior .pnav span { font-size: 20px; padding: 18px; }
+/* scroll map */
+.map { position: fixed; inset: 0; background: #eef0f2; display: grid; grid-template-columns: 340px 1fr; gap: 40px; padding: 40px 60px; font-family: Inter, sans-serif; }
+.map .shrink { width: 340px; height: 820px; overflow: hidden; border: 1px solid #ccc; background: #fff; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,.15); }
+.map .shrink .site { transform: scale(.236); transform-origin: top left; width: 1440px; }
+.pin { position: absolute; left: 6px; width: 26px; height: 26px; border-radius: 50%; background: var(--fw); color: #fff; font: 700 13px Space Grotesk; display: grid; place-items: center; box-shadow: 0 0 0 3px #fff; z-index: 2; }
+.pinline { position: absolute; left: 0; right: 0; height: 2px; background: var(--fw); opacity: .5; }
+.legend { display: grid; gap: 12px; align-content: center; }
+.legend h1 { margin: 0 0 6px; font: 700 34px/1.1 Space Grotesk, sans-serif; color: var(--fw-ink); }
+.legend .sub { font-size: 17px; color: var(--fw-muted); margin: 0 0 12px; max-width: 60ch; }
+.legend div.it { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; background: #fff; border-radius: 10px; padding: 10px 14px; font-size: 15px; }
+.legend div.it i { font-style: normal; width: 26px; height: 26px; border-radius: 50%; background: var(--fw); color: #fff; font: 700 13px Space Grotesk; display: grid; place-items: center; }
+.legend div.it small { font: 500 12px IBM Plex Mono, monospace; color: var(--fw-muted); }
+
+/* Phone views in the brand palette */
+.phone { background: radial-gradient(260px 220px at 100% 0%, color-mix(in srgb, var(--mustard) 30%, transparent), transparent 70%), radial-gradient(260px 240px at 0% 100%, color-mix(in srgb, var(--lavender) 26%, transparent), transparent 70%), var(--fw-bg); }
+.phone .pcard { border: 1.5px solid var(--fw-ink); border-top: 10px solid var(--mint); border-radius: 18px; box-shadow: 6px 6px 0 var(--mint); }
+.phone.senior .pcard { border-top-color: var(--coral); box-shadow: 6px 6px 0 var(--coral); }
+.phone .pcard h2 { font-family: Fredoka, Inter, sans-serif; font-weight: 700; }
+.phone .tag { display: inline-block; justify-self: start; background: var(--mint); color: var(--fw-ink); border: 1.5px solid var(--fw-ink); border-radius: 999px; padding: 5px 10px; }
+.phone.senior .tag { background: var(--coral); }
+.phone .prow b { font-family: Fredoka, Inter, sans-serif; color: var(--fw-ink); background: var(--mustard); border: 1.5px solid var(--fw-ink); border-radius: 10px; padding: 2px 10px; }
+.phone .prow:nth-of-type(2) b { background: var(--coral); } .phone .prow:nth-of-type(3) b { background: var(--lavender); }
+.phone .dots i { background: #e6dcc6; } .phone .dots i:nth-child(1) { background: var(--mint); } .phone .dots i:nth-child(3) { background: var(--mustard); } .phone .dots i:nth-child(4) { background: var(--sage); } .phone .dots i:nth-child(5) { background: var(--coral); } .phone .dots i:nth-child(6) { background: var(--lavender); }
+.phone .dots i.on { background: var(--fw-ink); }
+.phone .pnav span { border: 1.5px solid var(--fw-ink); border-radius: 14px; }
+.phone .pnav span.p { background: var(--fw-ink); color: #fff7e8; }
+.phone .paddr { border: 1.5px solid var(--fw-ink); border-radius: 14px; }
+.phone .pill { border: 1.5px solid var(--fw-ink); background: var(--mustard-soft, #faefc9); color: var(--fw-ink); }
+</style></head><body>
+<div id="root"></div>
+<script>
+const LOGO = `<svg viewBox="0 0 24 24"><path d="M5 21V4" stroke="#14201a" stroke-width="2" stroke-linecap="round"/><path d="M5 4h12l-3 4 3 4H5" fill="#e8806f"/></svg>`;
+const SITE = `<div class="site">
+<div class="promo">SPRING SALE — 50% OFF YOUR FIRST BOX*</div>
+<div class="sitenav"><span class="brand">QuickKit</span><nav><span>Menu</span><span>Plans</span><span>How it works</span><span>Gifts</span><span>Blog</span></nav><span class="cta">Get started</span></div>
+<div class="hero" id="p1"><h1>Dinner in 15. No chopping.</h1><p>Meal kits for busy people, delivered to your door every week.</p><span class="cta">Claim 50% off</span></div>
+<div class="big-img">Real food. Real fast.</div>
+<div class="logos"><span>FOOD MAG</span><span>DAILY LIVING</span><span>HOME CHEF WEEKLY</span><span>CITY TIMES</span></div>
+<div class="icons" id="p2"><div><b>Pre-chopped</b>Every ingredient arrives pre-chopped and pre-measured.</div><div><b>15 min</b>Most meals are ready in about 15 minutes.</div><div><b>48 states</b>Based in Chicago, shipping to 48 states.</div></div>
+<div class="testi" id="p3">“I actually cook on weeknights now.”<small>Rated 4.6 out of 5 from 9,400 reviews · Over 250,000 boxes delivered since 2023</small></div>
+<div class="big-img" style="background:linear-gradient(135deg,#7c2d12,#ea580c)">Fresh. Simple. Yours.</div>
+<div class="pricing" id="p4"><div class="plan"><h3>Solo</h3><div class="p">$54.00<small style="font-size:16px">/week</small></div><p>5 meals for 1 person · $10.80 per serving</p></div><div class="plan"><h3>Duo</h3><div class="p">$89.90<small style="font-size:16px">/week</small></div><p>5 meals for 2 people · $8.99 per serving</p></div></div>
+<div class="steps"><div><b>1. Pick</b><br>Choose 5 meals from the weekly menu.</div><div><b>2. Get</b><br>Your box arrives in a cooler bag.</div><div><b>3. Cook</b><br>Follow the card. Done in 15.</div></div>
+<div class="faq" id="p5"><div>How much is shipping? <span>+</span></div><div>Can I skip a week? <span>+</span></div><div>Is the packaging recyclable? <span>+</span></div></div>
+<footer class="sitefoot" id="p6">*50% off applies to your first box only, up to $40. First box ships free; after that, shipping is $7.99 per box. Subscription renews weekly until cancelled. Skip or cancel by Wednesday 11:59 pm before your next delivery. © 2026 QuickKit (sample brand for illustration).</footer>
+</div>`;
+const browser = (inner, ext, url) => `<div class="browser"><div class="tabs"><div class="tab"><i></i>QuickKit | Plans & pricing</div><div class="tab ghost">New tab</div></div>
+<div class="toolbar"><div class="nav">← → ⟳</div><div class="addr"><span class="lock">🔒</span>quickkit.example/plans</div><div class="ext${ext ? " on" : ""}">${LOGO}${ext === "tip" ? `<span class="tip">Fieldwork is on · tap to see the original</span>` : ""}</div></div>
+<div class="viewport">${inner}</div></div>`;
+const bar = (style, extra = "") => `<div class="fwbar"><span class="fwlogo">${LOGO}Fieldwork</span><div class="styles">${["Chunks", "One screen", "Swipe", "Q&A", "Table", "Original"].map(s => `<span class="${s === style ? "on" : ""}">${s}</span>`).join("")}</div><span class="sp"></span>${extra}<span class="pill ok">✓ 12 of 12 facts placed</span><span class="pill">Professional · Briefing</span><span class="fwbtn">Original page</span><span class="fwbtn primary">Extract</span></div>`;
+const head = `<div class="pagehead"><h1>QuickKit: Plans & pricing</h1><span class="meta">quickkit.example/plans · 9 screens of scrolling → 1</span></div>`;
+const CHUNKS = `<div class="chunks">
+<div class="chunk"><h3>Overview <small>2 places ↗</small></h3><p>Meal kits for busy people. Every ingredient arrives <b>pre-chopped and pre-measured</b>, and most meals are ready in <b>about 15 minutes</b>. Based in Chicago, ships to 48 states.</p></div>
+<div class="chunk wide"><h3>Plans & pricing <small>pricing section ↗</small></h3><table><tr><th>Plan</th><th>Per week</th><th>Meals</th><th>Per serving</th></tr><tr><td>Solo</td><td class="n">$54.00</td><td>5 meals for 1 person</td><td class="n">$10.80</td></tr><tr><td>Duo</td><td class="n">$89.90</td><td>5 meals for 2 people</td><td class="n">$8.99</td></tr></table></div>
+<div class="chunk"><h3>Current deal <small>top banner + footer ↗</small></h3><div class="big">50% off</div><p>Your <b>first box only</b>, up to <b>$40</b> off.</p></div>
+<div class="chunk"><h3>Delivery <small>footer ↗</small></h3><p>First box ships <b>free</b>. After that, shipping is <b>$7.99 per box</b>.</p></div>
+<div class="chunk fine"><h3>Fine print <small>footer ↗</small></h3><p>The subscription <b>renews weekly until cancelled</b>. Skip or cancel by <b>Wednesday 11:59 pm</b> before your next delivery.</p></div>
+<div class="chunk"><h3>How it works <small>steps ↗</small></h3><p>Pick 5 meals from the weekly menu, your box arrives in a cooler bag, follow the recipe card.</p></div>
+<div class="chunk wide"><h3>Proof <small>reviews section ↗</small></h3><p>Rated <b>4.6 out of 5</b> from 9,400 reviews. Over <b>250,000 boxes</b> delivered since 2023.</p></div>
+</div>`;
+const VIEWS = {
+  before: () => browser(SITE + `<div class="popup-bg"><div class="popup"><span class="x">×</span><h2>Wait! Don't miss 50% off</h2><p>Join our list for weekly recipes and deals.</p><input placeholder="Email address"><div class="b">Unlock my discount</div></div></div><div class="cookie">We use cookies to improve your experience. <span style="text-decoration:underline">Manage</span><b>Accept all</b></div>`, false),
+  map: () => `<div class="map"><div class="shrink">${SITE}
+    ${[[1, 152], [2, 520], [3, 608], [4, 760], [5, 822], [6, 812]].map(([n, y]) => `<div class="pinline" style="top:${y + 12}px"></div><span class="pin" style="top:${y}px;left:${n === 6 ? 300 : 6}px">${n}</span>`).join("")}
+  </div><div class="legend"><h1>The problem: the facts are scattered</h1><p class="sub">On the real page, the answers you need are spread across about 9 screens of scrolling, between big images, a pop-up and a cookie banner. Shipping and cancellation are hidden in tiny footer text.</p>
+  <div class="it"><i>1</i>The deal: 50% off, in the banner and hero<small>screen 1</small></div>
+  <div class="it"><i>2</i>What it is: pre-chopped, 15 minutes, 48 states<small>screen 3</small></div>
+  <div class="it"><i>3</i>Proof: 4.6 stars, 250,000 boxes<small>screen 4</small></div>
+  <div class="it"><i>4</i>The prices: Solo and Duo plans<small>screen 6</small></div>
+  <div class="it"><i>5</i>Shipping and skipping: hidden in closed FAQ boxes<small>screen 8</small></div>
+  <div class="it"><i>6</i>Fine print: deal limit, $7.99 shipping, weekly renewal<small>footer, tiny text</small></div>
+  </div></div>`,
+  chunks: () => browser(`<div class="fw">${bar("Chunks")}<div class="fwbody"><div class="center">${head}${CHUNKS}<div class="foot"><span>Removed: 1 pop-up, cookie banner, 4 large images, repeated menus.</span><span>Tap any chunk to see where it came from.</span></div></div></div></div>`, "tip"),
+  one: () => browser(`<div class="fw">${bar("One screen")}<div class="fwbody"><div class="center">${head}<div class="onecard"><span class="tag">The whole page, in one paragraph</span>
+    <p>QuickKit sends weekly meal kits with <mark>pre-chopped, pre-measured</mark> ingredients, so most meals take <mark>about 15 minutes</mark>. The <mark>Solo plan is $54.00 a week</mark> (5 meals for 1, $10.80 per serving) and the <mark>Duo plan is $89.90 a week</mark> (5 meals for 2, $8.99 per serving). Your <mark>first box is 50% off, up to $40</mark>, and ships free; after that, <mark>shipping is $7.99 per box</mark>. The subscription <mark>renews weekly until you cancel</mark>, and you must skip or cancel <mark>by Wednesday 11:59 pm</mark>. It's rated 4.6 out of 5 from 9,400 reviews.</p>
+    <div class="kv"><div><b>$54.00</b><span>Solo / week</span></div><div><b>$89.90</b><span>Duo / week</span></div><div><b>$7.99</b><span>Shipping after box 1</span></div><div><b>Wed 11:59 pm</b><span>Skip or cancel by</span></div></div>
+    <div class="foot"><span class="pill ok">✓ Every highlighted fact links to the page</span><span>Read time: 30 seconds instead of 3 minutes</span></div></div></div></div></div>`, "tip"),
+  qa: () => browser(`<div class="fw">${bar("Q&A")}<div class="fwbody"><div class="center">${head}<div class="qa">
+    ${[["What is it?", "Weekly meal kits with pre-chopped, pre-measured ingredients. Most meals take about 15 minutes."], ["How much does it cost?", "Solo: $54.00/week (5 meals for 1). Duo: $89.90/week (5 meals for 2)."], ["What's the cheapest per meal?", "The Duo plan, at $8.99 per serving."], ["Is there a deal?", "50% off your first box only, up to $40."], ["What does shipping cost?", "First box free, then $7.99 per box."], ["Can I cancel?", "Yes. Skip or cancel by Wednesday 11:59 pm before your next delivery. It renews weekly until you cancel."], ["Where do they deliver?", "48 states, from Chicago."], ["Do people like it?", "Rated 4.6 out of 5 from 9,400 reviews."]].map(([q, a]) => `<div class="q"><b>${q}</b><p>${a}</p></div>`).join("")}
+    </div></div></div></div>`, "tip"),
+  panel: () => browser(`<div class="fw">${bar("Chunks")}<div class="withpanel"><div class="fwbody"><div class="center" style="width:100%">${head}${CHUNKS.replace('class="chunks"', 'class="chunks" style="grid-template-columns:repeat(2,1fr)"').replace(/ wide/g, "")}</div></div>
+    <div class="panel"><h2>Extract</h2><span class="tag">What do you need?</span>
+    <div class="req">Compare QuickKit with the 3 other meal-kit tabs I have open. Pricing, shipping and cancellation. Make a deck and a spreadsheet.</div>
+    <div class="chips"><span class="on">Competitor comparison</span><span>Company snapshot</span><span>Pricing table</span></div>
+    <div class="done"><div><b>✓</b>Read 4 open tabs</div><div><b>✓</b>Extracted 31 objects with quotes</div><div><b>✓</b>31 of 31 matched to the pages</div><div><b>✓</b>Built your deck and spreadsheet</div></div>
+    <div class="mini"><table><tr><th>Company</th><th>Lowest / serving</th><th>Shipping</th></tr><tr><td>QuickKit</td><td>$8.99</td><td>$7.99 after box 1</td></tr><tr><td>FreshCrate</td><td>$5.99</td><td>Free over $50</td></tr><tr><td>GreenPlate</td><td>$7.49</td><td>not found</td></tr></table></div>
+    <div class="exp"><span>Deck<small>PowerPoint</small></span><span>Data<small>Excel</small></span><span>Report<small>PDF</small></span></div></div></div></div>`, "tip"),
+  phone: () => `<div class="phone"><div class="pbar"><span>9:41</span><span>●●● 100%</span></div><div class="paddr"><span>quickkit.example/plans</span><span style="color:#c2513f;font-weight:700">Fieldwork ✓</span></div>
+    <div class="pcard"><span class="tag">2 of 6 · Plans & pricing</span><h2>Two plans, both weekly</h2>
+    <div class="prow">Solo<b>$54.00</b><span>5 meals for 1 person · $10.80 per serving</span></div>
+    <div class="prow">Duo<b>$89.90</b><span>5 meals for 2 people · $8.99 per serving</span></div>
+    <div class="prow" style="border:0">Shipping<b>$7.99</b><span>per box, after a free first box</span></div>
+    <span class="pill" style="justify-self:start">from the pricing section and footer ↗</span></div>
+    <div><div class="dots"><i></i><i class="on"></i><i></i><i></i><i></i><i></i></div><div class="pnav"><span>← Overview</span><span class="p">Deal →</span></div></div></div>`,
+  scrapbook: () => browser(`<div class="fw"><div class="fwbar"><span class="fwlogo">${LOGO}Fieldwork</span><div class="styles"><span class="on">Scrapbook</span><span>Datasets</span><span>Deliverables</span></div><span class="sp"></span><span class="pill">Project: Meal-kit market</span><span class="pill ok">12 pages · 47 snips</span><span class="fwbtn primary">Make a report</span></div>
+    <div class="fwbody"><div class="center" style="width:1240px;max-width:100%"><div class="pagehead"><h1>Your scrapbook</h1><span class="meta">Every page you capture, with what you snipped from it, in one place.</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+    ${[["QuickKit: Plans & pricing", "quickkit.example/plans", "Today, 9:41", "linear-gradient(135deg,#ff8a5c,#c2410c)", ["$54.00 Solo / week", "Shipping $7.99 after box 1", "Cancel by Wed 11:59 pm"], ["Pricing", "Fine print"]],
+       ["FreshCrate: Plans", "freshcrate.example/plans", "Today, 9:32", "linear-gradient(135deg,#86efac,#15803d)", ["Family Box $5.99 / serving", "Free shipping over $50"], ["Pricing"]],
+       ["GreenPlate: Home & plans", "greenplate.example", "Yesterday", "linear-gradient(135deg,#bef264,#4d7c0f)", ["100% home compostable", "Big Table $7.49 / serving"], ["Sustainability", "Pricing"]],
+       ["Meal-kit market report 2026", "industrynews.example/meal-kits", "Yesterday", "linear-gradient(135deg,#93c5fd,#1e40af)", ["Quote: “Convenience beats price for under-35s.”", "Chart snipped"], ["Market", "Quotes"]]
+      ].map(([t, u, d, g, snips, tags]) => `<div class="chunk" style="padding:0;overflow:hidden"><div style="height:92px;background:${g};position:relative"><span class="pill" style="position:absolute;left:8px;bottom:8px;background:#fff">${d}</span></div><div style="padding:12px 14px;display:grid;gap:8px"><h3 style="display:block">${t}</h3><span class="meta" style="font:400 11px IBM Plex Mono,monospace;color:#57574f">${u}</span>${snips.map(s => `<div style="background:#fdf3d6;border-left:3px solid #e6bd4c;padding:6px 8px;font-size:12.5px;border-radius:4px">✂ ${s}</div>`).join("")}<div class="chips">${tags.map(x => `<span>${x}</span>`).join("")}</div></div></div>`).join("")}
+    </div>
+    <div class="chunk"><h3>Snips board <small>drag snips into a report, deck or spreadsheet</small></h3><div style="display:flex;gap:10px;flex-wrap:wrap">${["Solo $54.00 / week · QuickKit", "Family Box $5.99 / serving · FreshCrate", "Big Table $7.49 / serving · GreenPlate", "“Convenience beats price for under-35s.” · Industry report", "Shipping $7.99 after box 1 · QuickKit", "Free shipping over $50 · FreshCrate"].map(s => `<span style="background:#fff;border:1px solid #d8d8d0;border-radius:10px;padding:9px 12px;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.06)">✂ ${s}</span>`).join("")}</div></div>
+    </div></div></div>`, "tip"),
+  senior: () => `<div class="phone senior"><div class="pbar"><span>9:41</span><span>●●● 100%</span></div><div class="paddr"><span>quickkit.example/plans</span><span style="color:#c2513f;font-weight:700">Large view</span></div>
+    <div class="pcard"><span class="tag" style="font-size:14px">Fine print · 5 of 6</span><h2>Before you sign up</h2>
+    <div class="prow">It renews every week<span>until you cancel it.</span></div>
+    <div class="prow">Cancel by Wednesday<span>11:59 pm, before your next delivery.</span></div>
+    <div class="prow" style="border:0">Shipping<b>$7.99</b><span>per box, after the first box.</span></div></div>
+    <div><div class="dots"><i></i><i></i><i></i><i></i><i class="on"></i><i></i></div><div class="pnav"><span>← Back</span><span class="p">Next →</span></div></div></div>`
+};
+document.getElementById("root").innerHTML = (VIEWS[location.hash.slice(1)] || VIEWS.chunks)();
+</script></body></html>

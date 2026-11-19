@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Fieldwork in 4 steps</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* One shareable picture: what Fieldwork does, start to finish, in four steps. */
+:root { --bg: #fff7e8; --ink: #2e3152; --muted: #6b6d86; --coral: #e8806f; --mustard: #e6bd4c; --sage: #93b86e; --mint: #86d0cb; --lavender: #a28ae3; }
+* { box-sizing: border-box; }
+body { margin: 0; width: 430px; color: var(--ink); font-family: Nunito, sans-serif;
+  background: radial-gradient(360px 300px at 100% 0%, #f6dfa0, transparent 70%), radial-gradient(380px 360px at 0% 55%, #e2d8fb, transparent 70%), radial-gradient(360px 320px at 100% 100%, #d4efe9, transparent 70%), var(--bg); }
+.wrap { padding: 20px 18px 22px; display: grid; gap: 16px; }
+header { background: var(--ink); color: var(--bg); border-radius: 22px; padding: 18px 18px 16px; display: grid; gap: 10px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 700 32px/1 Fredoka, sans-serif; }
+.logo svg { width: 30px; height: 30px; }
+.dots { display: inline-flex; gap: 4px; } .dots i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.lead { margin: 0; font: 700 18px/1.35 Fredoka, sans-serif; color: var(--mustard); }
+.step { display: grid; gap: 8px; }
+.st { display: flex; align-items: center; gap: 10px; }
+.num { width: 36px; height: 36px; border-radius: 50%; background: var(--c); border: 2px solid var(--ink); display: grid; place-items: center; font: 700 18px Fredoka, sans-serif; flex: none; box-shadow: 2px 2px 0 var(--ink); }
+.st h2 { margin: 0; font: 700 21px/1.15 Fredoka, sans-serif; }
+.st p { margin: 2px 0 0; font-size: 14px; color: var(--muted); line-height: 1.35; }
+.shot { border: 2px solid var(--ink); border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 5px 5px 0 var(--c); }
+.shot img { width: 100%; display: block; }
+.files { display: flex; gap: 8px; padding: 10px 12px 12px; background: #fff; border-top: 2px solid var(--ink); }
+.files span { flex: 1; text-align: center; border: 2px solid var(--ink); border-radius: 12px; padding: 7px 4px; font: 700 14px Fredoka, sans-serif; background: var(--f); }
+.files small { display: block; font: 600 10px "IBM Plex Mono", monospace; }
+.arrow { text-align: center; font: 700 20px Fredoka, sans-serif; color: var(--muted); margin: -8px 0 -8px; }
+footer { background: #fff; border: 2px solid var(--ink); border-radius: 18px; padding: 12px 14px; display: flex; gap: 10px; align-items: center; justify-content: space-between; font-size: 13px; }
+footer b { font: 700 16px Fredoka, sans-serif; }
+footer .p { text-align: right; line-height: 1.35; }
+</style></head><body><div class="wrap">
+<header>
+  <div class="logo"><svg viewBox="0 0 24 24"><path d="M5 21V4" stroke="#fff7e8" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3.4 4L18 12H5" fill="#e8806f"/></svg>fieldwork <span class="dots"><i style="background:var(--mint)"></i><i style="background:var(--mustard)"></i><i style="background:var(--lavender)"></i></span></div>
+  <p class="lead">A browser extension tool that turns any web page into something you can read at a glance, then into finished, sourced work.</p>
+</header>
+
+<div class="step" style="--c:#c9c3b4">
+  <div class="st"><span class="num">1</span><div><h2>Open any messy web page</h2><p>Pop-ups, big images, and the facts you need scattered everywhere.</p></div></div>
+  <div class="shot"><img src="story-src/before.png"></div>
+</div>
+<div class="arrow">↓</div>
+<div class="step" style="--c:var(--mint)">
+  <div class="st"><span class="num">2</span><div><h2>One click: see it clearly</h2><p>Prices, fees and fine print gathered into clear chunks.</p></div></div>
+  <div class="shot"><img src="story-src/after.png"></div>
+</div>
+<div class="arrow">↓</div>
+<div class="step" style="--c:var(--coral)">
+  <div class="st"><span class="num">3</span><div><h2>Tell the AI what you need</h2><p>It reads your pages and builds it. Every fact is checked against its source.</p></div></div>
+  <div class="shot"><img src="story-src/extract-panel.png"></div>
+</div>
+<div class="arrow">↓</div>
+<div class="step" style="--c:var(--lavender)">
+  <div class="st"><span class="num">4</span><div><h2>Download finished work</h2><p>A report, slide deck or spreadsheet, ready to share.</p></div></div>
+  <div class="shot"><img src="story-src/deliver.png"><div class="files"><span style="--f:var(--coral)">Report<small>PDF</small></span><span style="--f:var(--mustard)">Deck<small>PowerPoint</small></span><span style="--f:var(--sage)">Data<small>Excel</small></span></div></div>
+</div>
+
+<footer><div><b>For students &amp; professionals</b><br>Study guides · competitor reports · datasets</div><div class="p"><b>$9</b> Student · <b>$24</b> Pro<br>per month · 3-day free trial</div></footer>
+</div></body></html>

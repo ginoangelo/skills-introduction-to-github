@@ -1,0 +1,985 @@
+<title>Fieldwork</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a bold, outlined workspace. Navy sidebar; a project header with colored pill tabs;
+   sources on the left, work on the right. Warm cream ground with a five-color palette (mint, coral, mustard, sage, lavender),
+   each color owning one area of the product. */
+:root {
+  --bg: #fff7e8; --panel: #ffffff; --ink: #2e3152; --muted: #6b6d86; --line: #2e3152; --hair: #efe4cc; --soft: #fdeecd;
+  --on-color: #2e3152;
+  --coral: #e8806f; --mustard: #e6bd4c; --sage: #93b86e; --mint: #86d0cb; --lavender: #a28ae3;
+  --coral-soft: #fbe2dc; --mustard-soft: #faefc9; --sage-soft: #e5efd9; --mint-soft: #dcf2f0; --lavender-soft: #ebe4fb;
+  --accent: #e6bd4c; --accent-soft: #faefc9; --accent-strong: #c2513f; --accent-ink: #2e3152; --ok: #3f7d2a; --warn: #b4472f;
+  --side: #2e3152; --side-ink: #fff7e8; --side-dim: #a9abc6;
+  --hl: #fde7a6; --hl-ink: #2e3152;
+  --display: "Fredoka", "Nunito", "Segoe UI", system-ui, sans-serif;
+  --body: "Nunito", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1b1d33; --panel: #24274a; --ink: #fff4e1; --muted: #b3b5d0; --line: #fff4e1; --hair: #3a3e66; --soft: #2c2f55;
+  --coral-soft: #4a3341; --mustard-soft: #4a4232; --sage-soft: #33453a; --mint-soft: #2b4a52; --lavender-soft: #3b3666;
+  --accent-strong: #f4a294; --ok: #9ad37c; --warn: #f4a294; --side: #13142a; --side-ink: #fff4e1; --side-dim: #9a9cc0; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #1b1d33; --panel: #24274a; --ink: #fff4e1; --muted: #b3b5d0; --line: #fff4e1; --hair: #3a3e66; --soft: #2c2f55;
+  --coral-soft: #4a3341; --mustard-soft: #4a4232; --sage-soft: #33453a; --mint-soft: #2b4a52; --lavender-soft: #3b3666;
+  --accent-strong: #f4a294; --ok: #9ad37c; --warn: #f4a294; --side: #13142a; --side-ink: #fff4e1; --side-dim: #9a9cc0; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.55 var(--body); }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.shell { display: grid; grid-template-columns: 228px minmax(0, 1fr); min-height: 100%; }
+/* Sidebar */
+.sidebar { background: var(--side); color: var(--side-ink); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; border-right: 1px solid var(--line);
+  padding-left: env(safe-area-inset-left, 0px); }
+.wordmark { display: flex; align-items: center; gap: 10px; padding: 26px 20px; font: 700 23px/1 var(--display); letter-spacing: -.03em; border-bottom: 1px solid rgba(255,255,255,.08); }
+.wordmark svg { width: 22px; height: 22px; }
+.navi { display: flex; align-items: center; gap: 12px; width: 100%; border: 0; border-bottom: 1px solid rgba(255,255,255,.08); background: none; color: var(--side-ink); padding: 15px 20px; text-align: left; font-weight: 500; }
+.navi svg { width: 17px; height: 17px; flex: none; }
+.navi:hover { background: rgba(255,255,255,.06); }
+.navi[aria-current="page"] { color: var(--accent); }
+.navsp { flex: 1; }
+.pkgsw { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08); display: grid; gap: 8px; }
+.pkgsw > span { font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--side-dim); }
+.seg { display: flex; border: 1.5px solid var(--side-ink); border-radius: 999px; padding: 2px; }
+.seg button { flex: 1; border: 0; background: none; color: inherit; border-radius: 999px; padding: 6px 8px; font-size: 12.5px; font-weight: 600; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-color); }
+.me { display: flex; gap: 10px; align-items: center; padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(255,255,255,.08); }
+.me b { display: block; font-size: 13px; } .me small { color: var(--side-dim); font-size: 12px; }
+.av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--on-color); display: grid; place-items: center; font: 700 12px/1 var(--display); flex: none; border: 1.5px solid var(--on-color); }
+
+/* Main */
+.mainwrap { min-width: 0; display: flex; flex-direction: column; }
+.phead { border-bottom: 1px solid var(--line); padding-block: 26px 0; padding-left: 32px; padding-right: max(32px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; background: var(--bg); }
+.ptitle { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ptitle h1, .pagetitle h1 { margin: 0; font: 700 34px/1.05 var(--display); letter-spacing: -.03em; text-wrap: balance; }
+.sp { flex: 1; }
+.tabs { display: flex; gap: 8px; padding-bottom: 16px; overflow-x: auto; }
+.tabs button { border: 1px solid transparent; background: none; border-radius: 999px; padding: 8px 16px; font-weight: 600; white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+.tabs button:hover { border-color: var(--line); }
+.tabs button[aria-selected="true"] { border-color: var(--line); background: var(--panel); }
+.tabs i { font-style: normal; font: 500 11px/1 var(--mono); background: var(--accent); color: var(--on-color); border-radius: 999px; padding: 3px 7px; border: 1.5px solid var(--on-color); }
+.work { display: grid; grid-template-columns: 300px minmax(0, 1fr); flex: 1; }
+.work.full { grid-template-columns: minmax(0, 1fr); }
+.srccol { border-right: 1px solid var(--line); padding: 22px 20px; display: grid; gap: 14px; align-content: start; }
+.pane { padding: 28px 32px 48px; padding-right: max(32px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; align-content: start; min-width: 0; }
+
+.eyebrow { font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h2 { margin: 0; font: 700 26px/1.15 var(--display); letter-spacing: -.02em; text-wrap: balance; }
+h3 { margin: 0; font: 700 16px/1.3 var(--display); letter-spacing: -.01em; }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row .sp { flex: 1; }
+.verified { color: var(--ok); }
+
+/* Buttons */
+.btn { border: 1.5px solid var(--line); background: var(--panel); border-radius: 14px; padding: 10px 16px; font-weight: 600; font-size: 13.5px; transition: transform .12s, box-shadow .12s; }
+.btn:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 var(--line); }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.accent { background: var(--accent); color: var(--on-color); border-color: var(--on-color); }
+.btn:disabled { opacity: .5; cursor: default; }
+
+/* Sources */
+.srclist { display: grid; gap: 8px; }
+.src { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; text-align: left; border: 1.5px solid var(--line); background: var(--panel); border-radius: 14px; padding: 10px 12px; }
+.src:hover { box-shadow: 3px 3px 0 var(--line); transform: translate(-1px, -1px); }
+.src.on { background: var(--accent); color: var(--on-color); }
+.src.on small { color: #3a3a35; }
+.src b { font-weight: 600; font-size: 13px; }
+.src small { grid-column: 1; font: 400 11.5px/1.3 var(--mono); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.src .n { grid-row: 1 / 3; grid-column: 2; align-self: center; font: 600 11px/1 var(--mono); border: 1px solid currentColor; border-radius: 999px; padding: 3px 7px; }
+.stat { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 12px; }
+.stat span:nth-child(even) { font: 600 13px/1.4 var(--mono); text-align: right; }
+
+/* Lens */
+.lens { display: grid; grid-template-columns: minmax(0, 1fr) 280px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); }
+.reading { max-width: 70ch; display: grid; gap: 14px; padding: 28px 32px; border-right: 1px solid var(--line); }
+.reading .url { font: 400 12px/1 var(--mono); color: var(--muted); }
+.reading p { margin: 0; font-size: 16px; line-height: 1.75; }
+.reading p.head { font: 700 20px/1.3 var(--display); }
+mark { background: var(--hl); color: var(--hl-ink); border-radius: 2px; padding: 0 2px; cursor: pointer; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+mark.flash { outline: 2px solid var(--ink); outline-offset: 1px; }
+.keys { display: grid; gap: 10px; align-content: start; padding: 22px 20px; background: var(--bg); }
+.key { border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; display: grid; gap: 4px; font-size: 13px; background: var(--panel); }
+.key .t { font: 600 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+/* Extract */
+.templates { display: flex; flex-wrap: wrap; gap: 8px; }
+.tpl { border: 1.5px solid var(--line); background: var(--panel); border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; }
+.tpl.on { background: var(--accent); color: var(--on-color); }
+#req { width: 100%; min-height: 110px; resize: vertical; border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; background: var(--panel); font-size: 16px; line-height: 1.55; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.checks label { display: flex; gap: 8px; align-items: center; font-size: 13px; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--panel); }
+.steps { display: grid; gap: 0; border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); }
+.steps div { display: flex; gap: 10px; align-items: center; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--hair); }
+.steps div:last-child { border-bottom: 0; }
+.steps div.done { color: var(--ink); } .steps div.done b { color: var(--ok); }
+.steps div.now { background: var(--accent); color: var(--on-color); font-weight: 600; }
+.steps b { width: 16px; text-align: center; }
+.msg { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--panel); font-size: 13.5px; }
+.msg.err { color: var(--warn); }
+
+/* Datasets */
+.objtabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.objtab { border: 1.5px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.objtab span { font: 600 11px/1 var(--mono); }
+.objtab[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.tablewrap { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13.5px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--hair); vertical-align: top; }
+th { font: 600 10.5px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border-bottom: 1px solid var(--line); }
+tbody tr:hover { background: color-mix(in srgb, var(--accent) 30%, transparent); cursor: pointer; }
+tr:last-child td { border-bottom: 0; }
+td.ev { max-width: 320px; color: var(--muted); font-size: 12.5px; }
+td.ev b { display: block; font: 600 11px/1.5 var(--mono); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+.nf { color: var(--muted); font-style: italic; }
+
+/* Deliverable */
+.deliv { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.report { display: grid; gap: 16px; padding: 32px 36px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); box-shadow: 6px 6px 0 var(--line); }
+.report .sum { font-size: 16px; line-height: 1.7; margin: 0; max-width: 68ch; }
+.report ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 5px; max-width: 68ch; }
+.export { display: grid; gap: 0; border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); position: sticky; top: 16px; overflow: hidden; }
+.export h3 { background: var(--ink); color: var(--bg); padding: 14px 16px; }
+.export .btn { display: flex; justify-content: space-between; align-items: center; border: 0; border-bottom: 1px solid var(--hair); border-radius: 0; padding: 14px 16px; text-align: left; }
+.export .btn:hover { transform: none; box-shadow: none; background: var(--accent); color: var(--on-color); }
+.export .btn small { font: 600 11px/1 var(--mono); border: 1px solid currentColor; border-radius: 999px; padding: 3px 8px; }
+.export .note { padding: 12px 16px; }
+.slides { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+.slide { aspect-ratio: 16 / 9; max-width: 100%; border: 1.5px solid var(--line); border-radius: 14px; padding: 10px; display: grid; align-content: start; gap: 4px; overflow: hidden; background: var(--panel); }
+.slide b { font: 700 11px/1.2 var(--display); }
+.slide span { font-size: 8.5px; line-height: 1.35; color: var(--muted); }
+.slide.title { background: var(--ink); color: var(--bg); align-content: end; }
+.slide.title span { color: var(--bg); opacity: .75; }
+.flash { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.fc { border: 1.5px solid var(--line); border-radius: 14px; padding: 16px; min-height: 120px; display: grid; gap: 8px; align-content: start; text-align: left; background: var(--panel); font-weight: 500; }
+.fc:hover { box-shadow: 3px 3px 0 var(--line); transform: translate(-1px, -1px); }
+.fc .t { font: 600 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.fc.flipped { background: var(--accent); color: var(--on-color); }
+.fc.flipped .t { color: #3a3a35; }
+.cmp td:first-child { font-weight: 700; }
+
+/* Scrapbook */
+.scrapbar { gap: 14px; }
+.layouts { display: flex; border: 1.5px solid var(--line); border-radius: 999px; padding: 3px; background: var(--panel); }
+.layouts button { border: 0; background: none; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+.layouts button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.groupby { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.groupby select { border: 1.5px solid var(--line); border-radius: 14px; padding: 6px 8px; background: var(--panel); }
+.snip { display: grid; gap: 8px; text-align: left; border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); padding: 12px 14px; font-size: 13.5px; line-height: 1.45; width: 100%; transition: transform .12s, box-shadow .12s; }
+.snip:hover { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 var(--line); }
+.sbig { font: 700 24px/1 var(--display); letter-spacing: -.02em; }
+.smeta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.stype { font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; background: var(--accent-soft); color: var(--on-color); border: 1.5px solid var(--line); border-radius: 999px; padding: 4px 7px; }
+span.ev { font: 500 11px/1.3 var(--mono); color: var(--muted); }
+span.ev.verified { color: var(--ok); } span.ev.check { color: var(--warn); }
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 1fr); gap: 16px; overflow-x: auto; padding-bottom: 6px; align-items: start; }
+.col { border: 1.5px solid var(--line); border-radius: 14px; background: var(--bg); display: grid; gap: 10px; padding: 0 12px 12px; }
+.col header { display: flex; justify-content: space-between; align-items: center; margin: 0 -12px; padding: 12px; border-bottom: 1px solid var(--line); background: var(--accent); color: var(--on-color); }
+.col header .chip { background: var(--panel); color: var(--ink); }
+.notebook { border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); padding: 32px 40px; display: grid; gap: 18px; max-width: 820px; box-shadow: 6px 6px 0 var(--line); }
+.notebook ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; line-height: 1.6; }
+.notebook li[data-snip] { cursor: pointer; }
+.notebook li[data-snip]:hover { background: var(--hl); color: var(--on-color); }
+.notebook sup { font: 600 10px var(--mono); color: var(--accent-strong); margin-left: 2px; }
+.notebook .notes ol { margin: 8px 0 0; padding-left: 20px; font-size: 12.5px; color: var(--muted); display: grid; gap: 4px; }
+.notebook .notes { border-top: 1px solid var(--line); padding-top: 14px; }
+.pins { columns: 4 220px; column-gap: 16px; }
+.pin { break-inside: avoid; margin-bottom: 16px; }
+.pin.hasbig { background: var(--accent-soft); }
+#snipSel { display: inline-flex; gap: 6px; align-items: center; }
+
+/* Home: project and template cards */
+.pagetitle { display: grid; gap: 8px; }
+.pagetitle p { margin: 0; color: var(--muted); font-size: 15px; max-width: 60ch; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.pcard { border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); text-align: left; padding: 0; display: grid; grid-template-rows: auto 1fr; overflow: hidden; transition: transform .12s, box-shadow .12s; }
+.pcard:hover { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 var(--line); }
+.cover { height: 150px; border-bottom: 1px solid var(--line); position: relative; display: grid; place-items: center; font: 700 44px/1 var(--display); letter-spacing: -.04em; overflow: hidden; }
+.c-pro { background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, var(--accent-soft) 14px 28px); color: var(--on-color); }
+.c-student { background: radial-gradient(#000 1.6px, transparent 1.8px) 0 0 / 16px 16px, #fff; color: var(--on-color); }
+.c-tpl { background: #000; color: var(--accent); }
+.ptag { letter-spacing: .02em; position: absolute; left: 12px; bottom: 12px; background: var(--accent); color: var(--on-color); border: 1.5px solid var(--on-color); font: 700 12px/1 var(--mono); padding: 6px 16px 6px 10px; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 0 100%); }
+.pbody { padding: 16px 18px 18px; display: grid; gap: 6px; align-content: start; }
+.pmeta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.chip { font: 600 11px/1 var(--mono); border: 1.5px solid var(--line); border-radius: 999px; padding: 5px 9px; background: var(--panel); }
+.chip.on { background: var(--accent); color: var(--on-color); border-color: var(--on-color); }
+
+/* Account */
+.phero { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); padding: 24px; }
+.av.big { width: 76px; height: 76px; font-size: 24px; }
+.phero h2 { font-size: 30px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.box { border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); padding: 18px 20px; display: grid; gap: 12px; align-content: start; }
+.meter { height: 12px; border: 1.5px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--bg); }
+.meter i { display: block; height: 100%; background: var(--accent); border-right: 1.5px solid var(--on-color); }
+.kvs { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; font-size: 13.5px; }
+.kvs span:nth-child(even) { font-weight: 600; text-align: right; }
+.list { display: grid; gap: 0; }
+.list div { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--hair); font-size: 13.5px; }
+.list div:last-child { border-bottom: 0; }
+
+/* Checkout */
+.billsw { max-width: 340px; border-color: var(--line); }
+.billsw button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.billsw em { font-style: normal; font: 600 10px/1 var(--mono); background: var(--accent); color: var(--on-color); border-radius: 999px; padding: 2px 6px; margin-left: 4px; }
+.checkout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+.plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.plancard { border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); padding: 22px; display: grid; gap: 14px; align-content: start; text-align: left; transition: transform .12s, box-shadow .12s; }
+.plancard:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--line); }
+.plancard[aria-pressed="true"] { box-shadow: 6px 6px 0 var(--line); background: color-mix(in srgb, var(--accent) 22%, var(--panel)); }
+.price { font: 700 40px/1 var(--display); letter-spacing: -.03em; }
+.price small { font: 500 14px var(--body); color: var(--muted); letter-spacing: 0; }
+.plancard ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; font-size: 13.5px; }
+.plancard li { display: flex; gap: 8px; } .plancard li::before { content: "✓"; font-weight: 700; }
+.summary { border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); display: grid; position: sticky; top: 16px; overflow: hidden; }
+.summary h3 { background: var(--ink); color: var(--bg); padding: 14px 18px; }
+.summary .in { padding: 18px; display: grid; gap: 14px; }
+.total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 12px; font-weight: 700; }
+.total b { font: 700 24px/1 var(--display); }
+.paybox { border: 1px dashed var(--line); border-radius: 14px; padding: 14px; font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+.paybox b { color: var(--ink); }
+
+dialog { border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); width: min(620px, calc(100% - 32px)); padding: 24px; box-shadow: 8px 8px 0 var(--line); }
+dialog::backdrop { background: rgba(0,0,0,.5); }
+dialog form { display: grid; gap: 14px; }
+dialog label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
+dialog input, dialog textarea { border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--bg); font-weight: 400; }
+dialog textarea { min-height: 180px; resize: vertical; font-size: 13.5px; }
+
+@media (max-width: 1100px) { .deliv, .checkout, .lens { grid-template-columns: 1fr; } .reading { border-right: 0; border-bottom: 1px solid var(--line); } .grid3 { grid-template-columns: 1fr; } .export, .summary { position: static; } }
+@media (max-width: 820px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: sticky; top: 0; z-index: 5; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding-top: env(safe-area-inset-top, 0px); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+  .wordmark { border: 0; padding: 12px 8px; font-size: 19px; }
+  .navi { width: auto; border: 0; padding: 10px; font-size: 13px; }
+  .navi span { display: none; }
+  .navsp, .me { display: none; }
+  .pkgsw { border: 0; padding: 6px 4px; width: 100%; grid-template-columns: auto 1fr; align-items: center; }
+  .work { grid-template-columns: 1fr; }
+  .srccol { border-right: 0; border-bottom: 1px solid var(--line); }
+  .phead, .pane, .srccol { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .ptitle h1, .pagetitle h1 { font-size: 27px; }
+  .tabs { flex-wrap: wrap; overflow: visible; gap: 6px; }
+  .tabs button { padding: 7px 12px; font-size: 13px; }
+  .ptitle { gap: 10px; }
+  .board { grid-auto-columns: minmax(240px, 85%); }
+  .notebook { padding: 22px 20px; }
+  .plans { grid-template-columns: 1fr; }
+  .reading, .report { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- Brand color system ----------
+   Each part of the product owns one color, so color always means something:
+   Lens = mint, Extract = coral, Datasets = mustard, Scrapbook = sage, Deliverable = lavender. */
+body { background:
+  radial-gradient(520px 380px at 96% 4%, color-mix(in srgb, var(--mustard) 22%, transparent), transparent 70%),
+  radial-gradient(460px 420px at 100% 100%, color-mix(in srgb, var(--lavender) 20%, transparent), transparent 70%),
+  radial-gradient(420px 360px at 30% 100%, color-mix(in srgb, var(--mint) 16%, transparent), transparent 70%),
+  var(--bg); background-attachment: fixed; }
+h1, h2, h3, .wordmark, .price, .sbig { font-family: var(--display); letter-spacing: -.01em; }
+.ptitle h1, .pagetitle h1 { font-weight: 700; letter-spacing: -.015em; }
+.wordmark { font-weight: 600; letter-spacing: -.01em; }
+.wordmark .dots { display: inline-flex; gap: 3px; margin-left: 2px; }
+.wordmark .dots i { width: 6px; height: 6px; border-radius: 50%; }
+
+/* Sidebar: each destination has its own color */
+.navi[data-nav="home"] { --c: var(--coral); } .navi[data-nav="project"] { --c: var(--mint); }
+.navi[data-nav="account"] { --c: var(--sage); } .navi[data-nav="checkout"] { --c: var(--lavender); }
+.navi svg { color: var(--c); }
+.navi[aria-current="page"] { color: var(--side-ink); background: color-mix(in srgb, var(--c) 22%, transparent); box-shadow: inset 4px 0 0 var(--c); }
+
+/* Project tabs: one color per area */
+.tabs [data-tab="lens"] { --c: var(--mint); } .tabs [data-tab="extract"] { --c: var(--coral); } .tabs [data-tab="data"] { --c: var(--mustard); }
+.tabs [data-tab="scrap"] { --c: var(--sage); } .tabs [data-tab="deliv"] { --c: var(--lavender); }
+.tabs button::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--c); border: 1.5px solid var(--on-color); }
+.tabs button[aria-selected="true"] { background: var(--c); color: var(--on-color); border-color: var(--on-color); box-shadow: 3px 3px 0 var(--on-color); }
+.tabs i { background: #fff7e8; color: var(--on-color); }
+.phead { border-bottom-width: 2px; }
+
+/* Pane accents follow the active area */
+#pane[data-area="lens"] { --area: var(--mint); --area-soft: var(--mint-soft); }
+#pane[data-area="extract"] { --area: var(--coral); --area-soft: var(--coral-soft); }
+#pane[data-area="data"] { --area: var(--mustard); --area-soft: var(--mustard-soft); }
+#pane[data-area="scrap"] { --area: var(--sage); --area-soft: var(--sage-soft); }
+#pane[data-area="deliv"] { --area: var(--lavender); --area-soft: var(--lavender-soft); }
+#pane > .row:first-child h2::after, #pane > .deliv .report h2::after { content: ""; display: block; width: 46px; height: 6px; border-radius: 999px; background: var(--area, var(--coral)); margin-top: 8px; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+#run, #startTrial { background: var(--coral); color: var(--on-color); border-color: var(--on-color); }
+.steps div.now { background: var(--coral-soft); }
+.tpl.on { background: var(--coral); }
+.src.on { background: var(--mint); }
+.keys { background: var(--mint-soft); }
+.key .t, .fc .t { color: var(--accent-strong); }
+.lens { border-width: 1.5px; }
+.export h3, .summary h3 { background: var(--lavender); color: var(--on-color); border-bottom: 1.5px solid var(--on-color); }
+.export .btn:hover { background: var(--lavender-soft); }
+.report { box-shadow: 6px 6px 0 var(--lavender); }
+.slide.title { background: var(--lavender); color: var(--on-color); }
+.slide.title span { color: var(--on-color); }
+.fc.flipped { background: var(--mint); }
+.fc:nth-child(4n+2).flipped { background: var(--mustard); } .fc:nth-child(4n+3).flipped { background: var(--sage); } .fc:nth-child(4n).flipped { background: var(--lavender); }
+.cmp th { background: var(--mustard-soft); }
+th { background: color-mix(in srgb, var(--area, var(--mustard)) 22%, var(--panel)); color: var(--ink); }
+tbody tr:hover { background: var(--area-soft, var(--mustard-soft)); }
+
+/* Object-type colors (datasets, scrapbook) */
+[data-type="company"] { --c: var(--mint); --cs: var(--mint-soft); } [data-type="product"] { --c: var(--sage); --cs: var(--sage-soft); }
+[data-type="price"] { --c: var(--mustard); --cs: var(--mustard-soft); } [data-type="feature"] { --c: var(--lavender); --cs: var(--lavender-soft); }
+[data-type="claim"] { --c: var(--coral); --cs: var(--coral-soft); } [data-type="source"] { --c: var(--lavender); --cs: var(--lavender-soft); }
+[data-type="fact"] { --c: var(--mint); --cs: var(--mint-soft); } [data-type="term"] { --c: var(--sage); --cs: var(--sage-soft); }
+[data-type="question"] { --c: var(--coral); --cs: var(--coral-soft); } [data-type="snip"] { --c: var(--mustard); --cs: var(--mustard-soft); }
+.objtab::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c, var(--mustard)); border: 1.5px solid var(--on-color); }
+.objtab[aria-pressed="true"] { background: var(--c, var(--mustard)); color: var(--on-color); border-color: var(--on-color); box-shadow: 3px 3px 0 var(--on-color); }
+.objtab[aria-pressed="true"] span { color: var(--on-color); }
+.stype { background: var(--c, var(--accent-soft)); color: var(--on-color); border-color: var(--on-color); }
+.snip { border-left: 6px solid var(--c, var(--line)); }
+.pin.hasbig { background: var(--cs, var(--mustard-soft)); }
+.pin.hasbig .sbig, .pin.hasbig .stxt { color: var(--on-color); }
+.sbig { color: var(--accent-strong); }
+.col { background: color-mix(in srgb, var(--c) 14%, var(--bg)); }
+.col header { background: var(--c); color: var(--on-color); border-bottom: 1.5px solid var(--on-color); }
+.col header .chip { background: #fff7e8; color: var(--on-color); border-color: var(--on-color); }
+.notebook { box-shadow: 6px 6px 0 var(--sage); }
+.notebook h3 { display: flex; align-items: center; gap: 8px; }
+.notebook h3::before { content: ""; width: 12px; height: 12px; border-radius: 4px; background: var(--sage); border: 1.5px solid var(--on-color); }
+.notebook section:nth-of-type(4n+2) h3::before { background: var(--mint); } .notebook section:nth-of-type(4n+3) h3::before { background: var(--mustard); } .notebook section:nth-of-type(4n+4) h3::before { background: var(--lavender); }
+.layouts button[aria-pressed="true"] { background: var(--sage); color: var(--on-color); box-shadow: inset 0 0 0 1.5px var(--on-color); }
+
+/* Cards and covers */
+.pcard:hover { box-shadow: 6px 6px 0 var(--c, var(--line)); }
+.cover { border-bottom: 1.5px solid var(--line); }
+.c-pro { --c: var(--lavender); background:
+  radial-gradient(70px 60px at 18% 28%, var(--mustard) 98%, transparent 100%),
+  radial-gradient(90px 80px at 88% 82%, var(--coral) 98%, transparent 100%),
+  radial-gradient(#2e3152 1.4px, transparent 1.6px) 0 0 / 14px 14px, var(--lavender-soft); color: var(--on-color); }
+.c-student { --c: var(--mint); background:
+  radial-gradient(80px 70px at 85% 22%, var(--mint) 98%, transparent 100%),
+  radial-gradient(70px 60px at 12% 85%, var(--sage) 98%, transparent 100%),
+  radial-gradient(#2e3152 1.4px, transparent 1.6px) 0 0 / 14px 14px, var(--mint-soft); color: var(--on-color); }
+.c-tpl { background:
+  radial-gradient(90px 80px at 90% 15%, color-mix(in srgb, #fff 35%, var(--c)) 98%, transparent 100%),
+  radial-gradient(#2e3152 1.4px, transparent 1.6px) 0 0 / 14px 14px, var(--c); color: var(--on-color); }
+.cover::after { content: "✦"; position: absolute; right: 16px; bottom: 14px; font-size: 18px; color: var(--on-color); opacity: .7; }
+.ptag { background: #fff7e8; color: var(--on-color); border: 1.5px solid var(--on-color); }
+.chip.on { background: var(--mustard); }
+.av { background: var(--coral); }
+.seg button[aria-pressed="true"] { background: var(--mustard); }
+.meter i { background: linear-gradient(90deg, var(--mint), var(--sage)); }
+.billsw em { background: var(--mustard); }
+
+/* Account and plans */
+.phero { background: linear-gradient(120deg, var(--coral-soft), var(--lavender-soft)); }
+.box:nth-child(1) { border-top: 8px solid var(--mint); } .box:nth-child(2) { border-top: 8px solid var(--mustard); } .box:nth-child(3) { border-top: 8px solid var(--lavender); }
+.plancard[data-choose="student"] { --c: var(--mint); --cs: var(--mint-soft); } .plancard[data-choose="pro"] { --c: var(--lavender); --cs: var(--lavender-soft); }
+.plancard { border-top: 10px solid var(--c); }
+.plancard[aria-pressed="true"] { background: var(--cs); box-shadow: 6px 6px 0 var(--c); }
+.plancard li::before { color: var(--c); -webkit-text-stroke: .4px var(--on-color); }
+</style>
+
+<div class="shell">
+  <nav class="sidebar" aria-label="Main">
+    <div class="wordmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3.4 4L18 12H5" style="fill: var(--coral)"/></svg>fieldwork<span class="dots" aria-hidden="true"><i style="background:var(--mint)"></i><i style="background:var(--mustard)"></i><i style="background:var(--lavender)"></i></span></div>
+    <button class="navi" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9H3z"/></svg><span>Home</span></button>
+    <button class="navi" data-nav="project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M9 9v11"/></svg><span>Project</span></button>
+    <button class="navi" data-nav="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg><span>Account</span></button>
+    <button class="navi" data-nav="checkout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="1"/><path d="M2 10h20"/></svg><span>Plans &amp; billing</span></button>
+    <div class="navsp"></div>
+    <div class="pkgsw"><span>Package</span><div class="seg" role="group" aria-label="Package"><button data-pkg="student">Student</button><button data-pkg="pro">Professional</button></div></div>
+    <div class="me"><span class="av">DU</span><div><b>Demo user</b><small id="plan"></small></div></div>
+  </nav>
+  <div class="mainwrap">
+    <header class="phead" id="projHead">
+      <div class="ptitle"><div><div class="eyebrow">Project</div><h1 id="projName"></h1></div><span class="sp"></span><button class="btn primary" id="headExport">Export</button></div>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="lens">Lens</button>
+        <button role="tab" data-tab="extract">Extract</button>
+        <button role="tab" data-tab="data">Datasets <i id="nRows">0</i></button>
+        <button role="tab" data-tab="scrap">Scrapbook <i id="nSnips">0</i></button>
+        <button role="tab" data-tab="deliv">Deliverable</button>
+      </div>
+    </header>
+    <div class="work" id="work">
+      <aside class="srccol" id="srcCol">
+        <div class="eyebrow">Sources</div>
+        <div class="srclist" id="srcList"></div>
+        <div class="row"><button class="btn" id="addSrc">Add a page</button><button class="btn" id="resetProj">Reset example</button></div>
+        <div class="stat" id="stats"></div>
+        <p class="note" id="runNote"></p>
+      </aside>
+      <section class="pane" id="pane"></section>
+    </div>
+  </div>
+</div>
+
+<dialog id="addDlg">
+  <form method="dialog" id="addForm">
+    <h2>Add a page</h2>
+    <p class="note">Copy the text of any web page and paste it here. In the browser extension, this happens with one click on the page you're viewing.</p>
+    <label for="aTitle">Page title<input id="aTitle" required placeholder="Acme Inc. Pricing"></label>
+    <label for="aUrl">Web address<input id="aUrl" placeholder="acme.com/pricing"></label>
+    <label for="aText">Page text<textarea id="aText" required placeholder="Paste the page text here"></textarea></label>
+    <div class="row"><span class="sp"></span><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="add">Add page</button></div>
+  </form>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<script>
+/* ---------- Packages and object schemas ---------- */
+const PKGS = {
+  pro: {
+    name: "Professional", lensMode: "Briefing",
+    objects: {
+      company: { label: "Companies", fields: { name: "Company", website: "Website", industry: "Industry", tagline: "Tagline", headquarters: "Headquarters" } },
+      product: { label: "Products", fields: { company: "Company", name: "Product", category: "Category", description: "Description" } },
+      price: { label: "Prices", fields: { company: "Company", plan: "Plan", price: "Price", period: "Billing", per_serving: "Unit price", includes: "Includes" } },
+      feature: { label: "Features", fields: { feature: "Feature", company: "Company", plan: "Plan" } },
+      claim: { label: "Claims & proof", fields: { company: "Company", claim: "Claim", proof: "Proof" } }
+    },
+    templates: [
+      { name: "Competitor comparison", req: "Compare these companies on pricing, plans, features and positioning. Build a comparison report, slides and a spreadsheet." },
+      { name: "Company snapshot", req: "Give me a one-page snapshot of each company: who they are, what they sell, what it costs and how they position themselves." },
+      { name: "Pricing table", req: "Pull every plan and price into one table, including the unit price where the page states it." }
+    ]
+  },
+  student: {
+    name: "Student", lensMode: "Study",
+    objects: {
+      source: { label: "Sources", fields: { title: "Title", author: "Author", publisher: "Publisher", date: "Year", citation: "APA citation" } },
+      fact: { label: "Key facts", fields: { statement: "Fact", topic: "Topic" } },
+      term: { label: "Terms", fields: { term: "Term", definition: "Definition" } },
+      question: { label: "Questions", fields: { question: "Question", answer: "Answer" } }
+    },
+    templates: [
+      { name: "Study guide + flashcards", req: "Make a study guide with the key facts, the important terms and practice questions with answers." },
+      { name: "Essay outline", req: "Build an essay outline with a thesis, three main points and the evidence for each, with citations." },
+      { name: "Annotated bibliography", req: "Create an annotated bibliography: a citation and a two-sentence summary for each source." }
+    ]
+  }
+};
+
+/* ---------- Example projects (sample pages written for this demo) ---------- */
+const CAPTURED = "Nov 14, 2026";
+const EXAMPLES = {
+  pro: {
+    name: "Meal-kit competitors",
+    request: PKGS.pro.templates[0].req,
+    sources: [
+      { id: "S1", title: "FreshCrate: Home", url: "freshcrate.example", text: `FreshCrate
+Dinner, solved in 20 minutes.
+FreshCrate delivers pre-portioned ingredients and step-by-step recipes to your door every week. Based in Austin, Texas, we work with 40 family farms across the Southwest.
+Choose from 32 new recipes every week, including vegetarian, keto and family-friendly meals.
+Rated 4.7 out of 5 by more than 18,000 customers.
+Skip a week or cancel any time.` },
+      { id: "S2", title: "FreshCrate: Plans & pricing", url: "freshcrate.example/plans", text: `FreshCrate Plans
+Classic Box: $59.94 per week for 3 meals for 2 people ($9.99 per serving).
+Family Box: $95.84 per week for 4 meals for 4 people ($5.99 per serving).
+Free shipping on every box over $50.
+All plans include recipe cards, an app with cooking timers and the option to add desserts for $4.99.` },
+      { id: "S3", title: "GreenPlate: Home & plans", url: "greenplate.example", text: `GreenPlate
+100% plant-based meal kits, delivered.
+GreenPlate is a Portland, Oregon company making vegan meal kits with organic produce and compostable packaging.
+Every box is carbon-neutral, and our packaging is 100% home compostable.
+Plans start at $10.49 per serving.
+Starter Plan: $62.94 per week for 3 meals for 2 people.
+Big Table Plan: $119.84 per week for 4 meals for 4 people ($7.49 per serving).
+Winner of the 2025 Green Business Award.` },
+      { id: "S4", title: "QuickKit: Home & pricing", url: "quickkit.example", text: `QuickKit
+Meal kits for busy people: 15-minute recipes, no chopping required.
+QuickKit is based in Chicago, Illinois, and ships to 48 states.
+Every ingredient arrives pre-chopped and pre-measured, so most meals are ready in 15 minutes.
+Solo Plan: $54.00 per week for 5 meals for 1 person ($10.80 per serving).
+Duo Plan: $89.90 per week for 5 meals for 2 people ($8.99 per serving).
+First box ships free. After that, shipping is $7.99 per box.
+Over 250,000 boxes delivered since 2023.` }
+    ],
+    result: { by: "example", objects: {
+      company: [
+        { name: "FreshCrate", website: "freshcrate.example", industry: "Meal kits", tagline: "Dinner, solved in 20 minutes.", headquarters: "Austin, Texas", source: "S1", quote: "Based in Austin, Texas, we work with 40 family farms across the Southwest." },
+        { name: "GreenPlate", website: "greenplate.example", industry: "Plant-based meal kits", tagline: "100% plant-based meal kits, delivered.", headquarters: "Portland, Oregon", source: "S3", quote: "GreenPlate is a Portland, Oregon company making vegan meal kits with organic produce and compostable packaging." },
+        { name: "QuickKit", website: "quickkit.example", industry: "Meal kits", tagline: "Meal kits for busy people: 15-minute recipes, no chopping required.", headquarters: "Chicago, Illinois", source: "S4", quote: "QuickKit is based in Chicago, Illinois, and ships to 48 states." }],
+      product: [
+        { company: "FreshCrate", name: "Weekly recipe box", category: "Meal kit", description: "Pre-portioned ingredients and recipes, 32 new recipes a week", source: "S1", quote: "Choose from 32 new recipes every week, including vegetarian, keto and family-friendly meals." },
+        { company: "FreshCrate", name: "Dessert add-on", category: "Add-on", description: "Dessert added to any box for $4.99", source: "S2", quote: "the option to add desserts for $4.99" },
+        { company: "GreenPlate", name: "Vegan meal kit", category: "Meal kit", description: "Organic, plant-based meals in compostable packaging", source: "S3", quote: "100% plant-based meal kits, delivered." },
+        { company: "QuickKit", name: "Pre-chopped meal kit", category: "Meal kit", description: "Pre-chopped, pre-measured ingredients, ready in about 15 minutes", source: "S4", quote: "Every ingredient arrives pre-chopped and pre-measured, so most meals are ready in 15 minutes." }],
+      price: [
+        { company: "FreshCrate", plan: "Classic Box", price: "$59.94", period: "per week", per_serving: "$9.99", includes: "3 meals for 2 people", source: "S2", quote: "Classic Box: $59.94 per week for 3 meals for 2 people ($9.99 per serving)." },
+        { company: "FreshCrate", plan: "Family Box", price: "$95.84", period: "per week", per_serving: "$5.99", includes: "4 meals for 4 people", source: "S2", quote: "Family Box: $95.84 per week for 4 meals for 4 people ($5.99 per serving)." },
+        { company: "GreenPlate", plan: "Starter Plan", price: "$62.94", period: "per week", per_serving: "$10.49", includes: "3 meals for 2 people", source: "S3", quote: "Starter Plan: $62.94 per week for 3 meals for 2 people." },
+        { company: "GreenPlate", plan: "Big Table Plan", price: "$119.84", period: "per week", per_serving: "$7.49", includes: "4 meals for 4 people", source: "S3", quote: "Big Table Plan: $119.84 per week for 4 meals for 4 people ($7.49 per serving)." },
+        { company: "QuickKit", plan: "Solo Plan", price: "$54.00", period: "per week", per_serving: "$10.80", includes: "5 meals for 1 person", source: "S4", quote: "Solo Plan: $54.00 per week for 5 meals for 1 person ($10.80 per serving)." },
+        { company: "QuickKit", plan: "Duo Plan", price: "$89.90", period: "per week", per_serving: "$8.99", includes: "5 meals for 2 people", source: "S4", quote: "Duo Plan: $89.90 per week for 5 meals for 2 people ($8.99 per serving)." }],
+      feature: [
+        { feature: "Skip a week or cancel any time", company: "FreshCrate", plan: "All plans", source: "S1", quote: "Skip a week or cancel any time." },
+        { feature: "Free shipping over $50", company: "FreshCrate", plan: "All plans", source: "S2", quote: "Free shipping on every box over $50." },
+        { feature: "Cooking app with timers", company: "FreshCrate", plan: "All plans", source: "S2", quote: "All plans include recipe cards, an app with cooking timers" },
+        { feature: "Home-compostable packaging", company: "GreenPlate", plan: "All plans", source: "S3", quote: "our packaging is 100% home compostable." },
+        { feature: "Carbon-neutral boxes", company: "GreenPlate", plan: "All plans", source: "S3", quote: "Every box is carbon-neutral" },
+        { feature: "Pre-chopped ingredients", company: "QuickKit", plan: "All plans", source: "S4", quote: "Every ingredient arrives pre-chopped and pre-measured" },
+        { feature: "First box ships free", company: "QuickKit", plan: "First order", source: "S4", quote: "First box ships free." }],
+      claim: [
+        { company: "FreshCrate", claim: "Dinner in 20 minutes", proof: "Rated 4.7/5 by 18,000+ customers", source: "S1", quote: "Rated 4.7 out of 5 by more than 18,000 customers." },
+        { company: "GreenPlate", claim: "100% plant-based and sustainable", proof: "2025 Green Business Award", source: "S3", quote: "Winner of the 2025 Green Business Award." },
+        { company: "QuickKit", claim: "15-minute meals, no chopping", proof: "250,000+ boxes delivered since 2023", source: "S4", quote: "Over 250,000 boxes delivered since 2023." }]
+    },
+    deliverable: {
+      title: "Meal-kit market: competitor comparison",
+      summary: "Three meal-kit companies compete on different promises: FreshCrate on variety, GreenPlate on sustainability and QuickKit on speed. FreshCrate's Family Box has the lowest price per serving at $5.99.",
+      sections: [
+        { h: "Pricing", bullets: ["FreshCrate is the cheapest per serving: $5.99 on the Family Box and $9.99 on the Classic Box.", "GreenPlate is the premium option: $10.49 per serving on the Starter Plan and $7.49 on Big Table.", "QuickKit is the only one with a plan for one person: the Solo Plan at $10.80 per serving."] },
+        { h: "Positioning", bullets: ["FreshCrate sells variety, with 32 new recipes every week.", "GreenPlate sells values: 100% plant-based, carbon-neutral boxes and compostable packaging.", "QuickKit sells time: pre-chopped ingredients and meals ready in about 15 minutes."] },
+        { h: "Shipping and flexibility", bullets: ["FreshCrate ships free on boxes over $50 and lets customers skip or cancel any time.", "QuickKit's first box ships free, then shipping is $7.99 per box.", "GreenPlate's shipping cost was not found on the pages captured."] },
+        { h: "Proof", bullets: ["FreshCrate: rated 4.7 out of 5 by more than 18,000 customers.", "QuickKit: over 250,000 boxes delivered since 2023.", "GreenPlate: winner of the 2025 Green Business Award."] },
+        { h: "Opportunities (analysis)", bullets: ["No competitor offers a plant-based plan for one person.", "Only QuickKit removes prep work, so speed is an open lane for a plant-based brand."] }]
+    } }
+  },
+  student: {
+    name: "Coral reefs research",
+    request: PKGS.student.templates[0].req,
+    sources: [
+      { id: "S1", title: "Coral Reefs: Cities Under the Sea", url: "oceanlearning.example/coral-reefs", text: `Coral Reefs: Cities Under the Sea
+By Dr. Lena Ortiz · Ocean Learning Center · 2024
+Coral reefs cover less than 1% of the ocean floor, but they support about 25% of all known marine species.
+A coral reef is built by tiny animals called coral polyps. Each polyp builds a hard skeleton of calcium carbonate, and over thousands of years these skeletons form a reef.
+Most reef-building corals depend on algae called zooxanthellae that live inside their tissues. The algae make food through photosynthesis and give corals much of their color.` },
+      { id: "S2", title: "Why Corals Turn White", url: "reefscience.example/bleaching", text: `Why Corals Turn White
+By Marcus Bell · Reef Science Weekly · 2025
+Coral bleaching happens when water becomes too warm and corals expel the algae living in their tissues. Without the algae, the coral turns white and begins to starve.
+If temperatures return to normal quickly, corals can recover. If the heat lasts for weeks, many corals die.
+Scientists have recorded several global bleaching events since 1998, each linked to unusually warm ocean temperatures.` },
+      { id: "S3", title: "The Great Barrier Reef", url: "studentencyclopedia.example/great-barrier-reef", text: `The Great Barrier Reef
+By Priya Nair · Sample Encyclopedia for Students · 2023
+The Great Barrier Reef lies off the coast of Queensland, Australia, and stretches for about 2,300 kilometres.
+It is the largest coral reef system in the world and can be seen from space.
+The reef was named a UNESCO World Heritage Site in 1981.` }
+    ],
+    result: { by: "example", objects: {
+      source: [
+        { title: "Coral Reefs: Cities Under the Sea", author: "Lena Ortiz", publisher: "Ocean Learning Center", date: "2024", citation: "Ortiz, L. (2024). Coral reefs: Cities under the sea. Ocean Learning Center.", source: "S1", quote: "By Dr. Lena Ortiz · Ocean Learning Center · 2024" },
+        { title: "Why Corals Turn White", author: "Marcus Bell", publisher: "Reef Science Weekly", date: "2025", citation: "Bell, M. (2025). Why corals turn white. Reef Science Weekly.", source: "S2", quote: "By Marcus Bell · Reef Science Weekly · 2025" },
+        { title: "The Great Barrier Reef", author: "Priya Nair", publisher: "Sample Encyclopedia for Students", date: "2023", citation: "Nair, P. (2023). The Great Barrier Reef. Sample Encyclopedia for Students.", source: "S3", quote: "By Priya Nair · Sample Encyclopedia for Students · 2023" }],
+      fact: [
+        { statement: "Reefs cover less than 1% of the ocean floor but support about 25% of known marine species.", topic: "Why reefs matter", source: "S1", quote: "Coral reefs cover less than 1% of the ocean floor, but they support about 25% of all known marine species." },
+        { statement: "Reefs are built from the calcium carbonate skeletons of coral polyps.", topic: "How reefs form", source: "S1", quote: "Each polyp builds a hard skeleton of calcium carbonate, and over thousands of years these skeletons form a reef." },
+        { statement: "Algae inside corals make food through photosynthesis and give corals their color.", topic: "Corals and algae", source: "S1", quote: "The algae make food through photosynthesis and give corals much of their color." },
+        { statement: "Bleaching happens when water gets too warm and corals expel their algae.", topic: "Bleaching", source: "S2", quote: "Coral bleaching happens when water becomes too warm and corals expel the algae living in their tissues." },
+        { statement: "Corals can recover if temperatures return to normal quickly.", topic: "Bleaching", source: "S2", quote: "If temperatures return to normal quickly, corals can recover." },
+        { statement: "The Great Barrier Reef stretches about 2,300 km off Queensland, Australia.", topic: "Great Barrier Reef", source: "S3", quote: "The Great Barrier Reef lies off the coast of Queensland, Australia, and stretches for about 2,300 kilometres." },
+        { statement: "It became a UNESCO World Heritage Site in 1981.", topic: "Great Barrier Reef", source: "S3", quote: "The reef was named a UNESCO World Heritage Site in 1981." }],
+      term: [
+        { term: "Coral polyp", definition: "A tiny animal that builds a hard skeleton; many polyps together build a reef.", source: "S1", quote: "A coral reef is built by tiny animals called coral polyps." },
+        { term: "Calcium carbonate", definition: "The hard material coral skeletons are made of.", source: "S1", quote: "Each polyp builds a hard skeleton of calcium carbonate" },
+        { term: "Zooxanthellae", definition: "Algae living inside coral tissue that make food and give coral its color.", source: "S1", quote: "Most reef-building corals depend on algae called zooxanthellae that live inside their tissues." },
+        { term: "Coral bleaching", definition: "When overheated corals expel their algae and turn white.", source: "S2", quote: "Without the algae, the coral turns white and begins to starve." }],
+      question: [
+        { question: "What share of known marine species do coral reefs support?", answer: "About 25%", source: "S1", quote: "they support about 25% of all known marine species." },
+        { question: "What causes coral bleaching?", answer: "Water that is too warm, which makes corals expel their algae.", source: "S2", quote: "Coral bleaching happens when water becomes too warm and corals expel the algae living in their tissues." },
+        { question: "Can bleached corals recover?", answer: "Yes, if temperatures return to normal quickly. Long heat waves kill many corals.", source: "S2", quote: "If the heat lasts for weeks, many corals die." },
+        { question: "How long is the Great Barrier Reef?", answer: "About 2,300 kilometres", source: "S3", quote: "stretches for about 2,300 kilometres." },
+        { question: "When did the Great Barrier Reef become a World Heritage Site?", answer: "1981", source: "S3", quote: "The reef was named a UNESCO World Heritage Site in 1981." }]
+    },
+    deliverable: {
+      title: "Study guide: Coral reefs",
+      summary: "Coral reefs are built by tiny animals and powered by algae living inside them. They cover less than 1% of the ocean floor but support about a quarter of known marine species, and warming water threatens them through bleaching.",
+      sections: [
+        { h: "What a reef is", bullets: ["Reefs are built by coral polyps, tiny animals with calcium carbonate skeletons.", "Over thousands of years, the skeletons pile up into a reef."] },
+        { h: "Corals and algae", bullets: ["Algae called zooxanthellae live inside coral tissue.", "They make food through photosynthesis and give corals their color."] },
+        { h: "Bleaching", bullets: ["Too-warm water makes corals expel their algae and turn white.", "Corals can recover if the heat ends quickly; long heat waves kill many.", "Several global bleaching events have been recorded since 1998."] },
+        { h: "The Great Barrier Reef", bullets: ["About 2,300 km long, off Queensland, Australia.", "The largest coral reef system in the world.", "A UNESCO World Heritage Site since 1981."] }]
+    } }
+  }
+};
+
+/* ---------- State ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+let pkg = store.get("fw-pkg") === "student" ? "student" : "pro";
+let project = null;
+const ui = { tab: "deliv", bill: "month", choose: null, lastProjTab: "deliv", exportsLog: [], obj: null, src: null, focusQuote: null, tpl: 0, running: false, steps: [], msg: null, flipped: {} };
+function loadProject() { project = store.get("fw-proj-" + pkg) || clone(EXAMPLES[pkg]); project.captured = project.captured || CAPTURED; verifyAll(); ui.obj = Object.keys(PKGS[pkg].objects)[0]; ui.src = project.sources[0]?.id; ui.flipped = {}; }
+function saveProject() { store.set("fw-proj-" + pkg, project); }
+
+/* ---------- Evidence check: does the quote really appear on the page? ---------- */
+const norm = s => String(s || "").toLowerCase().replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\s+/g, " ").trim();
+function verifyAll() {
+  const r = project.result; if (!r) return;
+  Object.values(r.objects || {}).forEach(rows => rows.forEach(row => { const s = project.sources.find(x => x.id === row.source); row.verified = !!(s && row.quote && norm(s.text).includes(norm(row.quote))); }));
+}
+const allRows = () => Object.values(project.result?.objects || {}).flat();
+
+/* ---------- Rendering ---------- */
+const PROJ_TABS = ["lens", "extract", "data", "scrap", "deliv"];
+const PRICES = { student: { month: 9, year: 90 }, pro: { month: 24, year: 240 } };
+const FEATURES = {
+  student: ["Study lens on any page", "AI study guides, flashcards and quizzes", "Essay outlines with citations (APA, MLA, Chicago)", "PDF, PowerPoint and flashcard exports", "100 AI extractions a month"],
+  pro: ["Briefing lens on any page", "AI competitor briefs and company snapshots", "Business-intelligence datasets with evidence", "PDF, branded PowerPoint, Excel and CSV", "300 AI extractions a month"] };
+const fmtDate = d => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+function render() {
+  const P = PKGS[pkg], inProject = PROJ_TABS.includes(ui.tab);
+  document.querySelectorAll("[data-pkg]").forEach(b => b.setAttribute("aria-pressed", b.dataset.pkg === pkg));
+  $("#plan").textContent = `${P.name} · ${ui.bill === "year" ? "Yearly" : "Monthly"}`;
+  document.querySelectorAll("[data-nav]").forEach(b => { if ((inProject ? "project" : ui.tab) === b.dataset.nav) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  $("#projHead").hidden = !inProject; $("#srcCol").hidden = !inProject; $("#work").classList.toggle("full", !inProject);
+  $("#projName").textContent = project.name;
+  const counts = {}; allRows().forEach(r => counts[r.source] = (counts[r.source] || 0) + 1);
+  $("#srcList").innerHTML = project.sources.map(s => `<button class="src${s.id === ui.src && ui.tab === "lens" ? " on" : ""}" data-src="${s.id}"><b>${esc(s.title)}</b><small>${esc(s.url || "pasted text")}</small><span class="n">${counts[s.id] || 0}</span></button>`).join("");
+  const rows = allRows(), ver = rows.filter(r => r.verified).length;
+  $("#stats").innerHTML = `<span>Pages</span><span>${project.sources.length}</span><span>Objects extracted</span><span>${rows.length}</span><span>Matched to page text</span><span class="verified">${rows.length ? Math.round(ver / rows.length * 100) : 0}%</span><span>Captured</span><span>${esc(project.captured)}</span>`;
+  $("#runNote").textContent = project.result?.by === "example" ? "Showing an example result. Run Extract to have the AI do it live." : project.result ? "Extracted live by AI." : "Run Extract to build datasets.";
+  $("#nRows").textContent = rows.length; $("#nSnips").textContent = rows.length + (project.snips || []).length;
+  document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === ui.tab));
+  if (inProject) ui.lastProjTab = ui.tab;
+  $("#pane").dataset.area = inProject ? ui.tab : "";
+  ({ lens: renderLens, extract: renderExtract, data: renderData, deliv: renderDeliv, scrap: renderScrap, home: renderHome, account: renderAccount, checkout: renderCheckout })[ui.tab]();
+}
+
+function renderHome() {
+  const P = PKGS[pkg];
+  const projCard = k => { const ex = store.get("fw-proj-" + k) || EXAMPLES[k]; const n = Object.values(ex.result?.objects || {}).flat().length;
+    return `<button class="pcard" data-open="${k}"><div class="cover ${k === "pro" ? "c-pro" : "c-student"}">${k === "pro" ? "BI" : "Study"}<span class="ptag">${n} objects</span></div><div class="pbody"><span class="eyebrow">${PKGS[k].name}</span><h3>${esc(ex.name)}</h3><p class="note">${ex.sources.length} pages · captured ${esc(ex.captured || CAPTURED)}</p><div class="pmeta"><span class="chip">${esc(ex.result?.deliverable?.title || "No deliverable yet")}</span></div></div></button>`; };
+  $("#pane").innerHTML = `<div class="pagetitle"><div class="eyebrow">Home</div><h1>Pick up where you left off</h1><p>Your projects, and templates that turn the pages you visit into finished work.</p></div>
+  <div class="row"><h2>Your projects</h2></div>
+  <div class="cards">${projCard(pkg)}${projCard(pkg === "pro" ? "student" : "pro")}</div>
+  <div class="row"><h2>${esc(P.name)} templates</h2><span class="sp"></span><span class="note">Each one builds a report, slides and datasets.</span></div>
+  <div class="cards">${P.templates.map((t, i) => `<button class="pcard" data-tplgo="${i}" style="--c: var(--${["coral", "mint", "mustard"][i % 3]})"><div class="cover c-tpl" style="--c: var(--${["coral", "mint", "mustard"][i % 3]})">${esc(t.name.split(/[ +]/).filter(Boolean).map(w => w[0]).join("").slice(0, 3).toUpperCase())}<span class="ptag">Template</span></div><div class="pbody"><h3>${esc(t.name)}</h3><p class="note">${esc(t.req)}</p><div class="pmeta"><span class="chip">PDF</span><span class="chip">PowerPoint</span><span class="chip">Excel</span></div></div></button>`).join("")}</div>`;
+}
+
+function renderAccount() {
+  const P = PKGS[pkg], price = PRICES[pkg][ui.bill], trialEnd = new Date(Date.now() + 3 * 864e5);
+  const used = allRows().length ? 12 : 0, cap = pkg === "pro" ? 300 : 100;
+  const exportsLog = ui.exportsLog || [];
+  $("#pane").innerHTML = `<div class="phero"><span class="av big">DU</span><div style="display:grid;gap:6px"><h2>Demo user</h2><p class="note">Demo account for this prototype · member since Nov 2026</p><div class="pmeta"><span class="chip on">${esc(P.name)} plan</span><span class="chip">${ui.bill === "year" ? "Yearly" : "Monthly"} · $${price}</span><span class="chip">Trial ends ${fmtDate(trialEnd)}</span></div></div><span class="sp"></span><button class="btn" data-go="checkout">Change plan</button></div>
+  <div class="grid3">
+    <div class="box"><h3>This month</h3><div class="kvs"><span>AI extractions</span><span>${used} of ${cap}</span></div><div class="meter"><i style="width:${Math.max(2, used / cap * 100)}%"></i></div><div class="kvs"><span>Pages captured</span><span>${project.sources.length}</span><span>Objects extracted</span><span>${allRows().length}</span><span>Files exported</span><span>${exportsLog.length}</span></div><p class="note">Sample numbers for the demo.</p></div>
+    <div class="box"><h3>Preferences</h3><div class="kvs"><span>Lens mode</span><span>${esc(P.lensMode)}</span><span>View style</span><span>Chunks</span><span>${pkg === "pro" ? "Deck branding" : "Citation style"}</span><span>${pkg === "pro" ? "Your logo" : "APA 7"}</span><span>Evidence check</span><span>Always on</span></div></div>
+    <div class="box"><h3>Recent exports</h3><div class="list">${exportsLog.length ? exportsLog.slice(-5).reverse().map(x => `<div><span>${esc(x.name)}</span><span class="note">${esc(x.when)}</span></div>`).join("") : `<p class="note">Files you download show up here.</p>`}</div></div>
+  </div>
+  <div class="box"><h3>Your projects</h3><div class="list">${["pro", "student"].map(k => { const ex = store.get("fw-proj-" + k) || EXAMPLES[k]; return `<div><span><b>${esc(ex.name)}</b> · ${PKGS[k].name}</span><button class="btn" data-open="${k}">Open</button></div>`; }).join("")}</div></div>`;
+}
+
+function renderCheckout() {
+  const choose = ui.choose || pkg, b = ui.bill, price = PRICES[choose][b], trialEnd = new Date(Date.now() + 3 * 864e5);
+  $("#pane").innerHTML = `<div class="pagetitle"><div class="eyebrow">Plans &amp; billing</div><h1>Choose your plan</h1><p>Every plan starts with a 3-day free trial. Cancel any time before it ends and you won't be charged.</p></div>
+  <div class="seg billsw" role="group" aria-label="Billing"><button data-bill="month" aria-pressed="${b === "month"}">Monthly</button><button data-bill="year" aria-pressed="${b === "year"}">Yearly <em>2 months free</em></button></div>
+  <div class="checkout"><div class="plans">${["student", "pro"].map(k => `<button class="plancard" data-choose="${k}" aria-pressed="${k === choose}"><span class="eyebrow">${k === "pro" ? "For professionals" : "For students"}</span><h2>${PKGS[k].name}</h2><div class="price">$${PRICES[k][b]}<small> / ${b === "year" ? "year" : "month"}</small></div><ul>${FEATURES[k].map(f => `<li>${esc(f)}</li>`).join("")}</ul><span class="btn ${k === choose ? "primary" : ""}" style="text-align:center">${k === choose ? "Selected" : "Choose " + PKGS[k].name}</span></button>`).join("")}</div>
+  <aside class="summary"><h3>Order summary</h3><div class="in">
+    <div class="kvs"><span>Plan</span><span>${PKGS[choose].name}</span><span>Billing</span><span>${b === "year" ? "Yearly" : "Monthly"}</span><span>Free trial</span><span>3 days</span><span>First charge</span><span>${fmtDate(trialEnd)}</span></div>
+    <div class="total"><span>Due today</span><b>$0.00</b></div>
+    <p class="note">Then $${price.toFixed(2)} every ${b === "year" ? "year" : "month"} until you cancel.</p>
+    <div class="paybox"><b>Secure payment</b>Card checkout connects here at launch. This prototype doesn't collect or charge any payment details.</div>
+    <button class="btn primary" id="startTrial">Start 3-day free trial</button>
+    <p class="note" id="trialMsg">Cancel any time from Account.</p>
+  </div></aside></div>
+  <p class="note">Prices are placeholders while pricing is being tested.</p>`;
+}
+
+/* ---------- Scrapbook: one set of snips, four layouts ---------- */
+const PALETTE = ["mint", "coral", "mustard", "sage", "lavender"];
+const LAYOUTS = { table: "Table", board: "Board", notebook: "Notebook", pins: "Pin board" };
+const RECOMMEND = { pro: { layout: "board", group: "company", why: "Board grouped by company is recommended for comparing competitors." }, student: { layout: "notebook", group: "topic", why: "Notebook grouped by topic is recommended for building a paper." } };
+const srcCompany = id => (project.sources.find(s => s.id === id)?.title || "Your snips").split(":")[0].trim();
+function snipLabel(t, r) {
+  const L = {
+    company: () => `${r.name}: ${r.tagline}`, product: () => `${r.name}: ${r.description}`,
+    price: () => `${r.plan}: ${r.price} ${r.period}${r.per_serving && r.per_serving !== "not found" ? ` (${r.per_serving} per serving)` : ""}`,
+    feature: () => r.feature, claim: () => `${r.claim}. ${r.proof}`,
+    source: () => r.citation, fact: () => r.statement, term: () => `${r.term}: ${r.definition}`, question: () => `${r.question} ${r.answer}` };
+  return (L[t] || (() => r.quote))();
+}
+function bigOf(t, r) {
+  if (t === "price") return r.price;
+  if (t === "fact" || t === "claim") { const ms = String(t === "fact" ? r.statement : r.proof).match(/\$?\d[\d,.]*\s?(%|km|million)?/g) || []; return ms.map(x => x.trim()).sort((a, b) => parseFloat(b.replace(/[^\d.]/g, "")) - parseFloat(a.replace(/[^\d.]/g, "")))[0] || ""; }
+  return "";
+}
+function allSnips() {
+  const out = [];
+  Object.entries(project.result?.objects || {}).forEach(([t, rows]) => rows.forEach((r, i) => out.push({ id: t + i, t, r, text: snipLabel(t, r), big: bigOf(t, r), type: PKGS[pkg].objects[t]?.label || t })));
+  (project.snips || []).forEach((s, i) => out.push({ id: "m" + i, t: "snip", r: { source: s.source, quote: s.text, verified: true }, text: s.text, big: "", type: "Your snip", manual: true }));
+  return out;
+}
+function groupOf(s) {
+  const g = ui.groupBy || RECOMMEND[pkg].group;
+  if (g === "type") return s.type;
+  if (g === "source") return srcTitle(s.r.source);
+  if (g === "company") return s.r.company || s.r.name || srcCompany(s.r.source);
+  return s.r.topic || (s.t === "term" ? "Key terms" : s.t === "question" ? "Review questions" : s.t === "source" ? "Sources" : "Your snips");
+}
+function grouped(snips) { const m = new Map(); snips.forEach(s => { const g = groupOf(s); if (!m.has(g)) m.set(g, []); m.get(g).push(s); }); return [...m.entries()]; }
+const evBadge = s => `<span class="ev ${s.r.verified ? "verified" : "check"}">${s.r.verified ? "✓" : "⚠"} ${esc(srcTitle(s.r.source))}</span>`;
+function snipCard(s, cls = "snip") { return `<button class="${cls}" data-snip="${s.id}" data-type="${s.t}">${s.big ? `<span class="sbig">${esc(s.big)}</span>` : ""}<span class="stxt">${esc(s.text)}</span><span class="smeta"><span class="stype">${esc(s.type)}</span>${evBadge(s)}</span></button>`; }
+function renderScrap() {
+  const groupOpts = pkg === "pro" ? { company: "Company", source: "Page", type: "Type" } : { topic: "Topic", source: "Source", type: "Type" };
+  if (ui.groupBy && !groupOpts[ui.groupBy]) ui.groupBy = null;
+  const snips = allSnips(), lay = ui.layout || RECOMMEND[pkg].layout, grp = ui.groupBy || RECOMMEND[pkg].group;
+  let body = "";
+  if (!snips.length) body = `<p class="note">No snips yet. Run Extract, or select text in the Lens and press Snip.</p>`;
+  else if (lay === "table") body = `<div class="tablewrap"><table><thead><tr><th>${esc(groupOpts[grp] || "Group")}</th><th>Snip</th><th>Type</th><th>Evidence</th></tr></thead><tbody>${grouped(snips).flatMap(([g, ss]) => ss.map(s => `<tr data-snip="${s.id}"><td><b>${esc(g)}</b></td><td>${esc(s.text)}</td><td>${esc(s.type)}</td><td class="ev">${evBadge(s)}<br>“${esc(s.r.quote)}”</td></tr>`)).join("")}</tbody></table></div>`;
+  else if (lay === "board") body = `<div class="board">${grouped(snips).map(([g, ss], gi) => `<section class="col" style="--c: var(--${PALETTE[gi % PALETTE.length]})"><header><h3>${esc(g)}</h3><span class="chip">${ss.length}</span></header>${ss.map(s => snipCard(s)).join("")}</section>`).join("")}</div>`;
+  else if (lay === "notebook") { let n = 0; const notes = [];
+    body = `<article class="notebook"><div class="eyebrow">Notebook · ${esc(project.name)}</div><h2>${esc(project.result?.deliverable?.title || project.name)}</h2>${grouped(snips).map(([g, ss]) => `<section><h3>${esc(g)}</h3><ul>${ss.map(s => { notes.push(s); n++; return `<li data-snip="${s.id}">${esc(s.text)}<sup>${n}</sup></li>`; }).join("")}</ul></section>`).join("")}
+    <section class="notes"><h3>Sources for each note</h3><ol>${notes.map(s => `<li>${esc(srcTitle(s.r.source))}: “${esc(s.r.quote)}”</li>`).join("")}</ol></section></article>`; }
+  else body = `<div class="pins">${snips.map(s => snipCard(s, "snip pin" + (s.big ? " hasbig" : ""))).join("")}</div>`;
+  $("#pane").innerHTML = `<div class="row"><h2>Scrapbook</h2><span class="sp"></span><button class="btn" data-exp="snips">Download snips (CSV)</button></div>
+  <div class="row scrapbar"><div class="layouts" role="group" aria-label="Layout">${Object.entries(LAYOUTS).map(([k, v]) => `<button data-layout="${k}" aria-pressed="${k === lay}">${v}${k === RECOMMEND[pkg].layout ? " ★" : ""}</button>`).join("")}</div>
+  ${lay !== "pins" ? `<label class="groupby">Group by <select id="groupBy">${Object.entries(groupOpts).map(([k, v]) => `<option value="${k}"${k === grp ? " selected" : ""}>${v}</option>`).join("")}</select></label>` : ""}
+  <span class="note">${snips.length} snips · ★ ${esc(RECOMMEND[pkg].why)}</span></div>${body}`;
+}
+
+function renderLens() {
+  const s = project.sources.find(x => x.id === ui.src) || project.sources[0]; if (!s) { $("#pane").innerHTML = `<p class="note">Add a page to start.</p>`; return; }
+  const rows = Object.entries(project.result?.objects || {}).flatMap(([t, rs]) => rs.filter(r => r.source === s.id).map(r => ({ t, r })));
+  let text = esc(s.text);
+  rows.filter(x => x.r.verified).map(x => x.r.quote).sort((a, b) => b.length - a.length).forEach(q => {
+    const eq = esc(q).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    text = text.replace(new RegExp("(?![^<]*>)" + eq), m => `<mark data-q="${esc(q)}">${m}</mark>`);
+  });
+  const paras = text.split("\n").map((l, i) => `<p class="${i === 0 ? "head" : ""}">${l}</p>`).join("");
+  const P = PKGS[pkg];
+  $("#pane").innerHTML = `<div class="row"><h2>${esc(s.title)}</h2><span class="sp"></span><span class="note" id="snipMsg">Select any text, then snip it.</span><button class="btn primary" id="snipSel">✂ Snip selection</button><span class="eyebrow">${P.lensMode} lens</span></div>
+  <div class="lens"><article class="reading"><div class="url">${esc(s.url || "pasted text")} · captured ${esc(project.captured)}</div>${paras}</article>
+  <div class="keys"><h3>${pkg === "pro" ? "Pulled from this page" : "What to learn here"}</h3>${rows.length ? rows.map(({ t, r }) => `<div class="key"><span class="t">${esc(P.objects[t].label)}</span>${esc(summary(t, r))}</div>`).join("") : `<p class="note">Nothing extracted from this page yet.</p>`}
+  <p class="note">Highlighted text is the exact evidence behind each extracted object.</p></div></div>`;
+  if (ui.focusQuote) { const m = [...document.querySelectorAll("mark")].find(x => x.dataset.q === ui.focusQuote); if (m) { m.classList.add("flash"); m.scrollIntoView({ block: "center" }); } ui.focusQuote = null; }
+}
+function summary(t, r) {
+  const f = Object.keys(PKGS[pkg].objects[t].fields);
+  return f.slice(0, 3).map(k => r[k]).filter(v => v && v !== "not found").join(" · ");
+}
+
+function renderExtract() {
+  const P = PKGS[pkg];
+  $("#pane").innerHTML = `<h2>What do you need?</h2>
+  <p class="note">Tell Fieldwork what to build. It reads the pages you pick, extracts every object with the exact quote that proves it, and builds your deliverable.</p>
+  <div class="templates">${P.templates.map((t, i) => `<button class="tpl${i === ui.tpl ? " on" : ""}" data-tpl="${i}">${esc(t.name)}</button>`).join("")}</div>
+  <label class="eyebrow" for="req">Your request</label>
+  <textarea id="req">${esc(project.request || P.templates[0].req)}</textarea>
+  <div class="eyebrow">Pages to use</div>
+  <div class="checks">${project.sources.map(s => `<label><input type="checkbox" data-use="${s.id}" checked> ${esc(s.title)}</label>`).join("")}</div>
+  <div class="row"><button class="btn primary" id="run"${ui.running ? " disabled" : ""}>${ui.running ? "Working…" : "Run extraction"}</button>${ui.running ? `<button class="btn" id="stop">Stop</button>` : ""}<span class="note">Uses your plan's AI allowance.</span></div>
+  ${ui.steps.length ? `<div class="steps">${ui.steps.map(s => `<div class="${s.state}"><b>${s.state === "done" ? "✓" : s.state === "now" ? "›" : "·"}</b>${esc(s.text)}</div>`).join("")}</div>` : ""}
+  ${ui.msg ? `<div class="msg${ui.msg.err ? " err" : ""}">${esc(ui.msg.text)}</div>` : ""}`;
+}
+
+function renderData() {
+  const P = PKGS[pkg], objs = project.result?.objects || {};
+  const t = ui.obj, schema = P.objects[t], rows = objs[t] || [];
+  const cols = Object.entries(schema.fields);
+  const srcT = id => project.sources.find(s => s.id === id)?.title || id;
+  $("#pane").innerHTML = `<div class="row"><h2>Datasets</h2><span class="sp"></span><button class="btn" data-exp="csv">Download ${esc(schema.label)} (CSV)</button><button class="btn primary" data-exp="xlsx">Download all (Excel)</button></div>
+  <p class="note">Every object is a row with its source and the exact quote that proves it. Click a row to see it highlighted on the page.</p>
+  <div class="objtabs">${Object.entries(P.objects).map(([k, o]) => `<button class="objtab" data-obj="${k}" data-type="${k}" aria-pressed="${k === t}">${esc(o.label)} <span>${(objs[k] || []).length}</span></button>`).join("")}</div>
+  <div class="tablewrap"><table><thead><tr>${cols.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th>Evidence</th></tr></thead><tbody>
+  ${rows.length ? rows.map((r, i) => `<tr data-row="${i}">${cols.map(([k]) => { const v = r[k]; return `<td class="${/price|per_serving|date/.test(k) ? "num" : ""}">${!v || v === "not found" ? `<span class="nf">not found</span>` : esc(v)}</td>`; }).join("")}<td class="ev"><b class="${r.verified ? "verified" : ""}">${r.verified ? "✓ Matched" : "⚠ Check"} · ${esc(srcT(r.source))}</b>“${esc(r.quote)}”</td></tr>`).join("") : `<tr><td colspan="${cols.length + 1}" class="nf">No ${esc(schema.label.toLowerCase())} found yet. Run Extract.</td></tr>`}
+  </tbody></table></div>`;
+}
+
+function priceTable() {
+  const rows = project.result?.objects?.price || []; if (!rows.length) return "";
+  return `<h3>Price comparison</h3><div class="tablewrap"><table class="cmp"><thead><tr><th>Company</th><th>Plan</th><th>Price</th><th>Billing</th><th>Unit price</th><th>Includes</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r.company)}</td><td>${esc(r.plan)}</td><td class="num">${esc(r.price)}</td><td>${esc(r.period)}</td><td class="num">${esc(r.per_serving || "not found")}</td><td>${esc(r.includes)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+function flashcards() {
+  const o = project.result?.objects || {};
+  return [...(o.term || []).map(r => ({ t: "Term", f: r.term, b: r.definition })), ...(o.question || []).map(r => ({ t: "Question", f: r.question, b: r.answer }))];
+}
+function slidesOf(d) { return [{ title: d.title, bullets: [d.summary], cover: true }, ...d.sections.map(s => ({ title: s.h, bullets: s.bullets }))]; }
+function renderDeliv() {
+  const d = project.result?.deliverable;
+  if (!d) { $("#pane").innerHTML = `<h2>No deliverable yet</h2><p class="note">Run Extract to build one.</p>`; return; }
+  const cards = flashcards();
+  $("#pane").innerHTML = `<div class="deliv"><div class="report"><div class="eyebrow">${pkg === "pro" ? "Report" : "Study guide"} · ${project.result.by === "example" ? "example result" : "built by AI"}</div><h2>${esc(d.title)}</h2><p class="sum">${esc(d.summary)}</p>
+  ${pkg === "pro" ? priceTable() : ""}
+  ${d.sections.map(s => `<section><h3>${esc(s.h)}</h3><ul>${s.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul></section>`).join("")}
+  ${pkg === "student" && cards.length ? `<h3>Flashcards <span class="note">(tap to flip)</span></h3><div class="flash">${cards.map((c, i) => `<button class="fc${ui.flipped[i] ? " flipped" : ""}" data-fc="${i}"><span class="t">${ui.flipped[i] ? "Answer" : c.t}</span>${esc(ui.flipped[i] ? c.b : c.f)}</button>`).join("")}</div>` : ""}
+  <h3>Slides</h3><div class="slides">${slidesOf(d).map(s => `<div class="slide${s.cover ? " title" : ""}"><b>${esc(s.title)}</b>${s.bullets.slice(0, 3).map(b => `<span>• ${esc(b)}</span>`).join("")}</div>`).join("")}</div>
+  <h3>Sources</h3><ol class="note">${project.sources.map(s => `<li>${esc(s.title)}, ${esc(s.url || "pasted text")}, captured ${esc(project.captured)}</li>`).join("")}</ol></div>
+  <div class="export"><h3>Download</h3>
+    <button class="btn" data-exp="pdf">${pkg === "pro" ? "Report" : "Study guide"} <small>PDF</small></button>
+    <button class="btn" data-exp="pptx">Slide deck <small>PowerPoint</small></button>
+    <button class="btn" data-exp="xlsx">All datasets <small>Excel</small></button>
+    ${pkg === "student" ? `<button class="btn" data-exp="cards">Flashcards <small>CSV</small></button>` : ""}
+    <p class="note" id="expMsg">Files are built in your browser. You confirm each download.</p></div></div>`;
+}
+
+/* ---------- Events ---------- */
+document.querySelector(".pkgsw .seg").addEventListener("click", e => { const b = e.target.closest("[data-pkg]"); if (!b || b.dataset.pkg === pkg) return; pkg = b.dataset.pkg; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; ui.layout = null; ui.groupBy = null; render(); });
+document.querySelector(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b) { ui.tab = b.dataset.tab; render(); } });
+document.querySelector(".sidebar").addEventListener("click", e => { const b = e.target.closest("[data-nav]"); if (!b) return; ui.tab = b.dataset.nav === "project" ? (ui.lastProjTab || "deliv") : b.dataset.nav; render(); window.scrollTo(0, 0); });
+$("#headExport").onclick = () => { ui.tab = "deliv"; render(); };
+function openPkg(k) { if (k !== pkg) { pkg = k; store.set("fw-pkg", pkg); loadProject(); ui.steps = []; ui.msg = null; ui.layout = null; ui.groupBy = null; } ui.tab = "deliv"; render(); window.scrollTo(0, 0); }
+$("#srcList").addEventListener("click", e => { const b = e.target.closest("[data-src]"); if (b) { ui.src = b.dataset.src; ui.tab = "lens"; render(); } });
+$("#pane").addEventListener("click", e => {
+  const t = e.target;
+  if (t.closest("[data-layout]")) { ui.layout = t.closest("[data-layout]").dataset.layout; renderScrap(); return; }
+  if (t.closest("[data-snip]")) { const x = allSnips().find(z => z.id === t.closest("[data-snip]").dataset.snip); if (x) { ui.src = x.r.source; ui.focusQuote = x.r.verified ? x.r.quote : null; ui.tab = "lens"; render(); } return; }
+  if (t.closest("[data-open]")) { openPkg(t.closest("[data-open]").dataset.open); return; }
+  if (t.closest("[data-tplgo]")) { ui.tpl = +t.closest("[data-tplgo]").dataset.tplgo; project.request = PKGS[pkg].templates[ui.tpl].req; ui.tab = "extract"; render(); return; }
+  if (t.closest("[data-go]")) { ui.tab = t.closest("[data-go]").dataset.go; render(); return; }
+  if (t.closest("[data-bill]")) { ui.bill = t.closest("[data-bill]").dataset.bill; render(); return; }
+  if (t.closest("[data-choose]")) { ui.choose = t.closest("[data-choose]").dataset.choose; renderCheckout(); return; }
+  if (t.id === "startTrial") { $("#trialMsg").textContent = "This is a prototype, so no trial starts and nothing is charged. At launch, this button opens secure checkout."; return; }
+  if (t.closest("[data-tpl]")) { ui.tpl = +t.closest("[data-tpl]").dataset.tpl; project.request = PKGS[pkg].templates[ui.tpl].req; renderExtract(); return; }
+  if (t.closest("[data-obj]")) { ui.obj = t.closest("[data-obj]").dataset.obj; renderData(); return; }
+  if (t.closest("[data-row]")) { const r = project.result.objects[ui.obj][+t.closest("[data-row]").dataset.row]; ui.src = r.source; ui.focusQuote = r.quote; ui.tab = "lens"; render(); return; }
+  if (t.closest("[data-fc]")) { const i = +t.closest("[data-fc]").dataset.fc; ui.flipped[i] = !ui.flipped[i]; renderDeliv(); return; }
+  if (t.closest("[data-exp]")) { doExport(t.closest("[data-exp]").dataset.exp, t.closest("[data-exp]")); return; }
+  if (t.id === "run") { runExtraction(); return; }
+  if (t.id === "stop") { ctl?.abort(); return; }
+});
+$("#pane").addEventListener("change", e => { if (e.target.id === "groupBy") { ui.groupBy = e.target.value; renderScrap(); } });
+// Capture the selection before the click clears it
+$("#pane").addEventListener("mousedown", e => {
+  if (!e.target.closest("#snipSel")) return; e.preventDefault();
+  const sel = window.getSelection(), txt = String(sel || "").replace(/\s+/g, " ").trim();
+  const inReading = sel.rangeCount && document.querySelector(".reading")?.contains(sel.getRangeAt(0).commonAncestorContainer);
+  const msg = $("#snipMsg");
+  if (!txt || !inReading) { msg.textContent = "Select some text on the page first."; return; }
+  project.snips = project.snips || []; project.snips.push({ text: txt.slice(0, 400), source: ui.src || project.sources[0].id });
+  saveProject(); sel.removeAllRanges(); $("#nSnips").textContent = allRows().length + project.snips.length;
+  msg.textContent = `Snipped. You have ${project.snips.length} snip${project.snips.length === 1 ? "" : "s"} of your own in the Scrapbook.`;
+});
+$("#pane").addEventListener("input", e => { if (e.target.id === "req") project.request = e.target.value; });
+$("#addSrc").onclick = () => { $("#addForm").reset(); $("#addDlg").showModal(); };
+$("#addDlg").addEventListener("close", () => {
+  if ($("#addDlg").returnValue !== "add") return;
+  const ids = project.sources.map(s => +s.id.slice(1)); const id = "S" + (Math.max(0, ...ids) + 1);
+  project.sources.push({ id, title: $("#aTitle").value.trim(), url: $("#aUrl").value.trim(), text: $("#aText").value.trim() });
+  ui.src = id; ui.tab = "lens"; saveProject(); render();
+});
+$("#resetProj").onclick = () => { project = clone(EXAMPLES[pkg]); project.captured = CAPTURED; verifyAll(); saveProject(); ui.steps = []; ui.msg = null; ui.src = project.sources[0].id; render(); };
+
+/* ---------- AI extraction ---------- */
+let sampleFn = null, dl = null, ctl = null;
+(async () => { if (!window.claude?.use) return; [sampleFn, dl] = await Promise.all(["sample", "downloads"].map(n => claude.use(n).catch(() => null))); })();
+function setStep(i, state) { ui.steps.forEach((s, j) => { if (j < i) s.state = "done"; else if (j === i) s.state = state || "now"; else s.state = ""; }); if (ui.tab === "extract") renderExtract(); }
+async function runExtraction() {
+  const use = [...document.querySelectorAll("[data-use]:checked")].map(x => x.dataset.use);
+  const srcs = project.sources.filter(s => use.includes(s.id));
+  if (!srcs.length) { ui.msg = { err: true, text: "Pick at least one page." }; renderExtract(); return; }
+  if (!sampleFn) { ui.msg = { err: true, text: "Live AI extraction runs when this page is open in claude.ai. The results shown are an example of what it produces." }; renderExtract(); return; }
+  const P = PKGS[pkg];
+  ui.running = true; ui.msg = null;
+  ui.steps = [{ text: `Reading ${srcs.length} page${srcs.length > 1 ? "s" : ""}` }, { text: "Extracting objects and evidence" }, { text: "Checking every quote against the page" }, { text: "Building your deliverable" }];
+  setStep(0); setTimeout(() => ui.running && ui.steps[1].state !== "done" && setStep(1), 1800);
+  const shape = Object.fromEntries(Object.entries(P.objects).map(([k, o]) => [k, [Object.fromEntries([...Object.keys(o.fields).map(f => [f, "…"]), ["source", "S1"], ["quote", "exact words from the page"]])]]));
+  const prompt = `You are Fieldwork, an extraction tool for ${pkg === "pro" ? "business intelligence for professionals" : "students doing research"}.
+Extract structured objects ONLY from the sources below. Never invent facts or use outside knowledge.
+Every object must include "source" (the source id, like S1) and "quote" (an exact, verbatim excerpt from that source, under 30 words, that proves the object). Copy the quote character for character.
+If a field is not stated in the source, write "not found".
+${pkg === "student" ? 'For "citation", write an APA 7 reference from the byline (author, year, title, publisher).' : 'For prices, keep the currency symbol. "per_serving" is the unit price if the page states one.'}
+
+The user's request: ${project.request}
+
+Sources:
+${srcs.map(s => `[${s.id}] ${s.title} (${s.url || "pasted text"})\n${s.text.slice(0, 12000)}`).join("\n\n")}
+
+Reply with only JSON in this shape:
+{"objects": ${JSON.stringify(shape)}, "deliverable": {"title": "…", "summary": "2 sentences", "sections": [{"h": "heading", "bullets": ["…"]}]}}
+The deliverable answers the user's request in 3 to 6 sections, using only facts from the objects. Label any section of your own analysis "(analysis)".`;
+  ctl = new AbortController();
+  try {
+    const r = await sampleFn.json(prompt, { signal: ctl.signal, cache: false, modelTier: "default" });
+    if (!r || !r.objects || !r.deliverable) throw { code: "bad_shape" };
+    setStep(2);
+    const objects = {}; Object.keys(P.objects).forEach(k => objects[k] = (Array.isArray(r.objects[k]) ? r.objects[k] : []).filter(x => x && typeof x === "object"));
+    project.result = { by: "ai", objects, deliverable: { title: String(r.deliverable.title || "Report"), summary: String(r.deliverable.summary || ""), sections: (r.deliverable.sections || []).map(s => ({ h: String(s.h || ""), bullets: (s.bullets || []).map(String) })) } };
+    project.captured = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    verifyAll(); saveProject();
+    const rows = allRows(), ver = rows.filter(x => x.verified).length;
+    setStep(4); ui.running = false;
+    ui.msg = { text: `Done. ${rows.length} objects extracted, ${ver} matched word for word to the page. Rows marked “Check” need a look.` };
+    render();
+  } catch (e) {
+    ui.running = false; ui.steps = [];
+    ui.msg = e?.code === "cancelled" ? { text: "Stopped. Your previous results are unchanged." } : { err: true, text: { not_granted: "Fieldwork needs permission to use Claude. Allow it from this page's permissions, then run again.", rate_limited: "Too many requests at once. Wait a moment, then run again.", bad_shape: "The extraction came back incomplete. Try again, or use fewer pages." }[e?.code] || "The extraction didn't finish. Try again." };
+    render();
+  }
+}
+
+/* ---------- Exports: PDF, PowerPoint, Excel, CSV ---------- */
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+const srcTitle = id => project.sources.find(s => s.id === id)?.title || id;
+const srcUrl = id => project.sources.find(s => s.id === id)?.url || "";
+function datasetRows(t) {
+  const f = PKGS[pkg].objects[t].fields;
+  return (project.result?.objects?.[t] || []).map(r => ({ ...Object.fromEntries(Object.entries(f).map(([k, l]) => [l, r[k] ?? ""])), "Source": srcTitle(r.source), "URL": srcUrl(r.source), "Evidence quote": r.quote, "Matched to page": r.verified ? "Yes" : "Check", "Captured": project.captured }));
+}
+function buildXlsx() {
+  const wb = XLSX.utils.book_new();
+  Object.entries(PKGS[pkg].objects).forEach(([k, o]) => { const ws = XLSX.utils.json_to_sheet(datasetRows(k)); ws["!cols"] = Object.keys(datasetRows(k)[0] || { a: 1 }).map(h => ({ wch: /quote/i.test(h) ? 60 : 22 })); XLSX.utils.book_append_sheet(wb, ws, o.label.slice(0, 31)); });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(project.sources.map(s => ({ ID: s.id, Title: s.title, URL: s.url, Captured: project.captured }))), "Pages captured");
+  return new Blob([XLSX.write(wb, { bookType: "xlsx", type: "array" })]);
+}
+function toCsv(rows) { if (!rows.length) return ""; const h = Object.keys(rows[0]); const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`; return [h.map(q).join(","), ...rows.map(r => h.map(k => q(r[k])).join(","))].join("\n"); }
+function buildPdf() {
+  const d = project.result.deliverable, { jsPDF } = window.jspdf, doc = new jsPDF({ unit: "pt", format: "letter" });
+  const M = 54, W = 612 - M * 2; let y = M;
+  const need = h => { if (y + h > 792 - M) { doc.addPage(); y = M; } };
+  const text = (t, size, style, gap, color) => { doc.setFont("helvetica", style || "normal"); doc.setFontSize(size); doc.setTextColor(...(color || [20, 32, 26])); const lines = doc.splitTextToSize(String(t), W); lines.forEach(l => { need(size * 1.35); doc.text(l, M, y); y += size * 1.35; }); y += gap || 0; };
+  text("FIELDWORK  |  " + (pkg === "pro" ? "REPORT" : "STUDY GUIDE"), 8, "bold", 14, [194, 81, 63]);
+  text(d.title, 20, "bold", 8); text(d.summary, 11, "normal", 12);
+  if (pkg === "pro" && project.result.objects.price?.length) {
+    text("Price comparison", 13, "bold", 4);
+    project.result.objects.price.forEach(r => text(`${r.company}, ${r.plan}: ${r.price} ${r.period}${r.per_serving && r.per_serving !== "not found" ? ` (${r.per_serving} per unit)` : ""}, ${r.includes}`, 10, "normal", 1));
+    y += 8;
+  }
+  d.sections.forEach(s => { need(40); text(s.h, 13, "bold", 4); s.bullets.forEach(b => text("•  " + b, 10.5, "normal", 2)); y += 8; });
+  if (pkg === "student") { text("Flashcards", 13, "bold", 4); flashcards().forEach(c => { text(c.f, 10, "bold", 0); text("Answer: " + c.b, 10, "normal", 5); }); y += 8; }
+  text("Sources", 13, "bold", 4);
+  project.sources.forEach((s, i) => text(`${i + 1}. ${s.title}. ${s.url || "pasted text"}. Captured ${project.captured}.`, 9.5, "normal", 1, [93, 107, 99]));
+  return doc.output("blob");
+}
+async function buildPptx() {
+  const d = project.result.deliverable, p = new PptxGenJS(); p.layout = "LAYOUT_WIDE";
+  const ACC = "2E3152", INK = "2E3152", PAL = ["86D0CB", "E8806F", "E6BD4C", "93B86E", "A28AE3"];
+  let s = p.addSlide(); s.background = { color: ACC };
+  PAL.forEach((c, k) => s.addShape(p.ShapeType.ellipse, { x: 11.2 + k * 0.38, y: 0.55, w: 0.26, h: 0.26, fill: { color: c } }));
+  s.addText("FIELDWORK", { x: 0.6, y: 0.5, w: 6, h: 0.4, fontFace: "Arial", fontSize: 12, bold: true, color: "FFFFFF" });
+  s.addText(d.title, { x: 0.6, y: 2.2, w: 12, h: 1.4, fontFace: "Arial", fontSize: 36, bold: true, color: "FFFFFF" });
+  s.addText(d.summary, { x: 0.6, y: 3.7, w: 11.5, h: 1.4, fontFace: "Arial", fontSize: 16, color: "E3ECF5" });
+  d.sections.forEach((sec, si) => { const sl = p.addSlide(); sl.background = { color: "FFF7E8" }; sl.addText(sec.h, { x: 0.6, y: 0.4, w: 12, h: 0.8, fontFace: "Arial", fontSize: 28, bold: true, color: INK }); sl.addShape(p.ShapeType.rect, { x: 0.6, y: 1.2, w: 1.6, h: 0.12, fill: { color: PAL[si % PAL.length] } }); sl.addText(sec.bullets.map(b => ({ text: b, options: { bullet: true, breakLine: true } })), { x: 0.6, y: 1.5, w: 12, h: 5, fontFace: "Arial", fontSize: 18, color: INK, valign: "top", paraSpaceAfter: 10 }); });
+  const tableRows = pkg === "pro" ? (project.result.objects.price || []).map(r => [r.company, r.plan, r.price, r.per_serving || "not found", r.includes]) : (project.result.objects.term || []).map(r => [r.term, r.definition]);
+  if (tableRows.length) {
+    const head = pkg === "pro" ? ["Company", "Plan", "Price / week", "Unit price", "Includes"] : ["Term", "Definition"];
+    const sl = p.addSlide(); sl.addText(pkg === "pro" ? "Price comparison" : "Key terms", { x: 0.6, y: 0.4, w: 12, h: 0.8, fontFace: "Arial", fontSize: 28, bold: true, color: INK });
+    sl.addTable([head.map(h => ({ text: h, options: { bold: true, color: "FFFFFF", fill: { color: ACC } } })), ...tableRows.map(r => r.map(String))], { x: 0.6, y: 1.4, w: 12.1, fontFace: "Arial", fontSize: 13, color: INK, border: { type: "solid", pt: 0.5, color: "DBE2DC" } });
+  }
+  const sl = p.addSlide(); sl.addText("Sources", { x: 0.6, y: 0.4, w: 12, h: 0.8, fontFace: "Arial", fontSize: 28, bold: true, color: INK });
+  sl.addText(project.sources.map(x => ({ text: `${x.title}, ${x.url || "pasted text"}, captured ${project.captured}`, options: { bullet: true, breakLine: true } })), { x: 0.6, y: 1.4, w: 12, h: 5, fontFace: "Arial", fontSize: 14, color: "5D6B63", valign: "top" });
+  return await p.write({ outputType: "blob" });
+}
+async function doExport(kind, btn) {
+  const say = t => { const m = document.querySelector("#expMsg"); if (m) m.textContent = t; else btn.title = t; };
+  if (!project.result) { say("Run Extract first."); return; }
+  const base = slug(project.result.deliverable?.title || project.name);
+  let file;
+  try {
+    if (kind === "pdf") file = { filename: base + ".pdf", data: buildPdf() };
+    else if (kind === "pptx") file = { filename: base + ".pptx", data: await buildPptx() };
+    else if (kind === "xlsx") file = { filename: slug(project.name) + "-datasets.xlsx", data: buildXlsx() };
+    else if (kind === "csv") file = { filename: slug(project.name) + "-" + ui.obj + ".csv", data: toCsv(datasetRows(ui.obj)) };
+    else if (kind === "snips") file = { filename: slug(project.name) + "-snips.csv", data: toCsv(allSnips().map(x => ({ Group: groupOf(x), Snip: x.text, Type: x.type, Source: srcTitle(x.r.source), URL: srcUrl(x.r.source), "Evidence quote": x.r.quote, "Matched to page": x.r.verified ? "Yes" : "Check" }))) };
+    else if (kind === "cards") file = { filename: slug(project.name) + "-flashcards.csv", data: toCsv(flashcards().map(c => ({ Front: c.f, Back: c.b, Type: c.t }))) };
+  } catch (e) { say("Couldn't build the file. Reload the page and try again."); return; }
+  window.__lastExport = file;
+  ui.exportsLog.push({ name: file.filename, when: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) });
+  if (!dl) { say(`${file.filename} is ready. Downloads work when this page is open in claude.ai.`); return; }
+  try { await dl.save(file); say(`Saved ${file.filename}.`); }
+  catch (e) { say(e?.code === "declined" ? "Download cancelled." : e?.code === "rate_limited" ? "Another download is waiting. Try again in a moment." : "Downloads aren't available in this view."); }
+}
+
+loadProject(); render();
+</script>

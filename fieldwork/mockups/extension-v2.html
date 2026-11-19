@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fieldwork extension mockups v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Playfair+Display:wght@900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Mockups of the Fieldwork extension on desktop (side panel, snip, lens) and phones (Safari sheet, Android share).
+   The website shown, "QuickKit", is a made-up brand. */
+:root { --bg: #fff7e8; --ink: #2e3152; --muted: #6b6d86; --line: #2e3152; --hair: #efe4cc;
+  --coral: #e8806f; --mustard: #e6bd4c; --sage: #93b86e; --mint: #86d0cb; --lavender: #a28ae3;
+  --coral-soft: #fbe2dc; --mustard-soft: #faefc9; --sage-soft: #e5efd9; --mint-soft: #dcf2f0; --lavender-soft: #ebe4fb; --hl: #fde7a6; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px/1.5 Nunito, Arial, sans-serif; color: var(--ink); background: #d9dcdf; }
+.fred { font-family: Fredoka, Nunito, sans-serif; }
+.mono { font-family: "IBM Plex Mono", monospace; }
+
+/* ---------- Desktop browser chrome ---------- */
+.browser { position: fixed; inset: 0; display: grid; grid-template-rows: auto auto 1fr; background: #fff; }
+.tabs { background: #dfe3e8; padding: 8px 12px 0; display: flex; gap: 6px; align-items: end; }
+.tab { background: #fff; border-radius: 10px 10px 0 0; padding: 8px 14px; font: 12.5px Inter, sans-serif; display: flex; gap: 8px; align-items: center; width: 250px; }
+.tab i { width: 14px; height: 14px; border-radius: 4px; background: #ff6a3d; display: inline-block; }
+.tab.ghost { background: transparent; color: #555; width: 210px; } .tab.ghost i { background: #2f7d32; }
+.toolbar { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border-bottom: 1px solid #e3e6ea; font-family: Inter, sans-serif; }
+.addr { flex: 1; background: #f1f3f4; border-radius: 999px; padding: 7px 16px; font-size: 13px; color: #333; }
+.ext { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; }
+.ext.on { background: var(--coral-soft); outline: 2px solid var(--coral); }
+.ext svg { width: 18px; height: 18px; }
+.split { display: grid; grid-template-columns: 1fr 400px; min-height: 0; }
+.split.nopanel { grid-template-columns: 1fr; }
+.vp { position: relative; overflow: hidden; }
+
+/* ---------- The website (made up) ---------- */
+.site { font-family: Inter, Arial, sans-serif; color: #1b1b1b; background: #fff; }
+.promo { background: #ff6a3d; color: #fff; text-align: center; font-weight: 700; padding: 9px; font-size: 12.5px; letter-spacing: .04em; }
+.sitenav { display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; border-bottom: 1px solid #eee; }
+.brand { font: 900 24px/1 "Playfair Display", serif; color: #ff6a3d; }
+.sitenav nav { display: flex; gap: 22px; font-weight: 600; font-size: 13.5px; }
+.sitenav .cta { background: #1b1b1b; color: #fff; border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 13px; }
+.pricing { padding: 40px; display: grid; gap: 22px; }
+.pricing h1 { font: 900 44px/1 "Playfair Display", serif; margin: 0; }
+.pricing .sub { color: #666; font-size: 16px; margin: 0; }
+.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.plan { border: 2px solid #eee; border-radius: 20px; padding: 26px; }
+.plan h3 { font: 900 26px "Playfair Display", serif; margin: 0 0 6px; }
+.plan .p { font-size: 34px; font-weight: 800; }
+.plan p { margin: 8px 0 0; }
+.plan .btn { display: inline-block; margin-top: 14px; background: #ff6a3d; color: #fff; padding: 11px 20px; border-radius: 999px; font-weight: 700; }
+.faq { padding: 0 40px 30px; }
+.faq div { border-bottom: 1px solid #eee; padding: 15px 0; font-weight: 700; display: flex; justify-content: space-between; }
+.fine { background: #1b1b1b; color: #999; padding: 22px 40px; font-size: 11px; line-height: 1.6; }
+.sel { background: #b4d5fe; }
+.bigimg { height: 230px; background: linear-gradient(135deg, #7c2d12, #ea580c); display: grid; place-items: center; color: #fff; font: 900 40px "Playfair Display", serif; }
+
+/* ---------- Fieldwork side panel ---------- */
+.panel { background: var(--bg); border-left: 1.5px solid var(--line); display: grid; grid-template-rows: auto auto 1fr auto; min-height: 0; font-family: Nunito, sans-serif; }
+.ph { background: var(--ink); color: var(--bg); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+.ph b { font: 600 18px Fredoka, sans-serif; }
+.ph svg { width: 20px; height: 20px; flex: none; }
+.dots { display: inline-flex; gap: 3px; } .dots i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.ph .proj { margin-left: auto; font: 600 11px "IBM Plex Mono", monospace; border: 1.5px solid var(--bg); border-radius: 999px; padding: 4px 9px; }
+.ptabs { display: flex; gap: 6px; padding: 12px 14px; border-bottom: 1.5px solid var(--line); flex-wrap: wrap; }
+.ptabs span { border: 1.5px solid transparent; border-radius: 999px; padding: 5px 11px; font-weight: 700; font-size: 12.5px; display: flex; gap: 6px; align-items: center; }
+.ptabs span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); border: 1.5px solid var(--ink); }
+.ptabs span.on { background: var(--c); border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+.pbody { padding: 14px; display: grid; gap: 10px; align-content: start; overflow: hidden; }
+.h { font: 700 17px Fredoka, sans-serif; margin: 0; }
+.eyebrow { font: 600 10px "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.req { border: 1.5px solid var(--line); border-radius: 14px; background: #fff; padding: 10px 12px; font-size: 13.5px; line-height: 1.45; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1.5px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; background: #fff; }
+.chip.c { background: var(--coral); } .chip.m { background: var(--mint); } .chip.y { background: var(--mustard); }
+.btn2 { border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px; font-weight: 800; text-align: center; background: #fff; }
+.btn2.coral { background: var(--coral); box-shadow: 3px 3px 0 var(--ink); }
+.btn2.navy { background: var(--ink); color: var(--bg); }
+.snip { border: 1.5px solid var(--line); border-left: 6px solid var(--c, var(--mint)); border-radius: 14px; background: #fff; padding: 9px 12px; display: grid; gap: 5px; font-size: 13px; line-height: 1.4; }
+.snip .big { font: 700 20px Fredoka, sans-serif; color: #c2513f; }
+.snip .meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.tagt { font: 600 9.5px "IBM Plex Mono", monospace; text-transform: uppercase; border: 1.5px solid var(--ink); border-radius: 999px; padding: 2px 6px; background: var(--c, var(--mint)); }
+.ok { font: 600 10.5px "IBM Plex Mono", monospace; color: #3f7d2a; }
+.new { outline: 3px solid var(--mustard); outline-offset: 2px; }
+.newbadge { font: 700 10px "IBM Plex Mono", monospace; background: var(--mustard); border: 1.5px solid var(--ink); border-radius: 999px; padding: 2px 7px; }
+.pfoot { border-top: 1.5px solid var(--line); padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.pfoot span { border: 1.5px solid var(--line); border-radius: 12px; padding: 7px; text-align: center; font-weight: 800; font-size: 12px; background: #fff; }
+.pfoot small { display: block; font: 600 9.5px "IBM Plex Mono", monospace; color: var(--muted); }
+.steps { display: grid; gap: 0; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; overflow: hidden; font-size: 12.5px; }
+.steps div { padding: 7px 12px; border-bottom: 1px solid var(--hair); display: flex; gap: 8px; } .steps div:last-child { border: 0; } .steps b { color: #3f7d2a; }
+.mini { border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; font-size: 12px; }
+.mini table { width: 100%; border-collapse: collapse; } .mini th, .mini td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--hair); }
+.mini th { background: var(--mustard-soft); font: 600 9.5px "IBM Plex Mono", monospace; text-transform: uppercase; }
+
+/* Snip popover and context menu */
+.pop { position: absolute; display: flex; gap: 4px; background: var(--ink); border-radius: 12px; padding: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 5; }
+.pop span { color: var(--bg); padding: 6px 10px; border-radius: 8px; font: 700 13px Nunito, sans-serif; }
+.pop span.on { background: var(--coral); color: var(--ink); }
+.pop::after { content: ""; position: absolute; left: 22px; bottom: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: var(--ink); }
+.toast { position: absolute; right: 16px; bottom: 16px; background: var(--ink); color: var(--bg); border-radius: 14px; padding: 10px 14px; font-weight: 700; box-shadow: 4px 4px 0 var(--mint); z-index: 5; }
+
+/* Lens overlay */
+.lens { position: absolute; inset: 0; background: rgba(255,247,232,.97); display: grid; grid-template-rows: auto 1fr; z-index: 4; }
+.lbar { display: flex; align-items: center; gap: 10px; padding: 9px 16px; background: #fff; border-bottom: 1.5px solid var(--line); }
+.styles { display: flex; gap: 2px; border: 1.5px solid var(--line); border-radius: 999px; padding: 2px; }
+.styles span { padding: 4px 11px; border-radius: 999px; font-weight: 700; font-size: 12px; color: var(--muted); }
+.styles span.on { background: var(--mustard); color: var(--ink); }
+.pill { font: 600 10.5px "IBM Plex Mono", monospace; border: 1.5px solid var(--line); border-radius: 999px; padding: 4px 9px; background: var(--sage-soft); }
+.lgrid { padding: 18px 22px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-content: start; }
+.chunk { background: #fff; border: 1.5px solid var(--line); border-top: 7px solid var(--c); border-radius: 14px; padding: 11px 14px; display: block; font-size: 13.5px; line-height: 1.45; }
+.chunk h3 { margin: 0 0 5px; font: 700 15px Fredoka, sans-serif; display: flex; justify-content: space-between; }
+.chunk h3 small { font: 600 10px "IBM Plex Mono", monospace; color: #c2513f; }
+.chunk.fp { background: var(--coral-soft); }
+.chunk.wide { grid-column: span 2; }
+.chunk table { width: 100%; border-collapse: collapse; } .chunk td { padding: 4px 6px; border-bottom: 1px solid var(--hair); } .chunk td.n { font-weight: 800; }
+
+/* ---------- Phones ---------- */
+.phone { position: fixed; inset: 0; background: #fff; display: grid; grid-template-rows: auto 1fr auto; font-family: Inter, sans-serif; overflow: hidden; }
+.status { display: flex; justify-content: space-between; padding: 12px 22px 6px; font-weight: 700; font-size: 14px; }
+.msite { overflow: hidden; position: relative; }
+.msite .sitenav { padding: 12px 16px; } .msite .sitenav nav { display: none; }
+.mhero { background: radial-gradient(circle at 70% 30%, #ffd3b8, #ff8a5c 45%, #c2410c); color: #fff; padding: 40px 20px; }
+.mhero h1 { font: 900 40px/1 "Playfair Display", serif; margin: 0 0 10px; }
+.safbar { background: #f4f4f6; padding: 10px 12px 26px; display: grid; gap: 8px; border-top: 1px solid #ddd; }
+.safaddr { background: #fff; border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.safaddr .pz { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--coral-soft); outline: 2px solid var(--coral); }
+.safaddr .pz svg { width: 16px; height: 16px; }
+.safaddr span { flex: 1; text-align: center; }
+.safaddr span.pz { flex: none; }
+.safnav { display: flex; justify-content: space-around; color: #2f6fe0; font-size: 18px; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; overflow: hidden; background: var(--bg); border-top: 1.5px solid var(--line); border-radius: 24px 24px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,.18); display: grid; gap: 10px; padding: 8px 16px 16px; font-family: Nunito, sans-serif; z-index: 5; }
+.grab { width: 44px; height: 5px; border-radius: 3px; background: #c9bfa8; justify-self: center; }
+.sheet .row { display: flex; align-items: center; gap: 8px; }
+.sheet .chunk { font-size: 14px; }
+.dim { position: fixed; inset: 0; background: rgba(46,49,82,.35); z-index: 4; }
+.share { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 22px 22px 0 0; padding: 10px 18px 22px; z-index: 6; display: grid; gap: 14px; font-family: Inter, sans-serif; }
+.apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; text-align: center; font-size: 11.5px; }
+.app i { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; margin: 0 auto 6px; color: #fff; font-style: normal; font-weight: 800; font-size: 20px; }
+.app.fw i { background: var(--ink); outline: 3px solid var(--coral); outline-offset: 2px; }
+.app.fw { font-weight: 800; }
+.chromebar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #ddd; font-size: 14px; }
+.chromebar .u { flex: 1; background: #f1f3f4; border-radius: 999px; padding: 8px 14px; }
+.pwa { position: fixed; inset: 0; background: var(--bg); display: grid; grid-template-rows: auto auto 1fr auto; font-family: Nunito, sans-serif; }
+.pwa .top { background: var(--ink); color: var(--bg); padding: 14px 16px 12px; display: flex; align-items: center; gap: 8px; }
+.pwa .top b { font: 600 19px Fredoka, sans-serif; }
+.pwa .body { padding: 14px 16px; display: grid; gap: 10px; align-content: start; overflow: hidden; }
+.pwa .note { font-size: 12.5px; color: var(--muted); }
+.pwa .bar { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1.5px solid var(--line); background: #fff; padding: 8px 6px 20px; text-align: center; font-size: 11px; font-weight: 700; }
+.pwa .bar span::before { content: ""; display: block; width: 22px; height: 22px; border-radius: 8px; margin: 0 auto 3px; background: var(--c); border: 1.5px solid var(--ink); }
+</style></head><body><div id="root"></div>
+<script>
+const LOGO = (fill = "#e8806f", stroke = "#2e3152") => `<svg viewBox="0 0 24 24"><path d="M5 21V4" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3.4 4L18 12H5" fill="${fill}"/></svg>`;
+const DOTS = `<span class="dots"><i style="background:var(--mint)"></i><i style="background:var(--mustard)"></i><i style="background:var(--lavender)"></i></span>`;
+const SITE = (sel) => `<div class="site"><div class="promo">SPRING SALE — 50% OFF YOUR FIRST BOX*</div>
+<div class="sitenav"><span class="brand">QuickKit</span><nav><span>Menu</span><span>Plans</span><span>How it works</span><span>Gifts</span></nav><span class="cta">Get started</span></div>
+<div class="pricing"><h1>Pick your plan</h1><p class="sub">Dinner in 15. No chopping. Cancel any time.</p>
+<div class="plans"><div class="plan"><h3>Solo</h3><div class="p">$54.00<small style="font-size:15px">/week</small></div><p>5 meals for 1 person · $10.80 per serving</p><span class="btn">Choose Solo</span></div>
+<div class="plan"><h3>Duo</h3><div class="p">$89.90<small style="font-size:15px">/week</small></div><p>5 meals for 2 people · $8.99 per serving</p><span class="btn">Choose Duo</span></div></div></div>
+<div class="bigimg">Fresh. Simple. Yours.</div>
+<div class="faq"><div>How much is shipping? <span>+</span></div><div>Can I skip a week? <span>+</span></div></div>
+<div class="fine" id="fine">*50% off applies to your first box only, up to $40. ${sel ? '<span class="sel">First box ships free; after that, shipping is $7.99 per box.</span>' : "First box ships free; after that, shipping is $7.99 per box."} Subscription renews weekly until cancelled. Skip or cancel by Wednesday 11:59 pm before your next delivery.</div></div>`;
+const browser = (inner, panel, extOn = true) => `<div class="browser"><div class="tabs"><div class="tab"><i></i>QuickKit | Plans & pricing</div><div class="tab ghost"><i></i>FreshCrate | Plans</div></div>
+<div class="toolbar"><span style="color:#777">← → ⟳</span><div class="addr">🔒 quickkit.example/plans</div><div class="ext${extOn ? " on" : ""}">${LOGO()}</div></div>
+<div class="split${panel ? "" : " nopanel"}"><div class="vp">${inner}</div>${panel || ""}</div></div>`;
+const snip = (t, big, type, c, src, cls = "") => `<div class="snip ${cls}" style="--c:var(--${c})">${big ? `<span class="big">${big}</span>` : ""}<span>${t}</span><span class="meta"><span class="tagt">${type}</span><span class="ok">✓ ${src}</span>${cls ? '<span class="newbadge">Just now</span>' : ""}</span></div>`;
+const panel = (tab, body) => `<aside class="panel"><div class="ph">${LOGO("#e8806f", "#fff7e8")}<b>fieldwork</b>${DOTS}<span class="proj">Meal-kit market</span></div>
+<div class="ptabs">${[["lens", "Lens", "mint"], ["extract", "Extract", "coral"], ["data", "Datasets", "mustard"], ["scrap", "Scrapbook", "sage"]].map(([k, l, c]) => `<span class="${k === tab ? "on" : ""}" style="--c:var(--${c})">${l}</span>`).join("")}</div>
+<div class="pbody">${body}</div><div class="pfoot"><span>Report<small>PDF</small></span><span>Deck<small>PowerPoint</small></span><span>Data<small>Excel</small></span></div></aside>`;
+const SCRAP = (fresh) => `<div class="eyebrow">Scrapbook · 4 pages · ${fresh ? 25 : 24} snips</div><h3 class="h">Snips from this tab</h3>
+${fresh ? snip("First box ships free; after that, shipping is $7.99 per box.", "$7.99", "Your snip", "mustard", "QuickKit: Plans", "new") : ""}
+${snip("Solo Plan: $54.00 per week (5 meals for 1 person)", "$54.00", "Prices", "mustard", "QuickKit: Plans")}
+${snip("Duo Plan: $89.90 per week ($8.99 per serving)", "$89.90", "Prices", "mustard", "QuickKit: Plans")}
+${snip("Every ingredient arrives pre-chopped and pre-measured.", "", "Features", "lavender", "QuickKit: Home")}
+<div class="eyebrow" style="margin-top:4px">From your other tabs</div>
+${snip("Family Box $95.84 / week ($5.99 per serving)", "$95.84", "Prices", "mustard", "FreshCrate: Plans")}`;
+const EXTRACT = `<div class="eyebrow">Extract · uses 1 of 300 this month</div><h3 class="h">What do you need?</h3>
+<div class="chips"><span class="chip c">Competitor comparison</span><span class="chip">Company snapshot</span><span class="chip">Pricing table</span></div>
+<div class="req">Compare QuickKit with FreshCrate and GreenPlate on price per serving, shipping and cancellation. Make a deck and a spreadsheet.</div>
+<div class="chips"><span class="chip m">✓ This tab</span><span class="chip m">✓ FreshCrate | Plans</span><span class="chip m">✓ GreenPlate</span></div>
+<div class="btn2 coral">Run extraction</div>
+<div class="steps"><div><b>✓</b>Read 3 tabs</div><div><b>✓</b>Extracted 31 objects with quotes</div><div><b>✓</b>31 of 31 matched to the pages</div><div><b>✓</b>Built your deck and spreadsheet</div></div>
+<div class="mini"><table><tr><th>Company</th><th>Lowest / serving</th><th>Shipping</th></tr><tr><td>QuickKit</td><td>$8.99</td><td>$7.99 after box 1</td></tr><tr><td>FreshCrate</td><td>$5.99</td><td>Free over $50</td></tr><tr><td>GreenPlate</td><td>$7.49</td><td>not found</td></tr></table></div>`;
+const LENS = (two) => `<div class="lens"><div class="lbar"><span class="fred" style="font-weight:700;display:flex;gap:6px;align-items:center"><span style="width:18px;height:18px;display:inline-block">${LOGO()}</span>Lens</span><div class="styles"><span class="on">Chunks</span><span>One screen</span><span>Q&A</span><span>Original</span></div><span style="flex:1"></span><span class="pill">✓ 9 of 9 facts placed</span></div>
+<div class="lgrid">
+<div class="chunk wide" style="--c:var(--mustard)"><h3>Plans & pricing <small>pricing ↗</small></h3><table><tr><td>Solo</td><td class="n">$54.00 / week</td><td>5 meals for 1</td><td class="n">$10.80</td></tr><tr><td>Duo</td><td class="n">$89.90 / week</td><td>5 meals for 2</td><td class="n">$8.99</td></tr></table></div>
+<div class="chunk" style="--c:var(--coral)"><h3>Current deal <small>banner + footer ↗</small></h3><span class="fred" style="display:block;font-size:24px;font-weight:700;color:#c2513f">50% off</span>First box only, up to $40.</div>
+<div class="chunk" style="--c:var(--sage)"><h3>Delivery <small>footer ↗</small></h3>First box ships <b>free</b>, then <b>$7.99 per box</b>.</div>
+<div class="chunk fp wide" style="--c:var(--coral)"><h3>Fine print <small>footer ↗</small></h3>Renews <b>weekly until cancelled</b>. Skip or cancel by <b>Wednesday 11:59 pm</b> before your next delivery.</div>
+${two ? "" : `<div class="chunk wide" style="--c:var(--mint)"><h3>Overview <small>2 places ↗</small></h3>Weekly meal kits with pre-chopped ingredients; most meals take about 15 minutes.</div>`}
+</div></div>`;
+const PHONE_SITE = `<div class="msite"><div class="site"><div class="promo">50% OFF YOUR FIRST BOX*</div><div class="sitenav"><span class="brand">QuickKit</span><span class="cta">Menu ☰</span></div><div class="mhero"><h1>Dinner in 15. No chopping.</h1><p>Meal kits for busy people.</p></div><div class="bigimg" style="height:260px">Real food.</div></div>`;
+const SAF = `<div class="safbar"><div class="safaddr"><span class="pz">${LOGO()}</span><span>quickkit.example</span>⟳</div><div class="safnav"><span>‹</span><span>›</span><span>⇧</span><span>▢</span><span>⧉</span></div></div>`;
+const VIEWS = {
+  panel: () => browser(SITE(false), panel("scrap", SCRAP(false))),
+  snip: () => browser(SITE(true) + `<div class="pop" style="left:54px;bottom:66px"><span class="on">✂ Snip</span><span>Snip & tag</span><span>Ask about this</span></div><div class="toast">✂ Snipped to Meal-kit market · with its source</div>`, panel("scrap", SCRAP(true))),
+  lenspanel: () => browser(LENS(true), panel("extract", EXTRACT)),
+  ios: () => `<div class="phone"><div class="status"><span>9:41</span><span>●●● 100%</span></div>${PHONE_SITE}
+    <div class="sheet" style="top:36%"><div class="grab"></div><div class="row"><span style="width:22px;height:22px;display:inline-block">${LOGO()}</span><b class="fred" style="font-size:18px">Fieldwork Lens</b><span style="flex:1"></span><span class="pill">✓ 9 of 9</span></div>
+    <div class="styles" style="justify-self:start"><span class="on">Chunks</span><span>One screen</span><span>Q&A</span></div>
+    <div class="chunk" style="--c:var(--mustard)"><h3>Plans & pricing <small>↗</small></h3>Solo <b>$54.00</b>/week (5 meals for 1) · Duo <b>$89.90</b>/week (5 meals for 2)</div>
+    <div class="chunk" style="--c:var(--sage)"><h3>Delivery <small>↗</small></h3>First box free, then <b>$7.99</b> per box.</div>
+    <div class="chunk fp" style="--c:var(--coral)"><h3>Fine print <small>↗</small></h3>Renews weekly. Cancel by <b>Wed 11:59 pm</b>.</div>
+    <div class="row"><span class="btn2 navy" style="flex:1">✂ Snip</span><span class="btn2 coral" style="flex:1">Extract</span></div></div></div>
+    ${SAF}</div>`,
+  iosfull: () => `<div class="phone"><div class="status"><span>9:41</span><span>●●● 100%</span></div>${PHONE_SITE}
+    <div class="sheet" style="top:7%"><div class="grab"></div><div class="row"><span style="width:22px;height:22px;display:inline-block">${LOGO()}</span><b class="fred" style="font-size:18px">Meal-kit market</b><span style="flex:1"></span>${DOTS}</div>
+    <div class="ptabs" style="padding:0;border:0"><span style="--c:var(--mint)">Lens</span><span style="--c:var(--coral)">Extract</span><span class="on" style="--c:var(--sage)">Scrapbook</span></div>
+    ${SCRAP(true).replace("Snips from this tab", "Your snips")}
+    <div class="btn2 coral">Make a report</div></div></div>${SAF}</div>`,
+  share: () => `<div class="phone" style="grid-template-rows:auto auto 1fr"><div class="status"><span>9:41</span><span>▾ ▮ 100%</span></div><div class="chromebar"><span>⌂</span><span class="u">quickkit.example/plans</span><span>⋮</span></div>${PHONE_SITE}
+    <div class="dim"></div><div class="share" style="position:fixed"><div class="grab" style="background:#ccc"></div><b style="font-size:15px">Share “QuickKit | Plans & pricing”</b>
+    <div class="apps"><div class="app fw"><i>${'<span style="width:26px;height:26px;display:inline-block">' + LOGO("#e8806f", "#fff7e8") + "</span>"}</i>Fieldwork</div><div class="app"><i style="background:#25d366">W</i>Messages</div><div class="app"><i style="background:#ea4335">G</i>Email</div><div class="app"><i style="background:#888">⧉</i>Copy link</div></div>
+    <div class="note" style="font-size:12.5px;color:#666">Fieldwork appears here after you add it to your home screen from fieldwork's website.</div></div></div></div>`,
+  pwa: () => `<div class="pwa"><div class="status" style="background:var(--ink);color:var(--bg)"><span>9:41</span><span>▾ ▮ 100%</span></div>
+    <div class="top">${'<span style="width:22px;height:22px;display:inline-block">' + LOGO("#e8806f", "#fff7e8") + "</span>"}<b>fieldwork</b>${DOTS}<span style="margin-left:auto;font:600 11px IBM Plex Mono,monospace;border:1.5px solid var(--bg);border-radius:999px;padding:4px 9px">Meal-kit market</span></div>
+    <div class="body"><div class="eyebrow">Shared from Chrome · public page</div><h3 class="h" style="font-size:22px">QuickKit: Plans & pricing</h3>
+    <div class="styles" style="justify-self:start"><span class="on">Chunks</span><span>One screen</span><span>Q&A</span></div>
+    <div class="chunk" style="--c:var(--mustard)"><h3>Plans & pricing <small>↗</small></h3>Solo <b>$54.00</b>/week · Duo <b>$89.90</b>/week</div>
+    <div class="chunk" style="--c:var(--coral)"><h3>Current deal <small>↗</small></h3>50% off your first box, up to $40.</div>
+    <div class="chunk fp" style="--c:var(--coral)"><h3>Fine print <small>↗</small></h3>Renews weekly. Cancel by <b>Wed 11:59 pm</b>. Shipping <b>$7.99</b> after box 1.</div>
+    <div class="row" style="display:flex;gap:8px"><span class="btn2 coral" style="flex:1">Add to project</span><span class="btn2" style="flex:1">Extract</span></div>
+    <div class="note">Shared pages are fetched fresh, so this works for public pages. Pages behind a login need the extension on a computer, iPhone or iPad.</div></div>
+    <div class="bar"><span style="--c:var(--mint)">Lens</span><span style="--c:var(--coral)">Extract</span><span style="--c:var(--sage)">Scrapbook</span><span style="--c:var(--lavender)">Deliverable</span></div></div>`
+};
+document.getElementById("root").innerHTML = (VIEWS[location.hash.slice(1)] || VIEWS.panel)();
+</script></body></html>
