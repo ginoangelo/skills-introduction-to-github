@@ -27,12 +27,16 @@ header { background: var(--ink); color: var(--bg); border-radius: 22px; padding:
 .cell h3 { margin: 0; padding: 9px 12px 8px; font: 700 17px Fredoka, sans-serif; background: var(--c); border-bottom: 2px solid var(--ink); display: flex; gap: 8px; align-items: center; }
 .cell h3 em { font: 600 11px "IBM Plex Mono", monospace; font-style: normal; background: #fff7e8; border: 1.5px solid var(--ink); border-radius: 999px; padding: 1px 8px; }
 .cell p { margin: 0; padding: 9px 12px; font-size: 14px; line-height: 1.45; border-bottom: 2px solid var(--ink); background: #fffdf8; }
-.cell img { width: 100%; display: block; }
+.cell img { width: 100%; display: block; image-rendering: auto; }
 .phones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; background: var(--bg); }
 .phones img { border: 2px solid var(--ink); border-radius: 18px; }
+.partbar { display: flex; align-items: center; gap: 8px; background: var(--ink); color: var(--bg); border-radius: 999px; padding: 8px 14px; font: 600 12px "IBM Plex Mono", monospace; letter-spacing: .06em; }
+.partbar b { font: 700 15px Fredoka, sans-serif; letter-spacing: 0; }
+.partbar span { margin-left: auto; color: var(--mustard); }
 footer { text-align: center; font-size: 12px; color: var(--muted); line-height: 1.5; padding: 4px 8px 0; }
 footer b { font: 700 16px Fredoka, sans-serif; color: var(--ink); display: block; margin-bottom: 2px; }
 </style></head><body><div class="wrap">
+<div class="partbar"><b>fieldwork</b>The pitch & extension<span>1 of 7</span></div>
 <header>
   <div class="logo"><svg viewBox="0 0 24 24"><path d="M5 21V4" stroke="#fff7e8" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3.4 4L18 12H5" fill="#e8806f"/></svg>fieldwork <span class="dots"><i style="background:var(--mint)"></i><i style="background:var(--mustard)"></i><i style="background:var(--lavender)"></i></span></div>
   <p class="lead">Fieldwork is a browser extension tool that turns any web page into something you can read at a glance, with different ways to experience the internet.</p>
@@ -50,22 +54,28 @@ footer b { font: 700 16px Fredoka, sans-serif; color: var(--ink); display: block
 </div>
 
 <div class="sect">The browser extension</div>
-<div class="cell" style="--c:var(--coral)"><h3><em>1</em>Messy page, cleaned up</h3><p>One click gathers prices, fees and fine print from all over a page into one clear screen.</p><img src="../mockups/03-after-chunks-view.png"></div>
-<div class="cell" style="--c:var(--mint)"><h3><em>2</em>Side panel on any website</h3><p>Your project sits next to the page while you browse, with snips from every open tab.</p><img src="../mockups/v2/01-desktop-side-panel.png"></div>
-<div class="cell" style="--c:var(--mustard)"><h3><em>3</em>Snip on the page</h3><p>Highlight any text and tap Snip. It's saved with its source automatically.</p><img src="../mockups/v2/02-desktop-snip-on-page.png"></div>
+<div class="cell" style="--c:var(--coral)"><h3><em>1</em>Messy page, cleaned up</h3><p>One click gathers prices, fees and fine print from all over a page into clear chunks. Here it is in iPhone Safari.</p><img src="phone-src/phone-ios.png"></div>
+<div class="cell" style="--c:var(--mint)"><h3><em>2</em>Side panel on any website</h3><p>On a computer, your project sits next to the page while you browse, with snips from every open tab.</p><img src="phone-src/ext-panel.png"></div>
+<div class="partbar"><b>fieldwork</b>Extension &amp; home<span>2 of 7</span></div>
+<div class="cell" style="--c:var(--mustard)"><h3><em>3</em>Snip on the page</h3><p>Highlight any text and tap Snip. It lands in your project with its source, marked "Just now".</p><img src="phone-src/ext-snip-popover.png"><img src="phone-src/ext-snip-panel.png"></div>
 
 <div class="sect">The workspace</div>
-<div class="cell" style="--c:var(--lavender)"><h3><em>4</em>Home</h3><p>Your projects and ready-made templates for reports, study guides and pricing tables.</p><img src="../screenshots/redesign/02-home-cards.png"></div>
-<div class="cell" style="--c:var(--mint)"><h3><em>5</em>Lens</h3><p>Read any captured page with the proof behind every fact highlighted.</p><img src="../screenshots/redesign/03-pro-lens.png"></div>
-<div class="cell" style="--c:var(--coral)"><h3><em>6</em>Extract</h3><p>Say what you need. The AI reads your pages and builds it, checking every quote.</p><img src="../screenshots/redesign/05-pro-extract-running.png"></div>
-<div class="cell" style="--c:var(--mustard)"><h3><em>7</em>Datasets</h3><p>Companies, prices, features and more, in tables where every row shows its evidence.</p><img src="../screenshots/redesign/04-pro-datasets.png"></div>
-<div class="cell" style="--c:var(--sage)"><h3><em>8</em>Scrapbook</h3><p>All your snips as a board, table, notebook or pin board, grouped how you like.</p><img src="../screenshots/scrapbook/02-pro-board-by-company.png"></div>
-<div class="cell" style="--c:var(--lavender)"><h3><em>9</em>Deliverable</h3><p>A finished report, ready to download as PDF, PowerPoint or Excel.</p><img src="../screenshots/redesign/01-pro-deliverable.png"></div>
-<div class="cell" style="--c:var(--coral)"><h3><em>10</em>Plans &amp; checkout</h3><p>Student or Professional, monthly or yearly, starting with a free trial.</p><img src="../screenshots/redesign/07-checkout.png"></div>
+<div class="cell" style="--c:var(--lavender)"><h3><em>4</em>Home</h3><p>Your projects and ready-made templates.</p><img src="phone-src/home.png"></div>
+<div class="partbar"><b>fieldwork</b>Lens &amp; Extract<span>3 of 7</span></div>
+<div class="cell" style="--c:var(--mint)"><h3><em>5</em>Lens</h3><p>Read a captured page with the proof behind every fact highlighted.</p><img src="phone-src/lens.png"></div>
+<div class="cell" style="--c:var(--coral)"><h3><em>6</em>Extract</h3><p>Say what you need. The AI reads your pages and builds it, checking every quote.</p><img src="phone-src/extract.png"></div>
+<div class="partbar"><b>fieldwork</b>Datasets &amp; Scrapbook<span>4 of 7</span></div>
+<div class="cell" style="--c:var(--mustard)"><h3><em>7</em>Datasets</h3><p>Tables where every row shows its evidence. Swipe the table sideways for more columns.</p><img src="phone-src/datasets.png"></div>
+<div class="cell" style="--c:var(--sage)"><h3><em>8</em>Scrapbook</h3><p>All your snips as a board, table, notebook or pin board.</p><img src="phone-src/scrapbook.png"></div>
+<div class="partbar"><b>fieldwork</b>Deliverable<span>5 of 7</span></div>
+<div class="cell" style="--c:var(--lavender)"><h3><em>9</em>Deliverable</h3><p>A finished report, ready to download as PDF, PowerPoint or Excel.</p><img src="phone-src/deliverable.png"></div>
+<div class="partbar"><b>fieldwork</b>Plans &amp; pricing<span>6 of 7</span></div>
+<div class="cell" style="--c:var(--coral)"><h3><em>10</em>Plans &amp; checkout</h3><p>Student or Professional, monthly or yearly, starting with a free trial.</p><img src="phone-src/checkout.png"></div>
 
-<div class="sect">On phones</div>
-<div class="cell" style="--c:var(--mint)"><h3><em>11</em>iPhone, iPad and Android</h3><p>The Lens in iPhone Safari, the mobile web app, and "Share to Fieldwork" on Android.</p>
-  <div class="phones"><img src="../mockups/v2/04-iphone-safari-lens-sheet.png"><img src="../screenshots/phone/03-scrapbook-board.png"><img src="../mockups/v2/06-android-share-to-fieldwork.png"><img src="../mockups/v2/07-android-fieldwork-opened.png"></div></div>
+<div class="partbar"><b>fieldwork</b>On Android<span>7 of 7</span></div>
+<div class="sect">On Android</div>
+<div class="cell" style="--c:var(--mint)"><h3><em>11</em>Share to Fieldwork</h3><p>Tap Share on any page and pick Fieldwork.</p><img src="phone-src/phone-share.png"></div>
+<div class="cell" style="--c:var(--sage)"><h3><em>12</em>Opens cleaned up</h3><p>Add it to your project or run Extract.</p><img src="phone-src/phone-pwa.png"></div>
 
 <footer><b>Fieldwork</b>Prototype screens. Sample brands are made up, and prices are placeholders.</footer>
 </div></body></html>
