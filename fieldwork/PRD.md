@@ -140,4 +140,11 @@ Object field sets (from the prototype):
 12. **Scrapbook:** manual snipping from the Lens (selection to snip), and Table, Board, Notebook and Pin board layouts over one shared snip list, with group-by options, recommended defaults per package and CSV download.
 13. **Account and plans pages:** profile, plan, renewal date, usage meter, preferences (lens mode, citation style), recent exports, and plan or billing changes.
 14. **Quality pass:** a fixed test library of real pages (one per page type, messy and clean), automated extension and app tests, quote-match-rate checks, accessibility checks, and performance targets (clean view under 1 second).
-15. **Launch prep:** privacy policy and terms, Chrome Web Store listing and review, analytics for time-to-answer, trial-to-paid conversion and "back to original" rate, and a private beta with 5–10 students and professionals.
+15. **Launch prep (see [STORE-CHECKLIST.md](STORE-CHECKLIST.md) for each store):** privacy policy and terms, Chrome Web Store listing and review, analytics for time-to-answer, trial-to-paid conversion and "back to original" rate, and a private beta with 5–10 students and professionals.
+
+## Store Submission
+The full pre-submission checklist for the Chrome Web Store, Microsoft Edge, Apple App Store (Safari), Firefox and Google Play is in [STORE-CHECKLIST.md](STORE-CHECKLIST.md). The items most likely to cause a rejection are:
+- **Apple:** subscription payment setup per region, Sign in with Apple, account deletion in the app, accurate privacy labels, and a container app that does real work on its own.
+- **Chrome:** narrow permissions, a one-sentence single purpose, consent inside the extension before page text is sent to AI, and no remotely loaded code.
+- **Google Play (optional):** billing fees, the Data safety form and the closed-testing requirement for new accounts.
+
