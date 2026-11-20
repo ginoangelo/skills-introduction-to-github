@@ -1,0 +1,72 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Subtext: About you or not?</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  #stage { background: #ffe3d3; }
+  #phone { top: 440px; transform-origin: 50% 40%; }
+  .post { padding: 90px 44px 0; }
+  .who { display: flex; align-items: center; gap: 18px; }
+  .avatar { width: 76px; height: 76px; border-radius: 50%; background: #ffd3b8; color: #7a3ed6; font-family: Jakarta; font-weight: 800; font-size: 34px; display: grid; place-items: center; }
+  .name { font-weight: 600; font-size: 30px; } .time { font-size: 26px; color: #8a7f8e; }
+  .body { font-family: Jakarta; font-weight: 700; font-size: 50px; line-height: 1.25; letter-spacing: -1px; margin-top: 40px; }
+  .meta { display: flex; gap: 34px; margin-top: 40px; color: #8a7f8e; font-size: 26px; font-weight: 600; }
+  #vote { position: absolute; left: 90px; right: 90px; top: 1270px; display: flex; flex-direction: column; align-items: center; gap: 22px; opacity: 0; }
+  #vote .ask { background: #1b1320; color: #fff; font-family: Jakarta; font-weight: 800; font-size: 60px; padding: 26px 44px; border-radius: 32px; letter-spacing: -1.5px; }
+  #vote .count { width: 150px; height: 150px; border-radius: 50%; background: #7a3ed6; color: #fff; font-family: Jakarta; font-weight: 800; font-size: 90px; display: grid; place-items: center; }
+  #card { position: absolute; left: 70px; right: 70px; top: 520px; opacity: 0; }
+  #chips { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
+  #chips span { background: #fff; border-radius: 999px; padding: 16px 26px; font-weight: 600; font-size: 28px; box-shadow: 0 8px 24px rgba(80, 40, 20, .12); opacity: 0; }
+</style></head>
+<body>
+<div id="stage">
+  <div class="title" id="title">About you<br>or not?<small>Decide before the reveal.</small></div>
+  <div class="phone" id="phone">
+    <div class="post">
+      <div class="who"><div class="avatar">M</div><div><div class="name">maya.r</div><div class="time">1h ago</div></div></div>
+      <div class="body">funny how some people only text when they're bored.</div>
+      <div class="meta"><span>48 likes</span><span>12 replies</span></div>
+    </div>
+  </div>
+  <div id="vote"><div class="ask">Comment YES or NO</div><div class="count" id="count">3</div></div>
+  <div id="card">
+    <div class="verdict">
+      <div class="eyebrow">TEXT POST</div>
+      <div class="q">Aimed at you?</div>
+      <div class="word">Possibly</div>
+      <div class="bars"><span class="on"></span><span class="on"></span><span></span></div>
+      <div class="labels"><span>Unlikely</span><span class="on">Possibly</span><span>Likely</span></div>
+      <div class="reason">It's aimed at someone who only reaches out when they're bored. Without context, there's no way to tell if that's you.</div>
+    </div>
+    <div id="chips"><span>"some people"</span><span>"only text when they're bored"</span><span>Posted 1h ago</span></div>
+  </div>
+  <div id="caption"><span id="captionText"></span></div>
+  <div id="note">Example post, made up for this video.</div>
+</div>
+<script src="shared.js"></script>
+<script>
+  $("stage").insertAdjacentHTML("beforeend", END_CARD);
+  window.render = function (t) {
+    $("stage").style.opacity = ease(seg(t, 0, 0.4));
+    $("title").style.opacity = ease(seg(t, 0.1, 0.6)) * (1 - seg(t, 6.2, 6.6));
+    // Phone slides up, then steps back when the read appears.
+    const inUp = ease(seg(t, 0.8, 1.6));
+    const out = ease(seg(t, 6.3, 6.9));
+    $("phone").style.transform = `translateY(${(1 - inUp) * 900 + out * 120}px) scale(${1 - 0.25 * out})`;
+    $("phone").style.opacity = 1 - out;
+    // Vote prompt and 3-2-1 countdown.
+    $("vote").style.opacity = ease(seg(t, 2.4, 2.8)) * (1 - seg(t, 6.0, 6.3));
+    const n = 3 - Math.floor(seg(t, 3.2, 6.2) * 3);
+    $("count").textContent = String(Math.max(1, n));
+    const beat = (t - 3.2) % 1;
+    $("count").style.transform = `scale(${t > 3.2 && t < 6.2 ? 1 + 0.12 * (1 - pop(beat * 3)) * (beat < 0.33 ? 1 : 0) : 1})`;
+    // The read.
+    const r = pop(seg(t, 6.6, 7.2));
+    $("card").style.opacity = seg(t, 6.6, 6.9) * (1 - seg(t, 11.6, 11.9));
+    $("card").style.transform = `translateY(${(1 - r) * 80}px)`;
+    document.querySelectorAll("#chips span").forEach((c, i) => { c.style.opacity = ease(seg(t, 7.8 + i * 0.45, 8.1 + i * 0.45)); });
+    captions(t, [[8.4, 11.6, "Add what happened for a sharper read."]]);
+    endCard(t, 11.8);
+  };
+  window.render(0);
+</script>
+</body></html>

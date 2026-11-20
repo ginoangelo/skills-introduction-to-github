@@ -1,0 +1,34 @@
+/* Shared look for Subtext videos: 1080x1920, sunset brand, captions, end card. */
+@font-face { font-family: Jakarta; font-weight: 800; src: url("../../mobile/node_modules/@expo-google-fonts/plus-jakarta-sans/800ExtraBold/PlusJakartaSans_800ExtraBold.ttf"); }
+@font-face { font-family: Jakarta; font-weight: 700; src: url("../../mobile/node_modules/@expo-google-fonts/plus-jakarta-sans/700Bold/PlusJakartaSans_700Bold.ttf"); }
+@font-face { font-family: Inter; font-weight: 400; src: url("../../mobile/node_modules/@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf"); }
+@font-face { font-family: Inter; font-weight: 500; src: url("../../mobile/node_modules/@expo-google-fonts/inter/500Medium/Inter_500Medium.ttf"); }
+@font-face { font-family: Inter; font-weight: 600; src: url("../../mobile/node_modules/@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf"); }
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #07050b; }
+#stage { position: absolute; inset: 0; overflow: hidden; font-family: Inter, sans-serif; color: #1b1320; }
+.title { position: absolute; left: 90px; right: 90px; top: 150px; font-family: Jakarta; font-weight: 800; font-size: 104px; line-height: 1.02; letter-spacing: -4px; }
+.title small { display: block; font-family: Inter; font-weight: 500; font-size: 40px; letter-spacing: 0; margin-top: 22px; opacity: .7; }
+.phone { position: absolute; left: 50%; width: 600px; height: 1100px; margin-left: -300px; border-radius: 80px; border: 18px solid #1b1320; background: #fff; overflow: hidden; box-shadow: 0 40px 100px rgba(40, 10, 50, .3); }
+#caption { position: absolute; left: 80px; right: 80px; top: 1290px; display: flex; justify-content: center; }
+#caption span { background: rgba(18, 10, 26, .82); color: #fff; font-family: Jakarta; font-weight: 800; font-size: 58px; line-height: 1.15; letter-spacing: -1.5px; padding: 26px 38px; border-radius: 32px; text-align: center; max-width: 920px; }
+#end { position: absolute; inset: 0; background: #7a3ed6; color: #fff; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; padding-bottom: 260px; }
+.mark { width: 150px; height: 150px; border-radius: 42px; background: #fff; position: relative; }
+.mark::before, .mark::after { content: ""; position: absolute; left: 32px; height: 18px; border-radius: 9px; }
+.mark::before { top: 46px; width: 86px; background: #7a3ed6; }
+.mark::after { top: 84px; width: 54px; background: #ffb48a; }
+#end .name { font-family: Jakarta; font-weight: 800; font-size: 140px; letter-spacing: -5px; line-height: 1; }
+#end .tag { font-size: 48px; font-weight: 500; opacity: .9; }
+#end .cta { margin-top: 30px; background: #fff; color: #1b1320; font-family: Jakarta; font-weight: 700; font-size: 52px; padding: 34px 70px; border-radius: 999px; }
+#note { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; color: rgba(255, 255, 255, .6); font-size: 26px; font-weight: 500; opacity: 0; }
+/* The result card, as it looks in the app. */
+.verdict { background: #7a3ed6; color: #fff; border-radius: 40px; padding: 44px; }
+.verdict .eyebrow { font-size: 24px; font-weight: 600; letter-spacing: 3px; opacity: .85; }
+.verdict .q { font-size: 34px; font-weight: 600; margin-top: 16px; opacity: .92; }
+.verdict .word { font-family: Jakarta; font-weight: 800; font-size: 96px; letter-spacing: -3px; line-height: 1.05; }
+.verdict .bars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 26px; }
+.verdict .bars span { height: 12px; border-radius: 6px; background: rgba(255, 255, 255, .3); }
+.verdict .bars span.on { background: #fff; }
+.verdict .labels { display: flex; justify-content: space-between; margin-top: 12px; font-size: 24px; font-weight: 600; }
+.verdict .labels span { opacity: .7; } .verdict .labels span.on { opacity: 1; }
+.verdict .reason { font-size: 30px; line-height: 1.4; margin-top: 24px; opacity: .95; }

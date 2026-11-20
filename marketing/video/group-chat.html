@@ -1,0 +1,81 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Subtext: The group chat</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  #stage { background: #f2eaff; }
+  .title { font-size: 84px; letter-spacing: -3px; top: 130px; }
+  #phone { top: 470px; height: 1180px; background: #fffaf6; }
+  .bar { height: 150px; padding: 70px 34px 0; border-bottom: 2px solid #eee3da; display: flex; align-items: center; gap: 16px; background: #fff; }
+  .bar .dot { width: 54px; height: 54px; border-radius: 50%; background: #7a3ed6; }
+  .bar b { font-family: Jakarta; font-weight: 700; font-size: 30px; }
+  .bar span { font-size: 22px; color: #8a7f8e; display: block; }
+  #thread { position: absolute; left: 0; right: 0; top: 150px; bottom: 0; overflow: hidden; }
+  #msgs { position: absolute; left: 24px; right: 24px; top: 24px; display: flex; flex-direction: column; gap: 14px; }
+  .m { max-width: 78%; opacity: 0; }
+  .m .who { font-size: 20px; font-weight: 600; color: #8a7f8e; margin: 0 0 4px 16px; }
+  .m .b { background: #fff; border: 2px solid #eee3da; border-radius: 30px; padding: 18px 24px; font-size: 30px; line-height: 1.3; }
+  .m.me { align-self: flex-end; } .m.me .who { display: none; }
+  .m.me .b { background: #7a3ed6; color: #fff; border-color: #7a3ed6; }
+  .m.card { max-width: 92%; }
+  .m.card .b { background: #fff; color: #1b1320; border: 2px solid #7a3ed6; }
+  .m.card .label { font-family: Jakarta; font-weight: 800; color: #7a3ed6; font-size: 24px; letter-spacing: 1px; }
+  .m.card .v { font-family: Jakarta; font-weight: 800; font-size: 46px; letter-spacing: -1px; margin-top: 4px; }
+  .m.card .r { font-size: 26px; line-height: 1.35; color: #4a3f50; margin-top: 6px; }
+</style></head>
+<body>
+<div id="stage">
+  <div class="title" id="title">The group chat when someone posts something cryptic</div>
+  <div class="title" id="title2" style="opacity:0">Settle it with evidence, not vibes.</div>
+  <div class="phone" id="phone">
+    <div class="bar"><div class="dot"></div><div><b>the group chat</b><span>Jess, Kayla, you</span></div></div>
+    <div id="thread"><div id="msgs">
+      <div class="m"><div class="who">Jess</div><div class="b">did you see dani's story??</div></div>
+      <div class="m"><div class="who">Kayla</div><div class="b">"some people only miss you when they need something"</div></div>
+      <div class="m"><div class="who">Jess</div><div class="b">that's 100% about you</div></div>
+      <div class="m me"><div class="b">is it though</div></div>
+      <div class="m"><div class="who">Kayla</div><div class="b">no it's about her ex</div></div>
+      <div class="m"><div class="who">Jess</div><div class="b">it's about YOU</div></div>
+      <div class="m me"><div class="b">ok running it through Subtext</div></div>
+      <div class="m me card"><div class="b"><div class="label">SUBTEXT READ</div><div class="v">Unlikely</div><div class="r">Reads like a goodbye to one person, and the breakup song points to an ex. Nothing in it points at you.</div></div></div>
+      <div class="m"><div class="who">Kayla</div><div class="b">TOLD YOU</div></div>
+    </div></div>
+  </div>
+  <div id="caption"><span id="captionText"></span></div>
+  <div id="note">Example chat, made up for this video.</div>
+</div>
+<script src="shared.js"></script>
+<script>
+  $("stage").insertAdjacentHTML("beforeend", END_CARD);
+  const TIMES = [1.3, 2.3, 3.2, 4.1, 5.0, 5.8, 6.8, 8.0, 9.8];
+  window.render = function (t) {
+    $("stage").style.opacity = ease(seg(t, 0, 0.4));
+    $("title").style.opacity = ease(seg(t, 0.1, 0.6)) * (1 - seg(t, 10.1, 10.4));
+    $("title2").style.opacity = ease(seg(t, 10.4, 10.8));
+    $("phone").style.transform = `translateY(${(1 - ease(seg(t, 0.3, 1.0))) * 900}px)`;
+    const msgs = document.querySelectorAll(".m");
+    let height = 0;
+    msgs.forEach((m, i) => {
+      const p = seg(t, TIMES[i], TIMES[i] + 0.3);
+      m.style.opacity = p;
+      m.style.transform = `translateY(${(1 - pop(p)) * 30}px)`;
+      if (t >= TIMES[i]) height = m.offsetTop + m.offsetHeight;
+    });
+    // Keep the newest message in view, like a real chat.
+    const visible = $("thread").clientHeight - 40;
+    $("msgs").style.transform = `translateY(${-Math.max(0, height - visible)}px)`;
+    $("msgs").style.transition = "none";
+    captions(t, []);
+    endCard(t, 11.8);
+  };
+  // Smooth the scroll by easing toward the target each frame.
+  const base = window.render;
+  let shown = 0;
+  window.render = function (t) {
+    base(t);
+    const target = parseFloat(($("msgs").style.transform.match(/-?[\d.]+/) || [0])[0]);
+    shown = t === 0 ? target : shown + (target - shown) * 0.25;
+    $("msgs").style.transform = `translateY(${shown}px)`;
+  };
+  window.render(0);
+</script>
+</body></html>

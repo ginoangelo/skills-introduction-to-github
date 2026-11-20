@@ -1,0 +1,72 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Subtext: We don't keep your screenshots</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  #stage { background: #1b1320; color: #fff; }
+  .title { color: #fff; font-size: 112px; letter-spacing: -4.5px; }
+  #flow { position: absolute; left: 0; right: 0; top: 720px; height: 420px; }
+  #shot { position: absolute; left: 140px; top: 40px; width: 210px; height: 370px; border-radius: 30px; overflow: hidden; border: 6px solid #fff; }
+  #shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #shotLabel { position: absolute; left: 110px; top: -20px; width: 270px; text-align: center; font-weight: 600; font-size: 28px; opacity: .8; }
+  #hub { position: absolute; left: 50%; top: 95px; width: 260px; height: 260px; margin-left: -130px; border-radius: 70px; background: #7a3ed6; display: grid; place-items: center; }
+  #hub .mark { width: 130px; height: 130px; border-radius: 36px; }
+  #hub .mark::before { left: 28px; top: 40px; width: 74px; height: 16px; } #hub .mark::after { left: 28px; top: 73px; width: 46px; height: 16px; }
+  #readOut { position: absolute; right: 120px; top: 120px; width: 250px; background: #fff; color: #1b1320; border-radius: 30px; padding: 26px; opacity: 0; }
+  #readOut b { font-family: Jakarta; font-weight: 800; font-size: 44px; display: block; color: #7a3ed6; }
+  #readOut span { font-size: 22px; color: #6a5f6f; }
+  #gone { position: absolute; left: 0; right: 0; top: 440px; text-align: center; font-family: Jakarta; font-weight: 700; font-size: 46px; color: #ffb48a; opacity: 0; }
+  #promises { position: absolute; left: 90px; right: 90px; top: 640px; display: grid; gap: 26px; }
+  .p { display: flex; gap: 28px; align-items: center; background: rgba(255, 255, 255, .07); border-radius: 36px; padding: 38px 44px; opacity: 0; }
+  .p i { width: 64px; height: 64px; border-radius: 20px; background: #ffb48a; flex: none; display: grid; place-items: center; }
+  .p b { font-family: Jakarta; font-weight: 700; font-size: 44px; line-height: 1.2; }
+</style></head>
+<body>
+<div id="stage">
+  <div class="title" id="title">We don't keep your screenshots.</div>
+  <div id="flow">
+    <div id="shotLabel">Your screenshot</div>
+    <div id="shot"><img src="../../mobile/assets/example-story.png" alt=""></div>
+    <div id="hub"><div class="mark"></div></div>
+    <div id="readOut"><b>Possibly</b><span>Your read, saved on your phone</span></div>
+    <div id="gone">Used once for your read. Then gone.</div>
+  </div>
+  <div id="promises">
+    <div class="p"><i><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1b1320" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i><b>Used once for your read, then gone</b></div>
+    <div class="p"><i><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1b1320" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i><b>Your history stays on your phone</b></div>
+    <div class="p"><i><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1b1320" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i><b>Reads posts, never labels people</b></div>
+  </div>
+  <div id="caption"><span id="captionText"></span></div>
+  <div id="note">Subtext. Read between the lines.</div>
+</div>
+<script src="shared.js"></script>
+<script>
+  $("stage").insertAdjacentHTML("beforeend", END_CARD);
+  window.render = function (t) {
+    $("stage").style.opacity = ease(seg(t, 0, 0.4));
+    $("title").style.opacity = ease(seg(t, 0.1, 0.7));
+    const flowOut = ease(seg(t, 6.6, 7.0));
+    $("flow").style.opacity = ease(seg(t, 1.0, 1.4)) * (1 - flowOut);
+    // The screenshot moves into Subtext, shrinks, and disappears.
+    const move = ease(seg(t, 2.0, 3.2));
+    const shrink = ease(seg(t, 2.8, 3.4));
+    $("shot").style.transform = `translateX(${move * 330}px) scale(${1 - 0.85 * shrink}) rotate(${move * 8}deg)`;
+    $("shot").style.opacity = 1 - seg(t, 3.2, 3.5);
+    $("shotLabel").style.opacity = 0.8 * (1 - seg(t, 2.0, 2.4));
+    $("hub").style.transform = `scale(${1 + 0.08 * Math.sin(seg(t, 3.1, 3.7) * Math.PI)})`;
+    // The read comes out the other side.
+    const out = pop(seg(t, 3.7, 4.2));
+    $("readOut").style.opacity = seg(t, 3.7, 3.9);
+    $("readOut").style.transform = `translateX(${(1 - out) * -120}px)`;
+    $("gone").style.opacity = ease(seg(t, 4.4, 4.8));
+    // The three promises.
+    document.querySelectorAll(".p").forEach((p, i) => {
+      const a = 7.1 + i * 0.9;
+      p.style.opacity = ease(seg(t, a, a + 0.35));
+      p.style.transform = `translateY(${(1 - pop(seg(t, a, a + 0.4))) * 40}px)`;
+    });
+    captions(t, []);
+    endCard(t, 11.8);
+  };
+  window.render(0);
+</script>
+</body></html>

@@ -108,6 +108,20 @@ Check prices when you sign up. AI tools change fast.
 
 **Captions and hashtags to start with:** #isthisaboutme #overthinking #vaguepost #subliminals #sneakdiss #situationship #readbetweenthelines. Swap in the phrases you collect from Step 1.
 
+## Ready-made videos
+
+Five 15-second videos are in [`video/`](video/), built from the Subtext brand and app screens. They're silent, so add a trending sound in TikTok or CapCut before posting.
+
+| File | Idea from the list above |
+| --- | --- |
+| `subtext-overthinking-15s.mp4` | 5. 3 a.m. overthinking |
+| `subtext-about-you-or-not-15s.mp4` | 2. About you or not? |
+| `subtext-group-chat-15s.mp4` | 6. The group chat skit |
+| `subtext-song-captions-15s.mp4` | 4. Song caption decoder |
+| `subtext-privacy-15s.mp4` | 11. Is it creepy? FAQ |
+
+To change wording or timing, edit the scene's `.html` file in `video/` and run `node marketing/render-video.cjs <scene-name> 15` (needs Playwright and ffmpeg).
+
 ## Step 4: Rollout
 
 | Week | Post | Goal |
