@@ -7,7 +7,7 @@ Everything in one place: what's built, what's next and who does it, plus marketi
 | Plan | Price | Decodes a day | Trial |
 | --- | --- | --- | --- |
 | Free | $0 | 3 | None |
-| Pro | $6.99 a month or $39.99 a year | 30 | 3 days free |
+| Pro | $10 a month or $30 a year | 30 | 3 days free |
 
 The look is sunset, light touch: warm white background, violet as the lead color, peach and butter-yellow cards, black buttons. The example story is a generic story with no platform branding.
 
@@ -84,7 +84,7 @@ Subject: Subtext is live
 
 **4. Pro nudge, after someone hits the free limit twice**
 Subject: Out of free decodes again?
-> Pro gives you 30 decodes a day, whole-thread reads, and blurred share cards. Try it free for 3 days, then $6.99 a month or $39.99 a year. Cancel any time.
+> Pro gives you 30 decodes a day, whole-thread reads, and blurred share cards. Try it free for 3 days, then $10 a month or $30 a year. Cancel any time.
 
 **5. Monthly newsletter, "Decoded"**
 Subject: 3 posts, decoded

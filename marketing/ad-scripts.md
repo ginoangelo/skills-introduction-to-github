@@ -95,7 +95,7 @@ Still: `subtext-ad-07-pro.png`
 | --- | --- | --- |
 | 0 to 2 s | A long comment thread scrolls by | "One post is easy. A whole comment section?" |
 | 2 to 10 s | Multiple screenshots go in, one read comes out | "Subtext Pro reads the whole thread, answers follow-up questions, and lets you share a read with names blurred." |
-| 10 to 15 s | "3 days free, then $39.99 a year" | "Try Pro free for three days." |
+| 10 to 15 s | "3 days free, then $30 a year or $10 a month" | "Try Pro free for three days." |
 
 Caption: For the comment section detectives. #commentsection #pro
 

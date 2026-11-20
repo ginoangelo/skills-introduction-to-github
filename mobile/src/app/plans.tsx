@@ -10,13 +10,13 @@ import { fonts, useTheme } from "../lib/theme";
 // Google Play billing (through RevenueCat) before launch. The trial length itself is set on
 // the subscription products in App Store Connect and Google Play Console.
 const PRO = {
-  monthly: 6.99,
-  yearly: 39.99,
+  monthly: 10,
+  yearly: 30,
   trialDays: 3,
   features: ["30 decodes a day", "Decode whole comment threads, up to 10 screenshots", "Ask a follow-up about any read", "Share a read with names and faces blurred", "Copy and export clean summaries", "Faster decodes at busy times"],
 };
 const FREE_FEATURES = ["3 decodes a day", "The full read: meaning, aim, evidence", "History kept on your phone"];
-const money = (n: number) => `$${n.toFixed(2)}`;
+const money = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 const SAVE = Math.round((1 - PRO.yearly / (PRO.monthly * 12)) * 100);
 
 const FAQ = [

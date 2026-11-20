@@ -80,11 +80,11 @@ const path = require("path");
     "07-pro": `<div class="ad on-violet" style="background:#7a3ed6;color:#fff">${brand}
       <h1>Decode the<br>whole thread.</h1>
       <p class="sub">Pro: 30 decodes a day, full comment threads, follow-up questions, and blurred sharing.</p>
-      <div class="phone" style="left:520px;top:840px;transform:rotate(6deg)"><img src="${shot("m-plans.png")}"></div>
+      <div class="phone" style="left:520px;top:840px;transform:rotate(6deg)"><img src="${shot("plans.png")}"></div>
       <div style="position:absolute;left:96px;top:880px;background:#ffe9a3;color:#1b1320;border-radius:36px;padding:34px 40px;width:400px">
         <div style="font-family:Jakarta;font-weight:800;font-size:76px;letter-spacing:-2px;line-height:1">3 days</div>
         <div style="font-family:Jakarta;font-weight:700;font-size:38px">free</div>
-        <div style="font-size:28px;font-weight:600;margin-top:12px;opacity:.75">then $39.99 a year</div>
+        <div style="font-size:28px;font-weight:600;margin-top:12px;opacity:.8">then $30 a year<br>or $10 a month</div>
       </div>
       <div class="cta light">Start free trial</div><div class="tag">Read between the lines.</div></div>`,
   };
