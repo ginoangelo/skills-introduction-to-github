@@ -10,7 +10,8 @@
     "local": "tsx src/local.ts",
     "synth": "cdk synth",
     "diff": "cdk diff",
-    "deploy": "cdk deploy"
+    "deploy": "cdk deploy",
+    "compare": "tsx eval/compare-models.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.11.0",

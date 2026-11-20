@@ -1,3 +1,6 @@
 node_modules/
 cdk.out/
 .env
+eval/screenshots/*
+!eval/screenshots/.gitkeep
+eval/results-*.csv

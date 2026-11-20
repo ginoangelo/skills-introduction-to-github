@@ -36,7 +36,7 @@ test("rejects a bad media type and a missing image", async () => {
 
 test("returns a result card and enforces the free daily cap", async () => {
   __setForTests({ sample: true, limiter: new MemoryLimiter() });
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 2; i++) {
     const out = await handler(event("POST", "/decode", { image: IMAGE, mediaType: "image/jpeg", context: "we argued" }));
     assert.equal(out.statusCode, 200);
     const body = JSON.parse(out.body);

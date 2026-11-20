@@ -50,10 +50,14 @@ const REFUSED: DecodeResult = {
   other_readings: [],
 };
 
-export async function decodeScreenshot(
-  client: Anthropic,
-  input: { image: string; mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif"; context: string },
-): Promise<DecodeResult> {
+export type DecodeInput = { image: string; mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif"; context: string };
+
+export async function decodeScreenshot(client: Anthropic, input: DecodeInput): Promise<DecodeResult> {
+  return (await decodeDetailed(client, input, MODEL)).result;
+}
+
+/** The same decode with a chosen model, plus token usage. Used by the model comparison test. */
+export async function decodeDetailed(client: Anthropic, input: DecodeInput, model: string): Promise<{ result: DecodeResult; usage: Anthropic.Usage }> {
   const userText = [
     `Current date and time: ${new Date().toISOString()}.`,
     input.context ? `User's context: "${input.context}"` : "User's context: none given.",
@@ -61,7 +65,7 @@ export async function decodeScreenshot(
   ].join("\n");
 
   const response = await client.messages.parse({
-    model: MODEL,
+    model,
     max_tokens: 4000,
     system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
     messages: [
@@ -76,11 +80,11 @@ export async function decodeScreenshot(
     output_config: { format: zodOutputFormat(ResultSchema), effort: "medium" },
   });
 
-  if (response.stop_reason === "refusal") return REFUSED;
+  if (response.stop_reason === "refusal") return { result: REFUSED, usage: response.usage };
   const parsed = response.parsed_output;
   if (!parsed) throw new Error("The model returned a result that did not match the expected structure.");
   if (!input.context && parsed.aimed_at_you.verdict === "Likely") parsed.aimed_at_you.verdict = "Possibly";
-  return parsed;
+  return { result: parsed, usage: response.usage };
 }
 
 export const SAMPLE_RESULT: DecodeResult = {

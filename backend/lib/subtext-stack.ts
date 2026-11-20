@@ -52,7 +52,7 @@ export class SubtextStack extends Stack {
         TABLE_NAME: usage.tableName,
         SECRET_ID: apiKey.secretArn,
         MODEL: props.model ?? "claude-opus-5-5",
-        FREE_DAILY_CAP: String(props.freeDailyCap ?? 3),
+        FREE_DAILY_CAP: String(props.freeDailyCap ?? 2),
         IP_DAILY_CAP: String(props.ipDailyCap ?? 40),
       },
       bundling: {

@@ -9,5 +9,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["bin", "lib", "src", "test"]
+  "include": ["bin", "lib", "src", "test", "eval"]
 }

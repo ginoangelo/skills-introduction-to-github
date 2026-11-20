@@ -6,8 +6,8 @@ Everything in one place: what's built, what's next and who does it, plus marketi
 
 | Plan | Price | Decodes a day | Trial |
 | --- | --- | --- | --- |
-| Free | $0 | 3 | None |
-| Pro | $10 a month or $30 a year | 30 | 3 days free |
+| Free | $0 | 2 | None |
+| Pro | $9.99 a month or $34.99 a year | 30 | 3 days free on yearly |
 
 The look is sunset, light touch: warm white background, violet as the lead color, peach and butter-yellow cards, black buttons. The example story is a generic story with no platform branding.
 
@@ -80,11 +80,11 @@ Subject: Your Subtext beta is ready
 
 **3. Launch announcement**
 Subject: Subtext is live
-> Read between the lines. Subtext is now on the App Store and Google Play. Your first 3 decodes every day are free. Pro gives you 30 a day, whole-thread decodes, and blurred share cards, free for 3 days.
+> Read between the lines. Subtext is now on the App Store and Google Play. Your first 2 decodes every day are free. Pro gives you 30 a day, whole-thread decodes, and blurred share cards. Try yearly free for 3 days.
 
 **4. Pro nudge, after someone hits the free limit twice**
 Subject: Out of free decodes again?
-> Pro gives you 30 decodes a day, whole-thread reads, and blurred share cards. Try it free for 3 days, then $10 a month or $30 a year. Cancel any time.
+> Pro gives you 30 decodes a day, whole-thread reads, and blurred share cards. Try yearly free for 3 days, then $34.99 a year, or go monthly for $9.99. Cancel any time.
 
 **5. Monthly newsletter, "Decoded"**
 Subject: 3 posts, decoded

@@ -6,7 +6,7 @@ import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { decodeScreenshot, SAMPLE_RESULT } from "./decode.js";
 import { DynamoLimiter, MemoryLimiter, recordFlag, type Limiter } from "./limits.js";
 
-const FREE_DAILY_CAP = Number(process.env.FREE_DAILY_CAP || 3);
+const FREE_DAILY_CAP = Number(process.env.FREE_DAILY_CAP || 2);
 const IP_DAILY_CAP = Number(process.env.IP_DAILY_CAP || 40);
 const MAX_IMAGE_CHARS = 6_000_000; // about 4.5 MB of image after base64
 const MEDIA_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;

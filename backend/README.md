@@ -45,7 +45,7 @@ Pass any of these to deploy with `-c`, for example `npm run deploy -- -c freeDai
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `freeDailyCap` | 3 | Free decodes per install per day |
+| `freeDailyCap` | 2 | Free decodes per install per day |
 | `ipDailyCap` | 40 | Decodes per network per day, a backstop against reinstalling to reset the free cap |
 | `model` | `claude-opus-5-5` | Claude model used for reads |
 | `reservedConcurrency` | unset | Hard ceiling on decodes running at once. Leave unset on a new AWS account |

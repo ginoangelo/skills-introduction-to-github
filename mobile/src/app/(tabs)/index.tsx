@@ -74,7 +74,7 @@ export default function Home() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: fonts.displayBold, fontSize: 16, color: t.ink }}>Subtext Pro</Text>
-            <Body muted style={{ fontSize: 14 }}>30 decodes a day, whole threads, and sharing. 3 days free.</Body>
+            <Body muted style={{ fontSize: 14 }}>30 decodes a day, whole threads, and sharing. Try yearly free for 3 days.</Body>
           </View>
         </Pressable>
       </Section>

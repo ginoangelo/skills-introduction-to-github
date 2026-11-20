@@ -84,7 +84,7 @@ const path = require("path");
       <div style="position:absolute;left:96px;top:880px;background:#ffe9a3;color:#1b1320;border-radius:36px;padding:34px 40px;width:400px">
         <div style="font-family:Jakarta;font-weight:800;font-size:76px;letter-spacing:-2px;line-height:1">3 days</div>
         <div style="font-family:Jakarta;font-weight:700;font-size:38px">free</div>
-        <div style="font-size:28px;font-weight:600;margin-top:12px;opacity:.8">then $30 a year<br>or $10 a month</div>
+        <div style="font-size:28px;font-weight:600;margin-top:12px;opacity:.8">then $34.99 a year<br>or $9.99 a month</div>
       </div>
       <div class="cta light">Start free trial</div><div class="tag">Read between the lines.</div></div>`,
   };

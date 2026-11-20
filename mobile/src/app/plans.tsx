@@ -10,17 +10,17 @@ import { fonts, useTheme } from "../lib/theme";
 // Google Play billing (through RevenueCat) before launch. The trial length itself is set on
 // the subscription products in App Store Connect and Google Play Console.
 const PRO = {
-  monthly: 10,
-  yearly: 30,
+  monthly: 9.99,
+  yearly: 34.99,
   trialDays: 3,
   features: ["30 decodes a day", "Decode whole comment threads, up to 10 screenshots", "Ask a follow-up about any read", "Share a read with names and faces blurred", "Copy and export clean summaries", "Faster decodes at busy times"],
 };
-const FREE_FEATURES = ["3 decodes a day", "The full read: meaning, aim, evidence", "History kept on your phone"];
+const FREE_FEATURES = ["2 decodes a day", "The full read: meaning, aim, evidence", "History kept on your phone"];
 const money = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 const SAVE = Math.round((1 - PRO.yearly / (PRO.monthly * 12)) * 100);
 
 const FAQ = [
-  ["How does the free trial work?", "You get Pro free for 3 days. Cancel before the trial ends and you won't be charged. Otherwise it renews at the plan you picked."],
+  ["How does the free trial work?", "The yearly plan starts with 3 days of Pro for free. Cancel before the trial ends and you won't be charged. Otherwise it renews yearly."],
   ["Why is there a daily limit on Pro?", "Each decode runs a full AI read. A daily limit keeps reads fast and the price low. Most people never reach it."],
   ["Can I cancel any time?", "Yes. Cancel in your App Store or Google Play subscriptions. You keep Pro until the period you paid for ends."],
   ["What happens to my history if I cancel?", "Nothing. Your decodes live on your phone, so they stay right where they are."],
@@ -50,7 +50,7 @@ export default function Plans() {
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
           <Text style={{ fontFamily: fonts.display, fontSize: 22, color: fg }}>{pro ? "Pro" : "Free"}</Text>
           <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-            {pro && (
+            {pro && yearly && (
               <View style={{ backgroundColor: t.tagBg, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 }}>
                 <Text style={{ fontFamily: fonts.bodySemi, fontSize: 11, letterSpacing: 0.6, color: t.onColorInk }}>{`${PRO.trialDays} DAYS FREE`}</Text>
               </View>
@@ -68,7 +68,7 @@ export default function Plans() {
           <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: fg, opacity: 0.85 }}>{pro ? "/ month" : "forever"}</Text>
         </View>
         <Text style={{ fontFamily: fonts.body, fontSize: 13.5, color: fg, opacity: 0.85, marginTop: -8 }}>
-          {!pro ? "No card needed." : yearly ? `${money(PRO.yearly)} billed yearly after your free trial. Save ${SAVE}% over monthly.` : "Billed monthly after your free trial. Cancel any time."}
+          {!pro ? "No card needed." : yearly ? `${money(PRO.yearly)} billed yearly after your free trial. Save ${SAVE}% over monthly.` : "Billed monthly. Cancel any time."}
         </Text>
         <View style={{ gap: 9 }}>
           {features.map((f) => (
@@ -109,13 +109,13 @@ export default function Plans() {
           {card("free")}
         </View>
 
-        <View style={{ marginTop: 18, borderRadius: 18, backgroundColor: t.peach, padding: 16, flexDirection: "row", alignItems: "center", gap: 14 }}>
+        {yearly && <View style={{ marginTop: 18, borderRadius: 18, backgroundColor: t.peach, padding: 16, flexDirection: "row", alignItems: "center", gap: 14 }}>
           <View style={{ alignItems: "center" }}>
             <Text style={{ fontFamily: fonts.display, fontSize: 28, color: t.ink, lineHeight: 30 }}>{PRO.trialDays}</Text>
             <Text style={{ fontFamily: fonts.bodySemi, fontSize: 10.5, letterSpacing: 0.8, color: t.ink }}>DAYS FREE</Text>
           </View>
-          <Body style={{ flex: 1, fontSize: 14, lineHeight: 20 }}>Try every Pro feature free for 3 days. Cancel before it ends and you pay nothing.</Body>
-        </View>
+          <Body style={{ flex: 1, fontSize: 14, lineHeight: 20 }}>The yearly plan starts with 3 days free. Cancel before it ends and you pay nothing.</Body>
+        </View>}
 
         <Section title="Questions">
           {FAQ.map(([q, a], i) => (
@@ -130,7 +130,7 @@ export default function Plans() {
         </Section>
 
         <Body muted style={{ textAlign: "center", fontSize: 12.5, marginTop: 24 }}>
-          Draft pricing in USD. After the free trial, Pro renews automatically through the App Store or Google Play until you cancel.
+          Draft pricing in USD. Pro renews automatically through the App Store or Google Play until you cancel. The free trial applies to the yearly plan.
         </Body>
         <Pressable onPress={() => setNote("Restore purchases connects with store billing before launch.")} accessibilityRole="button" style={{ alignSelf: "center", marginTop: 10 }}>
           <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: t.ink2, textDecorationLine: "underline" }}>Restore purchases</Text>
@@ -143,11 +143,11 @@ export default function Plans() {
           <Pill
             kind="dark"
             block
-            label={selected === "free" ? "Continue with Free" : `Start ${PRO.trialDays}-day free trial`}
+            label={selected === "free" ? "Continue with Free" : yearly ? `Start ${PRO.trialDays}-day free trial` : `Subscribe for ${money(PRO.monthly)} a month`}
             onPress={() => (selected === "free" ? router.back() : setNote("Checkout connects with App Store and Google Play billing before launch."))}
           />
           <Text style={{ textAlign: "center", fontFamily: fonts.body, fontSize: 12.5, color: t.ink2 }}>
-            {note || (selected === "free" ? "3 decodes a day, no card needed." : `Free for ${PRO.trialDays} days, then ${yearly ? money(PRO.yearly) + " a year" : money(PRO.monthly) + " a month"}. Cancel any time.`)}
+            {note || (selected === "free" ? "2 decodes a day, no card needed." : yearly ? `Free for ${PRO.trialDays} days, then ${money(PRO.yearly)} a year. Cancel any time.` : "Billed monthly. Cancel any time.")}
           </Text>
         </View>
       </View>
