@@ -4,10 +4,13 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { decodeScreenshot, SAMPLE_RESULT } from "./decode.js";
+import { revenueCatProCheck, type ProCheck } from "./entitlements.js";
 import { DynamoLimiter, MemoryLimiter, recordFlag, type Limiter } from "./limits.js";
 
 const FREE_DAILY_CAP = Number(process.env.FREE_DAILY_CAP || 2);
-const IP_DAILY_CAP = Number(process.env.IP_DAILY_CAP || 40);
+const PRO_DAILY_CAP = Number(process.env.PRO_DAILY_CAP || 30);
+// Backstop for free decodes from one network. Kept generous because campuses and phone carriers share addresses.
+const IP_DAILY_CAP = Number(process.env.IP_DAILY_CAP || 100);
 const MAX_IMAGE_CHARS = 6_000_000; // about 4.5 MB of image after base64
 const MEDIA_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
 const FLAG_REASONS = ["wrong", "offensive", "biased", "other"] as const;
@@ -17,10 +20,12 @@ const DEVICE_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 let limiter: Limiter = process.env.TABLE_NAME ? new DynamoLimiter(process.env.TABLE_NAME) : new MemoryLimiter();
 let client: Anthropic | null = null;
 let sampleOverride: boolean | null = null;
+let proCheck: ProCheck = revenueCatProCheck;
 
-/** Test hook: swap the limiter or force sample mode. */
-export function __setForTests(opts: { limiter?: Limiter; sample?: boolean }) {
+/** Test hook: swap the limiter, the Pro check, or force sample mode. */
+export function __setForTests(opts: { limiter?: Limiter; sample?: boolean; proCheck?: ProCheck }) {
   if (opts.limiter) limiter = opts.limiter;
+  if (opts.proCheck) proCheck = opts.proCheck;
   if (opts.sample !== undefined) sampleOverride = opts.sample;
 }
 
@@ -77,9 +82,14 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<HttpResult
   const context = typeof body.context === "string" ? body.context.trim().slice(0, 280) : "";
 
   const ip = event.requestContext.http.sourceIp || "unknown";
-  if (!(await limiter.take(`ip#${ip}`, IP_DAILY_CAP))) return json(429, { error: "Too many decodes from this network today. Try again tomorrow." });
-  if (!(await limiter.take(`device#${device}`, FREE_DAILY_CAP))) {
-    return json(429, { error: `You've used your ${FREE_DAILY_CAP} free decodes for today. Come back tomorrow or upgrade for more.` });
+  const pro = await proCheck(device);
+  if (!pro && !(await limiter.take(`ip#${ip}`, IP_DAILY_CAP))) {
+    return json(429, { error: "Too many decodes from this network today. Try again tomorrow.", code: "network_limit" });
+  }
+  if (!(await limiter.take(`device#${device}`, pro ? PRO_DAILY_CAP : FREE_DAILY_CAP))) {
+    return pro
+      ? json(429, { error: `You've used all ${PRO_DAILY_CAP} of today's Pro decodes. They reset tomorrow.`, code: "pro_limit" })
+      : json(429, { error: `You've used your ${FREE_DAILY_CAP} free decodes for today. Come back tomorrow or go Pro for more.`, code: "free_limit" });
   }
 
   if (sampleMode()) return json(200, { mode: "sample", result: SAMPLE_RESULT });

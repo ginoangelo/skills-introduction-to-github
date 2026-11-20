@@ -58,7 +58,7 @@ export async function decodeScreenshot(base64: string, context: string, signal?:
   }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const code = res.status === 429 ? "rate_limited" : res.status >= 500 ? "server" : "bad_request";
+    const code = typeof body.code === "string" ? body.code : res.status === 429 ? "rate_limited" : res.status >= 500 ? "server" : "bad_request";
     throw new DecodeError(code, body.error || "Something went wrong decoding that screenshot. Try again.");
   }
   return normalize(body.result as DecodeResult, context.length > 0);

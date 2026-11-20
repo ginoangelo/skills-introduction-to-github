@@ -51,6 +51,7 @@ export default function Decode() {
       setBusy(false);
       const err = e as DecodeError;
       if (err.code !== "cancelled") setError(err.message);
+      if (err.code === "free_limit") router.push({ pathname: "/plans", params: { from: "limit" } });
     }
   };
 

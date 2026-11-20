@@ -63,7 +63,29 @@ npm run typecheck
 npx expo export --platform web     # quick compile check of every screen
 ```
 
-## Not built yet
+## Subscriptions and the paywall
 
-- Store billing for the Plans screen (RevenueCat). The buttons say so for now.
+The Plans screen sells one Pro plan, monthly or yearly, through RevenueCat (`src/lib/billing.native.tsx`). Without RevenueCat keys, the app shows draft prices and explains that checkout comes later, so it stays safe to build and test.
+
+**When the plans appear**
+
+1. Once, when someone leaves their first real read. They've seen the value first.
+2. When the decode service says the free daily limit is used up. The plans open with "You've used today's free decodes."
+3. Any time from Home ("Subtext Pro") or About ("See plans and pricing").
+
+**Set up billing once your store accounts exist**
+
+1. In App Store Connect and Google Play Console, create two subscriptions in one group: monthly at $9.99 and yearly at $34.99. Add a 3-day free trial to the yearly one only (an introductory offer on Apple, a free-trial offer on Google).
+2. In RevenueCat, create a project, connect both stores, and add those products.
+3. Create an entitlement named exactly `pro` and attach both products.
+4. Create an offering (the default one) with the monthly product as the Monthly package and the yearly product as the Annual package.
+5. Copy RevenueCat's public Apple and Google SDK keys into `eas.json` as `EXPO_PUBLIC_RC_IOS_KEY` and `EXPO_PUBLIC_RC_ANDROID_KEY`.
+6. Put RevenueCat's secret API key in AWS so the decode service can give Pro users 30 decodes a day (see `backend/README.md`).
+7. Make a development build and test a purchase with a sandbox tester (Apple) or license tester (Google).
+
+The app uses the install ID as the RevenueCat user, so the decode service checks Pro for the same ID without accounts or logins.
+
+Apple's Small Business Program lowers Apple's cut to 15%. Enroll before launch.
+
+## Not built yet
 - The paid-plan features: follow-up questions, blurred share cards, whole-thread decodes, exports.

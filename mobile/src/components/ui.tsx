@@ -3,6 +3,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View, type StyleProp, t
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { isLive } from "../lib/api";
+import { useBilling } from "../lib/billing";
 import { fonts, space, useTheme, verdictColor } from "../lib/theme";
 import { formatWhen } from "../lib/store";
 import type { Entry } from "../lib/types";
@@ -24,6 +25,7 @@ export function Screen({ children, scroll = true }: { children: ReactNode; scrol
 
 export function BrandBar() {
   const t = useTheme();
+  const { isPro } = useBilling();
   return (
     <View style={styles.brandbar}>
       <View style={styles.wordmark}>
@@ -34,8 +36,8 @@ export function BrandBar() {
         <Text style={[styles.wordmarkText, { color: t.ink }]}>Subtext</Text>
       </View>
       <Pressable onPress={() => router.push("/about")} style={[styles.status, { backgroundColor: t.surface2 }]} accessibilityRole="button" accessibilityLabel="Decode mode">
-        <View style={[styles.dot, { backgroundColor: isLive ? t.unlikely : t.possibly }]} />
-        <Text style={[styles.statusText, { color: t.ink2 }]}>{isLive ? "Live" : "Example mode"}</Text>
+        <View style={[styles.dot, { backgroundColor: isPro ? t.brand : isLive ? t.unlikely : t.possibly }]} />
+        <Text style={[styles.statusText, { color: t.ink2 }]}>{isPro ? "Pro" : isLive ? "Live" : "Example mode"}</Text>
       </Pressable>
     </View>
   );

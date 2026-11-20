@@ -46,6 +46,7 @@ test("returns a result card and enforces the free daily cap", async () => {
   const fourth = await handler(event("POST", "/decode", { image: IMAGE, mediaType: "image/jpeg" }));
   assert.equal(fourth.statusCode, 429);
   assert.match(JSON.parse(fourth.body).error, /free decodes/);
+  assert.equal(JSON.parse(fourth.body).code, "free_limit");
 });
 
 test("unknown routes are 404", async () => {
@@ -56,4 +57,15 @@ test("flags a read with a reason and rejects an unknown reason", async () => {
   __setForTests({ limiter: new MemoryLimiter() });
   assert.equal((await handler(event("POST", "/flag", { reason: "biased", verdict: "Likely" }))).statusCode, 200);
   assert.equal((await handler(event("POST", "/flag", { reason: "spam" }))).statusCode, 400);
+});
+
+test("Pro installs get the Pro daily cap", async () => {
+  __setForTests({ sample: true, limiter: new MemoryLimiter(), proCheck: async () => true });
+  for (let i = 0; i < 30; i++) {
+    assert.equal((await handler(event("POST", "/decode", { image: IMAGE, mediaType: "image/jpeg" }))).statusCode, 200);
+  }
+  const over = await handler(event("POST", "/decode", { image: IMAGE, mediaType: "image/jpeg" }));
+  assert.equal(over.statusCode, 429);
+  assert.equal(JSON.parse(over.body).code, "pro_limit");
+  __setForTests({ proCheck: async () => false });
 });

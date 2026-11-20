@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { BillingProvider } from "../lib/billing";
 import { ShareHandler, ShareProvider } from "../lib/share";
 import { StoreProvider } from "../lib/store";
 import { useTheme } from "../lib/theme";
@@ -16,14 +17,16 @@ export default function RootLayout() {
     <ShareProvider>
       <SafeAreaProvider>
         <StoreProvider>
-          <ShareHandler />
-          <StatusBar style={t.scheme === "dark" ? "light" : "dark"} />
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.bg } }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="decode" options={{ gestureEnabled: false }} />
-            <Stack.Screen name="read/[id]" />
-            <Stack.Screen name="plans" options={{ presentation: "modal" }} />
-          </Stack>
+          <BillingProvider>
+            <ShareHandler />
+            <StatusBar style={t.scheme === "dark" ? "light" : "dark"} />
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.bg } }}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="decode" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="read/[id]" />
+              <Stack.Screen name="plans" options={{ presentation: "modal" }} />
+            </Stack>
+          </BillingProvider>
         </StoreProvider>
       </SafeAreaProvider>
     </ShareProvider>

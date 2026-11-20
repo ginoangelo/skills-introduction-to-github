@@ -16,6 +16,8 @@ export interface SubtextStackProps extends StackProps {
   model?: string;
   /** Free decodes per device per day. */
   freeDailyCap?: number;
+  /** Pro decodes per device per day. */
+  proDailyCap?: number;
   /** Decodes per network (IP) per day, a backstop against reinstall abuse. */
   ipDailyCap?: number;
   /** Optional hard ceiling on concurrent decodes. Leave unset on new AWS accounts with low concurrency quotas. */
@@ -40,6 +42,12 @@ export class SubtextStack extends Stack {
       description: "Anthropic API key used by the Subtext decode service.",
     });
 
+    // RevenueCat secret key, used to check who has Pro. Set its value after the first deploy.
+    const rcKey = new secretsmanager.Secret(this, "RevenueCatSecretKey", {
+      secretName: "subtext/revenuecat-secret-key",
+      description: "RevenueCat secret API key, used by the decode service to check Pro subscriptions.",
+    });
+
     const fn = new NodejsFunction(this, "Decode", {
       entry: path.join(here, "..", "src", "handler.ts"),
       handler: "handler",
@@ -52,8 +60,10 @@ export class SubtextStack extends Stack {
         TABLE_NAME: usage.tableName,
         SECRET_ID: apiKey.secretArn,
         MODEL: props.model ?? "claude-opus-5-5",
+        RC_SECRET_ID: rcKey.secretArn,
         FREE_DAILY_CAP: String(props.freeDailyCap ?? 2),
-        IP_DAILY_CAP: String(props.ipDailyCap ?? 40),
+        PRO_DAILY_CAP: String(props.proDailyCap ?? 30),
+        IP_DAILY_CAP: String(props.ipDailyCap ?? 100),
       },
       bundling: {
         format: OutputFormat.ESM,
@@ -66,6 +76,7 @@ export class SubtextStack extends Stack {
     });
     usage.grantReadWriteData(fn);
     apiKey.grantRead(fn);
+    rcKey.grantRead(fn);
 
     // Public HTTPS endpoint for the app. Function URLs allow long decodes (no 30-second gateway limit).
     const url = fn.addFunctionUrl({
@@ -89,5 +100,6 @@ export class SubtextStack extends Stack {
 
     new CfnOutput(this, "DecodeUrl", { value: url.url, description: "Put this in the app as EXPO_PUBLIC_API_URL (without the trailing slash)." });
     new CfnOutput(this, "ApiKeySecretName", { value: apiKey.secretName });
+    new CfnOutput(this, "RevenueCatSecretName", { value: rcKey.secretName });
   }
 }

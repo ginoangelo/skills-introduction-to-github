@@ -37,7 +37,7 @@ The look is sunset, light touch: warm white background, violet as the lead color
 | 3 | Deploy the backend to your AWS account and add the Anthropic key | Me, with your AWS sign-in | 1 hour |
 | 4 | Put the backend URL in the app and make the first device builds | Me | 1 day |
 | 5 | Accuracy check on about 200 real screenshots, rated by people. Gate: 70% rated accurate | Both | 1 week |
-| 6 | App attestation, RevenueCat billing for the Plans screen, the 30-a-day Pro cap on the backend, AWS Budgets alert. Create the Pro subscription in both stores with a 3-day free trial | Me, with you in the store consoles | 1 to 2 weeks |
+| 6 | Billing is built: the Plans screen buys through RevenueCat, the paywall shows after the first read and at the free limit, and the backend gives Pro 30 a day. Left: create the subscriptions in both stores (3-day trial on yearly), set up RevenueCat and add its keys, app attestation, AWS Budgets alert | You in the store and RevenueCat consoles, me for the rest | 1 week |
 | 7 | Privacy policy, terms, support page on your domain. Lawyer reviews terms and read wording | Me drafting, lawyer reviewing | Alongside 5 and 6 |
 | 8 | Testing: iPhone through TestFlight. Android closed test with at least 12 testers for 14 days in a row (new personal Play accounts) | You recruit, I set up | 2 weeks |
 | 9 | Store listings: screenshots, descriptions, privacy forms, age rating, review notes about safeguards | Me | 2 to 3 days |

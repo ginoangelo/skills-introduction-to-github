@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { Pressable, Switch, Text, View } from "react-native";
-import { router } from "expo-router";
+import { Linking, Platform, Pressable, Switch, Text, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "../components/Icon";
 import { Body, Pill, Screen, Section, Title } from "../components/ui";
+import { useBilling } from "../lib/billing";
 import { fonts, useTheme } from "../lib/theme";
 
-// Draft pricing: one Pro plan with a 3-day free trial. Purchases connect to App Store and
-// Google Play billing (through RevenueCat) before launch. The trial length itself is set on
-// the subscription products in App Store Connect and Google Play Console.
+// One Pro plan, monthly or yearly, with a 3-day free trial on yearly. Purchases go through
+// RevenueCat (see src/lib/billing.native.tsx). Real prices come from the stores once RevenueCat
+// is set up; until then the draft prices below are shown. The trial length is set on the yearly
+// product in App Store Connect and Google Play Console.
 const PRO = {
   monthly: 9.99,
   yearly: 34.99,
@@ -33,6 +35,42 @@ export default function Plans() {
   const [selected, setSelected] = useState<"pro" | "free">("pro");
   const [open, setOpen] = useState<number | null>(null);
   const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const { from } = useLocalSearchParams<{ from?: string }>();
+  const billing = useBilling();
+  const storePrices = billing.prices.monthly !== null && billing.prices.annual !== null;
+  const monthlyPrice = billing.prices.monthly ?? money(PRO.monthly);
+  const yearlyPrice = billing.prices.annual ?? money(PRO.yearly);
+
+  const headline = from === "limit" ? "You've used today's free decodes" : "Read every post clearly";
+  const lede =
+    from === "limit"
+      ? "Go Pro for 30 decodes a day, or come back tomorrow for 2 more free."
+      : from === "first-read"
+        ? "Liked that read? Go Pro for 30 decodes a day, whole threads, and sharing."
+        : "Start free. Go Pro when you decode often, need whole threads, or want to share a read.";
+
+  const subscribe = async () => {
+    if (selected === "free") return router.back();
+    setBusy(true);
+    setNote("");
+    const r = await billing.buy(yearly ? "annual" : "monthly");
+    setBusy(false);
+    if (r.ok) return router.back();
+    if (!r.cancelled && r.message) setNote(r.message);
+  };
+
+  const restore = async () => {
+    setBusy(true);
+    const r = await billing.restore();
+    setBusy(false);
+    setNote(r.message ?? "");
+  };
+
+  const manage = () =>
+    Linking.openURL(Platform.OS === "ios" ? "https://apps.apple.com/account/subscriptions" : "https://play.google.com/store/account/subscriptions").catch(() =>
+      setNote("Open your App Store or Google Play subscriptions to manage Pro."),
+    );
 
   const card = (k: "pro" | "free") => {
     const pro = k === "pro";
@@ -64,11 +102,17 @@ export default function Plans() {
           {pro ? "For anyone who reads a lot of posts, from the group chat to the comment section" : "Try it on the posts that matter"}
         </Text>
         <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
-          <Text style={{ fontFamily: fonts.display, fontSize: 40, letterSpacing: -1.4, color: fg }}>{!pro ? "$0" : yearly ? money(PRO.yearly / 12) : money(PRO.monthly)}</Text>
-          <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: fg, opacity: 0.85 }}>{pro ? "/ month" : "forever"}</Text>
+          <Text style={{ fontFamily: fonts.display, fontSize: 40, letterSpacing: -1.4, color: fg }}>
+            {!pro ? "$0" : yearly ? (storePrices ? yearlyPrice : money(PRO.yearly / 12)) : monthlyPrice}
+          </Text>
+          <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: fg, opacity: 0.85 }}>{!pro ? "forever" : yearly && storePrices ? "/ year" : "/ month"}</Text>
         </View>
         <Text style={{ fontFamily: fonts.body, fontSize: 13.5, color: fg, opacity: 0.85, marginTop: -8 }}>
-          {!pro ? "No card needed." : yearly ? `${money(PRO.yearly)} billed yearly after your free trial. Save ${SAVE}% over monthly.` : "Billed monthly. Cancel any time."}
+          {!pro
+            ? "No card needed."
+            : yearly
+              ? `${storePrices ? "Billed" : `${yearlyPrice} billed`} yearly after your free trial. Save about ${SAVE}% over monthly.`
+              : "Billed monthly. Cancel any time."}
         </Text>
         <View style={{ gap: 9 }}>
           {features.map((f) => (
@@ -88,9 +132,15 @@ export default function Plans() {
         <Title small onBack={() => router.back()}>
           Plans
         </Title>
-        <Text style={{ fontFamily: fonts.display, fontSize: 34, letterSpacing: -1.2, lineHeight: 38, color: t.ink, marginTop: 14 }}>Read every post clearly</Text>
+        {billing.isPro && (
+          <View style={{ marginTop: 14, borderRadius: 16, backgroundColor: t.mist, padding: 16 }}>
+            <Text style={{ fontFamily: fonts.displayBold, fontSize: 16, color: t.ink }}>You're on Pro</Text>
+            <Body muted style={{ fontSize: 14 }}>30 decodes a day. Thanks for supporting Subtext.</Body>
+          </View>
+        )}
+        <Text style={{ fontFamily: fonts.display, fontSize: 34, letterSpacing: -1.2, lineHeight: 38, color: t.ink, marginTop: 14 }}>{headline}</Text>
         <Body muted style={{ marginTop: 8 }}>
-          Start free. Go Pro when you decode often, need whole threads, or want to share a read.
+          {lede}
         </Body>
 
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 22 }}>
@@ -130,9 +180,9 @@ export default function Plans() {
         </Section>
 
         <Body muted style={{ textAlign: "center", fontSize: 12.5, marginTop: 24 }}>
-          Draft pricing in USD. Pro renews automatically through the App Store or Google Play until you cancel. The free trial applies to the yearly plan.
+          {billing.configured ? "Prices shown in your local currency." : "Draft pricing in USD."} Pro renews automatically through the App Store or Google Play until you cancel. The free trial applies to the yearly plan.
         </Body>
-        <Pressable onPress={() => setNote("Restore purchases connects with store billing before launch.")} accessibilityRole="button" style={{ alignSelf: "center", marginTop: 10 }}>
+        <Pressable onPress={restore} disabled={busy} accessibilityRole="button" style={{ alignSelf: "center", marginTop: 10 }}>
           <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: t.ink2, textDecorationLine: "underline" }}>Restore purchases</Text>
         </Pressable>
         <View style={{ height: 120 }} />
@@ -140,14 +190,26 @@ export default function Plans() {
 
       <View style={{ position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: t.surface, borderTopWidth: 1, borderTopColor: t.line, paddingTop: 12, paddingBottom: insets.bottom + 12, paddingHorizontal: 20 }}>
         <View style={{ width: "100%", maxWidth: 480, alignSelf: "center", gap: 8 }}>
-          <Pill
-            kind="dark"
-            block
-            label={selected === "free" ? "Continue with Free" : yearly ? `Start ${PRO.trialDays}-day free trial` : `Subscribe for ${money(PRO.monthly)} a month`}
-            onPress={() => (selected === "free" ? router.back() : setNote("Checkout connects with App Store and Google Play billing before launch."))}
-          />
+          {billing.isPro ? (
+            <Pill kind="dark" block label="Manage subscription" onPress={manage} />
+          ) : (
+            <Pill
+              kind="dark"
+              block
+              disabled={busy}
+              label={busy ? "One moment" : selected === "free" ? "Continue with Free" : yearly ? `Start ${PRO.trialDays}-day free trial` : `Subscribe for ${monthlyPrice} a month`}
+              onPress={subscribe}
+            />
+          )}
           <Text style={{ textAlign: "center", fontFamily: fonts.body, fontSize: 12.5, color: t.ink2 }}>
-            {note || (selected === "free" ? "2 decodes a day, no card needed." : yearly ? `Free for ${PRO.trialDays} days, then ${money(PRO.yearly)} a year. Cancel any time.` : "Billed monthly. Cancel any time.")}
+            {note ||
+              (billing.isPro
+                ? "Change or cancel Pro in your store subscriptions."
+                : selected === "free"
+                  ? "2 decodes a day, no card needed."
+                  : yearly
+                    ? `Free for ${PRO.trialDays} days, then ${yearlyPrice} a year. Cancel any time.`
+                    : "Billed monthly. Cancel any time.")}
           </Text>
         </View>
       </View>

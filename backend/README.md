@@ -9,7 +9,7 @@ One small service: the app sends a screenshot, the service asks Claude for the r
 | Decode function | Lambda (Node 22, arm64) | Checks the request, applies daily limits, calls Claude, returns the result card |
 | Public link | Lambda function URL (HTTPS) | The address the app calls. No 30-second gateway limit, so slow reads still finish |
 | Daily limits | DynamoDB | Counts decodes per install and per network per day. Counters delete themselves after two days |
-| API key | Secrets Manager | Holds your Anthropic API key. Never in the app, never in the code |
+| API keys | Secrets Manager | Holds your Anthropic API key and RevenueCat secret key. Never in the app, never in the code |
 | Logs and alarm | CloudWatch | Keeps one month of logs (status and timing only, never content). Alarm on repeated failures |
 
 ## Deploy it
@@ -39,6 +39,16 @@ curl https://YOUR-DECODE-URL/health     # {"ok":true,"mode":"live"}
 
 Copy the `DecodeUrl` (without the trailing slash) into `mobile/eas.json` as `EXPO_PUBLIC_API_URL`.
 
+Once RevenueCat is set up, add its secret API key so Pro subscribers get the Pro daily limit:
+
+```bash
+aws secretsmanager put-secret-value \
+  --secret-id subtext/revenuecat-secret-key \
+  --secret-string 'YOUR_REVENUECAT_SECRET_KEY'
+```
+
+Without it, everyone gets the free limit. The service checks RevenueCat for an active `pro` entitlement on the install ID and remembers the answer for 10 minutes.
+
 ## Settings
 
 Pass any of these to deploy with `-c`, for example `npm run deploy -- -c freeDailyCap=5`.
@@ -46,7 +56,8 @@ Pass any of these to deploy with `-c`, for example `npm run deploy -- -c freeDai
 | Setting | Default | What it does |
 | --- | --- | --- |
 | `freeDailyCap` | 2 | Free decodes per install per day |
-| `ipDailyCap` | 40 | Decodes per network per day, a backstop against reinstalling to reset the free cap |
+| `proDailyCap` | 30 | Pro decodes per install per day |
+| `ipDailyCap` | 100 | Free decodes per network per day, a backstop against reinstalling to reset the free cap. Pro users skip it |
 | `model` | `claude-opus-5-5` | Claude model used for reads |
 | `reservedConcurrency` | unset | Hard ceiling on decodes running at once. Leave unset on a new AWS account |
 
@@ -65,5 +76,4 @@ At launch volumes, the AWS side is a few dollars a month: Secrets Manager is abo
 ## Before public launch
 
 - **App attestation.** Add Apple App Attest and Google Play Integrity checks so only the real app can call the service.
-- **Paid plans.** Connect RevenueCat's webhook to a DynamoDB entitlements record and raise the daily cap to 30 for Pro.
 - **Edge protection.** If abuse shows up, put CloudFront and AWS WAF rate rules in front of the function URL.

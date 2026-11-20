@@ -7,15 +7,25 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "" }
+      "env": {
+        "EXPO_PUBLIC_API_URL": ""
+      }
     },
     "preview": {
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "REPLACE_WITH_AWS_DECODE_URL" }
+      "env": {
+        "EXPO_PUBLIC_API_URL": "REPLACE_WITH_AWS_DECODE_URL",
+        "EXPO_PUBLIC_RC_IOS_KEY": "REPLACE_WITH_REVENUECAT_APPLE_KEY",
+        "EXPO_PUBLIC_RC_ANDROID_KEY": "REPLACE_WITH_REVENUECAT_GOOGLE_KEY"
+      }
     },
     "production": {
       "autoIncrement": true,
-      "env": { "EXPO_PUBLIC_API_URL": "REPLACE_WITH_AWS_DECODE_URL" }
+      "env": {
+        "EXPO_PUBLIC_API_URL": "REPLACE_WITH_AWS_DECODE_URL",
+        "EXPO_PUBLIC_RC_IOS_KEY": "REPLACE_WITH_REVENUECAT_APPLE_KEY",
+        "EXPO_PUBLIC_RC_ANDROID_KEY": "REPLACE_WITH_REVENUECAT_GOOGLE_KEY"
+      }
     }
   },
   "submit": {

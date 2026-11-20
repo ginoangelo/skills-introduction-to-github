@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Clipboard from "expo-clipboard";
@@ -6,6 +7,7 @@ import { ResultView } from "../../components/ResultView";
 import { Body, Empty, Pill, RoundButton, Screen, Title } from "../../components/ui";
 import { pickAndStart } from "../../lib/pick";
 import { flagRead, type FlagReason } from "../../lib/api";
+import { useBilling } from "../../lib/billing";
 import { fonts, useTheme } from "../../lib/theme";
 import { useStore } from "../../lib/store";
 
@@ -29,7 +31,22 @@ export default function Read() {
     }
   };
 
-  const done = () => (router.canGoBack() ? router.back() : router.replace("/"));
+  const { isPro } = useBilling();
+
+  // After someone's first real read, show the plans once, so they've seen the value first.
+  const FIRST_READ_KEY = "subtext.paywall.first-read.v1";
+  const done = async () => {
+    if (entry?.mode === "live" && !isPro) {
+      const seen = await AsyncStorage.getItem(FIRST_READ_KEY).catch(() => "1");
+      if (!seen) {
+        AsyncStorage.setItem(FIRST_READ_KEY, "1").catch(() => {});
+        router.replace({ pathname: "/plans", params: { from: "first-read" } });
+        return;
+      }
+    }
+    if (router.canGoBack()) router.back();
+    else router.replace("/");
+  };
 
   const copy = async () => {
     if (!entry || entry.result.refused) return;
