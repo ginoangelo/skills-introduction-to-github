@@ -1,6 +1,6 @@
 # Subtext on TikTok
 
-How to research, make, and test TikTok videos for Subtext. Paid ads live next to this file: the still ads are in [`ads/`](ads/) and their 15-second scripts are in [`ad-scripts.md`](ad-scripts.md).
+How to research, make, and test TikTok videos for Subtext. Paid ads live next to this file: the still ads are in [`ads/`](ads/) and their 15-second scripts are in [`ad-scripts.md`](ad-scripts.md). Prompts for realistic AI clips in Google AI Studio are in [`ai-video-prompts.md`](ai-video-prompts.md).
 
 **The one-line pitch.** Subtext is an app that reads between the lines on social media. Screenshot a post that's bugging you, and it tells you what it really means, whether it's probably about you, and why.
 
