@@ -59,9 +59,9 @@ const path = require("path");
     "04-context": `<div class="ad" style="background:#fff0bf;color:#1b1320">${brand}
       <h1>Tell it what<br>happened.</h1>
       <p class="sub">Add one line of context and get a sharper read.</p>
-      <div class="phone" style="left:470px;top:690px;transform:rotate(-5deg)"><img src="${shot("m-context.png")}" style="object-position:0 34%"></div>
-      <div style="position:absolute;left:96px;top:760px;display:grid;gap:22px;width:520px">
-        ${["We argued recently", "We stopped talking", "They're my ex"].map((c, i) => `<span style="justify-self:start;padding:24px 36px;border-radius:999px;font-family:Jakarta;font-weight:700;font-size:38px;${i === 1 ? "background:#1b1320;color:#fff" : "background:#fff;box-shadow:0 10px 30px rgba(80,60,0,.12)"}">${c}</span>`).join("")}
+      <div class="phone" style="left:575px;top:700px;width:460px;height:980px;transform:rotate(-5deg)"><img src="${shot("m-context.png")}" style="object-position:0 34%"></div>
+      <div style="position:absolute;left:96px;top:800px;display:grid;gap:22px;width:420px">
+        ${["We argued recently", "We stopped talking", "They're my ex"].map((c, i) => `<span style="justify-self:start;padding:22px 32px;border-radius:999px;font-family:Jakarta;font-weight:700;font-size:33px;white-space:nowrap;${i === 1 ? "background:#1b1320;color:#fff" : "background:#fff;box-shadow:0 10px 30px rgba(80,60,0,.12)"}">${c}</span>`).join("")}
       </div>
       <div class="cta dark">Try it free</div><div class="tag">Read between the lines.</div></div>`,
     "05-share": `<div class="ad" style="background:#f2eaff;color:#1b1320">${brand}
