@@ -1,6 +1,14 @@
-# Subtext competitor review
+# Aimed competitor review
 
 How the "Subtext" and text-decoder apps on the App Store compare to yours, what their reviewers say, and how to stand apart. Checked 2026-11-21 from the US App Store listings and web search. Ratings and prices change, so recheck before launch.
+
+## Decision: the app is now called Aimed
+
+After this review, the app was renamed **Aimed**, with the store name "Aimed: Is This About Me?" and the tagline "Read between the lines." No App Store app used the name when checked, and it matches the question at the center of every read: "Aimed at you?" Before launch, confirm it in a trademark search and buy the domain (for example aimed.app or getaimed.app).
+
+Names checked and rejected: Clocked (a time-tracking app), Undertone (five apps), Overthought (a close competitor that judges social situations), Vaguely (the vaguely.app website is taken).
+
+The rest of this review uses "your app" for Aimed. "Subtext" below always means the competitors.
 
 ## The headline: the name is taken, four times over
 

@@ -1,6 +1,6 @@
-# Subtext AI video prompts
+# Aimed AI video prompts
 
-Prompts for Google AI Studio (Veo for video, the image model for stills). Each one makes a short, realistic clip with emotion only. The Subtext videos in [`video/`](video/) show the real app, so the two are joined in CapCut.
+Prompts for Google AI Studio (Veo for video, the image model for stills). Each one makes a short, realistic clip with emotion only. The Aimed videos in [`video/`](video/) show the real app, so the two are joined in CapCut.
 
 ## Setup
 
@@ -10,7 +10,7 @@ Prompts for Google AI Studio (Veo for video, the image model for stills). Each o
 
 ## Rules for every clip
 
-- **Never show the phone screen.** AI video garbles text on screens. The Subtext videos show the real app.
+- **Never show the phone screen.** AI video garbles text on screens. The Aimed videos show the real app.
 - **No text, no logos, no brand names** in the AI clip.
 - **Made-up people only.** Never prompt for a real person, celebrity, or someone you know.
 - **Label it.** Turn on TikTok's "AI-generated content" label when a post includes an AI clip.
@@ -28,7 +28,7 @@ Prompts for Google AI Studio (Veo for video, the image model for stills). Each o
 2. **Make a still first, then animate it.** Create the image of Maya in her bedroom with the image model, then use it as the starting frame in Veo. Faces and rooms stay much more consistent.
 3. **Add camera language.** Phrases like "35mm lens, f/1.8, eye level" or "handheld, slight sway" make clips look filmed rather than generated.
 4. **Generate several versions.** Hands and faces vary a lot between takes. Keep the best one.
-5. **Match the brand colors.** End every clip in violet and peach light, so the cut into a Subtext video feels like one piece.
+5. **Match the brand colors.** End every clip in violet and peach light, so the cut into a Aimed video feels like one piece.
 6. **Fix one thing at a time.** If a result looks off, add one detail ("fairy lights on the wall," "static shot") and regenerate, so you know what changed it.
 
 ## The first four prompts
@@ -90,7 +90,7 @@ like a background someone would post on a story with a cryptic caption.
 
 ### 5. Typing, then deleting
 
-Shows the problem before Subtext solves it.
+Shows the problem before Aimed solves it.
 
 ```
 Vertical 9:16, 8 seconds, realistic close-up of a young woman's thumbs over a phone
@@ -150,22 +150,22 @@ softly out of focus. Audio: room tone, a long sigh. Do not show the screen. No t
 ## Put it together
 
 1. Generate a clip and download it.
-2. In CapCut, place the AI clip first and a Subtext video from [`video/`](video/) right after it.
+2. In CapCut, place the AI clip first and a Aimed video from [`video/`](video/) right after it.
 3. Add a trending sound and captions.
 4. Turn on TikTok's AI-generated content label and post.
 
 | AI clip | Pairs with |
 | --- | --- |
-| 1. Overthinking, 5. Typing then deleting, 9. POV in bed | `subtext-overthinking-15s.mp4` |
-| 2. Group chat reaction | `subtext-group-chat-15s.mp4` |
-| 3. Relief moment | The end of any Subtext video |
-| 6. Double take | `subtext-about-you-or-not-15s.mp4` |
-| 7. Overreaction versus the real read | `subtext-song-captions-15s.mp4` or on its own |
+| 1. Overthinking, 5. Typing then deleting, 9. POV in bed | `aimed-overthinking-15s.mp4` |
+| 2. Group chat reaction | `aimed-group-chat-15s.mp4` |
+| 3. Relief moment | The end of any Aimed video |
+| 6. Double take | `aimed-about-you-or-not-15s.mp4` |
+| 7. Overreaction versus the real read | `aimed-song-captions-15s.mp4` or on its own |
 | 8. Coworker read | A Pro video, once Pro features ship |
 
 ## Other formats to try
 
 - **Decode of the day.** A daily 10-second series: one made-up post, one read. Repetition builds a habit.
 - **Stitch and duet bait.** Post a made-up cryptic post with "Stitch this with your guess." People make content for you.
-- **App Store preview video.** A 15 to 30 second video for your store page. Apple requires real app footage only, so use the Subtext videos, not AI clips.
-- **Creator kits.** Send partner creators a made-up post, its Subtext read, and three opening lines. They film their reaction.
+- **App Store preview video.** A 15 to 30 second video for your store page. Apple requires real app footage only, so use the Aimed videos, not AI clips.
+- **Creator kits.** Send partner creators a made-up post, its Aimed read, and three opening lines. They film their reaction.

@@ -16,7 +16,7 @@ export function ResultView({ entry }: { entry: Entry }) {
     return (
       <View style={[s.refused, { backgroundColor: t.surface2 }]}>
         <Text style={[s.refusedTitle, { color: t.ink }]}>No read for this one</Text>
-        <Body muted>{r.refusal_reason || "Subtext doesn't read this kind of screenshot."}</Body>
+        <Body muted>{r.refusal_reason || "Aimed doesn't read this kind of screenshot."}</Body>
       </View>
     );
   }

@@ -34,7 +34,7 @@ export default function Read() {
   const { isPro } = useBilling();
 
   // After someone's first real read, show the plans once, so they've seen the value first.
-  const FIRST_READ_KEY = "subtext.paywall.first-read.v1";
+  const FIRST_READ_KEY = "aimed.paywall.first-read.v1";
   const done = async () => {
     if (entry?.mode === "live" && !isPro) {
       const seen = await AsyncStorage.getItem(FIRST_READ_KEY).catch(() => "1");
@@ -52,7 +52,7 @@ export default function Read() {
     if (!entry || entry.result.refused) return;
     const r = entry.result;
     const text = [
-      "Subtext read",
+      "Aimed read",
       `Aimed at you? ${r.aimed_at_you.verdict}. ${r.aimed_at_you.reason}`,
       "",
       `What it means: ${r.meaning}`,

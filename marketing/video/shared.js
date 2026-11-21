@@ -1,4 +1,4 @@
-// Shared timing helpers for Subtext videos. Each scene defines window.render(t).
+// Shared timing helpers for Aimed videos. Each scene defines window.render(t).
 const $ = (id) => document.getElementById(id);
 const clamp = (x) => Math.max(0, Math.min(1, x));
 const seg = (t, a, b) => clamp((t - a) / (b - a));
@@ -28,4 +28,4 @@ function endCard(t, from) {
   $("note").style.opacity = e;
 }
 
-const END_CARD = `<div id="end"><div class="mark"></div><div class="name">Subtext</div><div class="tag">Read between the lines.</div><div class="cta">Try it free</div></div>`;
+const END_CARD = `<div id="end"><div class="mark"></div><div class="name">Aimed</div><div class="tag">Read between the lines.</div><div class="cta">Try it free</div></div>`;

@@ -46,12 +46,12 @@ export default function About() {
     <Screen>
       <BrandBar />
       <Title>About</Title>
-      <Body muted>Read between the lines. Subtext decodes a screenshot of a post into a plain read with its evidence.</Body>
+      <Body muted>Read between the lines. Aimed decodes a screenshot of a post into a plain read with its evidence.</Body>
 
       <Section title="Decodes on this phone">
         <Card>
           {isLive ? (
-            <Principle icon="check" title="Live" text="Each decode sends your screenshot to Subtext once for the read. Nothing is kept after." />
+            <Principle icon="check" title="Live" text="Each decode sends your screenshot to Aimed once for the read. Nothing is kept after." />
           ) : (
             <Principle icon="info" title="Example mode" text="This build isn't connected to the decode service yet, so reads show an example." />
           )}

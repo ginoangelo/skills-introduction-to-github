@@ -7,7 +7,7 @@ export function ShareProvider({ children }: { children: ReactNode }) {
   return <ShareIntentProvider>{children}</ShareIntentProvider>;
 }
 
-/** When a screenshot is shared to Subtext from another app, open it in the context step. */
+/** When a screenshot is shared to Aimed from another app, open it in the context step. */
 export function ShareHandler() {
   const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntentContext();
   const { setPending } = useStore();

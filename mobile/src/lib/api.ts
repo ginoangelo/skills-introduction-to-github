@@ -12,7 +12,7 @@ export class DecodeError extends Error {
   }
 }
 
-const DEVICE_KEY = "subtext.device.v1";
+const DEVICE_KEY = "aimed.device.v1";
 let deviceId: string | null = null;
 
 /** A random install ID, used only for the daily free-tier cap. Not tied to the person. */
@@ -48,13 +48,13 @@ export async function decodeScreenshot(base64: string, context: string, signal?:
   try {
     res = await fetch(`${API_URL}/decode`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Subtext-Device": id },
+      headers: { "Content-Type": "application/json", "X-Aimed-Device": id },
       body: JSON.stringify({ image: base64, mediaType: "image/jpeg", context }),
       signal,
     });
   } catch (e) {
     if ((e as Error).name === "AbortError") throw new DecodeError("cancelled", "");
-    throw new DecodeError("network", "Couldn't reach Subtext. Check your connection and try again.");
+    throw new DecodeError("network", "Couldn't reach Aimed. Check your connection and try again.");
   }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -72,13 +72,13 @@ export async function flagRead(reason: FlagReason, verdict: string): Promise<voi
   const id = await getDeviceId();
   const res = await fetch(`${API_URL}/flag`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Subtext-Device": id },
+    headers: { "Content-Type": "application/json", "X-Aimed-Device": id },
     body: JSON.stringify({ reason, verdict }),
   }).catch(() => null);
   if (!res || !res.ok) throw new DecodeError("flag_failed", "Couldn't send that report. Try again.");
 }
 
-const CONSENT_KEY = "subtext.ai-consent.v1";
+const CONSENT_KEY = "aimed.ai-consent.v1";
 /** Apple and Google expect a clear yes before personal data goes to an outside AI. */
 export async function hasAiConsent(): Promise<boolean> {
   try {

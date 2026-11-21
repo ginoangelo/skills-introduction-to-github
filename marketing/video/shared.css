@@ -1,4 +1,4 @@
-/* Shared look for Subtext videos: 1080x1920, sunset brand, captions, end card. */
+/* Shared look for Aimed videos: 1080x1920, sunset brand, captions, end card. */
 @font-face { font-family: Jakarta; font-weight: 800; src: url("../../mobile/node_modules/@expo-google-fonts/plus-jakarta-sans/800ExtraBold/PlusJakartaSans_800ExtraBold.ttf"); }
 @font-face { font-family: Jakarta; font-weight: 700; src: url("../../mobile/node_modules/@expo-google-fonts/plus-jakarta-sans/700Bold/PlusJakartaSans_700Bold.ttf"); }
 @font-face { font-family: Inter; font-weight: 400; src: url("../../mobile/node_modules/@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf"); }

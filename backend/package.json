@@ -1,8 +1,8 @@
 {
-  "name": "subtext-backend",
+  "name": "aimed-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Subtext decode service on AWS: Lambda function URL, DynamoDB daily limits, Secrets Manager for the Anthropic key.",
+  "description": "Aimed decode service on AWS: Lambda function URL, DynamoDB daily limits, Secrets Manager for the Anthropic key.",
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",

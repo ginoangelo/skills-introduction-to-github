@@ -1,16 +1,16 @@
-# Subtext on TikTok
+# Aimed on TikTok
 
-How to research, make, and test TikTok videos for Subtext. Paid ads live next to this file: the still ads are in [`ads/`](ads/) and their 15-second scripts are in [`ad-scripts.md`](ad-scripts.md). Prompts for realistic AI clips in Google AI Studio are in [`ai-video-prompts.md`](ai-video-prompts.md).
+How to research, make, and test TikTok videos for Aimed. Paid ads live next to this file: the still ads are in [`ads/`](ads/) and their 15-second scripts are in [`ad-scripts.md`](ad-scripts.md). Prompts for realistic AI clips in Google AI Studio are in [`ai-video-prompts.md`](ai-video-prompts.md).
 
-**The one-line pitch.** Subtext is an app that reads between the lines on social media. Screenshot a post that's bugging you, and it tells you what it really means, whether it's probably about you, and why.
+**The one-line pitch.** Aimed is an app that reads between the lines on social media. Screenshot a post that's bugging you, and it tells you what it really means, whether it's probably about you, and why.
 
 ## Rules for every video
 
-1. **Only use made-up posts.** Make them in Canva or with the Subtext example style. The one exception is someone describing their own situation with permission, and even then, blur every name and face.
+1. **Only use made-up posts.** Make them in Canva or with the Aimed example style. The one exception is someone describing their own situation with permission, and even then, blur every name and face.
 2. **Never decode a real person's post in public.** That protects you legally and keeps the brand true to "reads posts, not people."
 3. **No platform logos.** Say "a story" or "a post." Don't recreate Instagram, TikTok, or Threads designs.
 4. **Label AI content.** Turn on TikTok's "AI-generated content" label for any video with an AI voice, avatar, or realistic AI footage.
-5. **Promise only what's true.** Subtext gives a read with evidence, not a fact. Don't say "100% accurate."
+5. **Promise only what's true.** Aimed gives a read with evidence, not a fact. Don't say "100% accurate."
 6. **End with the call to action.** "Link in bio to get early access." After launch, use "Try it free."
 
 ## Step 1: Research before you post
@@ -59,8 +59,8 @@ Search these on TikTok, then read the comments. The comments tell you how people
 | Listen for | Why it matters |
 | --- | --- |
 | Exact phrases like "this is so me" or "why do I always think it's about me" | These become your hooks, captions, and App Store keywords |
-| "I need this," tagged friends, "what app is this" | Proof people want a tool like Subtext |
-| How they handle it now: best friend, group chat, ChatGPT | What Subtext replaces, and what to compare against |
+| "I need this," tagged friends, "what app is this" | Proof people want a tool like Aimed |
+| How they handle it now: best friend, group chat, ChatGPT | What Aimed replaces, and what to compare against |
 | Which situation gets the most comments: exes, friends, coworkers, family | Where to make the most videos |
 
 **Free research tools**
@@ -85,40 +85,40 @@ Check prices when you sign up. AI tools change fast.
 | AI presenter | HeyGen or Captions | Use sparingly. Real faces usually perform better |
 | Short mood clips | Runway, Pika, or Sora | For B-roll like a phone lighting up at 3 a.m. |
 | Scheduling and cross-posting | TikTok's scheduler, Buffer, or Later | Post the same video to Reels and Shorts too |
-| The real demo | Screen recording of Subtext | Your best content, because it's real |
+| The real demo | Screen recording of Aimed | Your best content, because it's real |
 
-**Starter setup that costs almost nothing:** Claude for scripts, Canva for the made-up posts, a screen recording of Subtext decoding them, CapCut to edit and caption, and your own voice or face.
+**Starter setup that costs almost nothing:** Claude for scripts, Canva for the made-up posts, a screen recording of Aimed decoding them, CapCut to edit and caption, and your own voice or face.
 
 ## Step 3: The videos
 
 | # | Video | Opening line on screen | Made with | How |
 | --- | --- | --- | --- | --- |
-| 1 | **The fight-timing decode** | "POV: they posted this 2 hours after your fight" | Canva, screen recording, CapCut | Make a fake cryptic story in Canva. Screen-record Subtext decoding it. Cut to the verdict on a beat drop. |
+| 1 | **The fight-timing decode** | "POV: they posted this 2 hours after your fight" | Canva, screen recording, CapCut | Make a fake cryptic story in Canva. Screen-record Aimed decoding it. Cut to the verdict on a beat drop. |
 | 2 | **About you or not?** | "Comment YES or NO before the reveal" | Canva, TikTok green screen | Stand in front of a fake post, react, pause, then show the read. Pin the funniest comment. |
 | 3 | **Situationship story meanings** | "What his story actually means, part 1" | Claude script, your face | Show 5 made-up captions in quick cuts, with one sentence each on what they usually signal. Make it a series. |
 | 4 | **Song caption decoder** | "If she posts this song, it's over" | CapCut text-to-speech, Canva | Show a lyric caption on screen while the voice explains what that song choice usually means. No face needed. |
-| 5 | **3 a.m. overthinking** | "You've reread her story 14 times" | ElevenLabs voice, Runway or Sora clips | Moody clips of a phone lighting up in the dark under a calm voiceover. End on Subtext giving an answer. |
-| 6 | **The group chat skit** | "The group chat when someone posts a cryptic story" | Canva fake group chat, CapCut voices | Fake texts pop up with a different voice per friend. They argue until someone runs it through Subtext. |
+| 5 | **3 a.m. overthinking** | "You've reread her story 14 times" | ElevenLabs voice, Runway or Sora clips | Moody clips of a phone lighting up in the dark under a calm voiceover. End on Aimed giving an answer. |
+| 6 | **The group chat skit** | "The group chat when someone posts a cryptic story" | Canva fake group chat, CapCut voices | Fake texts pop up with a different voice per friend. They argue until someone runs it through Aimed. |
 | 7 | **Building in public** | "I'm building an app for overthinkers. Day 1" | Your face, CapCut captions | Show the app on your phone and ask "Would you use this?" Post an update every few days. Your best validation video. |
 | 8 | **Trend remix** | "Me checking if her story is about me" | Creative Center sound, phone | A trending sound with a text overlay, then a 2-second cut to the app. Fast to make, rides the trend. |
 | 9 | **Photo carousel** | "7 stories that are 100% about someone" | Firefly or Midjourney backgrounds, Canva | Swipeable slides of made-up stories with a one-line read each. Carousels get saved a lot. |
 | 10 | **Reply to a comment** | "@user asked what this means" | TikTok reply feature, screen recording | A follower describes their own situation. Decode a made-up version of it, names blurred. |
-| 11 | **Is it creepy? FAQ** | "Is Subtext creepy? Here's the truth" | Your face, or a HeyGen avatar | 20 seconds on privacy: it reads only what you screenshot, keeps nothing, and labels no one. Builds trust. |
+| 11 | **Is it creepy? FAQ** | "Is Aimed creepy? Here's the truth" | Your face, or a HeyGen avatar | 20 seconds on privacy: it reads only what you screenshot, keeps nothing, and labels no one. Builds trust. |
 | 12 | **Same video, more places** | Reuse your best TikTok | Buffer or Later | Post top performers to Reels and Shorts. No new work, more reach. |
 
 **Captions and hashtags to start with:** #isthisaboutme #overthinking #vaguepost #subliminals #sneakdiss #situationship #readbetweenthelines. Swap in the phrases you collect from Step 1.
 
 ## Ready-made videos
 
-Five 15-second videos are in [`video/`](video/), built from the Subtext brand and app screens. They're silent, so add a trending sound in TikTok or CapCut before posting.
+Five 15-second videos are in [`video/`](video/), built from the Aimed brand and app screens. They're silent, so add a trending sound in TikTok or CapCut before posting.
 
 | File | Idea from the list above |
 | --- | --- |
-| `subtext-overthinking-15s.mp4` | 5. 3 a.m. overthinking |
-| `subtext-about-you-or-not-15s.mp4` | 2. About you or not? |
-| `subtext-group-chat-15s.mp4` | 6. The group chat skit |
-| `subtext-song-captions-15s.mp4` | 4. Song caption decoder |
-| `subtext-privacy-15s.mp4` | 11. Is it creepy? FAQ |
+| `aimed-overthinking-15s.mp4` | 5. 3 a.m. overthinking |
+| `aimed-about-you-or-not-15s.mp4` | 2. About you or not? |
+| `aimed-group-chat-15s.mp4` | 6. The group chat skit |
+| `aimed-song-captions-15s.mp4` | 4. Song caption decoder |
+| `aimed-privacy-15s.mp4` | 11. Is it creepy? FAQ |
 
 To change wording or timing, edit the scene's `.html` file in `video/` and run `node marketing/render-video.cjs <scene-name> 15` (needs Playwright and ffmpeg).
 

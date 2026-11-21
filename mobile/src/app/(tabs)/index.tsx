@@ -34,7 +34,7 @@ export default function Home() {
           tone="brand"
           text="Share a screenshot of a post, story, or reply. Get what it means, whether it's aimed at you, and the evidence."
           action={<Pill kind="light" label="Choose a screenshot" onPress={choose} />}
-          hint="Or share one to Subtext from any app."
+          hint="Or share one to Aimed from any app."
           art={<Art name="hero" color={t.onColor} accent={t.brand} />}
         />
         {error && <Body style={{ color: t.likely }}>{error}</Body>}
@@ -73,16 +73,16 @@ export default function Home() {
             <Icon name="tag" color={t.brand} size={20} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontFamily: fonts.displayBold, fontSize: 16, color: t.ink }}>Subtext Pro</Text>
+            <Text style={{ fontFamily: fonts.displayBold, fontSize: 16, color: t.ink }}>Aimed Pro</Text>
             <Body muted style={{ fontSize: 14 }}>30 decodes a day, whole threads, and sharing. Try yearly free for 3 days.</Body>
           </View>
         </Pressable>
       </Section>
 
-      <Section title="How Subtext reads">
+      <Section title="How Aimed reads">
         <PromoCard
           tone="butter"
-          text="Subtext reads posts, not people. Every read cites its evidence and shows other ways to take it."
+          text="Aimed reads posts, not people. Every read cites its evidence and shows other ways to take it."
           action={<Pill kind="dark" label="Our principles" onPress={() => router.push("/about")} />}
           art={<Art name="quote" color={t.brand} accent={t.brand} />}
         />

@@ -127,7 +127,7 @@ export default function Decode() {
         <View style={{ marginTop: 26, backgroundColor: t.mist, borderRadius: 20, padding: 20, gap: 14 }}>
           <Text style={{ fontFamily: fonts.displayBold, fontSize: 17, color: t.ink }}>Before your first decode</Text>
           <Body>
-            To write the read, Subtext sends this screenshot and your context to Claude, an AI made by Anthropic. It's used for this one read and isn't stored afterward.
+            To write the read, Aimed sends this screenshot and your context to Claude, an AI made by Anthropic. It's used for this one read and isn't stored afterward.
           </Body>
           <Pill
             kind="dark"

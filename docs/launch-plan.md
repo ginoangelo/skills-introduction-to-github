@@ -1,4 +1,4 @@
-# Subtext launch plan
+# Aimed launch plan
 
 Everything in one place: what's built, what's next and who does it, plus marketing and email ideas. Updated 2026-11-19.
 
@@ -23,7 +23,7 @@ The look is sunset, light touch: warm white background, violet as the lead color
 ## What's built and tested
 
 - **Phone app.** Home, decode with context chips, the result card, history with search, About, and the Plans screen with one Pro plan and a 3-day trial.
-- **Share sheet.** Screenshots can be shared to Subtext from Instagram, Threads, or Photos on iPhone and Android. The native projects generate correctly. It needs a real device build to try.
+- **Share sheet.** Screenshots can be shared to Aimed from Instagram, Threads, or Photos on iPhone and Android. The native projects generate correctly. It needs a real device build to try.
 - **First-decode consent and "Flag this read."** Both stores expect these for AI features.
 - **AWS backend.** It enforces the free daily cap per install and per network, and logs no content.
 - **Checks run.** The backend passes 6 tests and builds a clean CloudFormation template. The app typechecks and was driven end to end in a phone-sized browser against the backend.
@@ -55,11 +55,11 @@ Start recruiting Android testers now. The 14-day closed test is the step most li
 2. **Creator partnerships.** Dating, friendship, and relationship-advice creators decode posts their followers send in, with permission. Pay per video or give a revenue share code.
 3. **Campus ambassadors.** One ambassador per campus with a discount code for Pro. Both stores support offer codes, so students get a deal without a separate plan.
 4. **Waitlist with referrals.** A landing page where sharing your link moves you up the list. Early members get a month of Pro free.
-5. **App Store search.** Store name "Subtext: Read Between the Lines." Words to target: caption meaning, is this about me, subtweet, story meaning, shade, sneak diss.
+5. **App Store search.** Store name "Aimed: Read Between the Lines." Words to target: caption meaning, is this about me, subtweet, story meaning, shade, sneak diss.
 6. **Launch day.** Product Hunt and Reddit communities about dating and social media, plus a short founder story video.
 7. **Privacy as a selling point.** "We don't keep your screenshots." Most AI apps can't say that, and it's true here.
 8. **Creators and social media managers.** LinkedIn posts that pitch Pro's whole-thread decodes: "Read the comment section before it reads you."
-9. **The built-in loop, after launch.** The blurred share card carries a "Decoded with Subtext" tag that spreads the app every time someone shares a read.
+9. **The built-in loop, after launch.** The blurred share card carries a "Decoded with Aimed" tag that spreads the app every time someone shares a read.
 
 ## Email setup
 
@@ -71,16 +71,16 @@ Start recruiting Android testers now. The 14-day closed test is the step most li
 ## Email drafts
 
 **1. Waitlist welcome (sent right away)**
-Subject: You're on the list for Subtext
-> Thanks for joining. Subtext reads a screenshot of any post and tells you what it means, whether it's aimed at you, and why. We're opening spots in small groups. Share your link to move up the list: {referral_link}
+Subject: You're on the list for Aimed
+> Thanks for joining. Aimed reads a screenshot of any post and tells you what it means, whether it's aimed at you, and why. We're opening spots in small groups. Share your link to move up the list: {referral_link}
 
 **2. Beta invite**
-Subject: Your Subtext beta is ready
+Subject: Your Aimed beta is ready
 > You're in. Install the test build here: {testflight_or_play_link}. Try it on a post that's been on your mind, then tap "Flag this read" if anything looks off. We read every report.
 
 **3. Launch announcement**
-Subject: Subtext is live
-> Read between the lines. Subtext is now on the App Store and Google Play. Your first 2 decodes every day are free. Pro gives you 30 a day, whole-thread decodes, and blurred share cards. Try yearly free for 3 days.
+Subject: Aimed is live
+> Read between the lines. Aimed is now on the App Store and Google Play. Your first 2 decodes every day are free. Pro gives you 30 a day, whole-thread decodes, and blurred share cards. Try yearly free for 3 days.
 
 **4. Pro nudge, after someone hits the free limit twice**
 Subject: Out of free decodes again?

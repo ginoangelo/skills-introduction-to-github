@@ -1,5 +1,5 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>Subtext: Song caption decoder</title>
+<html><head><meta charset="utf-8"><title>Aimed: Song caption decoder</title>
 <link rel="stylesheet" href="shared.css">
 <style>
   #stage { background: radial-gradient(120% 80% at 50% 30%, #3a1f5e 0%, #1b1024 60%, #0d0812 100%); color: #fff; }
@@ -23,7 +23,7 @@
   <div class="song"><div class="sticker"><span class="note">&#9834;</span>Someone Like You</div><div class="means"><div class="k">USUALLY SIGNALS</div><div class="v">Still hurting, and maybe hoping they'll see it.</div></div></div>
   <div class="song"><div class="sticker"><span class="note">&#9834;</span>good 4 u</div><div class="means"><div class="k">USUALLY SIGNALS</div><div class="v">Sarcasm. They are not actually happy for anyone.</div></div></div>
   <div id="caption"><span id="captionText"></span></div>
-  <div id="note">A song choice is one clue, not proof. Subtext weighs it with the words and the timing.</div>
+  <div id="note">A song choice is one clue, not proof. Aimed weighs it with the words and the timing.</div>
 </div>
 <script src="shared.js"></script>
 <script>
@@ -43,7 +43,7 @@
     const idx = Math.floor((t - START) / EACH);
     $("count").textContent = idx >= 0 && idx < 4 ? `${idx + 1} of 4` : "";
     $("count").style.opacity = idx >= 0 && idx < 4 ? 0.55 : 0;
-    captions(t, [[START + 4 * EACH, 11.7, "Subtext reads the song, the words, and the timing."]]);
+    captions(t, [[START + 4 * EACH, 11.7, "Aimed reads the song, the words, and the timing."]]);
     endCard(t, 11.8);
   };
   window.render(0);

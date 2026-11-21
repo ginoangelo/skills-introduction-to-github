@@ -135,7 +135,7 @@ export default function Plans() {
         {billing.isPro && (
           <View style={{ marginTop: 14, borderRadius: 16, backgroundColor: t.mist, padding: 16 }}>
             <Text style={{ fontFamily: fonts.displayBold, fontSize: 16, color: t.ink }}>You're on Pro</Text>
-            <Body muted style={{ fontSize: 14 }}>30 decodes a day. Thanks for supporting Subtext.</Body>
+            <Body muted style={{ fontSize: 14 }}>30 decodes a day. Thanks for supporting Aimed.</Body>
           </View>
         )}
         <Text style={{ fontFamily: fonts.display, fontSize: 34, letterSpacing: -1.2, lineHeight: 38, color: t.ink, marginTop: 14 }}>{headline}</Text>

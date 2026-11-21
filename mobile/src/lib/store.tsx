@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Entry, PreparedImage } from "./types";
 
-const KEY = "subtext.recent.v1";
+const KEY = "aimed.recent.v1";
 const MAX = 30;
 
 interface Store {

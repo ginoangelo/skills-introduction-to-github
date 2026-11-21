@@ -1,4 +1,4 @@
-# Subtext backend (AWS)
+# Aimed backend (AWS)
 
 One small service: the app sends a screenshot, the service asks Claude for the read, and the read goes straight back. Nothing about the post is stored.
 
@@ -27,7 +27,7 @@ Then put your Anthropic API key in the secret it created:
 
 ```bash
 aws secretsmanager put-secret-value \
-  --secret-id subtext/anthropic-api-key \
+  --secret-id aimed/anthropic-api-key \
   --secret-string 'YOUR_ANTHROPIC_API_KEY'
 ```
 
@@ -43,7 +43,7 @@ Once RevenueCat is set up, add its secret API key so Pro subscribers get the Pro
 
 ```bash
 aws secretsmanager put-secret-value \
-  --secret-id subtext/revenuecat-secret-key \
+  --secret-id aimed/revenuecat-secret-key \
   --secret-string 'YOUR_REVENUECAT_SECRET_KEY'
 ```
 

@@ -30,11 +30,11 @@ const path = require("path");
   .phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
   .tag { position: absolute; left: 96px; top: 1468px; font-size: 30px; font-weight: 600; opacity: .7; }
   `;
-  const brand = `<div class="brand"><span class="mark"></span>Subtext</div>`;
+  const brand = `<div class="brand"><span class="mark"></span>Aimed</div>`;
   const ads = {
     "01-hook": `<div class="ad on-violet" style="background:#7a3ed6;color:#fff">${brand}
       <h1>Is this post<br>about you?</h1>
-      <p class="sub">Screenshot it. Subtext reads between the lines and tells you.</p>
+      <p class="sub">Screenshot it. Aimed reads between the lines and tells you.</p>
       <div class="phone" style="left:500px;top:700px;transform:rotate(6deg)"><img src="${shot("r-clean.png")}"></div>
       <div class="cta light">Try it free</div><div class="tag">Read between the lines.</div></div>`,
     "02-verdict": `<div class="ad" style="background:#fffaf6;color:#1b1320">${brand}
@@ -67,7 +67,7 @@ const path = require("path");
     "05-share": `<div class="ad" style="background:#f2eaff;color:#1b1320">${brand}
       <h1>Screenshot.<br>Share.<br>Decoded.</h1>
       <div style="position:absolute;left:96px;top:720px;display:grid;gap:40px;width:460px">
-        ${["Screenshot the post", "Share it to Subtext", "Get the read"].map((t, i) => `<div style="display:flex;align-items:center;gap:28px"><span style="width:84px;height:84px;border-radius:50%;background:#7a3ed6;color:#fff;font-family:Jakarta;font-weight:800;font-size:42px;display:grid;place-items:center;flex:none">${i + 1}</span><span style="font-family:Jakarta;font-weight:700;font-size:44px;line-height:1.15">${t}</span></div>`).join("")}
+        ${["Screenshot the post", "Share it to Aimed", "Get the read"].map((t, i) => `<div style="display:flex;align-items:center;gap:28px"><span style="width:84px;height:84px;border-radius:50%;background:#7a3ed6;color:#fff;font-family:Jakarta;font-weight:800;font-size:42px;display:grid;place-items:center;flex:none">${i + 1}</span><span style="font-family:Jakarta;font-weight:700;font-size:44px;line-height:1.15">${t}</span></div>`).join("")}
       </div>
       <div class="phone" style="left:580px;top:700px;width:440px;height:920px;transform:rotate(5deg)"><img src="${shot("r-clean.png")}"></div>
       <div class="cta dark">Try it free</div><div class="tag">Read between the lines.</div></div>`,
@@ -96,7 +96,7 @@ const path = require("path");
     await page.goto("file://" + file, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(150);
-    await page.screenshot({ path: path.join(OUT, `subtext-ad-${name}.png`) });
+    await page.screenshot({ path: path.join(OUT, `aimed-ad-${name}.png`) });
   }
   await browser.close();
   console.log("rendered", Object.keys(ads).length);

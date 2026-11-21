@@ -7,7 +7,7 @@ import { handler } from "./handler.js";
 const PORT = Number(process.env.PORT || 8787);
 
 createServer(async (req, res) => {
-  const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type, x-subtext-device", "Access-Control-Allow-Methods": "GET, POST" };
+  const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type, x-aimed-device", "Access-Control-Allow-Methods": "GET, POST" };
   if (req.method === "OPTIONS") {
     res.writeHead(204, cors).end();
     return;
@@ -26,4 +26,4 @@ createServer(async (req, res) => {
   } as unknown as LambdaFunctionURLEvent;
   const out = await handler(event);
   res.writeHead(out.statusCode, { ...cors, ...out.headers }).end(out.body);
-}).listen(PORT, () => console.log(`Subtext decode service on http://localhost:${PORT}`));
+}).listen(PORT, () => console.log(`Aimed decode service on http://localhost:${PORT}`));

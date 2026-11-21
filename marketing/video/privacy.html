@@ -1,5 +1,5 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>Subtext: We don't keep your screenshots</title>
+<html><head><meta charset="utf-8"><title>Aimed: We don't keep your screenshots</title>
 <link rel="stylesheet" href="shared.css">
 <style>
   #stage { background: #1b1320; color: #fff; }
@@ -36,7 +36,7 @@
     <div class="p"><i><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1b1320" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i><b>Reads posts, never labels people</b></div>
   </div>
   <div id="caption"><span id="captionText"></span></div>
-  <div id="note">Subtext. Read between the lines.</div>
+  <div id="note">Aimed. Read between the lines.</div>
 </div>
 <script src="shared.js"></script>
 <script>
@@ -46,7 +46,7 @@
     $("title").style.opacity = ease(seg(t, 0.1, 0.7));
     const flowOut = ease(seg(t, 6.6, 7.0));
     $("flow").style.opacity = ease(seg(t, 1.0, 1.4)) * (1 - flowOut);
-    // The screenshot moves into Subtext, shrinks, and disappears.
+    // The screenshot moves into Aimed, shrinks, and disappears.
     const move = ease(seg(t, 2.0, 3.2));
     const shrink = ease(seg(t, 2.8, 3.4));
     $("shot").style.transform = `translateX(${move * 330}px) scale(${1 - 0.85 * shrink}) rotate(${move * 8}deg)`;

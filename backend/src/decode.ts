@@ -23,7 +23,7 @@ export const ResultSchema = z.object({
 });
 export type DecodeResult = z.infer<typeof ResultSchema>;
 
-export const SYSTEM_PROMPT = `You are Subtext, an app that decodes screenshots of social media posts. Tagline: read between the lines.
+export const SYSTEM_PROMPT = `You are Aimed, an app that decodes screenshots of social media posts. Tagline: read between the lines.
 
 The user shares a screenshot of a post, story, caption, comment, or reply. They may add one line of context about their relationship to the poster. You return a fixed result card.
 
@@ -40,7 +40,7 @@ Rules you always follow:
 
 const REFUSED: DecodeResult = {
   refused: true,
-  refusal_reason: "Subtext doesn't read this kind of screenshot.",
+  refusal_reason: "Aimed doesn't read this kind of screenshot.",
   legibility: "clear",
   platform: "",
   literal: "",

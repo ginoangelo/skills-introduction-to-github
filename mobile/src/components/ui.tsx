@@ -33,7 +33,7 @@ export function BrandBar() {
           <View style={[styles.markLine, { width: 16, top: 9 }]} />
           <View style={[styles.markLine, { width: 10, top: 16, backgroundColor: t.markAccent }]} />
         </View>
-        <Text style={[styles.wordmarkText, { color: t.ink }]}>Subtext</Text>
+        <Text style={[styles.wordmarkText, { color: t.ink }]}>Aimed</Text>
       </View>
       <Pressable onPress={() => router.push("/about")} style={[styles.status, { backgroundColor: t.surface2 }]} accessibilityRole="button" accessibilityLabel="Decode mode">
         <View style={[styles.dot, { backgroundColor: isPro ? t.brand : isLive ? t.unlikely : t.possibly }]} />

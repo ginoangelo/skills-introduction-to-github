@@ -1,6 +1,6 @@
-# Subtext mobile app (iPhone and Android)
+# Aimed mobile app (iPhone and Android)
 
-Built with Expo (React Native) and Expo Router, using the Subtext design: big title, color-block cards, pill buttons, and a tab bar docked to the bottom.
+Built with Expo (React Native) and Expo Router, using the Aimed design: big title, color-block cards, pill buttons, and a tab bar docked to the bottom.
 
 ## Screens
 
@@ -18,7 +18,7 @@ Design tokens (colors, fonts) live in `src/lib/theme.ts`.
 
 ## How a decode works
 
-1. You pick a screenshot, or share one to Subtext from Instagram, Threads, or Photos.
+1. You pick a screenshot, or share one to Aimed from Instagram, Threads, or Photos.
 2. The app shrinks it on the phone, then you add optional context.
 3. It sends the image to the AWS decode service (`EXPO_PUBLIC_API_URL`) with a random install ID for the daily limit.
 4. The read is shown and saved to history on the phone only.
@@ -45,7 +45,7 @@ npx eas-cli@latest build --profile development --platform ios      # or android
 ## Build for the stores
 
 1. Deploy the backend (see `backend/README.md`) and put its URL in `eas.json` under `preview` and `production`.
-2. Replace the placeholder bundle ID `app.subtext.mobile` in `app.json` if you want a different one. It must match your Apple and Google listings and can't change after launch.
+2. Replace the placeholder bundle ID `app.aimed.mobile` in `app.json` if you want a different one. It must match your Apple and Google listings and can't change after launch.
 3. Build and submit:
 
 ```bash
@@ -71,7 +71,7 @@ The Plans screen sells one Pro plan, monthly or yearly, through RevenueCat (`src
 
 1. Once, when someone leaves their first real read. They've seen the value first.
 2. When the decode service says the free daily limit is used up. The plans open with "You've used today's free decodes."
-3. Any time from Home ("Subtext Pro") or About ("See plans and pricing").
+3. Any time from Home ("Aimed Pro") or About ("See plans and pricing").
 
 **Set up billing once your store accounts exist**
 

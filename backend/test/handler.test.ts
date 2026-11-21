@@ -10,7 +10,7 @@ const IMAGE = "A".repeat(200);
 function event(method: string, path: string, body?: unknown, headers: Record<string, string> = {}): LambdaFunctionURLEvent {
   return {
     rawPath: path,
-    headers: { "x-subtext-device": DEVICE, ...headers },
+    headers: { "x-aimed-device": DEVICE, ...headers },
     body: body === undefined ? undefined : JSON.stringify(body),
     isBase64Encoded: false,
     requestContext: { http: { method, sourceIp: "203.0.113.7" } },
@@ -25,7 +25,7 @@ test("health reports sample mode", async () => {
 });
 
 test("rejects a missing device id", async () => {
-  const out = await handler(event("POST", "/decode", { image: IMAGE, mediaType: "image/jpeg" }, { "x-subtext-device": "nope" }));
+  const out = await handler(event("POST", "/decode", { image: IMAGE, mediaType: "image/jpeg" }, { "x-aimed-device": "nope" }));
   assert.equal(out.statusCode, 400);
 });
 

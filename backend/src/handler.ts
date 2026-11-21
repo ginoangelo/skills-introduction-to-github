@@ -1,4 +1,4 @@
-// Subtext decode service. Runs as an AWS Lambda behind a function URL.
+// Aimed decode service. Runs as an AWS Lambda behind a function URL.
 // Nothing about a post is stored: the screenshot goes to the model once and the result goes back to the phone.
 import Anthropic from "@anthropic-ai/sdk";
 import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
@@ -63,8 +63,8 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<HttpResult
   if (method === "GET" && path === "/health") return json(200, { ok: true, mode: sampleMode() ? "sample" : "live" });
   if (method !== "POST" || (path !== "/decode" && path !== "/flag")) return json(404, { error: "Not found." });
 
-  const device = event.headers?.["x-subtext-device"] ?? "";
-  if (!DEVICE_RE.test(device)) return json(400, { error: "Update Subtext to the latest version and try again." });
+  const device = event.headers?.["x-aimed-device"] ?? "";
+  if (!DEVICE_RE.test(device)) return json(400, { error: "Update Aimed to the latest version and try again." });
 
   if (path === "/flag") return flag(event);
 
@@ -103,9 +103,9 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<HttpResult
   } catch (err) {
     const name = err instanceof Error ? err.message : "unknown";
     console.error(JSON.stringify({ event: "decode", ok: false, ms: Date.now() - started, error: err instanceof Anthropic.APIError ? `api_${err.status}` : name }));
-    if (name === "missing_key") return json(503, { error: "Subtext isn't fully set up yet. Try again later." });
-    if (err instanceof Anthropic.RateLimitError) return json(503, { error: "Subtext is busy right now. Try again in a minute." });
-    if (err instanceof Anthropic.APIError) return json(502, { error: "Subtext couldn't read that one. Try again." });
+    if (name === "missing_key") return json(503, { error: "Aimed isn't fully set up yet. Try again later." });
+    if (err instanceof Anthropic.RateLimitError) return json(503, { error: "Aimed is busy right now. Try again in a minute." });
+    if (err instanceof Anthropic.APIError) return json(502, { error: "Aimed couldn't read that one. Try again." });
     return json(500, { error: "Something went wrong decoding that screenshot. Try again." });
   }
 }

@@ -14,8 +14,8 @@ const path = require("path");
   const fps = 30;
   const root = path.resolve(__dirname);
   const html = path.join(root, "video", `${scene}.html`);
-  const out = path.join(root, "video", `subtext-${scene}-${seconds}s.mp4`);
-  const frames = fs.mkdtempSync(path.join(os.tmpdir(), `subtext-${scene}-`));
+  const out = path.join(root, "video", `aimed-${scene}-${seconds}s.mp4`);
+  const frames = fs.mkdtempSync(path.join(os.tmpdir(), `aimed-${scene}-`));
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });

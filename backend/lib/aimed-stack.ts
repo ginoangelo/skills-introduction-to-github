@@ -11,7 +11,7 @@ import type { Construct } from "constructs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-export interface SubtextStackProps extends StackProps {
+export interface AimedStackProps extends StackProps {
   /** Model used for decodes. */
   model?: string;
   /** Free decodes per device per day. */
@@ -24,8 +24,8 @@ export interface SubtextStackProps extends StackProps {
   reservedConcurrency?: number;
 }
 
-export class SubtextStack extends Stack {
-  constructor(scope: Construct, id: string, props: SubtextStackProps = {}) {
+export class AimedStack extends Stack {
+  constructor(scope: Construct, id: string, props: AimedStackProps = {}) {
     super(scope, id, props);
 
     // Daily usage counters. Items expire on their own after two days.
@@ -38,13 +38,13 @@ export class SubtextStack extends Stack {
 
     // The Anthropic API key. Set its value once after the first deploy (see backend/README.md).
     const apiKey = new secretsmanager.Secret(this, "AnthropicApiKey", {
-      secretName: "subtext/anthropic-api-key",
-      description: "Anthropic API key used by the Subtext decode service.",
+      secretName: "aimed/anthropic-api-key",
+      description: "Anthropic API key used by the Aimed decode service.",
     });
 
     // RevenueCat secret key, used to check who has Pro. Set its value after the first deploy.
     const rcKey = new secretsmanager.Secret(this, "RevenueCatSecretKey", {
-      secretName: "subtext/revenuecat-secret-key",
+      secretName: "aimed/revenuecat-secret-key",
       description: "RevenueCat secret API key, used by the decode service to check Pro subscriptions.",
     });
 
@@ -84,7 +84,7 @@ export class SubtextStack extends Stack {
       cors: {
         allowedOrigins: ["*"],
         allowedMethods: [lambda.HttpMethod.GET, lambda.HttpMethod.POST],
-        allowedHeaders: ["content-type", "x-subtext-device"],
+        allowedHeaders: ["content-type", "x-aimed-device"],
         maxAge: Duration.hours(1),
       },
     });
@@ -95,7 +95,7 @@ export class SubtextStack extends Stack {
       threshold: 5,
       evaluationPeriods: 1,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
-      alarmDescription: "Subtext decode function is failing.",
+      alarmDescription: "Aimed decode function is failing.",
     });
 
     new CfnOutput(this, "DecodeUrl", { value: url.url, description: "Put this in the app as EXPO_PUBLIC_API_URL (without the trailing slash)." });
