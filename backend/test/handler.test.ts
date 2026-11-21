@@ -69,3 +69,45 @@ test("Pro installs get the Pro daily cap", async () => {
   assert.equal(JSON.parse(over.body).code, "pro_limit");
   __setForTests({ proCheck: async () => false });
 });
+
+const READ = { literal: "A story that says 'some people only miss you when they need something'.", meaning: "A pointed post about one person.", verdict: "Possibly", reason: "Aimed at someone, unclear who.", context: "we argued", tone: "warm" };
+
+test("What now returns three options in order and allows one free a day", async () => {
+  __setForTests({ sample: true, limiter: new MemoryLimiter(), proCheck: async () => false });
+  const out = await handler(event("POST", "/whatnow", READ));
+  assert.equal(out.statusCode, 200);
+  const { result } = JSON.parse(out.body);
+  assert.deepEqual(result.options.map((o: { kind: string }) => o.kind), ["let_it_go", "check_in", "talk_it_through"]);
+  assert.equal(result.options[0].message, "");
+  assert.ok(result.options[1].message.length > 0);
+  const second = await handler(event("POST", "/whatnow", READ));
+  assert.equal(second.statusCode, 429);
+  assert.equal(JSON.parse(second.body).code, "whatnow_free_limit");
+});
+
+test("What now leads with let it go when the read is Unlikely, and Pro gets more", async () => {
+  __setForTests({ sample: true, limiter: new MemoryLimiter(), proCheck: async () => true });
+  for (let i = 0; i < 3; i++) {
+    const out = await handler(event("POST", "/whatnow", { ...READ, verdict: "Unlikely", tone: "light" }));
+    assert.equal(out.statusCode, 200);
+    assert.equal(JSON.parse(out.body).result.recommended, "let_it_go");
+  }
+  __setForTests({ proCheck: async () => false });
+});
+
+test("What now rejects refused reads and empty reads", async () => {
+  __setForTests({ sample: true, limiter: new MemoryLimiter() });
+  assert.equal((await handler(event("POST", "/whatnow", { ...READ, verdict: "Not read" }))).statusCode, 400);
+  assert.equal((await handler(event("POST", "/whatnow", { ...READ, literal: "", meaning: "" }))).statusCode, 400);
+});
+
+test("What now keeps exactly one option of each kind", async () => {
+  const { normalizeWhatNow } = await import("../src/whatnow.js");
+  const r = normalizeWhatNow({
+    refused: false, refusal_reason: "", headline: "h", recommended: "check_in",
+    options: [{ kind: "check_in", title: "", why: "w", message: "m" }, { kind: "let_it_go", title: "Go", why: "", message: "should be dropped" }],
+  });
+  assert.deepEqual(r.options.map((o) => o.kind), ["let_it_go", "check_in", "talk_it_through"]);
+  assert.equal(r.options[0].message, "");
+  assert.equal(r.options[1].title, "Check in privately");
+});

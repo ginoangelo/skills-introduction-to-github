@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
-import { VERDICTS, type DecodeResult } from "./types";
+import { exampleWhatNow } from "./example";
+import { VERDICTS, type DecodeResult, type Tone, type WhatNowKind, type WhatNowResult } from "./types";
 
 /** Set EXPO_PUBLIC_API_URL to the AWS decode URL. Without it the app runs in example mode. */
 export const API_URL = (process.env.EXPO_PUBLIC_API_URL || "").replace(/\/+$/, "");
@@ -62,6 +63,35 @@ export async function decodeScreenshot(base64: string, context: string, signal?:
     throw new DecodeError(code, body.error || "Something went wrong decoding that screenshot. Try again.");
   }
   return normalize(body.result as DecodeResult, context.length > 0);
+}
+
+const KINDS: WhatNowKind[] = ["let_it_go", "check_in", "talk_it_through"];
+
+/** "What now?": three calm next steps for a read. Sends the read's text, never the screenshot. */
+export async function getWhatNow(read: DecodeResult, context: string, tone: Tone, live: boolean): Promise<WhatNowResult> {
+  if (!live || !isLive) return exampleWhatNow(read.aimed_at_you.verdict, tone);
+  const id = await getDeviceId();
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/whatnow`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Aimed-Device": id },
+      body: JSON.stringify({ literal: read.literal, meaning: read.meaning, verdict: read.aimed_at_you.verdict, reason: read.aimed_at_you.reason, context, tone }),
+    });
+  } catch {
+    throw new DecodeError("network", "Couldn't reach Aimed. Check your connection and try again.");
+  }
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const code = typeof body.code === "string" ? body.code : res.status === 429 ? "rate_limited" : "server";
+    throw new DecodeError(code, body.error || "Couldn't get suggestions. Try again.");
+  }
+  const r = body.result as WhatNowResult;
+  return {
+    ...r,
+    recommended: KINDS.includes(r.recommended) ? r.recommended : "let_it_go",
+    options: Array.isArray(r.options) ? r.options.filter((o) => KINDS.includes(o.kind)) : [],
+  };
 }
 
 export type FlagReason = "wrong" | "offensive" | "biased" | "other";

@@ -161,7 +161,7 @@ Views alone don't matter much. A video with fewer views but lots of shares and "
 
 | Plan | Price |
 | --- | --- |
-| Free | 2 decodes a day |
-| Pro | $9.99 a month, or $34.99 a year with 3 days free |
+| Free | 2 decodes a day, plus 1 "What now?" |
+| Pro | 30 decodes a day and unlimited "What now?" for $9.99 a month, or $34.99 a year with 3 days free |
 
 Pro's whole-thread decodes, follow-up questions, and blurred sharing aren't built yet. Don't show or promise them until they ship.

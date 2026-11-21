@@ -24,9 +24,10 @@ The look is sunset, light touch: warm white background, violet as the lead color
 
 - **Phone app.** Home, decode with context chips, the result card, history with search, About, and the Plans screen with one Pro plan and a 3-day trial.
 - **Share sheet.** Screenshots can be shared to Aimed from Instagram, Threads, or Photos on iPhone and Android. The native projects generate correctly. It needs a real device build to try.
+- **"What now?"** After a read, three calm options (let it go, check in privately, talk it through) with copyable wording in a warm, direct, or light tone. It sends only the read's text, never the screenshot. Free gets 1 a day; Pro is unlimited, with a fair-use cap of 100 a day. It never writes comebacks or suggests replying in public, and it points to block, report, or a trusted person when a read suggests harassment.
 - **First-decode consent and "Flag this read."** Both stores expect these for AI features.
 - **AWS backend.** It enforces the free daily cap per install and per network, and logs no content.
-- **Checks run.** The backend passes 6 tests and builds a clean CloudFormation template. The app typechecks and was driven end to end in a phone-sized browser against the backend.
+- **Checks run.** The backend passes 11 tests and builds a clean CloudFormation template. The app typechecks and was driven end to end in a phone-sized browser against the backend.
 
 ## Next steps, in order
 

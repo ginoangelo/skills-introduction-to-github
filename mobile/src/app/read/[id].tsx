@@ -4,6 +4,7 @@ import { Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Clipboard from "expo-clipboard";
 import { ResultView } from "../../components/ResultView";
+import { WhatNow } from "../../components/WhatNow";
 import { Body, Empty, Pill, RoundButton, Screen, Title } from "../../components/ui";
 import { pickAndStart } from "../../lib/pick";
 import { flagRead, type FlagReason } from "../../lib/api";
@@ -71,6 +72,7 @@ export default function Read() {
         Your read
       </Title>
       {entry ? <ResultView entry={entry} /> : <Empty title="This read isn't available" text="It may have been deleted from your history." />}
+      {entry && !entry.result.refused && <WhatNow entry={entry} />}
       <View style={{ flexDirection: "row", gap: 10, marginTop: 24 }}>
         <View style={{ flex: 1 }}>
           <Pill kind="ghost" block label="Done" onPress={done} />

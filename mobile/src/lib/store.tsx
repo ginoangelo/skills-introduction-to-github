@@ -13,6 +13,7 @@ interface Store {
   /** Save a live decode to history. Example reads are kept in memory only. */
   addEntry: (entry: Entry) => void;
   removeEntry: (id: string) => void;
+  updateEntry: (id: string, patch: Partial<Entry>) => void;
   clearHistory: () => void;
   getEntry: (id: string) => Entry | undefined;
 }
@@ -64,6 +65,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [persist],
   );
 
+  const updateEntry = useCallback(
+    (id: string, patch: Partial<Entry>) => {
+      const temp1 = temp.current.get(id);
+      if (temp1) {
+        temp.current.set(id, { ...temp1, ...patch });
+        setRecent((prev) => [...prev]); // re-render readers of example entries
+        return;
+      }
+      setRecent((prev) => {
+        const next = prev.map((e) => (e.id === id ? { ...e, ...patch } : e));
+        persist(next);
+        return next;
+      });
+    },
+    [persist],
+  );
+
   const clearHistory = useCallback(() => {
     setRecent([]);
     persist([]);
@@ -72,8 +90,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const getEntry = useCallback((id: string) => recent.find((e) => e.id === id) ?? temp.current.get(id), [recent]);
 
   const value = useMemo(
-    () => ({ ready, recent, pending, setPending, addEntry, removeEntry, clearHistory, getEntry }),
-    [ready, recent, pending, addEntry, removeEntry, clearHistory, getEntry],
+    () => ({ ready, recent, pending, setPending, addEntry, removeEntry, updateEntry, clearHistory, getEntry }),
+    [ready, recent, pending, addEntry, removeEntry, updateEntry, clearHistory, getEntry],
   );
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

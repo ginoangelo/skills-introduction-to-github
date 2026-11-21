@@ -14,6 +14,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export interface AimedStackProps extends StackProps {
   /** Model used for decodes. */
   model?: string;
+  /** Model used for "What now?" suggestions. Defaults to the decode model. */
+  whatNowModel?: string;
   /** Free decodes per device per day. */
   freeDailyCap?: number;
   /** Pro decodes per device per day. */
@@ -60,6 +62,9 @@ export class AimedStack extends Stack {
         TABLE_NAME: usage.tableName,
         SECRET_ID: apiKey.secretArn,
         MODEL: props.model ?? "claude-opus-5-5",
+        WHATNOW_MODEL: props.whatNowModel ?? props.model ?? "claude-opus-5-5",
+        WHATNOW_FREE_CAP: "1",
+        WHATNOW_PRO_CAP: "100",
         RC_SECRET_ID: rcKey.secretArn,
         FREE_DAILY_CAP: String(props.freeDailyCap ?? 2),
         PRO_DAILY_CAP: String(props.proDailyCap ?? 30),

@@ -7,6 +7,7 @@ const reserved = app.node.tryGetContext("reservedConcurrency");
 new AimedStack(app, "Aimed", {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION ?? "us-east-1" },
   model: app.node.tryGetContext("model"),
+  whatNowModel: app.node.tryGetContext("whatNowModel"),
   freeDailyCap: Number(app.node.tryGetContext("freeDailyCap") ?? 2),
   proDailyCap: Number(app.node.tryGetContext("proDailyCap") ?? 30),
   ipDailyCap: Number(app.node.tryGetContext("ipDailyCap") ?? 100),

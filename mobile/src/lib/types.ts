@@ -17,6 +17,25 @@ export interface DecodeResult {
   other_readings: string[];
 }
 
+export type WhatNowKind = "let_it_go" | "check_in" | "talk_it_through";
+export type Tone = "warm" | "direct" | "light";
+
+export interface WhatNowOption {
+  kind: WhatNowKind;
+  title: string;
+  why: string;
+  /** What to send or say. Empty for "let it go". */
+  message: string;
+}
+
+export interface WhatNowResult {
+  refused: boolean;
+  refusal_reason: string;
+  headline: string;
+  recommended: WhatNowKind;
+  options: WhatNowOption[];
+}
+
 export interface Entry {
   id: string;
   when: string;
@@ -25,6 +44,8 @@ export interface Entry {
   context: string;
   mode: "live" | "example";
   result: DecodeResult;
+  /** The last "What now?" suggestions for this read, kept with it in history. */
+  whatnow?: { tone: Tone; result: WhatNowResult };
 }
 
 export interface PreparedImage {

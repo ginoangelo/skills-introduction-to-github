@@ -42,6 +42,7 @@ HOW IT WORKS
 - Add what happened (optional): One line like "we stopped talking last week" sharpens the read. Timing is often the strongest clue.
 - Get your read: What it says, what it means, and whether it's aimed at you: Likely, Possibly, Unlikely, or Not enough to tell.
 - See the evidence: Every read shows the exact words, songs, and timing it's based on, plus other ways to take it.
+- Decide what's next: Tap "What now?" for three calm options: let it go, check in privately, or talk it through, with words you can copy in a warm, direct, or light tone.
 - Keep your history: Past reads stay on your phone, searchable, and deletable in one tap.
 
 
@@ -54,8 +55,8 @@ WHAT MAKES AIMED DIFFERENT
 
 FREE AND PRO
 
-- Free: 2 decodes every day, with the full read and evidence.
-- Pro: 30 decodes a day. Choose monthly or yearly. The yearly plan starts with 3 days free. Cancel anytime in your store settings.
+- Free: 2 decodes every day, with the full read and evidence, plus one "What now?" a day.
+- Pro: 30 decodes a day and unlimited "What now?" next steps. Choose monthly or yearly. The yearly plan starts with 3 days free. Cancel anytime in your store settings.
 
 
 Aimed uses AI (Claude, by Anthropic) to read the screenshots you choose to share. It only sees what you share and can't access anyone's account. Reads are interpretations, not facts, and aren't professional advice. Aimed won't read screenshots of minors, sexual content, or private medical information.
@@ -82,7 +83,7 @@ Aimed uses AI (Claude, by Anthropic) to read the screenshots you choose to share
 
 - Their name, logo, screenshots, feature names ("Message Analyzer," "Tone Tuner," "Smart Reply"), and any of their sentences.
 - Weekly billing. Their own reviewers call it too expensive.
-- Reply-writing features. Their app helps you write. Aimed reads posts. That difference is your position.
+- A general reply writer. Their app helps you write anything. Aimed's "What now?" only follows a read, starts with "let it go," never writes comebacks, and never suggests replying in public. Reading posts stays the position.
 
 ## Source
 

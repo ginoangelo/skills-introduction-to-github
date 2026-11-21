@@ -6,11 +6,15 @@ import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { decodeScreenshot, SAMPLE_RESULT } from "./decode.js";
 import { revenueCatProCheck, type ProCheck } from "./entitlements.js";
 import { DynamoLimiter, MemoryLimiter, recordFlag, type Limiter } from "./limits.js";
+import { sampleWhatNow, TONES, whatNow, type Tone, type WhatNowInput } from "./whatnow.js";
 
 const FREE_DAILY_CAP = Number(process.env.FREE_DAILY_CAP || 2);
 const PRO_DAILY_CAP = Number(process.env.PRO_DAILY_CAP || 30);
 // Backstop for free decodes from one network. Kept generous because campuses and phone carriers share addresses.
 const IP_DAILY_CAP = Number(process.env.IP_DAILY_CAP || 100);
+// "What now?" suggestions. Free gets one a day; Pro's cap is a fair-use backstop, shown in the app as unlimited.
+const WHATNOW_FREE_CAP = Number(process.env.WHATNOW_FREE_CAP || 1);
+const WHATNOW_PRO_CAP = Number(process.env.WHATNOW_PRO_CAP || 100);
 const MAX_IMAGE_CHARS = 6_000_000; // about 4.5 MB of image after base64
 const MEDIA_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
 const FLAG_REASONS = ["wrong", "offensive", "biased", "other"] as const;
@@ -61,12 +65,13 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<HttpResult
   const path = event.rawPath.replace(/\/+$/, "") || "/";
 
   if (method === "GET" && path === "/health") return json(200, { ok: true, mode: sampleMode() ? "sample" : "live" });
-  if (method !== "POST" || (path !== "/decode" && path !== "/flag")) return json(404, { error: "Not found." });
+  if (method !== "POST" || (path !== "/decode" && path !== "/flag" && path !== "/whatnow")) return json(404, { error: "Not found." });
 
   const device = event.headers?.["x-aimed-device"] ?? "";
   if (!DEVICE_RE.test(device)) return json(400, { error: "Update Aimed to the latest version and try again." });
 
   if (path === "/flag") return flag(event);
+  if (path === "/whatnow") return whatNowRoute(event, device);
 
   let body: { image?: unknown; mediaType?: unknown; context?: unknown };
   try {
@@ -107,6 +112,57 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<HttpResult
     if (err instanceof Anthropic.RateLimitError) return json(503, { error: "Aimed is busy right now. Try again in a minute." });
     if (err instanceof Anthropic.APIError) return json(502, { error: "Aimed couldn't read that one. Try again." });
     return json(500, { error: "Something went wrong decoding that screenshot. Try again." });
+  }
+}
+
+function clip(v: unknown, max: number): string {
+  return typeof v === "string" ? v.trim().slice(0, max) : "";
+}
+
+/** "What now?": three calm next steps for a read. Gets the read's text only, never the screenshot. */
+async function whatNowRoute(event: LambdaFunctionURLEvent, device: string): Promise<HttpResult> {
+  let body: { literal?: unknown; meaning?: unknown; verdict?: unknown; reason?: unknown; context?: unknown; tone?: unknown };
+  try {
+    body = JSON.parse(event.isBase64Encoded ? Buffer.from(event.body ?? "", "base64").toString("utf8") : event.body ?? "");
+  } catch {
+    return json(400, { error: "The request couldn't be read. Try again." });
+  }
+  const verdict = VERDICTS.find((v) => v === body.verdict && v !== "Not read");
+  if (!verdict) return json(400, { error: "This read can't get suggestions." });
+  const input: WhatNowInput = {
+    literal: clip(body.literal, 1200),
+    meaning: clip(body.meaning, 1200),
+    verdict: verdict as WhatNowInput["verdict"],
+    reason: clip(body.reason, 600),
+    context: clip(body.context, 280),
+    tone: (TONES.find((t) => t === body.tone) ?? "warm") as Tone,
+  };
+  if (!input.literal && !input.meaning) return json(400, { error: "This read can't get suggestions." });
+
+  const ip = event.requestContext.http.sourceIp || "unknown";
+  const pro = await proCheck(device);
+  if (!pro && !(await limiter.take(`wnip#${ip}`, IP_DAILY_CAP))) {
+    return json(429, { error: "Too many requests from this network today. Try again tomorrow.", code: "network_limit" });
+  }
+  if (!(await limiter.take(`whatnow#${device}`, pro ? WHATNOW_PRO_CAP : WHATNOW_FREE_CAP))) {
+    return pro
+      ? json(429, { error: "You've hit today's fair-use limit for suggestions. It resets tomorrow.", code: "whatnow_pro_limit" })
+      : json(429, { error: `You've used today's free \u201cWhat now?\u201d Go Pro for unlimited next steps.`, code: "whatnow_free_limit" });
+  }
+
+  if (sampleMode()) return json(200, { mode: "sample", result: sampleWhatNow(input.verdict, input.tone) });
+
+  const started = Date.now();
+  try {
+    const result = await whatNow(await getClient(), input);
+    console.log(JSON.stringify({ event: "whatnow", ok: true, ms: Date.now() - started, refused: result.refused }));
+    return json(200, { mode: "live", result });
+  } catch (err) {
+    const name = err instanceof Error ? err.message : "unknown";
+    console.error(JSON.stringify({ event: "whatnow", ok: false, ms: Date.now() - started, error: err instanceof Anthropic.APIError ? `api_${err.status}` : name }));
+    if (name === "missing_key") return json(503, { error: "Aimed isn't fully set up yet. Try again later." });
+    if (err instanceof Anthropic.RateLimitError) return json(503, { error: "Aimed is busy right now. Try again in a minute." });
+    return json(502, { error: "Couldn't get suggestions. Try again." });
   }
 }
 

@@ -15,9 +15,10 @@ const PRO = {
   monthly: 9.99,
   yearly: 34.99,
   trialDays: 3,
-  features: ["30 decodes a day", "Decode whole comment threads, up to 10 screenshots", "Ask a follow-up about any read", "Share a read with names and faces blurred", "Copy and export clean summaries", "Faster decodes at busy times"],
+  // List only what ships. Add whole threads, follow-ups, and blurred sharing here when they're built.
+  features: ["30 decodes a day", "Unlimited \u201cWhat now?\u201d next steps after any read", "Everything in Free"],
 };
-const FREE_FEATURES = ["2 decodes a day", "The full read: meaning, aim, evidence", "History kept on your phone"];
+const FREE_FEATURES = ["2 decodes a day", "The full read: meaning, aim, evidence", "1 \u201cWhat now?\u201d a day", "History kept on your phone"];
 const money = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 const SAVE = Math.round((1 - PRO.yearly / (PRO.monthly * 12)) * 100);
 
@@ -42,13 +43,15 @@ export default function Plans() {
   const monthlyPrice = billing.prices.monthly ?? money(PRO.monthly);
   const yearlyPrice = billing.prices.annual ?? money(PRO.yearly);
 
-  const headline = from === "limit" ? "You've used today's free decodes" : "Read every post clearly";
+  const headline = from === "limit" ? "You've used today's free decodes" : from === "whatnow" ? "You've used today's free \u201cWhat now?\u201d" : "Read every post clearly";
   const lede =
     from === "limit"
       ? "Go Pro for 30 decodes a day, or come back tomorrow for 2 more free."
-      : from === "first-read"
-        ? "Liked that read? Go Pro for 30 decodes a day, whole threads, and sharing."
-        : "Start free. Go Pro when you decode often, need whole threads, or want to share a read.";
+      : from === "whatnow"
+        ? "Go Pro for unlimited next steps after any read, plus 30 decodes a day."
+        : from === "first-read"
+          ? "Liked that read? Go Pro for 30 decodes a day and unlimited next steps."
+          : "Start free. Go Pro when you decode often or want help deciding what to do next.";
 
   const subscribe = async () => {
     if (selected === "free") return router.back();
@@ -135,7 +138,7 @@ export default function Plans() {
         {billing.isPro && (
           <View style={{ marginTop: 14, borderRadius: 16, backgroundColor: t.mist, padding: 16 }}>
             <Text style={{ fontFamily: fonts.displayBold, fontSize: 16, color: t.ink }}>You're on Pro</Text>
-            <Body muted style={{ fontSize: 14 }}>30 decodes a day. Thanks for supporting Aimed.</Body>
+            <Body muted style={{ fontSize: 14 }}>30 decodes a day and unlimited next steps. Thanks for supporting Aimed.</Body>
           </View>
         )}
         <Text style={{ fontFamily: fonts.display, fontSize: 34, letterSpacing: -1.2, lineHeight: 38, color: t.ink, marginTop: 14 }}>{headline}</Text>
