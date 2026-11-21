@@ -26,8 +26,8 @@ const SCREENS = [
 ];
 
 const SIZES = {
-  tiktok: { w: 1080, h: 1920, pad: 96, top: 130, headSize: 96, subSize: 40, phoneW: 600, phoneTop: 620, out: "tiktok" },
-  instagram: { w: 1080, h: 1350, pad: 80, top: 84, headSize: 74, subSize: 34, phoneW: 500, phoneTop: 420, out: "instagram" },
+  tiktok: { w: 1080, h: 1920, pad: 96, top: 130, headSize: 96, subSize: 40, phoneW: 600, bottom: 90, out: "tiktok" },
+  instagram: { w: 1080, h: 1350, pad: 80, top: 84, headSize: 74, subSize: 34, phoneW: 500, bottom: 64, out: "instagram" },
 };
 
 function page(screen, size) {
@@ -68,6 +68,17 @@ function page(screen, size) {
       fs.writeFileSync(file, page(screen, size));
       await tab.goto("file://" + file, { waitUntil: "load" });
       await tab.evaluate(() => document.fonts.ready);
+      // Shrink the phone, if needed, so the whole phone fits above the bottom margin.
+      await tab.evaluate((bottom) => {
+        const phone = document.querySelector(".phone");
+        const border = 36;
+        const room = window.innerHeight - bottom - phone.getBoundingClientRect().top;
+        const h = Math.min(phone.offsetHeight, room);
+        const w = Math.round((h - border) * (780 / 1688)) + border;
+        phone.style.height = h + "px";
+        phone.style.width = w + "px";
+        phone.style.borderRadius = Math.round(w * 0.13) + "px";
+      }, size.bottom);
       await tab.waitForTimeout(100);
       await tab.screenshot({ path: path.join(outDir, `aimed-${size.out}-${screen.id}.png`) });
       fs.unlinkSync(file);
