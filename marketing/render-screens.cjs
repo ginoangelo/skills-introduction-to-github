@@ -22,6 +22,7 @@ const SCREENS = [
   { id: "06-history", src: "light-09-history.png", head: "Every read, one tap away.", sub: "Search your history any time.", bg: "#7a3ed6", ink: "#ffffff" },
   { id: "07-about", src: "light-10-about.png", head: "Reads posts, not people.", sub: "No labels. Honest when there's not enough to tell.", bg: "#1b1320", ink: "#ffffff" },
   { id: "08-pro", src: "light-07-paywall-after-first-read.png", head: "2 free decodes a day.", sub: "Go Pro for 30 a day. Yearly starts with 3 days free.", bg: "#fff0bf", ink: "#1b1320" },
+  { id: "10-what-now", src: "light-13-what-now.png", head: "Not sure what to do next?", sub: "Three calm options, with words you can copy.", bg: "#7a3ed6", ink: "#ffffff" },
   { id: "09-dark-mode", src: "dark-03-your-read.png", head: "Easy on the eyes at 3 a.m.", sub: "Dark mode, built in.", bg: "#120d16", ink: "#ffffff" },
 ];
 

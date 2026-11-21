@@ -124,7 +124,7 @@ To change wording or timing, edit the scene's `.html` file in `video/` and run `
 
 ## Single app screens for posts
 
-Nine app screens, each with a headline, in two sizes. Post them as carousels, stories, or between videos.
+Ten app screens, each with a headline, in two sizes. Post them as carousels, stories, or between videos.
 
 | Folder | Size | Use it for |
 | --- | --- | --- |

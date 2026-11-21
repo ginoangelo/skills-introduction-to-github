@@ -17,6 +17,7 @@ Captured 2026-11-21 at iPhone size (390 x 844, shown at 2x).
 | `light-10-about.png` | About: principles and privacy |
 | `light-11-paywall-free-limit.png` | Paywall at the free daily limit |
 | `light-12-plans-monthly.png` | Plans with monthly selected |
+| `light-13-what-now.png` | "What now?" options after a read (example) |
 | `dark-01-home.png`, `dark-02-add-context.png`, `dark-03-your-read.png` | The same screens in dark mode |
 
 ## Web pages (`web/`)
