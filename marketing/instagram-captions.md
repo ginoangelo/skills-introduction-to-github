@@ -375,3 +375,24 @@ free to try. link in bio ↓
 
 #overthinking #isthisaboutme #overthinker #delulu #aimedapp
 ```
+
+### The coworker read (AI clip)
+
+Made from prompt 8 in [`ai-video-prompts.md`](ai-video-prompts.md). Add "POV: your coworker just posted this 👀" on screen, then the "Your read" screenshot for 3 seconds. Turn on Instagram's AI label.
+
+```
+when your coworker posts "some people need to learn to stay in their lane" 🙃
+…one hour after the meeting where you disagreed with them. 👀
+
+you: re-reading it at your desk. lips pressed together. 😶
+also you: pretending to answer emails. 💻
+
+was it about you? or just a long day? 🤔
+screenshot it. Aimed reads between the lines and tells you what it really means. 📲
+
+no drama at work. just clarity. 🤍
+
+free to try. link in bio ↓
+
+#workdrama #coworkers #isthisaboutme #vaguepost #aimedapp
+```
