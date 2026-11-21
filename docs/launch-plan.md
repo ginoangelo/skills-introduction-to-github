@@ -45,6 +45,16 @@ The look is sunset, light touch: warm white background, violet as the lead color
 
 Start recruiting Android testers now. The 14-day closed test is the step most likely to slow launch.
 
+## First update after launch
+
+Fewer taps from seeing a post to getting the read. Aimed can't read anyone's feed automatically: the social apps and phones don't allow it, scraping gets users banned and the app rejected, and it would feel like stalkerware. These get close without any of that.
+
+| # | Feature | What it does | Time |
+| --- | --- | --- | --- |
+| 1 | Decode your latest screenshot | When Aimed opens, it shows the newest screenshot with a one-tap Decode button. Needs photo access | About 1 day |
+| 2 | Back Tap shortcut (iPhone) | Double-tap the back of the phone to screenshot and send it straight to Aimed. Teach the setup in a TikTok video | A few days |
+| 3 | Helpful notifications | "Your read is ready," plus an optional evening check-in. Off by default, nothing about other people | 1 to 2 days |
+
 ## Marketing ideas
 
 **The hook.** "Is this post about you?" Everyone has asked it, and the answer arrives in seconds.
