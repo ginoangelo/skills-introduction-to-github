@@ -133,6 +133,8 @@ Ten app screens, each with a headline, in two sizes. Post them as carousels, sto
 
 To change a headline or add a screen, edit the list at the top of `render-screens.cjs` and run `node marketing/render-screens.cjs`.
 
+**Pinned overview post.** `social/instagram/aimed-instagram-00-overview.png` shows everything in one image: the three steps, Free and Pro pricing, and privacy. Pin it to the top of your Instagram profile so new visitors get the whole story. To change it, edit and run `render-overview.cjs`.
+
 ## Step 4: Rollout
 
 | Week | Post | Goal |
