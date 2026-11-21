@@ -1,0 +1,85 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Aimed: What now?</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  #stage { background: #fff0bf; }
+  #read { position: absolute; left: 70px; right: 70px; top: 520px; opacity: 0; }
+  #tap { position: absolute; left: 50%; top: 1060px; transform: translateX(-50%); background: #1b1320; color: #fff; font-family: Jakarta; font-weight: 800; font-size: 56px; padding: 30px 64px; border-radius: 999px; letter-spacing: -1px; opacity: 0; white-space: nowrap; }
+  #tones { position: absolute; left: 70px; right: 70px; top: 330px; display: flex; gap: 16px; opacity: 0; }
+  #tones span { border-radius: 999px; padding: 16px 34px; font-weight: 600; font-size: 32px; background: #fff; border: 3px solid #eadcc6; color: #1b1320; }
+  #tones span.on { background: #1b1320; border-color: #1b1320; color: #fff; }
+  #opts { position: absolute; left: 70px; right: 70px; top: 440px; display: flex; flex-direction: column; gap: 24px; }
+  .opt { background: #fff; border-radius: 34px; padding: 30px 34px; border: 3px solid #eee3da; opacity: 0; box-shadow: 0 14px 40px rgba(80, 40, 20, .10); }
+  .opt.best { border: 5px solid #7a3ed6; }
+  .opt .head { display: flex; justify-content: space-between; align-items: center; }
+  .opt h3 { font-family: Jakarta; font-weight: 800; font-size: 44px; letter-spacing: -1px; }
+  .opt .badge { background: #7a3ed6; color: #fff; font-weight: 600; font-size: 26px; padding: 8px 20px; border-radius: 999px; }
+  .opt p { font-size: 30px; line-height: 1.35; color: #6a5f6f; margin-top: 10px; }
+  .msg { margin-top: 20px; background: #f2eaff; border-radius: 24px; padding: 24px 26px; }
+  .msg .text { font-size: 34px; line-height: 1.35; font-weight: 500; color: #1b1320; }
+  .msg .copy { margin-top: 14px; color: #7a3ed6; font-weight: 600; font-size: 30px; }
+</style></head>
+<body>
+<div id="stage">
+  <div class="title" id="title">You got the read.<br>Now what?<small>Don't overthink the reply.</small></div>
+  <div id="read">
+    <div class="verdict">
+      <div class="eyebrow">STORY POST</div>
+      <div class="q">Aimed at you?</div>
+      <div class="word">Possibly</div>
+      <div class="bars"><span class="on"></span><span class="on"></span><span></span></div>
+      <div class="labels"><span>Unlikely</span><span class="on">Possibly</span><span>Likely</span></div>
+      <div class="reason">It's clearly aimed at someone, but there's no way to tell from the screenshot alone whether that someone is you.</div>
+    </div>
+  </div>
+  <div id="tap">What now?</div>
+  <div id="tones"><span id="tWarm" class="on">Warm</span><span id="tDirect">Direct</span><span id="tLight">Light</span></div>
+  <div id="opts">
+    <div class="opt" id="o1"><div class="head"><h3>Let it go</h3></div><p>Vague posts are often about a mood, not a person.</p></div>
+    <div class="opt best" id="o2">
+      <div class="head"><h3>Check in privately</h3><span class="badge">Best fit</span></div>
+      <p>Clears it up without assuming it's about you.</p>
+      <div class="msg"><div class="text" id="msg"></div><div class="copy" id="copy">Copy</div></div>
+    </div>
+    <div class="opt" id="o3"><div class="head"><h3>Talk it through</h3></div><p>If something real happened, talking beats guessing.</p></div>
+  </div>
+  <div id="caption"><span id="captionText"></span></div>
+  <div id="note">Example read, made up for this video.</div>
+</div>
+<script src="shared.js"></script>
+<script>
+  $("stage").insertAdjacentHTML("beforeend", END_CARD);
+  const WARM = "“Hey, saw your story. Everything good with us? No pressure, just checking in.”";
+  const LIGHT = "“Saw your story. We good?”";
+  window.render = function (t) {
+    $("stage").style.opacity = ease(seg(t, 0, 0.4));
+    $("title").style.opacity = ease(seg(t, 0.1, 0.6)) * (1 - seg(t, 4.0, 4.4));
+    // The read slides in, then steps aside.
+    const rIn = pop(seg(t, 0.9, 1.6));
+    const rOut = ease(seg(t, 4.0, 4.5));
+    $("read").style.opacity = seg(t, 0.9, 1.2) * (1 - rOut);
+    $("read").style.transform = `translateY(${(1 - rIn) * 120 - rOut * 80}px) scale(${1 - 0.1 * rOut})`;
+    // The "What now?" button appears and gets tapped.
+    const press = seg(t, 3.3, 3.45) - seg(t, 3.45, 3.65);
+    $("tap").style.opacity = ease(seg(t, 2.2, 2.6)) * (1 - seg(t, 3.9, 4.2));
+    $("tap").style.transform = `translateX(-50%) scale(${pop(seg(t, 2.2, 2.7)) - 0.08 * press})`;
+    // Three options, one at a time.
+    ["o1", "o2", "o3"].forEach((id, i) => {
+      const a = 4.5 + i * 0.5;
+      $(id).style.opacity = seg(t, a, a + 0.3);
+      $(id).style.transform = `translateY(${(1 - pop(seg(t, a, a + 0.6))) * 60}px)`;
+    });
+    // Tone chips, then a switch from Warm to Light.
+    $("tones").style.opacity = ease(seg(t, 7.0, 7.4));
+    const light = t >= 8.4;
+    $("tWarm").className = light ? "" : "on";
+    $("tLight").className = light ? "on" : "";
+    $("msg").textContent = light ? LIGHT : WARM;
+    $("msg").style.opacity = light ? ease(seg(t, 8.4, 8.8)) : 1;
+    $("copy").textContent = t >= 9.6 ? "✓ Copied" : "Copy";
+    captions(t, [[1.8, 3.9, "Still not sure what to do?"], [4.8, 7.0, "Three calm options."], [7.2, 9.6, "Pick a tone. Copy the words."], [9.8, 11.7, "No comebacks. No drama."]]);
+    endCard(t, 11.8);
+  };
+  window.render(0);
+</script>
+</body></html>

@@ -110,7 +110,7 @@ Check prices when you sign up. AI tools change fast.
 
 ## Ready-made videos
 
-Five 15-second videos are in [`video/`](video/), built from the Aimed brand and app screens. They're silent, so add a trending sound in TikTok or CapCut before posting.
+Six 15-second videos are in [`video/`](video/), built from the Aimed brand and app screens. They're 1080 x 1920, so they work as TikToks, Instagram Reels, and Stories. They're silent, so add a trending sound in the app or in CapCut before posting.
 
 | File | Idea from the list above |
 | --- | --- |
@@ -119,6 +119,7 @@ Five 15-second videos are in [`video/`](video/), built from the Aimed brand and 
 | `aimed-group-chat-15s.mp4` | 6. The group chat skit |
 | `aimed-song-captions-15s.mp4` | 4. Song caption decoder |
 | `aimed-privacy-15s.mp4` | 11. Is it creepy? FAQ |
+| `aimed-what-now-15s.mp4` | New: shows "What now?" (three calm options, pick a tone, copy the words) |
 
 To change wording or timing, edit the scene's `.html` file in `video/` and run `node marketing/render-video.cjs <scene-name> 15` (needs Playwright and ffmpeg).
 
