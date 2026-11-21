@@ -122,6 +122,17 @@ Five 15-second videos are in [`video/`](video/), built from the Aimed brand and 
 
 To change wording or timing, edit the scene's `.html` file in `video/` and run `node marketing/render-video.cjs <scene-name> 15` (needs Playwright and ffmpeg).
 
+## Single app screens for posts
+
+Nine app screens, each with a headline, in two sizes. Post them as carousels, stories, or between videos.
+
+| Folder | Size | Use it for |
+| --- | --- | --- |
+| [`social/tiktok/`](social/tiktok/) | 1080 x 1920 (9:16) | TikTok, Instagram Reels and Stories |
+| [`social/instagram/`](social/instagram/) | 1080 x 1350 (4:5) | Instagram feed posts and carousels |
+
+To change a headline or add a screen, edit the list at the top of `render-screens.cjs` and run `node marketing/render-screens.cjs`.
+
 ## Step 4: Rollout
 
 | Week | Post | Goal |
