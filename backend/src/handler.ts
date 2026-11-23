@@ -6,6 +6,7 @@ import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { decodeScreenshot, SAMPLE_RESULT } from "./decode.js";
 import { revenueCatProCheck, type ProCheck } from "./entitlements.js";
 import { DynamoLimiter, MemoryLimiter, recordFlag, type Limiter } from "./limits.js";
+import { cleanEmail, DynamoWaitlist, MemoryWaitlist, type WaitlistStore } from "./waitlist.js";
 import { sampleWhatNow, TONES, whatNow, type Tone, type WhatNowInput } from "./whatnow.js";
 
 const FREE_DAILY_CAP = Number(process.env.FREE_DAILY_CAP || 2);
@@ -22,13 +23,15 @@ const VERDICTS = ["Likely", "Possibly", "Unlikely", "Not enough to tell", "Not r
 const DEVICE_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 let limiter: Limiter = process.env.TABLE_NAME ? new DynamoLimiter(process.env.TABLE_NAME) : new MemoryLimiter();
+let waitlist: WaitlistStore = process.env.WAITLIST_TABLE ? new DynamoWaitlist(process.env.WAITLIST_TABLE) : new MemoryWaitlist();
 let client: Anthropic | null = null;
 let sampleOverride: boolean | null = null;
 let proCheck: ProCheck = revenueCatProCheck;
 
 /** Test hook: swap the limiter, the Pro check, or force sample mode. */
-export function __setForTests(opts: { limiter?: Limiter; sample?: boolean; proCheck?: ProCheck }) {
+export function __setForTests(opts: { limiter?: Limiter; sample?: boolean; proCheck?: ProCheck; waitlist?: WaitlistStore }) {
   if (opts.limiter) limiter = opts.limiter;
+  if (opts.waitlist) waitlist = opts.waitlist;
   if (opts.proCheck) proCheck = opts.proCheck;
   if (opts.sample !== undefined) sampleOverride = opts.sample;
 }
@@ -62,9 +65,11 @@ function json(statusCode: number, body: unknown): HttpResult {
 
 export async function handler(event: LambdaFunctionURLEvent): Promise<HttpResult> {
   const method = event.requestContext.http.method;
-  const path = event.rawPath.replace(/\/+$/, "") || "/";
+  // The landing page reaches this function through CloudFront at /api/..., the app calls it directly.
+  const path = event.rawPath.replace(/\/+$/, "").replace(/^\/api(?=\/)/, "") || "/";
 
   if (method === "GET" && path === "/health") return json(200, { ok: true, mode: sampleMode() ? "sample" : "live" });
+  if (method === "POST" && path === "/waitlist") return joinWaitlist(event);
   if (method !== "POST" || (path !== "/decode" && path !== "/flag" && path !== "/whatnow")) return json(404, { error: "Not found." });
 
   const device = event.headers?.["x-aimed-device"] ?? "";
@@ -112,6 +117,37 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<HttpResult
     if (err instanceof Anthropic.RateLimitError) return json(503, { error: "Aimed is busy right now. Try again in a minute." });
     if (err instanceof Anthropic.APIError) return json(502, { error: "Aimed couldn't read that one. Try again." });
     return json(500, { error: "Something went wrong decoding that screenshot. Try again." });
+  }
+}
+
+/** The visitor's address. Behind CloudFront, sourceIp is CloudFront's, so use the header CloudFront sets. */
+function viewerIp(event: LambdaFunctionURLEvent): string {
+  const viewer = event.headers?.["cloudfront-viewer-address"];
+  if (viewer) return viewer.slice(0, viewer.lastIndexOf(":")) || viewer;
+  return event.requestContext.http.sourceIp || "unknown";
+}
+
+/** Landing page signup. Answers the same way whether or not the email was already on the list. */
+async function joinWaitlist(event: LambdaFunctionURLEvent): Promise<HttpResult> {
+  let body: { email?: unknown; source?: unknown; website?: unknown };
+  try {
+    body = JSON.parse(event.isBase64Encoded ? Buffer.from(event.body ?? "", "base64").toString("utf8") : event.body ?? "");
+  } catch {
+    return json(400, { error: "Something went wrong. Try again." });
+  }
+  // Hidden field that people never see. Bots fill it in; pretend it worked.
+  if (typeof body.website === "string" && body.website.trim()) return json(200, { ok: true });
+  const email = cleanEmail(body.email);
+  if (!email) return json(400, { error: "That email doesn't look right. Check it and try again." });
+  const source = typeof body.source === "string" ? body.source.replace(/[^\w.-]/g, "").slice(0, 40) : "";
+  if (!(await limiter.take(`wlip#${viewerIp(event)}`, 20))) return json(429, { error: "Too many signups from this network today. Try again tomorrow." });
+  try {
+    const added = await waitlist.add(email, source);
+    console.log(JSON.stringify({ event: "waitlist", ok: true, added }));
+    return json(200, { ok: true });
+  } catch (err) {
+    console.error(JSON.stringify({ event: "waitlist", ok: false, error: err instanceof Error ? err.name : "unknown" }));
+    return json(500, { error: "Couldn't add you just now. Try again in a minute." });
   }
 }
 

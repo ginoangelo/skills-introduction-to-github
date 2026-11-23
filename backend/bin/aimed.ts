@@ -12,5 +12,7 @@ new AimedStack(app, "Aimed", {
   proDailyCap: Number(app.node.tryGetContext("proDailyCap") ?? 30),
   ipDailyCap: Number(app.node.tryGetContext("ipDailyCap") ?? 100),
   reservedConcurrency: reserved ? Number(reserved) : undefined,
+  domainName: app.node.tryGetContext("domainName"),
+  certificateArn: app.node.tryGetContext("certificateArn"),
   description: "Aimed decode service: screenshot in, decoded read out. Stores no post content.",
 });

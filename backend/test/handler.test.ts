@@ -111,3 +111,27 @@ test("What now keeps exactly one option of each kind", async () => {
   assert.equal(r.options[0].message, "");
   assert.equal(r.options[1].title, "Check in privately");
 });
+
+test("waitlist adds an email once, from the app or through /api, and ignores bots", async () => {
+  const { MemoryWaitlist } = await import("../src/waitlist.js");
+  const list = new MemoryWaitlist();
+  __setForTests({ limiter: new MemoryLimiter(), waitlist: list });
+  const noDevice = { "x-aimed-device": "" };
+  assert.equal((await handler(event("POST", "/api/waitlist", { email: " Maya@Example.com ", source: "instagram" }, noDevice))).statusCode, 200);
+  assert.equal((await handler(event("POST", "/waitlist", { email: "maya@example.com" }, noDevice))).statusCode, 200);
+  assert.equal(list.emails.size, 1);
+  assert.equal(list.emails.get("maya@example.com")?.source, "instagram");
+  assert.equal((await handler(event("POST", "/api/waitlist", { email: "bot@spam.com", website: "http://spam" }, noDevice))).statusCode, 200);
+  assert.equal(list.emails.has("bot@spam.com"), false);
+  assert.equal((await handler(event("POST", "/api/waitlist", { email: "not-an-email" }, noDevice))).statusCode, 400);
+});
+
+test("waitlist limits signups per visitor address", async () => {
+  const { MemoryWaitlist } = await import("../src/waitlist.js");
+  __setForTests({ limiter: new MemoryLimiter(), waitlist: new MemoryWaitlist() });
+  const h = { "x-aimed-device": "", "cloudfront-viewer-address": "198.51.100.4:51234" };
+  for (let i = 0; i < 20; i++) assert.equal((await handler(event("POST", "/api/waitlist", { email: `p${i}@example.com` }, h))).statusCode, 200);
+  assert.equal((await handler(event("POST", "/api/waitlist", { email: "p21@example.com" }, h))).statusCode, 429);
+  const other = { ...h, "cloudfront-viewer-address": "198.51.100.9:443" };
+  assert.equal((await handler(event("POST", "/api/waitlist", { email: "p22@example.com" }, other))).statusCode, 200);
+});

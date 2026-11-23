@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aimed: Is This About Me?</title>
+<meta name="description" content="Screenshot any post, story, or caption. Aimed tells you what it means, whether it's aimed at you, and what to do next. Join the waitlist.">
+<meta property="og:title" content="Aimed: Is this post about you?">
+<meta property="og:description" content="Screenshot it. Aimed reads between the lines. Join the waitlist.">
+<meta property="og:image" content="img/og.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#7a3ed6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%237a3ed6'/%3E%3Crect x='14' y='20' width='36' height='8' rx='4' fill='%23fff'/%3E%3Crect x='14' y='36' width='22' height='8' rx='4' fill='%23ffb48a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #fffaf6; --surface: #ffffff; --surface2: #f6efe9; --ink: #1b1320; --ink2: #6a5f6f; --line: #eee3da;
+    --brand: #7a3ed6; --brand-deep: #5e2bb0; --peach: #ffe3d3; --butter: #fff0bf; --mist: #f2eaff; --accent: #ffb48a;
+    --radius: 24px; --max: 1080px;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font: 400 17px/1.55 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: inherit; }
+  h1, h2, h3, .display { font-family: "Plus Jakarta Sans", Inter, sans-serif; letter-spacing: -0.035em; line-height: 1.05; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; color: var(--brand); background: var(--mist); border-radius: 999px; padding: 6px 14px; }
+  .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
+
+  /* Nav */
+  nav { position: sticky; top: 0; z-index: 10; background: rgba(255, 250, 246, .86); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px); border-bottom: 1px solid transparent; }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 800 24px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: -0.04em; text-decoration: none; }
+  .mark { width: 34px; height: 34px; border-radius: 10px; background: var(--brand); position: relative; flex: none; }
+  .mark::before, .mark::after { content: ""; position: absolute; left: 8px; height: 5px; border-radius: 3px; }
+  .mark::before { top: 11px; width: 18px; background: #fff; }
+  .mark::after { top: 19px; width: 11px; background: var(--accent); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; border: 0; cursor: pointer; text-decoration: none; font: 600 16px/1 Inter, sans-serif; border-radius: 999px; padding: 14px 22px; background: var(--ink); color: #fff; transition: transform .15s ease, background .15s ease; white-space: nowrap; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+  nav .btn { padding: 11px 18px; font-size: 15px; }
+
+  /* Hero */
+  body { overflow-x: hidden; }
+  .hero { overflow-x: clip; padding: 40px 0 56px; background: radial-gradient(120% 70% at 85% 0%, var(--peach) 0%, transparent 60%), radial-gradient(90% 60% at 0% 10%, var(--butter) 0%, transparent 55%); }
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: center; }
+  .hero h1 { font-size: clamp(46px, 11vw, 84px); font-weight: 800; margin-top: 18px; }
+  .hero .lede { margin-top: 18px; font-size: clamp(18px, 2.4vw, 21px); color: var(--ink2); max-width: 520px; }
+  .phones { position: relative; height: 430px; }
+  .phone { position: absolute; width: 196px; border-radius: 34px; border: 9px solid var(--ink); overflow: hidden; background: #fff; box-shadow: 0 30px 70px rgba(40, 10, 50, .22); }
+  .phone img { width: 100%; }
+  .phones .p1 { left: 50%; top: 0; transform: translateX(-80%) rotate(-5deg); }
+  .phones .p2 { left: 50%; top: 40px; transform: translateX(-12%) rotate(5deg); }
+
+  /* Signup form */
+  .signup { margin-top: 28px; max-width: 480px; }
+  .field { display: flex; gap: 8px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px; box-shadow: 0 10px 30px rgba(80, 40, 20, .08); }
+  .field input[type=email] { flex: 1; min-width: 0; border: 0; background: transparent; font: 500 17px Inter, sans-serif; color: var(--ink); padding: 0 14px; outline: none; }
+  .field input::placeholder { color: #a399a6; }
+  .field .btn { background: var(--brand); padding: 14px 18px; }
+  .field .btn:hover { background: var(--brand-deep); }
+  .field .btn[disabled] { opacity: .6; cursor: default; transform: none; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .fine { margin-top: 12px; font-size: 14px; color: var(--ink2); }
+  .msg { margin-top: 12px; font-size: 15px; font-weight: 500; min-height: 1px; }
+  .msg.error { color: #c0392b; }
+  .done { margin-top: 28px; max-width: 480px; background: var(--surface); border-radius: var(--radius); padding: 22px 24px; box-shadow: 0 10px 30px rgba(80, 40, 20, .08); }
+  .done strong { display: block; font: 800 22px/1.2 "Plus Jakarta Sans", sans-serif; letter-spacing: -0.02em; }
+  .done p { margin-top: 6px; color: var(--ink2); }
+
+  /* Sections */
+  section { padding: 72px 0; }
+  .head { max-width: 640px; }
+  .head h2 { font-size: clamp(34px, 6vw, 52px); font-weight: 800; }
+  .head p { margin-top: 14px; color: var(--ink2); font-size: 18px; }
+  .steps { margin-top: 40px; display: grid; gap: 20px; }
+  .step { background: var(--surface); border-radius: 28px; padding: 26px 26px 0; overflow: hidden; display: flex; flex-direction: column; }
+  .step:nth-child(1) { background: var(--butter); } .step:nth-child(2) { background: var(--mist); } .step:nth-child(3) { background: var(--peach); }
+  .num { width: 36px; height: 36px; border-radius: 50%; background: var(--brand); color: #fff; font: 800 17px/36px "Plus Jakarta Sans", sans-serif; text-align: center; }
+  .step h3 { margin-top: 16px; font-size: 26px; font-weight: 800; }
+  .step p { margin-top: 8px; color: var(--ink2); }
+  .step .shot { margin: 24px auto 0; width: 220px; border-radius: 28px 28px 0 0; border: 8px solid var(--ink); border-bottom: 0; overflow: hidden; height: 300px; }
+
+  .features { margin-top: 40px; display: grid; gap: 16px; }
+  .feature { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .feature .icon { font-size: 26px; line-height: 1; }
+  .feature h3 { margin-top: 14px; font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+  .feature p { margin-top: 6px; color: var(--ink2); font-size: 16px; }
+
+  .plans { margin-top: 40px; display: grid; gap: 16px; }
+  .plan { border-radius: 28px; padding: 28px; background: var(--surface); border: 1px solid var(--line); }
+  .plan.pro { background: var(--brand); color: #fff; border: 0; }
+  .plan .name { font: 800 22px/1 "Plus Jakarta Sans", sans-serif; }
+  .plan .price { margin-top: 16px; font: 800 44px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: -0.04em; }
+  .plan .price small { font: 500 16px Inter, sans-serif; letter-spacing: 0; opacity: .8; }
+  .plan .alt { margin-top: 8px; font-size: 15px; opacity: .85; }
+  .plan ul { margin-top: 18px; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .plan li { padding-left: 28px; position: relative; }
+  .plan li::before { content: "✓"; position: absolute; left: 0; font-weight: 700; color: var(--brand); }
+  .plan.pro li::before { color: var(--accent); }
+  .tag { display: inline-block; margin-left: 8px; vertical-align: middle; background: var(--butter); color: var(--ink); font: 600 12px/1 Inter, sans-serif; padding: 6px 10px; border-radius: 999px; letter-spacing: 0; }
+
+  .faq { margin-top: 32px; display: grid; gap: 12px; max-width: 760px; }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 0 22px; }
+  summary { cursor: pointer; list-style: none; padding: 20px 0; font-weight: 600; font-size: 17px; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-size: 22px; line-height: 1; color: var(--brand); transition: transform .2s ease; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { padding: 0 0 20px; color: var(--ink2); }
+
+  .final { background: var(--brand); color: #fff; border-radius: 36px; padding: 52px 26px; text-align: center; }
+  .final .cryptic { font: 700 clamp(26px, 5vw, 40px)/1.15 "Plus Jakarta Sans", sans-serif; letter-spacing: -0.03em; }
+  .final .cryptic span { display: block; opacity: .7; }
+  .final p.sub { margin-top: 16px; opacity: .85; }
+  .final .signup, .final .done { margin-left: auto; margin-right: auto; }
+  .final .field { border-color: transparent; }
+  .final .field .btn { background: var(--ink); }
+  .final .fine { color: rgba(255, 255, 255, .8); }
+  .final .msg.error { color: #ffd2c8; }
+  .final .done { color: var(--ink); text-align: left; }
+
+  footer { padding: 40px 0 56px; color: var(--ink2); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
+
+  @media (min-width: 760px) {
+    .hero { padding: 72px 0 96px; }
+    .hero .wrap { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); }
+    .phones { height: 560px; }
+    .phone { width: 260px; }
+    .steps { grid-template-columns: repeat(3, 1fr); }
+    .features { grid-template-columns: repeat(2, 1fr); }
+    .plans { grid-template-columns: 1fr 1fr; max-width: 820px; }
+    section { padding: 96px 0; }
+    .final { padding: 72px 48px; }
+  }
+  @media (min-width: 1000px) { .features { grid-template-columns: repeat(4, 1fr); } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+</style>
+</head>
+<body>
+
+<nav aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Aimed home"><span class="mark" aria-hidden="true"></span>Aimed</a>
+    <a class="btn" href="#join">Join the waitlist</a>
+  </div>
+</nav>
+
+<main id="top">
+  <header class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">Coming soon to iPhone and Android</span>
+        <h1>Is this post about you?</h1>
+        <p class="lede">Screenshot any post, story, or caption. Aimed tells you what it means, whether it's aimed at you, and what to do next.</p>
+        <form class="signup" novalidate>
+          <div class="field">
+            <label class="hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+            <input type="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Email address">
+            <button class="btn" type="submit">Get early access</button>
+          </div>
+          <p class="msg" role="status" aria-live="polite"></p>
+          <p class="fine">Be first to try it. Early members get a month of Pro free. No spam, unsubscribe anytime.</p>
+        </form>
+      </div>
+      <div class="phones" aria-hidden="true">
+        <div class="phone p1"><img src="img/context.webp" alt="" width="520" height="1125"></div>
+        <div class="phone p2"><img src="img/read.webp" alt="" width="520" height="1125"></div>
+      </div>
+    </div>
+  </header>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="head">
+        <h2>Read between the lines in seconds.</h2>
+        <p>That story, that caption, that song choice. Stop rereading it at 3 a.m.</p>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <span class="num">1</span>
+          <h3>Screenshot it</h3>
+          <p>Share any post, story, caption, or reply. Add one line about what happened, if you want a sharper read.</p>
+          <div class="shot"><img src="img/context.webp" alt="Aimed's add-context screen with a story screenshot and quick options like 'We stopped talking'" loading="lazy" width="520" height="1125"></div>
+        </article>
+        <article class="step">
+          <span class="num">2</span>
+          <h3>Get the read</h3>
+          <p>What it says, what it means, and whether it's aimed at you: Likely, Possibly, Unlikely, or Not enough to tell.</p>
+          <div class="shot"><img src="img/read.webp" alt="A read showing the verdict Possibly, with what the post means" loading="lazy" width="520" height="1125"></div>
+        </article>
+        <article class="step">
+          <span class="num">3</span>
+          <h3>Decide what's next</h3>
+          <p>Tap "What now?" for three calm options: let it go, check in privately, or talk it through, with words you can copy.</p>
+          <div class="shot"><img src="img/what-now.webp" alt="What now? options: let it go, check in privately, and talk it through" loading="lazy" width="520" height="1125"></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top: 0">
+    <div class="wrap">
+      <div class="head">
+        <h2>Honest by design.</h2>
+        <p>Sometimes the answer is "probably not about you." Aimed says so.</p>
+      </div>
+      <div class="features">
+        <div class="feature"><div class="icon" aria-hidden="true">🔍</div><h3>Evidence, not vibes</h3><p>Every read shows the exact words, songs, and timing it's based on, plus other ways to take it.</p></div>
+        <div class="feature"><div class="icon" aria-hidden="true">🤍</div><h3>Reads posts, not people</h3><p>Aimed explains the post. It never labels the person who wrote it.</p></div>
+        <div class="feature"><div class="icon" aria-hidden="true">🔒</div><h3>Private</h3><p>Your screenshot is used once for your read and isn't kept. No account needed. Your history stays on your phone.</p></div>
+        <div class="feature"><div class="icon" aria-hidden="true">🌙</div><h3>Made for 3 a.m.</h3><p>Dark mode built in, for when the overthinking hits.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" style="padding-top: 0">
+    <div class="wrap">
+      <div class="head">
+        <h2>Free to start.</h2>
+        <p>Go Pro when you decode often.</p>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <div class="name">Free</div>
+          <div class="price">$0</div>
+          <ul>
+            <li>2 decodes a day</li>
+            <li>The full read: meaning, aim, evidence</li>
+            <li>1 "What now?" a day</li>
+            <li>History kept on your phone</li>
+          </ul>
+        </div>
+        <div class="plan pro">
+          <div class="name">Pro <span class="tag">3 days free on yearly</span></div>
+          <div class="price">$9.99 <small>/ month</small></div>
+          <p class="alt">or $34.99 a year</p>
+          <ul>
+            <li>30 decodes a day</li>
+            <li>Unlimited "What now?" next steps</li>
+            <li>Everything in Free</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="padding-top: 0">
+    <div class="wrap">
+      <div class="head"><h2>Questions</h2></div>
+      <div class="faq">
+        <details><summary>Is Aimed creepy?</summary><p>No. It only reads the screenshot you choose to share. It can't see anyone's account, it doesn't keep your screenshot, and it never labels the person who posted.</p></details>
+        <details><summary>Which apps does it work with?</summary><p>Any app you can screenshot: stories, posts, captions, comments, and replies. Share the screenshot to Aimed from your photos or straight from the share sheet.</p></details>
+        <details><summary>Is the read always right?</summary><p>No app can know for sure. Aimed gives you a read with the evidence behind it, and it tells you when there isn't enough to tell. Adding one line of context makes it sharper.</p></details>
+        <details><summary>When does it launch?</summary><p>Soon, on iPhone and Android. Join the waitlist and you'll get an email the day it's out, plus a month of Pro free.</p></details>
+        <details><summary>What do you do with my email?</summary><p>We use it only to tell you about Aimed, starting with launch day. We don't sell it or share it. Every email has an unsubscribe link.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="join" style="padding-top: 0">
+    <div class="wrap">
+      <div class="final">
+        <p class="cryptic">some posts aren't for everyone.<span>some are for exactly one person.</span></p>
+        <p class="sub">Find out if it's you. Get early access to Aimed.</p>
+        <form class="signup" novalidate>
+          <div class="field">
+            <label class="hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+            <input type="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Email address">
+            <button class="btn" type="submit">Join</button>
+          </div>
+          <p class="msg" role="status" aria-live="polite"></p>
+          <p class="fine">No spam. Unsubscribe anytime.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top" style="font-size: 18px"><span class="mark" aria-hidden="true" style="width: 26px; height: 26px; border-radius: 8px"></span>Aimed</a>
+    <span>Reads are interpretations, not facts, and aren't professional advice.</span>
+    <span>© 2026 Aimed</span>
+  </div>
+</footer>
+
+<script>
+  // Signups post to /api/waitlist on this site (CloudFront sends it to the Aimed backend).
+  const API = window.AIMED_API || "/api";
+  const params = new URLSearchParams(location.search);
+  const source = (params.get("utm_source") || params.get("ref") || "").slice(0, 40);
+  let joined = false;
+  try { joined = localStorage.getItem("aimed.waitlist") === "1"; } catch {}
+
+  function showDone(form) {
+    const done = document.createElement("div");
+    done.className = "done";
+    done.setAttribute("role", "status");
+    done.innerHTML = "<strong>You're on the list. 💜</strong><p>We'll email you the day Aimed launches, with your free month of Pro.</p>";
+    form.replaceWith(done);
+  }
+
+  document.querySelectorAll("form.signup").forEach((form) => {
+    if (joined) return showDone(form);
+    const input = form.querySelector('input[name="email"]');
+    const button = form.querySelector('button[type="submit"]');
+    const msg = form.querySelector(".msg");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+      msg.className = "msg";
+      const email = input.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        msg.textContent = "That email doesn't look right. Check it and try again.";
+        msg.classList.add("error");
+        input.focus();
+        return;
+      }
+      button.disabled = true;
+      const label = button.textContent;
+      button.textContent = "Joining…";
+      try {
+        const res = await fetch(API + "/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, source, website: form.querySelector('input[name="website"]').value }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || "Couldn't add you just now. Try again in a minute.");
+        try { localStorage.setItem("aimed.waitlist", "1"); } catch {}
+        document.querySelectorAll("form.signup").forEach(showDone);
+      } catch (err) {
+        msg.textContent = err instanceof TypeError ? "Couldn't connect. Check your connection and try again." : err.message;
+        msg.classList.add("error");
+        button.disabled = false;
+        button.textContent = label;
+      }
+    });
+  });
+</script>
+</body>
+</html>
