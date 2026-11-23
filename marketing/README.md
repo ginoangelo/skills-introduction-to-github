@@ -131,6 +131,7 @@ Ten app screens, each with a headline, in two sizes. Post them as carousels, sto
 | --- | --- | --- |
 | [`social/tiktok/`](social/tiktok/) | 1080 x 1920 (9:16) | TikTok, Instagram Reels and Stories |
 | [`social/instagram/`](social/instagram/) | 1080 x 1350 (4:5) | Instagram feed posts and carousels |
+| [`social/instagram-story/`](social/instagram-story/) | 1080 x 1920 (9:16) | Instagram Stories. Text and phones stay clear of the profile name at the top and the reply bar at the bottom |
 
 To change a headline or add a screen, edit the list at the top of `render-screens.cjs` and run `node marketing/render-screens.cjs`.
 

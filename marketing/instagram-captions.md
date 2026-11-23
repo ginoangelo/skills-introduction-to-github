@@ -18,7 +18,7 @@ find out if it's you ↓
 
 ## Screenshots
 
-The images are in [`social/instagram/`](social/instagram/), 1080 x 1350. For Reels and Stories, use the 9:16 versions in [`social/tiktok/`](social/tiktok/).
+The images are in [`social/instagram/`](social/instagram/), 1080 x 1350. For Stories, use the 9:16 versions in [`social/instagram-story/`](social/instagram-story/), which keep clear of the profile name and reply bar.
 
 **Posting order:** post 1 and pin it to your profile. Then post 11 down to 2, so your grid reads in order.
 

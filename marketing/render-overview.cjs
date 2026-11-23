@@ -1,5 +1,6 @@
-// One "everything about Aimed" image for a pinned Instagram post: 1080 x 1350 (4:5).
-// Three steps with app screens, plus pricing and privacy. Output: marketing/social/instagram/aimed-instagram-00-overview.png
+// One "everything about Aimed" image: a pinned Instagram post (1080 x 1350) and an Instagram Story (1080 x 1920).
+// Three steps with app screens, plus pricing and privacy.
+// Output: marketing/social/instagram/aimed-instagram-00-overview.png and marketing/social/instagram-story/aimed-instagram-story-00-overview.png
 // Usage: node marketing/render-overview.cjs   (needs Playwright and mobile/node_modules for fonts)
 const { chromium } = require("playwright");
 const fs = require("fs");
@@ -20,19 +21,25 @@ const STEPS = [
 const PHONE_W = 286;
 const PHONE_H = Math.round((PHONE_W - 20) * (1688 / 780)) + 20;
 
-const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+// The Story keeps clear of the profile name at the top and the reply bar at the bottom.
+const SIZES = [
+  { h: 1350, padTop: 56, padBottom: 24, headSize: 76, out: ["instagram", "aimed-instagram-00-overview.png"] },
+  { h: 1920, padTop: 270, padBottom: 270, headSize: 86, out: ["instagram-story", "aimed-instagram-story-00-overview.png"] },
+];
+
+const html = (size) => `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face { font-family: Jakarta; font-weight: 800; src: url("${f("plus-jakarta-sans/800ExtraBold/PlusJakartaSans_800ExtraBold.ttf")}"); }
 @font-face { font-family: Inter; font-weight: 500; src: url("${f("inter/500Medium/Inter_500Medium.ttf")}"); }
 @font-face { font-family: Inter; font-weight: 600; src: url("${f("inter/600SemiBold/Inter_600SemiBold.ttf")}"); }
 * { box-sizing: border-box; margin: 0; }
-body { width: 1080px; height: 1350px; overflow: hidden; color: #1b1320; font-family: Inter, sans-serif;
-  background: linear-gradient(180deg, #fff0bf 0%, #ffe3d3 55%, #f2eaff 100%); padding: 56px 60px 24px; display: flex; flex-direction: column; }
+body { width: 1080px; height: ${size.h}px; overflow: hidden; color: #1b1320; font-family: Inter, sans-serif;
+  background: linear-gradient(180deg, #fff0bf 0%, #ffe3d3 55%, #f2eaff 100%); padding: ${size.padTop}px 60px ${size.padBottom}px; display: flex; flex-direction: column; }
 .brand { display: flex; align-items: center; gap: 14px; font-family: Jakarta; font-weight: 800; font-size: 34px; letter-spacing: -1px; }
 .mark { width: 50px; height: 50px; border-radius: 14px; background: #7a3ed6; position: relative; }
 .mark::before, .mark::after { content: ""; position: absolute; left: 11px; height: 6px; border-radius: 3px; }
 .mark::before { top: 16px; width: 28px; background: #fff; }
 .mark::after { top: 28px; width: 18px; background: #ffb48a; }
-h1 { margin-top: 30px; font-family: Jakarta; font-weight: 800; font-size: 76px; line-height: 1.02; letter-spacing: -0.04em; }
+h1 { margin-top: 30px; font-family: Jakarta; font-weight: 800; font-size: ${size.headSize}px; line-height: 1.02; letter-spacing: -0.04em; }
 .sub { margin-top: 14px; font-size: 32px; font-weight: 500; color: #4a3f50; }
 .steps { margin-top: 40px; display: flex; justify-content: space-between; }
 .step { width: ${PHONE_W}px; display: flex; flex-direction: column; gap: 12px; }
@@ -64,24 +71,30 @@ ${STEPS.map((s) => `<div class="step"><div class="label"><span class="num">${s.n
 </body></html>`;
 
 (async () => {
-  const out = path.join(ROOT, "marketing", "social", "instagram", "aimed-instagram-00-overview.png");
-  const file = path.join(os.tmpdir(), "aimed-overview.html");
-  fs.writeFileSync(file, html);
   const browser = await chromium.launch();
-  const tab = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 1 });
-  await tab.goto("file://" + file, { waitUntil: "load" });
-  await tab.evaluate(() => document.fonts.ready);
-  await tab.waitForTimeout(150);
-  const bottom = await tab.evaluate(() => {
-    const phone = document.querySelector(".phone").getBoundingClientRect().bottom;
-    const footer = document.querySelector(".footer").getBoundingClientRect().top;
-    return { phone, footer };
-  });
-  if (bottom.phone > bottom.footer - 20) console.warn("Warning: phones run into the footer", bottom);
-  await tab.screenshot({ path: out });
+  for (const size of SIZES) {
+    const dir = path.join(ROOT, "marketing", "social", size.out[0]);
+    fs.mkdirSync(dir, { recursive: true });
+    const out = path.join(dir, size.out[1]);
+    const file = path.join(os.tmpdir(), "aimed-overview.html");
+    fs.writeFileSync(file, html(size));
+    const tab = await browser.newPage({ viewport: { width: 1080, height: size.h }, deviceScaleFactor: 1 });
+    await tab.goto("file://" + file, { waitUntil: "load" });
+    await tab.evaluate(() => document.fonts.ready);
+    await tab.waitForTimeout(150);
+    const fit = await tab.evaluate(() => ({
+      phone: document.querySelector(".phone").getBoundingClientRect().bottom,
+      footer: document.querySelector(".footer").getBoundingClientRect().top,
+      cta: document.querySelector(".cta").getBoundingClientRect().bottom,
+    }));
+    if (fit.phone > fit.footer - 20) console.warn("Warning: phones run into the footer", fit);
+    if (fit.cta > size.h - size.padBottom) console.warn("Warning: the button runs into the bottom margin", fit);
+    await tab.screenshot({ path: out });
+    await tab.close();
+    fs.unlinkSync(file);
+    console.log("Wrote", path.relative(ROOT, out));
+  }
   await browser.close();
-  fs.unlinkSync(file);
-  console.log("Wrote", path.relative(ROOT, out));
 })().catch((e) => {
   console.error(e);
   process.exit(1);

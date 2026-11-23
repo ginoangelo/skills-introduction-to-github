@@ -1,6 +1,7 @@
 // Single-screen social images of the Aimed app, in two sizes:
 //   TikTok, Reels, and Stories: 1080 x 1920 (9:16)  -> marketing/social/tiktok/
 //   Instagram feed:              1080 x 1350 (4:5)   -> marketing/social/instagram/
+//   Instagram Stories:           1080 x 1920 (9:16)  -> marketing/social/instagram-story/ (clear of the top and bottom bars)
 // Source screens come from docs/screenshots/app/.
 // Usage: node marketing/render-screens.cjs   (needs Playwright and mobile/node_modules for fonts)
 const { chromium } = require("playwright");
@@ -29,6 +30,8 @@ const SCREENS = [
 const SIZES = {
   tiktok: { w: 1080, h: 1920, pad: 96, top: 130, headSize: 96, subSize: 40, phoneW: 600, bottom: 90, out: "tiktok" },
   instagram: { w: 1080, h: 1350, pad: 80, top: 84, headSize: 74, subSize: 34, phoneW: 500, bottom: 64, out: "instagram" },
+  // Instagram Stories cover about the top 250 px (profile name) and bottom 250 px (reply bar), so keep both clear.
+  story: { w: 1080, h: 1920, pad: 96, top: 330, headSize: 92, subSize: 40, phoneW: 560, bottom: 280, out: "instagram-story" },
 };
 
 function page(screen, size) {
