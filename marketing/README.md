@@ -1,6 +1,6 @@
 # Aimed on TikTok
 
-How to research, make, and test TikTok videos for Aimed. Paid ads live next to this file: the still ads are in [`ads/`](ads/) and their 15-second scripts are in [`ad-scripts.md`](ad-scripts.md). Prompts for realistic AI clips in Google AI Studio are in [`ai-video-prompts.md`](ai-video-prompts.md), and ready-to-paste Instagram captions for every image and video are in [`instagram-captions.md`](instagram-captions.md).
+How to research, make, and test TikTok videos for Aimed. Paid ads live next to this file: the still ads are in [`ads/`](ads/) and their 15-second scripts are in [`ad-scripts.md`](ad-scripts.md). Prompts for realistic AI clips in Google AI Studio are in [`ai-video-prompts.md`](ai-video-prompts.md), ready-to-paste Instagram captions for every image and video are in [`instagram-captions.md`](instagram-captions.md), and the show-runner prompt for the "Is This About Me?" YouTube series is in [`youtube-master-prompt.md`](youtube-master-prompt.md).
 
 **The one-line pitch.** Aimed is an app that reads between the lines on social media. Screenshot a post that's bugging you, and it tells you what it really means, whether it's probably about you, and why.
 
