@@ -39,26 +39,25 @@ function umbrella(x, y, w, tilt = -8) {
   </div>`;
 }
 
-// Leo's story: a sunset, posted at 2:14 a.m. The yellow umbrella hides in the bottom left corner.
-function storyScene({ highlightCaption = false } = {}) {
-  return `<div class="abs" style="left:0; top:0; width:1080px; height:1920px; overflow:hidden; background:#2a1a3a;">
-    <div class="abs" style="left:0; top:0; width:1080px; height:1080px; background: linear-gradient(180deg, #5b2fa8 0%, #b8479a 38%, #ff7a6b 66%, #ffb26b 88%, #ffd39a 100%);"></div>
-    <div class="abs" style="left:380px; top:900px; width:320px; height:320px; border-radius:50%; background: radial-gradient(circle, #fff3c4 0%, #ffd27a 55%, #ffb067 100%); box-shadow: 0 0 140px 40px rgba(255,190,110,.55);"></div>
-    <div class="abs" style="left:0; top:1060px; width:1080px; height:360px; background: linear-gradient(180deg, #6a3a7a 0%, #4a2560 60%, #3a1d4d 100%);"></div>
-    <div class="abs" style="left:470px; top:1070px; width:140px; height:330px; background: linear-gradient(180deg, rgba(255,210,140,.75), rgba(255,180,120,0)); filter: blur(10px);"></div>
-    <div class="abs" style="left:0; top:1400px; width:1080px; height:520px; background: linear-gradient(180deg, #d99a73 0%, #b9785c 100%);"></div>
-    ${umbrella(-150, 1330, 380, 10)}
+// Leo's story, posted at 2:14 a.m.: the AI sunset photo (assets/ref_sunset.png) laid out the way people post
+// a landscape photo to a story, centered on a blurred copy of itself. The yellow umbrella sits in the bottom left.
+const SUNSET = "file://" + path.join(OUT, "ref_sunset.png");
+function storyScene({ highlightCaption = false, hideSong = false } = {}) {
+  return `<div class="abs" style="left:0; top:0; width:1080px; height:1920px; overflow:hidden; background:#000;">
+    <div class="abs" style="left:-80px; top:-80px; right:-80px; bottom:-80px; background: url('${SUNSET}') center/cover; filter: blur(48px) brightness(.8);"></div>
+    <div class="abs" style="left:0; top:656px; width:1080px; height:608px; background: url('${SUNSET}') center/cover;"></div>
+    <div class="abs canopy" style="left:0; top:1050px; width:258px; height:214px;"></div>
     <div class="abs" style="left:64px; top:110px; display:flex; align-items:center; gap:22px;">
       <div style="width:84px; height:84px; border-radius:50%; background:#ffd3b8; color:#7a3ed6; font: 800 40px Jakarta; display:flex; align-items:center; justify-content:center; border:4px solid #fff;">L</div>
-      <div style="font: 600 40px Inter; color:#fff; text-shadow: 0 2px 10px rgba(0,0,0,.35);">leo.m_</div>
-      <div id="time" style="font: 600 36px Inter; color:#fff; background: rgba(0,0,0,.28); padding: 8px 20px; border-radius: 999px;">2:14 AM</div>
+      <div style="font: 600 40px Inter; color:#fff; text-shadow: 0 2px 10px rgba(0,0,0,.4);">leo.m_</div>
+      <div id="time" style="font: 600 36px Inter; color:#fff; background: rgba(0,0,0,.3); padding: 8px 20px; border-radius: 999px;">2:14 AM</div>
     </div>
-    <div class="abs" style="left:110px; right:110px; top:560px; text-align:center;">
-      <span style="font: 700 68px/1.25 Jakarta; color:#fff; letter-spacing:-1px; text-shadow: 0 4px 24px rgba(40,10,50,.45);
+    <div class="abs" style="left:110px; right:110px; top:400px; text-align:center;">
+      <span style="font: 700 64px/1.25 Jakarta; color:#fff; letter-spacing:-1px; text-shadow: 0 4px 24px rgba(0,0,0,.5);
         ${highlightCaption ? "background: linear-gradient(transparent 58%, rgba(255,214,63,.75) 58%); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 0 8px;" : ""}">some things look better from far away</span>
     </div>
-    <div class="abs" style="left:0; right:0; top:800px; display:flex; justify-content:center;">
-      <div id="song" style="display:flex; align-items:center; gap:18px; background:#fff; border-radius:999px; padding:18px 34px 18px 20px; box-shadow: 0 12px 40px rgba(40,10,50,.3);">
+    <div class="abs" style="left:0; right:0; top:1340px; display:${hideSong ? "none" : "flex"}; justify-content:center;">
+      <div id="song" style="display:flex; align-items:center; gap:18px; background:#fff; border-radius:999px; padding:18px 34px 18px 20px; box-shadow: 0 12px 40px rgba(0,0,0,.35);">
         <div style="width:56px; height:56px; border-radius:50%; background:#7a3ed6; display:flex; align-items:center; justify-content:center;">
           <svg width="28" height="28" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="#fff"/><circle cx="17" cy="16" r="3" fill="#fff"/></svg>
         </div>
@@ -69,7 +68,10 @@ function storyScene({ highlightCaption = false } = {}) {
 }
 
 // Maya's camera roll, June 14: the same umbrella on the beach in daylight.
+const JUNE = path.join(OUT, "ref_june.png");
+const HAS_JUNE = fs.existsSync(JUNE);
 function juneScene() {
+  if (HAS_JUNE) return `<div class="abs" style="left:0; top:0; width:1080px; height:1080px; background: url('file://${JUNE}') center/cover;"></div>`;
   return `<div class="abs" style="left:0; top:0; width:1080px; height:1080px; overflow:hidden;">
     <div class="abs" style="left:0; top:0; width:1080px; height:520px; background: linear-gradient(180deg, #ffe6c9 0%, #ffd2b0 100%);"></div>
     <div class="abs" style="left:0; top:520px; width:1080px; height:180px; background: linear-gradient(180deg, #c9a6e6 0%, #a77fd0 100%);"></div>
@@ -106,9 +108,9 @@ const ASSETS = {
   "case01_post_caption_zoom.png": () =>
     page(`<div class="abs" style="left:0; top:0;">${crop(storyScene({ highlightCaption: true }), { x: 60, y: 200, w: 960, h: 1706, winW: 1080, winH: 1920 })}</div>`),
   "case01_post_song_zoom.png": () =>
-    page(`<div class="abs" style="left:0; top:0;">${crop(storyScene(), { x: 140, y: 300, w: 800, h: 1422, winW: 1080, winH: 1920 })}</div>`),
+    page(`<div class="abs" style="left:0; top:0;">${crop(storyScene(), { x: 190, y: 676, w: 700, h: 1244, winW: 1080, winH: 1920 })}</div>`),
   "case01_post_umbrella_zoom.png": () =>
-    page(`<div class="abs" style="left:0; top:0;">${crop(storyScene(), { x: 0, y: 1040, w: 440, h: 782, winW: 1080, winH: 1920 })}</div>`),
+    page(`<div class="abs" style="left:0; top:0;">${crop(storyScene({ hideSong: true }), { x: 0, y: 820, w: 440, h: 782, winW: 1080, winH: 1920 })}</div>`),
   "case01_post_june_photo.png": () =>
     page(`<div class="abs" style="left:0; right:0; top:300px; text-align:center; font: 600 44px Inter; color:#b3a8b7;">Maya's camera roll</div>
       <div class="abs" style="left:110px; top:420px; width:860px; background:#fffaf6; padding:36px 36px 120px; border-radius:12px; transform: rotate(-2deg); box-shadow: 0 30px 80px rgba(0,0,0,.45);">
@@ -118,7 +120,7 @@ const ASSETS = {
   "case01_post_match.png": () =>
     page(`<div class="abs" style="left:90px; right:180px; top:300px; font: 800 110px/1 Jakarta; color:#fff; letter-spacing:-4px;">Same umbrella.</div>
       <div class="abs" style="left:60px; top:560px; width:460px; background:#fffaf6; padding:20px 20px 90px; border-radius:10px; transform: rotate(-3deg); box-shadow: 0 24px 60px rgba(0,0,0,.45);">
-        ${crop(storyScene(), { x: 0, y: 1260, w: 420, h: 420, winW: 420, winH: 420 })}
+        ${crop(storyScene(), { x: 0, y: 980, w: 300, h: 300, winW: 420, winH: 420 })}
         <div style="position:absolute; left:20px; bottom:22px; font: 700 38px Jakarta; color:#1b1320;">2:14 AM story</div>
       </div>
       <div class="abs" style="left:520px; top:640px; width:460px; background:#fffaf6; padding:20px 20px 90px; border-radius:10px; transform: rotate(3deg); box-shadow: 0 24px 60px rgba(0,0,0,.45);">
@@ -169,7 +171,7 @@ const CIRCLES = {
   "case01_post_sunset_story_marked.png": ["#time", 26],
   "case01_post_song_zoom.png": ["#song", 34],
   "case01_post_umbrella_zoom.png": [".canopy", 40],
-  "case01_post_june_photo.png": [".canopy", 30],
+  ...(HAS_JUNE ? {} : { "case01_post_june_photo.png": [".canopy", 30] }),
 };
 
 (async () => {

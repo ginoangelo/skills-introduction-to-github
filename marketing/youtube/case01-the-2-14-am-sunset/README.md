@@ -2,7 +2,7 @@
 
 **Series:** Is This About Me? · **Length:** 60 seconds plus a 2-second end card · **Case type:** exes · **Verdict:** Likely
 
-Made with the master prompt in [`../../youtube-master-prompt.md`](../../youtube-master-prompt.md). The rendered posts, cards, and cover are in [`assets/`](assets/). Regenerate them with `node marketing/youtube/render-case01.cjs`.
+Made with the master prompt in [`../../youtube-master-prompt.md`](../../youtube-master-prompt.md). The rendered posts, cards, and cover are in [`assets/`](assets/). Regenerate them with `node marketing/youtube/render-case01.cjs`. Once `assets/ref_june.png` exists, re-run it and the June card and side-by-side switch to the real photo.
 
 ## The case
 
@@ -64,25 +64,17 @@ Checked: no labels on Leo, no real people, handles, brands, platforms, or lyrics
 | `case01_text_disclaimer.png` | Transparent "Made-up case" overlay | 01 |
 | `case01_cover.png` | Cover frame for Shorts and Reels | Cover |
 
-### AI clips (make in Gemini / Veo, 9:16)
+### AI images and clips (Google AI Studio)
 
-**`case01_clip_maya_pillow.mp4`** (SHOT 05)
+Maya is option B (`assets/ref_maya.png`), and Leo's sunset is `assets/ref_sunset.png`, laid out as a story. The paste-ready prompts for the rest are in [`ai-studio-prompts.md`](ai-studio-prompts.md):
 
-```
-Vertical 9:16, 8 seconds, realistic. Maya, a woman in her early twenties with shoulder-length curly dark hair, small gold hoop earrings, and an oversized lavender hoodie. She lies on her side in bed at night, her phone propped against the pillow, its glow lighting her face in violet and peach. She taps to replay something, her eyes searching, then taps again. Dark room, fairy lights softly out of focus. 50mm lens, static shot, shallow depth of field. Audio: quiet room tone, one soft tap. Do not show the screen. No text, no logos.
-```
-
-**`case01_clip_maya_sits_up.mp4`** (SHOT 09)
-
-```
-Vertical 9:16, 8 seconds, realistic. Maya, a woman in her early twenties with shoulder-length curly dark hair, small gold hoop earrings, and an oversized lavender hoodie. At night she sits up against the headboard, pulls her knees to her chest, holds her phone close, and bites her lip, unsure. Violet and peach phone glow on her face, dark room. 50mm lens, very slow push in. Audio: blanket rustle, a small breath. Do not show the screen. No text, no logos.
-```
-
-**`case01_clip_maya_phone_down.mp4`** (SHOT 18)
-
-```
-Vertical 9:16, 8 seconds, realistic. Maya, a woman in her early twenties with shoulder-length curly dark hair, small gold hoop earrings, and an oversized lavender hoodie. At night she lets out a long breath, places her phone face down on the nightstand so the glow disappears, lies back on the pillow, and closes her eyes with a small, calm smile. Dark room, faint warm light. 35mm lens, static shot. Audio: phone set down on wood, a long exhale. Do not show the screen. No text, no logos.
-```
+| File | Made with | Shots |
+| --- | --- | --- |
+| `ref_june.png` | Nano Banana, attach `ref_sunset.png` | 13, 14 (send it back so the camera-roll card and side-by-side use it) |
+| `ref_maya_sitting.png` | Nano Banana, attach `ref_maya.png` | Start frame for 09 and 18 |
+| `case01_clip_maya_pillow.mp4` | Veo, start from `ref_maya.png` | 05 |
+| `case01_clip_maya_sits_up.mp4` | Veo, start from `ref_maya_sitting.png` | 09 |
+| `case01_clip_maya_phone_down.mp4` | Veo, start from `ref_maya_sitting.png` | 18 |
 
 ### App screens (screen-record Aimed)
 

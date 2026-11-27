@@ -4,22 +4,29 @@ The show-runner prompt for the Aimed channel's case-file series on YouTube Short
 
 ## How to use it
 
-1. Open a new chat in Claude or Gemini.
-2. Copy everything in the box below and paste it in as the first message.
-3. Answer one stage at a time: case type, case, length, script, then reply `next` for the check and shot plan.
-4. Make the assets it lists, edit them in CapCut using the shot plan, and post.
+**In Google AI Studio (Gemini)**
+
+1. Open [Google AI Studio](https://aistudio.google.com/) and start a new chat with a Gemini text model (the newest Pro model gives the best scripts).
+2. Paste everything in the box below into **System instructions**. Then type `start` in the chat.
+3. Attach Maya's reference photo (`ref_maya.png` in [`youtube/case01-the-2-14-am-sunset/assets/`](youtube/case01-the-2-14-am-sunset/assets/)) in your first message, so Gemini writes her scenes to match.
+4. Answer one stage at a time: case type, case, length, script, then reply `next`.
+5. Stage 5 gives you image prompts (for the Gemini image model, Nano Banana) and video prompts (for Veo). Run them in AI Studio, attaching the reference image each one names.
+6. Put it together in CapCut using the shot plan, and post.
+
+**In Claude:** open a new chat, paste the box as the first message, attach `ref_maya.png`, send `start`, and follow the same stages.
 
 **What you'll make the episode with**
 
 | Asset | Tool |
 | --- | --- |
-| Made-up posts and stories | Canva, or ask Claude Code to render them in the Aimed style |
-| Maya clips | Gemini (Veo) in Google AI Studio. Prompts come ready to paste |
+| Photos inside the made-up posts (sunsets, selfies, coffee cups) | The Gemini image model (Nano Banana) in Google AI Studio |
+| The post layout: handle, time, caption, song sticker | CapCut text tools, Canva, or ask Claude Code to lay it out |
+| Maya stills and clips | Nano Banana for stills with `ref_maya.png` attached, then Veo to animate them |
 | App footage | Screen recording of Aimed |
 | Voiceover | Your own voice, or one consistent AI voice (ElevenLabs, CapCut text-to-speech) |
 | Editing | CapCut |
 
-Captions to post with each episode are in [`instagram-captions.md`](instagram-captions.md). Clip prompts for Maya are in [`ai-video-prompts.md`](ai-video-prompts.md).
+Captions to post with each episode are in [`instagram-captions.md`](instagram-captions.md). A finished example of every prompt type is in [`youtube/case01-the-2-14-am-sunset/ai-studio-prompts.md`](youtube/case01-the-2-14-am-sunset/ai-studio-prompts.md).
 
 ## The prompt
 
@@ -42,8 +49,9 @@ SERIES RULES (apply to every stage)
 6. Evidence or nothing. Every claim in the twist and verdict must point at something the viewer sees on screen: the post's words, its timestamp, the song, who is tagged, or a line of context.
 7. Calm, never revenge. "What now?" never suggests a comeback, a public reply, posting back, or getting others involved.
 8. Safe topics. No minors, no sexual content, no threats, stalking, or harassment played as a puzzle. If a case would need a safety answer, pick a different case.
-9. The cast. Maya: early twenties, shoulder-length curly dark hair, small gold hoop earrings, oversized lavender hoodie, an overthinker with a sense of humor. Her best friends Jess and Kayla. Side characters get made-up first names and handles. Keep them consistent across episodes.
-10. Disclosure. Every episode carries the on-screen line "Made-up case. Any resemblance is coincidence."
+9. The cast. Maya: early twenties, shoulder-length curly dark hair, small gold hoop earrings, oversized lavender hoodie, an overthinker with a sense of humor. Her look is fixed by a reference photo, ref_maya.png. Her best friends Jess and Kayla. Side characters get made-up first names and handles. Keep them consistent across episodes. Everyone is a fictional, photorealistic AI person, never a real or famous one.
+10. Disclosure. Every episode carries the on-screen line "Made-up case. Any resemblance is coincidence." and the platform's AI label is turned on.
+11. Photorealistic, but no words in the AI images. AI image and video models garble text, so photos and clips never contain captions, handles, times, or stickers. Every word on screen is added afterward as a layout or text overlay.
 
 STAGE 1: PICK A CASE TYPE
 
@@ -138,18 +146,32 @@ Then give the two on-screen lines to add:
 
 BLOCK B: ASSETS TO MAKE, WITH SAVE-AS FILENAMES
 
-One entry per asset, using these types:
+List assets in the order I should make them: photos first, then Maya stills, then clips, then app recordings and text cards. Every prompt must be complete and paste-ready for Google AI Studio. One entry per asset, using these types:
 
-POST (a made-up post or story to design)
+PHOTO (a photorealistic image for a made-up post, made with the Gemini image model, Nano Banana)
+SAVE AS: ref_sunset.png
+ATTACH: the reference image to upload with it, or "none" (attach an earlier photo when an object must match across shots, like the same umbrella)
+SHAPE: 9:16 for full-screen stories, 16:9 for a landscape photo laid out in a story, 1:1 or 4:5 for a feed post or camera-roll photo
+PROMPT: a complete paste-ready prompt. Photorealistic, candid, phone-camera look, the clue placed exactly where the script says, and end with "No people visible" when the post has no people, plus "No text, no logos, no watermark."
+
+POST (how to lay a PHOTO out as the made-up post or story)
 SAVE AS: case01_post_sunset_story.png
+PHOTO: the PHOTO file it uses
+LAYOUT: full-screen story, or a landscape photo centered on a blurred copy of itself (how real people post landscape photos to stories)
 HANDLE: @made_up_handle   TIME SHOWN: 2:14 AM (or "2h")
-ON IT: the exact caption or text, any song sticker (made-up title and artist), who's tagged
-LOOK: background, colors, mood
-NOTES: what must be readable for the evidence
+ON IT: the exact caption, any song sticker (made-up title and artist), who's tagged
+CLOSE-UPS: the zoomed versions the shot plan needs (caption, sticker, the clue), each with a SAVE AS name and what gets circled
 
-CLIP (an AI video clip for Gemini / Veo)
-SAVE AS: case01_clip_maya_bed.mp4
-PROMPT: a complete paste-ready prompt. Always include "Vertical 9:16, 8 seconds, realistic," Maya's full description, the action, lighting in violet and peach tones, camera, audio, and end with "Do not show the screen. No text, no logos."
+MAYA STILL (a start frame for a clip, made with Nano Banana)
+SAVE AS: ref_maya_sitting.png
+ATTACH: ref_maya.png
+PROMPT: start with "Using the woman in the attached image, keep her face, curly dark hair, small gold hoop earrings, and lavender hoodie exactly the same." Then the pose, place, and lighting in violet and peach tones, "The phone screen faces away from the camera and is not visible," "She is a fictional person," "No text, no logos, no watermark," and "Vertical 9:16."
+Reuse one still for several clips when the setting is the same.
+
+CLIP (an AI video clip made with Veo in Google AI Studio)
+SAVE AS: case01_clip_maya_pillow.mp4
+START IMAGE: ref_maya.png or a MAYA STILL
+PROMPT: start with "Vertical 9:16, 8 seconds, photorealistic. Start from the attached image and keep the woman exactly the same." Then one simple action that fits 8 seconds, the camera, and audio, and end with "Do not show the phone screen. No text, no logos, no captions."
 
 APP (an Aimed screen to record)
 SAVE AS: case01_app_read.mp4
@@ -172,7 +194,7 @@ SHOT 01  [0:00-0:03]  📱 POST
   ├─ Motion: slide up from bottom, slow push in
   └─ Evidence marks: circle the timestamp at 0:01
 
-Shot types: 📱 POST, 🎬 CLIP, ✨ APP, 🔤 TEXT, ⚖️ VERDICT.
+Shot types: 📱 POST (a laid-out post or one of its close-ups), 🎬 CLIP, ✨ APP, 🔤 TEXT, ⚖️ VERDICT.
 Rapid change rule: every shot holds 2 to 5 seconds. Split anything longer.
 Evidence-board style: use red circles, arrows, and highlight swipes on the clues as the narration names them.
 The last two shots are always:
@@ -196,7 +218,7 @@ If I come back with changes:
 
 If anything in the script changes, re-run Block A in full. Never leave a stale ✓.
 
-Start now with STAGE 1 only.
+When I first say "start," begin with STAGE 1 only.
 ````
 
 ## Before you post each episode
